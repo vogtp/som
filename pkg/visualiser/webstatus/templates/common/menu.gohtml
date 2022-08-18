@@ -1,0 +1,33 @@
+<!--menu.html-->
+
+<nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      
+      <a class="navbar-brand" href="{{.Baseurl}}/{{.Query}}">
+          Overview
+      </a>
+      <a class="navbar-brand" href="{{.Baseurl}}/incident/list{{.Query}}">
+          Incidents
+      </a>
+      <a class="navbar-brand" href="{{.Baseurl}}/alert/list{{.Query}}">
+          Alerts
+      </a>
+      <a class="navbar-brand" href="{{.Baseurl}}/topology/{{.Query}}">
+          Topology
+      </a>
+      <a id="mesh_info" class="navbar-brand" href="{{.Baseurl}}/mesh_info{{.Query}}">
+          Mesh
+      </a>
+      <a class="navbar-brand" href="{{.Baseurl}}/docu{{.Query}}">
+          Documentation
+      </a>
+    
+      
+    </div>
+  </div>
+</nav>
+
+<script>
+  showIfDebug("mesh_info")
+</script>

@@ -1,0 +1,93 @@
+<!-- index.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+<div class="lead font-weight-bold">
+<table>
+<tr><td>Start:</td><td> {{ .Start.Format $.Timeformat }}</td></tr>
+{{ if not .End.IsZero }} 
+<tr><td>End:</td><td> {{ .End.Format $.Timeformat }} </td></tr>
+{{ end }}
+</table>
+</div>
+
+<h3>Events</h3>
+
+<table>
+{{ range .Incidents }}
+<tr> 
+  <td> <img class="level" title="{{.Status}}" src="{{$.Baseurl}}/static/status/{{.Status.Level.Img}}.png" /></td>
+  <td>{{ .Time.Format $.Timeformat }} </td>
+  <td> {{ .Username }} </td>
+  <td> {{ .Region }} </td>
+  <td> {{ .Err }} </td>
+</tr>
+{{ end }}
+</table>
+
+<h3>Details</h3>
+{{ range .Incidents }}
+
+<h4>{{ .Time.Format $.Timeformat }} {{ .Username }} {{ .Region }} {{ .Err }} </h4>
+
+<div class="divider"></div>
+{{ template "status_tree.gohtml" .Status }}
+<table>
+<tr> <td> Name:  </td><td>{{ .Name }} </td></tr>
+<tr> <td> Time:  </td><td>{{ .Time.Format $.Timeformat }} </td></tr>
+<tr> <td> Incident: </td><td> {{ .IncidentID }} </td></tr>
+<tr> <td> User: </td><td> {{ .Username }} </td></tr>
+<tr> <td> Region: </td><td> {{ .Region }} </td></tr>
+<tr> <td> Probe:  </td><td>{{ .ProbeHost }} ({{ .ProbeOS }} ) </td></tr>
+
+<tr>
+<td class="list">Errors:</td>
+<td class="list">
+{{ range .Errors }}
+<p>{{ . }} </p>
+{{ end }}
+</td>
+</tr>
+
+<tr>
+<td class="list">Counters:</td>
+<td class="list">
+{{ range $key, $val := .Counters }}
+<p>{{ $key }}: {{ $val}} </p>
+{{ end }}
+</td>
+
+<tr>
+<td class="list">Stati:</td>
+<td class="list">
+{{ range $key, $val := .Stati }}
+<p>{{ $key }}: {{ $val}} </p>
+{{ end }}
+</td>
+
+<tr>
+<td class="list">Images:</td>
+<td class="list">
+{{ range  .Files }}
+{{ if ne .Type.MimeType "text/html"}}
+<img src='{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}' />
+<p><a href="{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}">{{ .Name }}.{{ .Type.Ext }} </a></p>
+{{ end }}
+{{ end }}
+</td>
+
+<tr>
+<td class="list">Files:</td>
+<td class="list">
+{{ range  .Files }}
+{{ if eq .Type.MimeType "text/html"}}
+<a href="{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}">{{ .Name }}.{{ .Type.Ext}} </a>
+{{ end }}
+{{ end }}
+</td>
+
+</table>
+{{ end }} <!--  Incidents -->
+
+<!-- Embed the footer.html template at this location -->
+{{ template "footer.gohtml" .}}

@@ -1,0 +1,46 @@
+<!-- index.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+
+<p>
+    Filter:
+    <a href="{{ $.Baseurl }}/{{ $.AlertListPath }}/{{$.Query}}">All</a>
+    {{ range .Szenarios}}
+       | <a href="{{ $.Baseurl }}/{{ $.AlertListPath }}/{{ . }}{{$.Query}}"> {{.}} </a>
+    {{end}}
+</p>
+<table>
+<thead>
+<tr style="text-align: center">
+    <th>Time</th>
+    <th>Szenario</th>
+    <th>Error</th>
+</tr>
+</thead>
+<tbody>
+{{ range .Alerts }}
+<tr>
+    <td>
+     <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .AlertInfo.Time.Format $.Timeformat }}
+     </a>
+    </td>
+    <td>
+     <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .AlertInfo.Name }}
+     </a>
+    </td>
+    <td>  
+     <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .Error }} 
+     </a>
+    </td>
+</tr>
+{{ end }}
+</tbody>
+</table>
+
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.gohtml" .}}

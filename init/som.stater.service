@@ -1,0 +1,16 @@
+[Unit]
+Description=SOM stater 
+
+After=syslog.target network.target
+
+[Service]
+User=vogtp
+StartLimitInterval=5
+StartLimitBurst=10
+ExecStart=/srv/som/bin/som.stater --web.port=8183 --log.level info
+Restart=always
+RestartSec=120
+WorkingDirectory=/srv/som
+
+[Install]
+WantedBy=multi-user.target som.alerter.service som.visualiser.service som.monitor.service

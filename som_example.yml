@@ -1,0 +1,50 @@
+data:
+    dir: "data/"
+alert:
+    delay: 15m
+    intervall: 12h
+    level: warning
+    incident:
+        correlation:
+            events: 6
+            reopentime: 1h
+    visualiserURL: http://localhost:8083/som/
+    mail:
+        from: # TODO add from adress
+        smtp:
+            host: # TODO add mail server
+            port: 25
+        to:
+            -  # TODO add receipients
+    subject: "SOM Alert:"
+    teams:
+        webhook: # TODO add teams webhook url
+browser:
+    noclose: false
+    show: false
+bus:
+    endpoint:
+        - localhost:8083/som/meta/message
+        - localhost:8183/som/meta/message
+    log:
+        level: "off"
+    ws:
+        path: /meta/message
+check:
+    repeat: 5m0s
+    timeout: 1m0s
+    region: default
+    #user: # default user
+config:
+    save: false
+core:
+    startdelay: 100ms
+escada: false
+log:
+    level: info
+prometheus:
+    basepath: /
+    url: http://localhost:9090/
+web:
+    port: 0
+    urlpath: /som

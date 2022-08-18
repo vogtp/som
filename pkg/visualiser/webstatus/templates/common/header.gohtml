@@ -1,0 +1,50 @@
+<!--header.html-->
+
+<!doctype html>
+<html>
+
+  <head>
+    <!--Use the title variable to set the title of the page-->
+    <title>SOM: {{ .Title }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    {{ if gt .AutoReload 0}}
+    <meta http-equiv="refresh" content="{{.AutoReload}}">
+    {{end}}
+    <link rel="shortcut icon" type="image/png" href="{{.Baseurl}}/static/favicon.png">  
+    <!--Use bootstrap to make the application look nice-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  </head>
+  <style>
+    th, td {
+      padding: 2px;
+      padding-right: 10px;
+    }
+    td.list {
+      vertical-align: top
+    }
+    img.level {
+      width: 25px
+    }
+  </style>
+
+<script>
+function showIfDebug(el) {
+  var x = document.getElementById(el);
+  url = new URL(window.location.href);
+
+  if (url.searchParams.get('debug')) {
+    x.style.display = "block";
+  } else {
+  x.style.display = "none";
+}
+}
+</script>
+  <body class="container">
+  <base href="{{.Baseurl}}">
+    <!--Embed the menu.html template at this location-->
+    {{ template "menu.gohtml" . }}
+    {{ if .Title }}
+    <h2> {{.Title}} </h2>
+    {{end}}

@@ -1,0 +1,65 @@
+<!-- index.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+
+<p>
+    Filter:
+    <a href="{{ $.Baseurl }}/{{ $.IncidentListPath }}/{{$.Query}}">All</a>
+    {{ range .Szenarios}}
+       | <a href="{{ $.Baseurl }}/{{ $.IncidentListPath }}/{{ . }}{{$.Query}}"> {{.}} </a>
+    {{end}}
+</p>
+<table>
+<thead>
+<tr style="text-align: center">
+    <th>Status</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Szenario</th>
+    <th>Events</th>
+    <th>Error</th>
+</tr>
+</thead>
+<tbody>
+    
+{{ range .Incidents }}
+<tr>
+    <td> 
+     <a href="{{ .DetailLink }}{{$.Query}}">
+      <img class="level" title="{{.IncidentInfo.Level}}" src="{{$.Baseurl}}/static/status/{{.IncidentInfo.Level.Img}}.png" />
+     </a>
+    </td>
+    <td> 
+     <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .IncidentInfo.Start.Format $.Timeformat }}
+     </a>
+    </td>
+    <td>
+        {{ if not .IncidentInfo.End.IsZero }}
+        <a href="{{ .DetailLink }}{{$.Query}}">
+         {{ .IncidentInfo.End.Format $.Timeformat }}
+        </a>
+        {{ end }}
+    </td>
+    <td> <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .IncidentInfo.Name }}
+     </a> 
+    </td>
+    <td> <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .EvtCnt }} 
+     </a>
+    </td>
+    <td> 
+     <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .Error }}  
+     </a>
+    </td>
+</tr>
+{{ end }}
+</tbody>
+</table>
+
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.gohtml" .}}

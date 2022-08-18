@@ -1,0 +1,28 @@
+<!doctype html>
+<!-- copy to /etc/prometheus/consoles -->
+<html lang="en">
+<head>
+{{ template "prom_console_head" }}
+</head>
+<style>
+.prom_graph_link {display: none;}
+.rickshaw_legend {display: none;}
+</style>
+<body>
+  <div id="graphID"></div>
+  <script>
+  new PromConsole.Graph({
+    node: document.querySelector("#graphID"),
+    expr: "{{ .Params.szenario}}_availability * 100",
+    duration: "{{.Params.duration}}",
+    yAxisFormatter: PromConsole.NumberFormatter.humanizeNoSmallPrefix,
+    yHoverFormatter: PromConsole.NumberFormatter.humanizeNoSmallPrefix,
+    width:  "{{.Params.width}}",
+    height: "{{.Params.height}}",
+    min: -3,
+    max: 105,
+  })
+  </script>
+
+</body>
+</html>

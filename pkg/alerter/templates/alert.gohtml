@@ -1,0 +1,58 @@
+<style>
+td.list {vertical-align: top}
+</style>
+
+<table>
+<tr><td class="list">Szenario:</td> <td class="list">{{.Alert.Name}} </td></tr>
+<tr><td class="list">Time: </td> <td class="list">{{ .Alert.Time.Format $.Timeformat }}</td></tr>
+<tr><td class="list">Incident:</td> 
+    <td class="list"> <a href="{{ $.IncidentDetailURL }}/{{.Alert.IncidentID}}"> {{ $.IncidentDetailURL }}/{{.Alert.IncidentID}}</a> </td>
+</tr>
+<tr><td class="list">User:</td> <td class="list">{{.Alert.Username}} </td></tr>
+<tr><td class="list">Probe:</td> <td class="list">{{.Alert.ProbeHost}} ({{ .Alert.ProbeOS}}) </td></tr>
+<tr><td class="list">Details:</td> 
+    <td class="list"> <a href="{{ $.AlertDetailURL }}/{{.Alert.ID}}"> {{ $.AlertDetailURL }}/{{.Alert.ID}}</a> </td>
+</tr>
+
+{{if gt (len .Alert.Errs ) 0}}
+<tr>
+<td class="list">Errors:</td>
+<td class="list">
+{{ range .Alert.Errs }}
+{{ . }} <br />
+{{end}}
+</td>
+{{ end }}
+</tr>
+
+{{if gt (len .Alert.Counters ) 0}}
+<tr>
+<td class="list">Counters:</td>
+<td class="list">
+    <table>
+        {{ range $key, $value := .Alert.Counters }}
+        <tr><td class="list">{{ $key }}:</td> <td class="list"> {{ $value }}</td></tr>
+        {{ end }}
+    </table>
+</td>
+</tr>
+{{ end }}
+
+{{if gt (len .Alert.Stati ) 0}}
+<tr>
+<td class="list">Stati:</td>
+<td class="list">
+    <table>
+        {{ range $key, $value := .Alert.Stati }}
+        <tr><td class="list">{{ $key }}:</td> <td class="list"> {{ $value }}</td></tr>
+        {{ end }}
+    </table>
+</td>
+</tr>
+{{ end }}
+
+</table>
+Topology:<br />
+<pre>
+{{ .Topology }}
+</pre>

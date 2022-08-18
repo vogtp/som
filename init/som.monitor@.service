@@ -1,0 +1,16 @@
+[Unit]
+Description=SOM monitor 
+
+After=syslog.target network.target som.stater.service
+
+[Service]
+User=vogtp
+StartLimitInterval=5
+StartLimitBurst=10
+ExecStart=/srv/som/bin/som.monitor-cdp --log.level=warn --check.repeat=5m --check.timeout=1m --check.user=%i
+Restart=always
+RestartSec=120
+WorkingDirectory=/srv/som
+
+[Install]
+WantedBy=multi-user.target

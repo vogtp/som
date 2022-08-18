@@ -1,0 +1,115 @@
+<!-- index.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+
+<style>
+th, td {
+  padding-right: 15px;
+}
+</style>
+
+
+<table>
+<thead>
+<tr style="text-align: center">
+    <th></th>
+    <th>Szenario</th>
+    <th>Avail</th>
+    <th>Incident </th>
+    <th colspan=2>Check Duration</th>
+    <th>Check Time Graph</th>
+</tr>
+<tr style="text-align: center">
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>Count</td>
+    <td>Current</td>
+    <td>Average</td>
+    <td style="text-align: right">
+         TIme Range:
+        <select name="graphStyle" id="duration" onchange="updateDuration(this)">
+            <option selected disabled hidden>{{ .DurationStr}}</option>
+            <option value="1h" >1h</option>
+            <option value="1d" >1d</option>
+            <option value="1w" >1w</option>
+            <option value="4w" >4w</option>
+        </select>
+    
+        Graph Style:
+        <select name="graphStyle" id="graphStyle" onchange="updateGraphStyle(this)">
+            <option selected disabled hidden>Choose</option>
+            <option value="avail" {{ if eq .GraphStyle "avail" }}selected{{end}} >Availability</option>
+            <option value="steps" {{ if eq .GraphStyle "steps" }}selected{{end}}>Step Times</option>
+        </select>
+    </td>
+</tr>
+</thead>
+<tbody>
+{{ range .Evt }}
+<tr>
+    <td>
+        <img title="{{ .LastUpdate }}{{ .Status }}" src="{{$.Baseurl}}/static/status/{{.Img}}.png" />
+    </td>
+    <td>
+        <a href="{{ .IncidentList }}{{$.Query}}" >{{ .Name }}</a>
+    </td>
+    <td > {{ .Availability }} </td>
+    <td align="right">
+        {{ .IncidentCount }}
+    </td>
+    <td>
+        {{ .LastTime }} 
+    </td>
+    <td>
+       {{ .AvgTime }}
+    </td>
+    <td> 
+        {{ if $.LocalGraph }}
+            <img title="Last Update: {{ .LastUpdate.Format "02.01.2006 15:04:05" }}" src="{{$.Baseurl}}/chart/{{.Name}}?width=600&height=100" /> 
+        {{ else }}
+            <iframe src="{{ $.PromURL }}/consoles/som_{{$.GraphStyle}}.html?szenario={{ .PromName }}&duration={{ $.Duration }}&width=600&height=100" width="800" height="150" scrolling="no" frameborder="0"></iframe>
+        {{end}}
+    </td>
+</tr>
+{{ end }}
+<tr style="text-align: right">
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td>      
+    </td>
+</tr>
+</tbody>
+</table>
+
+<div style="display: flex; justify-content: space-around">
+  <div><!-- Left --></div>
+  <div><!-- Right --></div>
+</div>
+
+<script>
+function updateDuration(selectObject) {
+  var duration = selectObject.value;  
+  url = new URL(window.location.href)
+  if (url.searchParams.get('duration') != duration) { 
+    url.searchParams.set('duration', duration);
+    window.location.href = url
+  }
+}
+function updateGraphStyle(selectObject) {
+  var graphStyle = selectObject.value;  
+  url = new URL(window.location.href)
+  if (url.searchParams.get('graphStyle') != graphStyle) { 
+    url.searchParams.set('graphStyle', graphStyle);
+    window.location.href = url
+  }
+}
+</script>
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.gohtml" .}}

@@ -1,0 +1,73 @@
+<!-- index.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+
+<style>
+th, td {
+  padding-right: 15px;
+}
+</style>
+
+<table>
+{{ range .Alerts }}
+
+
+<tr> <td class="list"> Name:  </td><td class="list">{{ .Name }} </td></tr>
+<tr> <td class="list"> Time:  </td><td class="list">{{ .Time.Format $.Timeformat }} </td></tr>
+<tr> <td class="list"> Incident: </td><td class="list"> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{ .IncidentID }}/{{$.Query}}"> {{ .IncidentID }}</a> </td></tr>
+<tr> <td class="list"> User: </td><td class="list"> {{ .Username }} </td></tr>
+<tr> <td class="list"> Region: </td><td class="list"> {{ .Region }} </td></tr>
+<tr> <td class="list"> Probe:  </td><td class="list">{{ .ProbeHost }} ({{ .ProbeOS }} ) </td></tr>
+
+<tr>
+<td class="list">Errors:</td>
+<td class="list">
+{{ range .Errors }}
+<p>{{ . }} </p>
+{{ end }}
+</td>
+</tr>
+
+<tr>
+<td class="list">Counters:</td>
+<td class="list">
+{{ range $key, $val := .Counters }}
+<p>{{ $key }}: {{ $val}} </p>
+{{ end }}
+</td>
+
+<tr>
+<td class="list">Stati:</td>
+<td class="list">
+{{ range $key, $val := .Stati }}
+<p>{{ $key }}: {{ $val}} </p>
+{{ end }}
+</td>
+
+<tr>
+<td class="list">Images:</td>
+<td class="list">
+{{ range  .Files }}
+{{ if ne .Type.MimeType "text/html"}}
+<img src='{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}' />
+<p><a href="{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}">{{ .Name }}.{{ .Type.Ext }} </a></p>
+{{ end }}
+{{ end }}
+</td>
+
+<tr>
+<td class="list">Files:</td>
+<td class="list">
+{{ range  .Files }}
+{{ if eq .Type.MimeType "text/html"}}
+<a href="{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}">{{ .Name }}.{{ .Type.Ext}} </a>
+{{ end }}
+{{ end }}
+</td>
+
+{{ end }} <!--  Alerts -->
+</table>
+
+<!-- Embed the footer.html template at this location -->
+{{ template "footer.gohtml" .}}

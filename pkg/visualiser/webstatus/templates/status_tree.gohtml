@@ -1,0 +1,68 @@
+<!-- status_tree.html -->
+
+<script>
+function resize(id)
+{
+    el = document.getElementById(id)
+    if (el.width=="600") {
+        el.width="100";
+    }else {
+        el.width="600";
+    }
+}
+</script>
+
+<table>
+<thead>
+<tr style="text-align: center">
+    <th>Szenario</th>
+    <th>Region</th>
+    <th>User</th>
+    <th>Error of Last Event</th>
+</tr>
+</thead>
+<tbody>
+{{ range .Szenarios }}
+<tr>
+    <td class="list">
+        <img class="level" title="{{.String}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
+        {{ .Key }}
+    </td>
+    <td class="list"></td>
+    <td class="list"></td>
+    <td class="list"></td>
+</tr>
+{{ range .Regions}}
+
+<tr>
+    <td class="list"> </td>
+    <td class="list">
+        <img class="level" title="{{.String}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
+        {{ .Key }}
+    </td>
+    <td class="list"></td>
+    <td class="list"></td>
+</tr>
+
+{{ range .Users }}
+<tr>
+    <td class="list"> </td>
+    <td class="list"></td>
+    <td class="list">
+        <img class="level" title="{{.String}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
+        {{ .Key }}
+    </td>
+    <td class="list">
+        {{if gt .Level $.OK}}
+        {{ .Error}} <br> 
+        {{ index $.Image .LastEvent.ID }} 
+        
+        {{ end }}
+       
+    </td>
+</tr>
+{{ end }} <!-- Users -->
+{{ end }} <!-- Regions -->
+{{ end }} <!-- Szenarios -->
+</tbody>
+</table>
