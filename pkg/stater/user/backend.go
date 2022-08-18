@@ -30,7 +30,7 @@ type store struct {
 func IntialiseStore() {
 	backend.setup()
 	backend.start()
-	hcl.Warn("Userstore backend started")
+	hcl.Warn("Userstore backend started (key length: %v)",len(core.Keystore.Key()))
 }
 
 // createBackend creates a new UserStore
