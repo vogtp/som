@@ -18,6 +18,7 @@ bin/
 build/
 
 # Custom stuff
+data/
 alertmgr.json
 webstatus.json
 *.db
