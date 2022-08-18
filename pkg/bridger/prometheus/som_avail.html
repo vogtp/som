@@ -12,6 +12,7 @@
   <div id="graphID"></div>
   <script>
   new PromConsole.Graph({
+    name: "{{ .Params.szenario}}",
     node: document.querySelector("#graphID"),
     expr: "{{ .Params.szenario}}_availability * 100",
     duration: "{{.Params.duration}}",
