@@ -4,6 +4,11 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
+func init() {
+	// IMPORTANT this should be changed and done in a file wich is not checked in to the repository
+	// core.Keystore.Add([]byte("CHANGE_ME"))
+}
+
 // Load the szenarios and return the config
 func Load() *szenario.Config {
 	szConfig := szenario.New()
