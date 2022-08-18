@@ -33,7 +33,7 @@ func NewTeams() {
 	hcl := bus.GetLogger().Named("teams")
 	url := viper.GetString(cfg.AlertTeamsWebhook)
 	if ok, err := goteamsnotify.IsValidWebhookURL(url); !ok || err != nil {
-		hcl.Errorf("Teams URL not valid: %v", err)
+		hcl.Errorf("Not starting teams alerter: teams URL not valid: %v", err)
 		return
 	}
 	d := Teams{

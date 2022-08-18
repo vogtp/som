@@ -25,13 +25,23 @@ type Mail struct {
 // NewMailer registers a mail alerter on the event bus
 func NewMailer(to ...string) {
 	bus := core.Get().Bus()
+	hcl := bus.GetLogger().Named("mail")
+	mailHost := viper.GetString(cfg.AlertMailSMTPHost)
+	if len(mailHost) < 1 {
+		hcl.Errorf("Not starting mail alerter: no mail host given")
+		return
+	}
 	if len(viper.GetStringSlice(cfg.AlertMailTo)) < 1 {
 		viper.SetDefault(cfg.AlertMailTo, to)
 	}
 	to = append(to, viper.GetStringSlice(cfg.AlertMailTo)...)
+	if len(to) < 1 {
+		hcl.Errorf("Not starting mail alerter: no mail receipients given")
+		return
+	}
 	d := Mail{
-		hcl:      bus.GetLogger().Named("mail"),
-		smtpHost: viper.GetString(cfg.AlertMailSMTPHost),
+		hcl:      hcl,
+		smtpHost: mailHost,
 		smtpPort: viper.GetInt(cfg.AlertMailSMTPPort),
 		to:       to,
 		from:     viper.GetString(cfg.AlertMailFrom),

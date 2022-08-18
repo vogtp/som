@@ -58,6 +58,7 @@ func init() {
 	viper.SetDefault(AlertIntervall, 14*24*time.Hour)
 	viper.SetDefault(AlertSubject, "SOM Alert:")
 
+	viper.SetDefault(AlertMailFrom, "alert@som-monitoring.net")
 	viper.SetDefault(AlertMailSMTPPort, 25)
 	viper.SetDefault(AlertIncidentCorrelationEvents, 6)
 	viper.SetDefault(AlertIncidentCorrelationReopenTime, time.Hour)
