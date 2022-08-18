@@ -60,11 +60,11 @@ var szenarioRun = &cobra.Command{
 func possibeSzenarioNames() string {
 	szConfig := core.Get().SzenaioConfig()
 	all, _ := szConfig.ByUser(&user.User{UserType: szenario.UserTypeAll})
-	names := ""
+	names := "\n  User Types: "
 	for _, n := range szConfig.GetUserTypes() {
 		names = fmt.Sprintf("%s %q", names, n)
 	}
-	return fmt.Sprintf("%v %s", names, getNames(all))
+	return fmt.Sprintf("%v\n  Szenarios:   %s", names, getNames(all))
 }
 
 func getNames(szenarios []szenario.Szenario) string {
