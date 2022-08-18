@@ -9,12 +9,13 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
-type crasherSzenario struct {
+// CrasherSzenario a szenarion that loads google and then crashes
+type CrasherSzenario struct {
 	*szenario.Base
 }
 
 // Execute the szenario
-func (crasherSzenario) Execute(engine szenario.Engine) (err error) {
+func (CrasherSzenario) Execute(engine szenario.Engine) (err error) {
 	engine.Step("Loading",
 		chromedp.Navigate("https://google.ch/"),
 		chromedp.WaitVisible(`#tophf`, chromedp.ByID),

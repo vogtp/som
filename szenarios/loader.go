@@ -12,19 +12,19 @@ func Load() *szenario.Config {
 
 	szConfig.Add(
 		"google",
-		&googleSzenario{&szenario.Base{}},
+		&GoogleSzenario{Base: &szenario.Base{}},
 		[]*szenario.UserType{userTypeWorld, userTypeStaf},
 	)
 	szConfig.Add(
 		"OWA",
-		&owaSzenario{Base: &szenario.Base{},
-			owaUrl: "http://mail.example.com",
+		&OwaSzenario{Base: &szenario.Base{},
+			OwaURL: "http://mail.example.com",
 		},
 		[]*szenario.UserType{userTypeStaf},
 	)
 	szConfig.Add(
 		"crasher",
-		&crasherSzenario{&szenario.Base{}},
+		&CrasherSzenario{Base: &szenario.Base{}},
 		[]*szenario.UserType{},
 	)
 	return szConfig

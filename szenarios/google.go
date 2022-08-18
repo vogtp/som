@@ -5,12 +5,13 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
-type googleSzenario struct {
+// GoogleSzenario does load google
+type GoogleSzenario struct {
 	*szenario.Base
 }
 
 // Execute the szenario
-func (googleSzenario) Execute(engine szenario.Engine) (err error) {
+func (GoogleSzenario) Execute(engine szenario.Engine) (err error) {
 	engine.Step("Loading",
 		chromedp.Navigate("https://google.ch/"),
 		chromedp.WaitVisible(`#tophf`, chromedp.ByID),

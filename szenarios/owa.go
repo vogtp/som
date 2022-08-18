@@ -5,15 +5,16 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
-type owaSzenario struct {
+// OwaSzenario load Outlook Web Acces (on prem) and checks that the inbox is visible
+type OwaSzenario struct {
 	*szenario.Base
-	owaUrl string
+	OwaURL string
 }
 
 // Execute the szenario
-func (s *owaSzenario) Execute(engine szenario.Engine) (err error) {
+func (s *OwaSzenario) Execute(engine szenario.Engine) (err error) {
 	engine.Step("Loading",
-		chromedp.Navigate(s.owaUrl),
+		chromedp.Navigate(s.OwaURL),
 		chromedp.WaitVisible(`#userNameInput`, chromedp.ByID),
 	)
 	engine.Step("Login",
@@ -24,7 +25,7 @@ func (s *owaSzenario) Execute(engine szenario.Engine) (err error) {
 	)
 	defer func() {
 		engine.Step("Logout",
-			chromedp.Navigate(s.owaUrl+"/owa/logoff.owa"),
+			chromedp.Navigate(s.OwaURL+"/owa/logoff.owa"),
 			chromedp.WaitVisible(`#openingMessage`, chromedp.ByID),
 		)
 	}()
