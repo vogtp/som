@@ -35,6 +35,7 @@ func (sz *szenarioData) load() error {
 	if err := sz.readJSONFile(); err != nil {
 		return err
 	}
+	status.Cleanup(sz.Status)
 	return nil
 }
 

@@ -28,6 +28,7 @@ func (am *AlertMgr) load() error {
 		s.am = am
 		s.hcl = am.hcl.Named(n)
 	}
+	status.Cleanup(am.status)
 	return nil
 }
 
