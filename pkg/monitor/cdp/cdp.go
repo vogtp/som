@@ -57,7 +57,7 @@ type Engine struct {
 // New creates a new Engine
 func New(opts ...Option) (*Engine, context.CancelFunc) {
 	core := core.Get()
-	hcl := core.HCL().Named("chrome")
+	hcl := core.HCL().Named("cdp")
 	ctx, cancel := context.WithCancel(context.Background())
 	cdp := &Engine{
 		ctx:        ctx,
@@ -183,6 +183,7 @@ func (cdp *Engine) run() bool {
 	if cdp.szenario == nil {
 		panic("Szenario must not be nil")
 	}
+	cdp.hcl.Infof("User %s", cdp.szenario.User().Name())
 	cdp.evtMsg = msg.NewSzenarioEvtMsg(cdp.szenario.Name(), cdp.szenario.User().Name(), time.Now())
 	engineCancel := cdp.createEngine()
 	defer engineCancel()
