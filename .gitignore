@@ -23,5 +23,6 @@ alertmgr.json
 webstatus.json
 *.db
 som.yml
+ignore_*
 
 go.work*
