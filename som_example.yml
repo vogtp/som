@@ -47,4 +47,4 @@ prometheus:
     url: http://localhost:9090/
 web:
     port: 0
-    urlpath: /som
+    urlpath: /
