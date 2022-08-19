@@ -1,6 +1,7 @@
 package webstatus
 
 import (
+	"os"
 	"testing"
 	"time"
 
@@ -10,10 +11,14 @@ import (
 )
 
 func TestWebStatus_getIncidentDetailFiles(t *testing.T) {
+	incidentDir := "../../../data/"
+	if _, err := os.Stat(incidentDir); os.IsNotExist(err) {
+		incidentDir = "./data/"
+	}
 	_, close := core.New("som.visualiser-test")
 	defer close()
 	s := New()
-	viper.Set(cfg.DataDir, "../../../data/")
+	viper.Set(cfg.DataDir, incidentDir)
 	start := time.Now()
 	files, err := s.getIncidentFiles(s.getIncidentRoot(), "")
 	if err != nil {
