@@ -161,7 +161,7 @@ A input can be done like this:
 
         engine.Step("searching",
 			chromedp.SendKeys(
-				"body > div.L3eUgb > div.o3j99.ikrT4e.om7nvf > form > div:nth-child(1) > div.A8SBwf.emcav > div.RNNXgb > div > div.a4bIc > input",
+				`document.querySelector("body > div.L3eUgb > div.o3j99.ikrT4e.om7nvf > form > div:nth-child(1) > div.A8SBwf > div.RNNXgb > div > div.a4bIc > input")`,
 				fmt.Sprintf("%s\r", gs.Search),
 				chromedp.ByJSPath, // copy JSPath from chrom developer tools
 			),
@@ -169,3 +169,4 @@ A input can be done like this:
 
 Finally the szenario has to be added to the szenarion config in `loader.go`:
 
+For a working google example see szenario/google.go
