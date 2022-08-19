@@ -14,6 +14,7 @@ func TestWebStatus_getIncidentDetailFiles(t *testing.T) {
 	incidentDir := "../../../data/"
 	if _, err := os.Stat(incidentDir); os.IsNotExist(err) {
 		incidentDir = "./data/"
+		t.Skip()
 	}
 	_, close := core.New("som.visualiser-test")
 	defer close()
