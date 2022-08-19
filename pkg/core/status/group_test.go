@@ -2,9 +2,9 @@ package status
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -56,8 +56,8 @@ var (
 	issues  *testLevel          = &testLevel{l: Issues}
 	ok      *testLevel          = &testLevel{l: OK}
 	unknown *testLevel          = &testLevel{l: Unknown}
-	evtOK   *msg.SzenarioEvtMsg = &msg.SzenarioEvtMsg{}
-	evtErr  *msg.SzenarioEvtMsg = &msg.SzenarioEvtMsg{}
+	evtOK   *msg.SzenarioEvtMsg = &msg.SzenarioEvtMsg{Time: time.Now()}
+	evtErr  *msg.SzenarioEvtMsg = &msg.SzenarioEvtMsg{Time: time.Now()}
 )
 
 func testLevelAndJSONEnc(t *testing.T, g Grouper, lvl Level) {
@@ -103,8 +103,8 @@ func TestGroup_JSON(t *testing.T) {
 	}{
 		{"dow", []Grouper{downGrp, okGrp, warnGrp}, Warning},
 		{"dowo", []Grouper{downGrp, okGrp, warnGrp, okGrp}, Issues},
-		{"eO", []Grouper{evtGrpOK}, OK},
-		{"eOw", []Grouper{evtGrpOK, warnGrp}, Issues},
+		{"eO", []Grouper{evtGrpOK}, Unknown},
+		{"eOw", []Grouper{evtGrpOK, warnGrp}, OK},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -265,51 +265,6 @@ func TestEvtGroup_QueueLenth(t *testing.T) {
 			if got := g.Level(); got != tt.want {
 				t.Errorf("Group.Level() = %v, want %v (%v)", got, tt.want, g.children)
 			}
-		})
-	}
-}
-
-func TestEvtGroup_Alerts(t *testing.T) {
-	evtErr.AddErr(errors.New("test"))
-	tests := []struct {
-		name string
-		evt  *msg.SzenarioEvtMsg
-		want Level
-	}{
-		{"ok", evtOK, OK},
-		{"okErr", evtErr, Warning},
-		{"okErrOk", evtOK, OK},
-		{"ErrOkOK", evtOK, OK},
-		{"okOkOk", evtOK, OK},
-		{"okOkErr", evtErr, Issues},
-		{"okErrErr", evtErr, Warning},
-		{"ErrErrErr", evtErr, Down},
-		{"ErrErrOK", evtOK, Issues},
-		{"ErrOKOK", evtOK, OK},
-	}
-	g := newEvtGroup("testGroup")
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			g.AddEvent(tt.evt)
-			if got := g.Level(); got != tt.want {
-				t.Errorf("Group.Level() = %v, want %v", got, tt.want)
-			}
-
-			data, err := json.Marshal(g)
-			if err != nil {
-				t.Fatalf("Cannot marshal evtGroup: %v", err)
-			}
-			g2 := newEvtGroup("dummy")
-			err = json.Unmarshal(data, g2)
-			if err != nil {
-				t.Fatalf("cannot unmarshal evtGroup: %v", err)
-			}
-			if got := g2.Level(); got != tt.want {
-				t.Errorf("json converted Group.Level() = %v, want %v -- data: %s", got, tt.want, string(data))
-			}
-
 		})
 	}
 }

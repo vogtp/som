@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-test/deep"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
@@ -68,57 +67,4 @@ func Test_szGroup_JSON(t *testing.T) {
 	// if !reflect.DeepEqual(rug, rug2) {
 	// 	t.Errorf("Not deep equal:\n%v", string(b))
 	// }
-}
-
-func Test_szGroup_AddEvent(t *testing.T) {
-	rug := New()
-	rugO, ok := rug.(*statusGroup)
-	if !ok {
-		t.Fatal("Cannot cast rug")
-	}
-	rug.AddEvent(&msg.SzenarioEvtMsg{
-		ID:       uuid.NewString(),
-		Name:     "testSzenario1",
-		Region:   "testRegion1",
-		Username: "testUser1",
-	})
-	checkSzGrp(t, rug, OK)
-
-	evt := &msg.SzenarioEvtMsg{
-		ID:       uuid.NewString(),
-		Name:     "testSzenario1",
-		Region:   "testRegion1",
-		Username: "testUser1",
-	}
-	evt.AddErr(errors.New("test error"))
-	rug.AddEvent(evt)
-	checkSzGrp(t, rug, Warning)
-	if len(rugO.children) > 1 {
-		t.Errorf("Should only have one reqion not %v", len(rugO.children))
-	}
-	evt = &msg.SzenarioEvtMsg{
-		ID:       uuid.NewString(),
-		Name:     "testSzenario2",
-		Region:   "testRegion1",
-		Username: "testUser1",
-	}
-	evt.AddErr(errors.New("test error"))
-	rug.AddEvent(evt)
-	checkSzGrp(t, rug, Warning)
-	evt = &msg.SzenarioEvtMsg{
-		ID:       uuid.NewString(),
-		Name:     "testSzenario1",
-		Region:   "testRegion1",
-		Username: "testUser1",
-	}
-	rug.AddEvent(evt)
-	checkSzGrp(t, rug, Warning)
-	evt = &msg.SzenarioEvtMsg{
-		ID:       uuid.NewString(),
-		Name:     "testSzenario2",
-		Region:   "testRegion1",
-		Username: "testUser1",
-	}
-	rug.AddEvent(evt)
-	checkSzGrp(t, rug, OK)
 }

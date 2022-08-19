@@ -16,30 +16,35 @@ import (
 type altr interface {
 	sendAlert(e *msg.AlertMsg) error
 }
+type alertTestData struct {
+	name    string
+	alerter altr
+}
 
 func Test_sendAlert(t *testing.T) {
-
-	tests := []struct {
-		name    string
-		alerter altr
-	}{
-		{
+	tests := make([]alertTestData, 0)
+	teamsWebHook := viper.GetString(cfg.AlertTeamsWebhook)
+	if len(teamsWebHook) > 0 {
+		tests = append(tests, alertTestData{
 			name: "teams",
 			alerter: &Teams{
 				hcl:        hcl.New(),
-				webhookURL: viper.GetString(cfg.AlertTeamsWebhook),
+				webhookURL: teamsWebHook,
 			},
-		},
-		{
+		})
+	}
+	smtpHost := viper.GetString(cfg.AlertMailSMTPHost)
+	if len(smtpHost) > 0 {
+		tests = append(tests, alertTestData{
 			name: "mail",
 			alerter: &Mail{
 				hcl:      hcl.New(),
-				smtpHost: viper.GetString(cfg.AlertMailSMTPHost),
+				smtpHost: smtpHost,
 				smtpPort: viper.GetInt(cfg.AlertMailSMTPPort),
 				to:       viper.GetStringSlice(cfg.AlertMailTo),
 				from:     viper.GetString(cfg.AlertMailFrom),
 			},
-		},
+		})
 	}
 
 	evt := msg.NewSzenarioEvtMsg("unit test", "test user", time.Now())
