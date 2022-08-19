@@ -17,7 +17,9 @@ func Load() *szenario.Config {
 
 	szConfig.Add(
 		"google",
-		&GoogleSzenario{Base: &szenario.Base{}},
+		&GoogleSzenario{Base: &szenario.Base{},
+			Search: "SOM",
+		},
 		[]*szenario.UserType{userTypeWorld, userTypeStaf},
 	)
 	szConfig.Add(
