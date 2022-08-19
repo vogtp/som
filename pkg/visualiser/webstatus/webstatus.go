@@ -42,7 +42,7 @@ func New() *WebStatus {
 		alertCache:    make(map[string]string),
 		incidentCache: make(map[string]string),
 	}
-	s.initAlertTemplates()
+	s.InitialertTemplates()
 	s.initIncidentTemplates()
 	s.data = newSzenarioData(s.hcl)
 

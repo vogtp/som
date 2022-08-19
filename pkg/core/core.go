@@ -65,20 +65,20 @@ func New(name string, opts ...Option) (*Core, func()) {
 	return c, c.cleanup
 }
 
-// Get returns the core instance or panics if not initalised with New
+// Get returns the core instance or panics if not Initialised with New
 func Get() *Core {
 	if c == nil {
-		panic("Core must be initalised with New first")
+		panic("Core must be Initialised with New first")
 	}
 	return c
 }
 
-// Bus returns the bus or panics if Core not initalised with New
+// Bus returns the bus or panics if Core not Initialised with New
 func (c *Core) Bus() *Bus {
 	return c.bus
 }
 
-// HCL returns the logger or panics if Core not initalised with New
+// HCL returns the logger or panics if Core not Initialised with New
 func (c *Core) HCL() hcl.Logger {
 	return c.hcl
 }

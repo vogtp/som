@@ -10,7 +10,7 @@ alert:
             reopentime: 1h
     visualiserURL: http://localhost:8083/som/
     mail:
-        from: # TODO add from adress
+        from: # TODO add from address
         smtp:
             host: # TODO add mail server
             port: 25

@@ -25,7 +25,7 @@ var szenarioCtl = &cobra.Command{
 	},
 }
 
-// Command initalises the szenario commands
+// Command initialises the szenario commands
 func Command() *cobra.Command {
 	szCfg := core.Get().SzenaioConfig()
 	if szCfg != nil && szCfg != szenario.NoConfig {

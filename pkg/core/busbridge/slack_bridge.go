@@ -161,7 +161,7 @@ func (s Slack) handleEventMessage(ctx context.Context, event slackevents.EventsA
 			// }
 		case *slackevents.MessageEvent:
 			if ev.BotID == s.auth.BotID {
-				s.hcl.Errorf("There is a BOT with the same ID probaly missing messages")
+				s.hcl.Errorf("There is a BOT with the same ID probably missing messages")
 				//FIXME send a alert message
 			}
 			busMsg, err := FromBridgePayload(ev.Text)

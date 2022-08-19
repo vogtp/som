@@ -5,7 +5,7 @@ import (
 )
 
 func init() {
-	// IMPORTANT this should be changed and done in a file wich is not checked in to the repository
+	// IMPORTANT this should be changed and done in a file which is not checked in to the repository
 	// core.Keystore.Add([]byte("CHANGE_ME"))
 }
 

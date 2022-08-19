@@ -72,7 +72,7 @@ func (w *WebServer) Start() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.started {
-		w.hcl.Info("Cannot start webserver, it is allready runnung")
+		w.hcl.Info("Cannot start webserver, it is already runnung")
 		return
 	}
 	w.started = true

@@ -1,6 +1,6 @@
 package status
 
-// Cleanup removes groups with Level below OK (i.e. Unkown)
+// Cleanup removes groups with Level below OK (i.e. unknown)
 func Cleanup(s Status) {
 	grp, ok := s.(*statusGroup)
 	if !ok {

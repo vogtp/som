@@ -23,7 +23,7 @@ func (c Config) Add(name string, s Szenario, ut []*UserType) Szenario {
 	if len(s.Name()) < 1 {
 		panic(fmt.Errorf("Szenaio (%T) must have a name", s))
 	}
-	hcl.Tracef("Initalising szenario %s", s.Name())
+	hcl.Tracef("Initialising szenario %s", s.Name())
 	for _, sz := range c.userTypes[c.allSz.Name].Szenarios {
 		if sz.Name() == s.Name() {
 			hcl.Errorf("Szenario %s already exists", s.Name())

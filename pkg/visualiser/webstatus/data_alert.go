@@ -22,7 +22,7 @@ func (s *WebStatus) getAlertRoot() string {
 	return fmt.Sprintf("%salert", s.getDataRoot())
 }
 
-func (s *WebStatus) initAlertTemplates() {
+func (s *WebStatus) InitialertTemplates() {
 	alerfileStr := fmt.Sprintf(`{{ .Time.Format %q }}-{{.Name}}-{{.ID}}.%s`, alertfileTimeformat, alertfileExt)
 	s.alertFileTmpl = template.Must(template.New("alertFile").Parse(alerfileStr))
 

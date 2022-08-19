@@ -40,7 +40,7 @@ func (c Config) ByUser(u User) ([]Szenario, error) {
 	return szs, nil
 }
 
-// ByName return the szario by name, names are case insensitve and if no exact match is found a prefix match is done
+// ByName return the szario by name, names are case insensitive and if no exact match is found a prefix match is done
 func (c Config) ByName(name string) Szenario {
 	all := c.allSz.Szenarios
 	name = strings.ToLower(name)

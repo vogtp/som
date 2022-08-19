@@ -4,7 +4,7 @@ package szenario
 type User interface {
 	// Name returns the name
 	Name() string
-	// Email returns the email adress
+	// Email returns the email address
 	Email() string
 
 	// DisplayName returns the display name

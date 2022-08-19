@@ -194,15 +194,15 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 	if len(filter) < 1 {
 		return fileList
 	}
-	filterd := make([]incidentFile, 0, len(fileList))
+	filtered := make([]incidentFile, 0, len(fileList))
 	for _, ai := range fileList {
 		if strings.ToLower(ai.Name) != filter &&
 			ai.IncidentInfo.IncidentID != filter {
 			continue
 		}
-		filterd = append(filterd, ai)
+		filtered = append(filtered, ai)
 	}
-	return filterd
+	return filtered
 }
 
 func (s *WebStatus) getIncidentDetailFiles(root string, filter string) (fileList []incidentFile, err error) {

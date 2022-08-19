@@ -212,7 +212,7 @@ func (cdp *Engine) reportResults(start time.Time) {
 		if err2, ok := r2.(error); ok {
 			err = err2
 		} else {
-			err = fmt.Errorf("unkown panic: %v", r2)
+			err = fmt.Errorf("unknown panic: %v", r2)
 		}
 	}
 	if err != nil {

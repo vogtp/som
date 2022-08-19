@@ -16,7 +16,7 @@ func (cdp *Engine) Headless() bool {
 func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 	if cdp.browser != nil {
 		if pc := chromedp.FromContext(cdp.browser); pc != nil && pc.Browser != nil {
-			hcl.Debug("Engine already initalised")
+			hcl.Debug("Engine already Initialised")
 			//	return pc.Cancel
 		}
 	}

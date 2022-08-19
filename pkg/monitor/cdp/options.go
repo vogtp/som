@@ -29,7 +29,7 @@ func NoClose() Option {
 	}
 }
 
-// Show controlls if the browser is started headless or not
+// Show controls if the browser is started headless or not
 func Show() Option {
 	return func(e *Engine) {
 		e.show = true

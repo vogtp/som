@@ -6,11 +6,11 @@ import (
 	"math"
 )
 
-// GroupAvailablity is the availablity of a group
+// Groupavailability is the availability of a group
 // given in % from 0 to 1
-type GroupAvailablity float64
+type Groupavailability float64
 
-func (ga GroupAvailablity) String() string {
+func (ga Groupavailability) String() string {
 	return fmt.Sprintf("%3.0f%%", ga*100)
 }
 
@@ -19,7 +19,7 @@ type Grouper interface {
 	New(k string) Grouper
 	Key() string
 	Level() Level
-	Availability() GroupAvailablity
+	Availability() Groupavailability
 	Add(Grouper)
 	json.Marshaler
 	json.Unmarshaler
@@ -60,14 +60,14 @@ func (g Group) Key() string {
 	return g.key
 }
 
-// Availability is the availablity of a group
+// Availability is the availability of a group
 // given in % from 0 to 1
-func (g Group) Availability() GroupAvailablity {
-	a := GroupAvailablity(0.0)
+func (g Group) Availability() Groupavailability {
+	a := Groupavailability(0.0)
 	for _, c := range g.children {
 		a += c.Availability()
 	}
-	a /= GroupAvailablity(len(g.children))
+	a /= Groupavailability(len(g.children))
 	return a
 }
 

@@ -60,7 +60,7 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		e.SetStatus("Realert", fmt.Sprintf("Alert is persistent %v alerts: re-alerting every %v", s.Alerted, s.am.alertIntervall))
 	}
 	if s.Alerted > 0 {
-		e.Errors = append([]string{fmt.Sprintf("Inital error: %v (%s)", oldErr, s.LastUpdate.Format(cfg.TimeFormatString))}, e.Errors...)
+		e.Errors = append([]string{fmt.Sprintf("Initial error: %v (%s)", oldErr, s.LastUpdate.Format(cfg.TimeFormatString))}, e.Errors...)
 	}
 	if time.Since(s.LastUpdate) < viper.GetDuration(cfg.AlertDelay) {
 		s.hcl.Infof("Not alerting %v alert is too young %v must be older than %v", e.Name, time.Since(e.Time), viper.GetDuration(cfg.AlertDelay))

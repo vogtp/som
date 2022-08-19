@@ -25,7 +25,7 @@ func (u *User) Name() string {
 	return u.Username
 }
 
-// Email returns the email adress
+// Email returns the email address
 func (u *User) Email() string {
 	return u.Mail
 }
