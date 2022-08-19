@@ -1,8 +1,8 @@
 # Service Oriented Monitoring (SOM)
-[![Go](https://github.com/vogtp/som/actions/workflows/go.yml/badge.svg)](https://github.com/vogtp/som/actions/workflows/go.yml)&emsp;
-[![codecov](https://codecov.io/gh/vogtp/som/branch/main/graph/badge.svg?token=DV0IDZ2FXE)](https://codecov.io/gh/vogtp/som)&emsp;
-[![Go Report Card](https://goreportcard.com/badge/github.com/vogtp/som)](https://goreportcard.com/report/github.com/vogtp/som)&emsp;
-[![Release](https://img.shields.io/github/release/vogtp/som.svg?style=flat-square)](https://github.com/vogtp/som/releases)&emsp;
+[![Go](https://github.com/vogtp/som/actions/workflows/go.yml/badge.svg)](https://github.com/vogtp/som/actions/workflows/go.yml)&nbsp;
+[![codecov](https://codecov.io/gh/vogtp/som/branch/main/graph/badge.svg?token=DV0IDZ2FXE)](https://codecov.io/gh/vogtp/som)&nbsp;
+[![Go Report Card](https://goreportcard.com/badge/github.com/vogtp/som)](https://goreportcard.com/report/github.com/vogtp/som)&nbsp;
+[![Release](https://img.shields.io/github/release/vogtp/som.svg?style=flat-square)](https://github.com/vogtp/som/releases)&nbsp;
 [![GoDoc](https://pkg.go.dev/badge/github.com/vogtp/som?status.svg)](https://pkg.go.dev/github.com/vogtp/som?tab=doc)
 
 
