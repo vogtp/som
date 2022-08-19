@@ -15,7 +15,7 @@ Copy the following files and directories from the SOM repository:
 
 ### Create Packages
 
-Create a directory / go package (custom in this example)
+Create a directory (go package) (`/custom` in this example)
 
 #### Add key for secret store
 
@@ -23,54 +23,52 @@ Create a go file to load key for the store.  Example below.
 
 custom/ignore_key.go:
 
-`` 
-package custom
+	package custom
 
-import (
-	"github.com/vogtp/som/pkg/monitor/szenario"
-	"github.com/vogtp/som/szenarios"
-)
+	import (
+		"github.com/vogtp/som/pkg/monitor/szenario"
+		"github.com/vogtp/som/szenarios"
+	)
 
-func init() {
-    // recommended key length: 40
-	core.Keystore.Add([]byte("CHANGE_ME"))
-}
-``
+	func init() {
+	    // recommended key length: 40
+		core.Keystore.Add([]byte("CHANGE_ME"))
+	}
+
 
 #### Create Szenario Loader
 
 On how to create custom szenarios see [README](README.md).
 
 custom/loader.go
-``
-package custom
 
-import (
-	"github.com/vogtp/som/pkg/monitor/szenario"
-)
+	package custom
 
-// Load the szenarios and return the config
-func Load() *szenario.Config {
-	szConfig := szenario.New()
-	userTypeWorld := szenario.MustUserType(szConfig.CreateUsertType("world", "World contains szenarios accessible without password"))
-	userTypeStaf := szenario.MustUserType(szConfig.CreateUsertType("staf", "Staf contains szenarios relevant for staf members"))
-
-	szConfig.Add(
-		"google",
-		&szenarios.GoogleSzenario{Base: &szenario.Base{}},
-		[]*szenario.UserType{userTypeWorld, userTypeStaf},
-	)
-	szConfig.Add(
-		"OWA", // Outlook Web Access
-		&szenarios.OwaSzenario{Base: &szenario.Base{},
-			OwaURL: "http://mail.MY-COMPANY.com",
-		},
-		[]*szenario.UserType{userTypeStaf},
+	import (
+		"github.com/vogtp/som/pkg/monitor/szenario"
 	)
 
-	return szConfig
-}
-``
+	// Load the szenarios and return the config
+	func Load() *szenario.Config {
+		szConfig := szenario.New()
+		userTypeWorld := szenario.MustUserType(szConfig.CreateUsertType("world", "World contains szenarios accessible without password"))
+		userTypeStaf := szenario.MustUserType(szConfig.CreateUsertType("staf", "Staf contains szenarios relevant for staf members"))
+
+		szConfig.Add(
+			"google",
+			&szenarios.GoogleSzenario{Base: &szenario.Base{}},
+			[]*szenario.UserType{userTypeWorld, userTypeStaf},
+		)
+		szConfig.Add(
+			"OWA", // Outlook Web Access
+			&szenarios.OwaSzenario{Base: &szenario.Base{},
+				OwaURL: "http://mail.MY-COMPANY.com",
+			},
+			[]*szenario.UserType{userTypeStaf},
+		)
+
+		return szConfig
+	}
 
 This example load the SOM example szenario (OWA and google) and asociate them with usertypes.
 Usertype are used to asociate users to szenarios.  For more information see [README](README.md).
@@ -94,9 +92,10 @@ In the copied `som.yml` change the values to match your setup.
 See Makefile: `make build`
 
 1. Build binaries 
-1.1 Components (1.1.1 or 1.1.2)
-1.1.1 All binaries in cmd/components (except allinoe) recommended
-1.1.2 Build allinone 
+2.  Components 
+	- All binaries in cmd/components (recommended)
+	- allinone (and possibly monitor)
+3. somctl
 
 Copy the `som.*` binaries to `/srv/som`
 
