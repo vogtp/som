@@ -39,7 +39,7 @@ func init() {
 
 #### Create Szenario Loader
 
-On how to create custom szenarios see README.md.
+On how to create custom szenarios see [README](README.md).
 
 custom/loader.go
 ``
@@ -73,7 +73,7 @@ func Load() *szenario.Config {
 ``
 
 This example load the SOM example szenario (OWA and google) and asociate them with usertypes.
-Usertype are used to asociate users to szenarios.  For more information see README.md.
+Usertype are used to asociate users to szenarios.  For more information see [README](README.md).
 
 #### Load Szenarios
 
