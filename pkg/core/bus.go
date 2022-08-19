@@ -81,7 +81,7 @@ func (e *Bus) Connect() *grav.Pod {
 	return e.bus.Connect()
 }
 
-//EndpointURL returns the URL the bus endpoint listens on
+// EndpointURL returns the URL the bus endpoint listens on
 func (e Bus) EndpointURL() string {
 	return e.endpointURL
 }

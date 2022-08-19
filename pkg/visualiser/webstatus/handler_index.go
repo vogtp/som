@@ -8,9 +8,9 @@ import (
 	"sort"
 
 	"github.com/spf13/viper"
-	str2duration "github.com/xhit/go-str2duration/v2"
 	"github.com/vogtp/som/pkg/bridger"
 	"github.com/vogtp/som/pkg/core/cfg"
+	str2duration "github.com/xhit/go-str2duration/v2"
 )
 
 type indexValue struct {

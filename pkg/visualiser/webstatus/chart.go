@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	chart "github.com/wcharczuk/go-chart/v2"
 	"github.com/vogtp/som/pkg/visualiser/data"
+	chart "github.com/wcharczuk/go-chart/v2"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"

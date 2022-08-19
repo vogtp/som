@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// szenarios.Load() has to be replace by ones own szenario config
-	szCfg:=szenarios.Load()
+	szCfg := szenarios.Load()
 	close, err := visualiser.Run("som.visualiser", core.Szenario(szCfg))
 	defer close()
 	if err != nil {
