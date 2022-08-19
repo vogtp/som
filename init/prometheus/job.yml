@@ -1,7 +1,5 @@
 
   - job_name: som
-    # If prometheus-node-exporter is installed, grab stats about the local
-    #     # machine by default.
     metrics_path: '/som/metrics'
     static_configs:
       - targets: ['localhost:8083']
