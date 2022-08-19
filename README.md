@@ -133,7 +133,7 @@ To create a szenario you have to inherit `*szenario.Base`:
 
 and implement its `Execute` method:
 
-    func (cs customSzenario) Execute(engine szenario.Engine) (err error) {
+    func (s customSzenario) Execute(engine szenario.Engine) (err error) {
         engine.Step("Loading",
             chromedp.Navigate("https://google.ch/"),
             chromedp.WaitVisible(`#tophf`, chromedp.ByID),
@@ -162,7 +162,7 @@ A input can be done like this:
         engine.Step("searching",
 			chromedp.SendKeys(
 				`document.querySelector("body > div.L3eUgb > div.o3j99.ikrT4e.om7nvf > form > div:nth-child(1) > div.A8SBwf > div.RNNXgb > div > div.a4bIc > input")`,
-				fmt.Sprintf("%s\r", gs.Search),
+				fmt.Sprintf("%s\r", s.Search),
 				chromedp.ByJSPath, // copy JSPath from chrom developer tools
 			),
 		)
@@ -170,3 +170,48 @@ A input can be done like this:
 Finally the szenario has to be added to the szenarion config in `loader.go`:
 
 For a working google example see szenario/google.go
+
+### Sniplets
+
+#### Click Button
+
+The following clicks the button with the ID buttonId
+
+    engine.Step("Click Accept", chromedp.Click("#buttonId", chromedp.ByID))
+
+#### Check if something is visible
+
+The following accepts the google legal stuff
+
+    if ok := engine.IsPresent("#W0wltc", chromedp.ByID); ok {
+        engine.Step("Click Accept", chromedp.Click("#W0wltc", chromedp.ByID))
+    }
+
+#### Login / Enter values
+
+		engine.Step("Login",
+			chromedp.WaitVisible(`#os_username`, chromedp.ByID),
+			chromedp.SendKeys(`#os_username`, s.User().Name()+"\r", chromedp.ByID),
+			chromedp.WaitReady(`#os_password`, chromedp.ByID),
+			chromedp.SendKeys(`#os_password`, s.User().Password()+"\r", chromedp.ByID),
+		)
+
+## Engine Methods
+
+The engine passed to the Execute method has the following methods:
+
+Method Signature                                              | Explaination
+--------------------------------------------------------------|----------------------------------------------------------------------------- 
+Step(name string, actions ...chromedp.Action)                 | Step executes the actions given and records how long it takes
+IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool | IsPresent checks if something is present
+SetStatus(key, val string)                                    | SetStatus sets a status of the event
+AddErr(err error)                                             | AddErr adds a error to the event
+Body(checks ...CheckFunc) chromedp.Action                     | Body is used to check the content of the page
+Contains(s string) CheckFunc                                  | Contains looks for a string in the body
+NotContains(s string) CheckFunc                               | NotContains looks for a string in the body and errs if found
+Bigger(i int) CheckFunc                                       | Bigger checks if the size of the body (in bytes) in bigger than i
+Strings(html *string) CheckFunc                               | Strings gets the body as plaintext
+Headless() bool                                               | Headless indicates if the browser is headless (i.e. does not show on screen)
+WaitForEver()                                                 | WaitForEver blocks until the timeout is reached
+Dump() CheckFunc                                              | Dump prints the body and its size to log
+
