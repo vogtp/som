@@ -123,3 +123,49 @@ A correlation tree looks like this:
 
 
 ## Writing Szenarios
+
+To create a szenario you have to inherit `*szenario.Base`:
+
+    type customSzenario struct {
+        *szenario.Base
+        Search string
+    }
+
+and implement its `Execute` method:
+
+    func (cs customSzenario) Execute(engine szenario.Engine) (err error) {
+        engine.Step("Loading",
+            chromedp.Navigate("https://google.ch/"),
+            chromedp.WaitVisible(`#tophf`, chromedp.ByID),
+        )
+        engine.Step("Check",
+            engine.Body(engine.Contains("Google Search"), engine.Contains("About"), engine.Bigger(1000)),
+        )
+
+        return nil
+    }
+
+`engine.Step(stepName string, actions ...chromedp.Action)` executes a step with a name (stepName) and one or more actions.
+All actions runnable by https://pkg.go.dev/github.com/chromedp/chromedp@v0.8.4#Run can be used.
+
+`chromedp.Navigate("https://google.ch/")` opens https://google.ch/
+
+`chromedp.WaitVisible(`#tophf`, chromedp.ByID)` wait for an element with the ID #tophf to apear.
+
+    engine.Body(engine.Contains("Google Search"), engine.Contains("About"), engine.Bigger(1000)),
+    
+
+checks if the Body conatins "Google Search" and "About" and it's size is bigger than 1000 characters.
+
+A input can be done like this:
+
+        engine.Step("searching",
+			chromedp.SendKeys(
+				"body > div.L3eUgb > div.o3j99.ikrT4e.om7nvf > form > div:nth-child(1) > div.A8SBwf.emcav > div.RNNXgb > div > div.a4bIc > input",
+				fmt.Sprintf("%s\r", gs.Search),
+				chromedp.ByJSPath, // copy JSPath from chrom developer tools
+			),
+		)
+
+Finally the szenario has to be added to the szenarion config in `loader.go`:
+
