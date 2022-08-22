@@ -39,6 +39,11 @@ const (
 	// AlertIncidentCorrelationReopenTime is the duration during which a icident is reopened
 	AlertIncidentCorrelationReopenTime = "alert.event.correlation.reopentime"
 
+	// AlertDestinations defines destinations for alerting (handled in alerter)
+	AlertDestinations = "alert.destinations"
+	// AlertRules defines rules alert handling (handled in alerter)
+	AlertRules = "alert.rules"
+
 	// AlertVisualiserURL is the URL of the webserver serving details
 	AlertVisualiserURL = "alert.visualiserURL"
 
