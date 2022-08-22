@@ -39,7 +39,6 @@ config:
     save: false
 core:
     startdelay: 100ms
-escada: false
 log:
     level: info
 prometheus:
