@@ -139,7 +139,7 @@ func (cdp *Engine) Loop() {
 		cdp.stepInfo = newStepInfo(&cdp.hcl)
 		srw.lastRunOk = cdp.run()
 		cdp.hcl = cdp.baseHcl
-		cdp.reschedule(srw)
+		go cdp.reschedule(srw)
 	}
 	cdp.hcl.Info("Finished main szenario loop")
 	if cdp.noClose {
