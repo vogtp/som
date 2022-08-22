@@ -15,17 +15,17 @@ th, td {
 <tr style="text-align: center">
     <th></th>
     <th>Szenario</th>
-    <th colspan=2 style="text-align: center">Availability</th>
     <th>Incident </th>
+    <th colspan=2 style="text-align: center">Availability</th>
     <th colspan=2 style="text-align: center">Check Duration</th>
     <th>Check Time Graph</th>
 </tr>
 <tr style="text-align: center">
     <td></td>
     <td></td>
+    <td>Count</td>
     <td>Current</td>
     <td>Average</td>
-    <td>Count</td>
     <td>Current</td>
     <td>Average</td>
     <td style="text-align: right">
@@ -56,11 +56,9 @@ th, td {
     <td>
         <a href="{{ .IncidentList }}{{$.Query}}" >{{ .Name }}</a>
     </td>
+    <td align="right"> {{ .IncidentCount }} </td>
     <td style="text-align: right"> {{ .AvailabilityCur }} </td>
     <td style="text-align: right"> {{ .AvailabilityAvg }} </td>
-    <td align="right">
-        {{ .IncidentCount }}
-    </td>
     <td>
         {{ .LastTime }} 
     </td>
