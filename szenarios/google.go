@@ -32,6 +32,7 @@ func (gs GoogleSzenario) Execute(engine szenario.Engine) (err error) {
 				fmt.Sprintf("%s\r", gs.Search),
 				chromedp.ByJSPath, // copy JSPath from chrom developer tools
 			),
+			chromedp.WaitVisible(`#result-stats`, chromedp.ByID),
 		)
 	}
 	checks := make([]szenario.CheckFunc, 1, len(gs.MustContain)+1)
