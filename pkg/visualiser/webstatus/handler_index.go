@@ -14,16 +14,17 @@ import (
 )
 
 type indexValue struct {
-	Name          string
-	PromName      string
-	Img           string
-	Status        string
-	Availability  string
-	LastTime      template.HTML
-	AvgTime       template.HTML
-	LastUpdate    string
-	IncidentCount int
-	IncidentList  string
+	Name            string
+	PromName        string
+	Img             string
+	Status          string
+	AvailabilityCur string
+	AvailabilityAvg string
+	LastTime        template.HTML
+	AvgTime         template.HTML
+	LastUpdate      string
+	IncidentCount   int
+	IncidentList    string
 }
 
 func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
@@ -70,14 +71,19 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 	sort.Strings(keys)
 	for _, k := range keys {
 		stat := s.data.Status.Get(k)
+		avail, found := s.data.Availabilites[k]
+		if !found {
+			avail = stat.Availability()
+		}
 
 		s.hcl.Debugf("Displaying %s in index", k)
 		iv := indexValue{
-			Name:         k,
-			PromName:     bridger.PrometheusName(k),
-			Status:       "\n" + stat.String(),
-			Availability: stat.Availability().String(),
-			Img:          stat.Level().Img(),
+			Name:            k,
+			PromName:        bridger.PrometheusName(k),
+			Status:          "\n" + stat.String(),
+			AvailabilityCur: stat.Availability().String(),
+			AvailabilityAvg: avail.String(),
+			Img:             stat.Level().Img(),
 
 			LastUpdate:   stat.LastUpdate().Format(cfg.TimeFormatString),
 			IncidentList: fmt.Sprintf("%s/%s/%s/", data.Baseurl, incidentListPath, k),

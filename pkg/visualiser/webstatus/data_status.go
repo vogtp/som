@@ -16,17 +16,19 @@ import (
 const jsonDBFile = "webstatus.json"
 
 type szenarioData struct {
-	hcl        hcl.Logger
-	mu         sync.RWMutex `json:"-"`
-	Status     status.Status
-	Timeseries map[string]*data.Timeserie
+	hcl           hcl.Logger
+	mu            sync.RWMutex `json:"-"`
+	Status        status.Status
+	Availabilites map[string]status.Availability
+	Timeseries    map[string]*data.Timeserie
 }
 
 func newSzenarioData(hcl hcl.Logger) *szenarioData {
 	sd := &szenarioData{
-		hcl:        hcl.Named("data"),
-		Status:     status.New(),
-		Timeseries: make(map[string]*data.Timeserie),
+		hcl:           hcl.Named("data"),
+		Status:        status.New(),
+		Availabilites: make(map[string]status.Availability),
+		Timeseries:    make(map[string]*data.Timeserie),
 	}
 	return sd
 }

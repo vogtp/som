@@ -78,6 +78,20 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 	s.data.Status.AddEvent(e)
 	s.data.Status.UpdatePrometheus()
 
+	// calculate rolling average of availability
+	for _, sz := range s.data.Status.Szenarios() {
+		if sz.Key() != e.Name {
+			continue
+		}
+		avail, found := s.data.Availabilites[e.Name]
+		if !found {
+			s.data.Availabilites[e.Name] = sz.Availability()
+			continue
+		}
+		s.data.Availabilites[e.Name] = (avail + sz.Availability()) / 2
+		s.hcl.Infof("%s availability (%v + %v)/2 = %v", e.Name, avail, sz.Availability(), s.data.Availabilites[e.Name])
+	}
+
 	//  do we need local timeseries?
 	// s.handleTimeseries(e)
 }

@@ -60,10 +60,10 @@ func (w evtWrapper) Level() Level {
 
 // Availability is of the event
 // 0 if no error 1 otherwise
-func (w evtWrapper) Availability() Groupavailability {
-	ret := Groupavailability(1)
+func (w evtWrapper) Availability() Availability {
+	ret := Availability(1)
 	if w.evt.Err() != nil {
-		ret = Groupavailability(0)
+		ret = Availability(0)
 	}
 	return ret
 }
