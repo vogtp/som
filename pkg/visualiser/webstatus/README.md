@@ -1,10 +1,11 @@
 # Service Oriented Monitoring (SOM)
-[![Go](https://github.com/vogtp/som/actions/workflows/go.yml/badge.svg)](https://github.com/vogtp/som/actions/workflows/go.yml)&emsp;
-[![codecov](https://codecov.io/gh/vogtp/som/branch/main/graph/badge.svg?token=DV0IDZ2FXE)](https://codecov.io/gh/vogtp/som)&emsp;
-[![Go Report Card](https://goreportcard.com/badge/github.com/vogtp/som)](https://goreportcard.com/report/github.com/vogtp/som)&emsp;
-[![Release](https://img.shields.io/github/release/vogtp/som.svg?style=flat-square)](https://github.com/vogtp/som/releases)&emsp;
+<!--
 [![GoDoc](https://pkg.go.dev/badge/github.com/vogtp/som?status.svg)](https://pkg.go.dev/github.com/vogtp/som?tab=doc)
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/vogtp/som)](https://goreportcard.com/report/github.com/vogtp/som)&nbsp;
+[![Release](https://img.shields.io/github/release/vogtp/som.svg?style=flat-square)](https://github.com/vogtp/som/releases)&nbsp;
+[![Go](https://github.com/vogtp/som/actions/workflows/go.yml/badge.svg)](https://github.com/vogtp/som/actions/workflows/go.yml)&nbsp;
+[![codecov](https://codecov.io/gh/vogtp/som/branch/main/graph/badge.svg?token=DV0IDZ2FXE)](https://codecov.io/gh/vogtp/som)&nbsp;
+-->
 
 The Service Oriented Monitoring (SOM) monitors web applications from the
 perspective of an user.
@@ -123,3 +124,95 @@ A correlation tree looks like this:
 
 
 ## Writing Szenarios
+
+To create a szenario you have to inherit `*szenario.Base`:
+
+    type customSzenario struct {
+        *szenario.Base
+        Search string
+    }
+
+and implement its `Execute` method:
+
+    func (s customSzenario) Execute(engine szenario.Engine) (err error) {
+        engine.Step("Loading",
+            chromedp.Navigate("https://google.ch/"),
+            chromedp.WaitVisible(`#tophf`, chromedp.ByID),
+        )
+        engine.Step("Check",
+            engine.Body(engine.Contains("Google Search"), engine.Contains("About"), engine.Bigger(1000)),
+        )
+
+        return nil
+    }
+
+`engine.Step(stepName string, actions ...chromedp.Action)` executes a step with a name (stepName) and one or more actions.
+All actions runnable by https://pkg.go.dev/github.com/chromedp/chromedp@v0.8.4#Run can be used.
+
+`chromedp.Navigate("https://google.ch/")` opens https://google.ch/
+
+`chromedp.WaitVisible(`#tophf`, chromedp.ByID)` wait for an element with the ID #tophf to apear.
+
+    engine.Body(engine.Contains("Google Search"), engine.Contains("About"), engine.Bigger(1000)),
+    
+
+checks if the Body conatins "Google Search" and "About" and it's size is bigger than 1000 characters.
+
+A input can be done like this:
+
+        engine.Step("searching",
+			chromedp.SendKeys(
+				`document.querySelector("body > div.L3eUgb > div.o3j99.ikrT4e.om7nvf > form > div:nth-child(1) > div.A8SBwf > div.RNNXgb > div > div.a4bIc > input")`,
+				fmt.Sprintf("%s\r", s.Search),
+				chromedp.ByJSPath, // copy JSPath from chrom developer tools
+			),
+		)
+
+Finally the szenario has to be added to the szenarion config in `loader.go`:
+
+For a working google example see szenario/google.go
+
+### Sniplets
+
+#### Click Button
+
+The following clicks the button with the ID buttonId
+
+    engine.Step("Click Accept", chromedp.Click("#buttonId", chromedp.ByID))
+
+#### Check if something is visible
+
+The following checks if a button with id buttonId is present and clicks it.
+
+    if ok := engine.IsPresent("#buttonId", chromedp.ByID); ok {
+        engine.Step("Click Accept", chromedp.Click("#buttonId", chromedp.ByID))
+    }
+
+#### Login / Enter values
+
+		engine.Step("Login",
+			chromedp.WaitVisible(`#username`, chromedp.ByID),
+			chromedp.SendKeys(`#username`, s.User().Name()+"\r", chromedp.ByID),
+			chromedp.WaitReady(`#password`, chromedp.ByID),
+			chromedp.SendKeys(`#password`, s.User().Password()+"\r", chromedp.ByID),
+		)
+
+## Engine Methods
+
+The engine passed to the Execute method has the following methods:
+
+Method Signature                                              | Explaination
+--------------------------------------------------------------|----------------------------------------------------------------------------- 
+Step(name string, actions ...chromedp.Action)                 | Step executes the actions given and records how long it takes
+IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool | IsPresent checks if something is present
+SetStatus(key, val string)                                    | SetStatus sets a status of the event
+AddErr(err error)                                             | AddErr adds a error to the event
+Body(checks ...CheckFunc) chromedp.Action                     | Body is used to check the content of the page
+Contains(s string) CheckFunc                                  | Contains looks for a string in the body
+NotContains(s string) CheckFunc                               | NotContains looks for a string in the body and errs if found
+Bigger(i int) CheckFunc                                       | Bigger checks if the size of the body (in bytes) in bigger than i
+Strings(html *string) CheckFunc                               | Strings gets the body as plaintext
+Headless() bool                                               | Headless indicates if the browser is headless (i.e. does not show on screen)
+WaitForEver()                                                 | WaitForEver blocks until the timeout is reached
+Dump() CheckFunc                                              | Dump prints the body and its size to log
+
