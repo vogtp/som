@@ -89,7 +89,7 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 			continue
 		}
 		s.data.Availabilites[e.Name] = (avail + sz.Availability()) / 2
-		s.hcl.Infof("%s availability (%v + %v)/2 = %v", e.Name, avail, sz.Availability(), s.data.Availabilites[e.Name])
+		s.hcl.Debugf("%s availability (%v + %v)/2 = %v", e.Name, avail, sz.Availability(), s.data.Availabilites[e.Name])
 	}
 
 	//  do we need local timeseries?
