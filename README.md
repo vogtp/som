@@ -182,19 +182,19 @@ The following clicks the button with the ID buttonId
 
 #### Check if something is visible
 
-The following accepts the google legal stuff
+The following checks if a button with id buttonId is present and clicks it.
 
-    if ok := engine.IsPresent("#W0wltc", chromedp.ByID); ok {
-        engine.Step("Click Accept", chromedp.Click("#W0wltc", chromedp.ByID))
+    if ok := engine.IsPresent("#buttonId", chromedp.ByID); ok {
+        engine.Step("Click Accept", chromedp.Click("#buttonId", chromedp.ByID))
     }
 
 #### Login / Enter values
 
 		engine.Step("Login",
-			chromedp.WaitVisible(`#os_username`, chromedp.ByID),
-			chromedp.SendKeys(`#os_username`, s.User().Name()+"\r", chromedp.ByID),
-			chromedp.WaitReady(`#os_password`, chromedp.ByID),
-			chromedp.SendKeys(`#os_password`, s.User().Password()+"\r", chromedp.ByID),
+			chromedp.WaitVisible(`#username`, chromedp.ByID),
+			chromedp.SendKeys(`#username`, s.User().Name()+"\r", chromedp.ByID),
+			chromedp.WaitReady(`#password`, chromedp.ByID),
+			chromedp.SendKeys(`#password`, s.User().Password()+"\r", chromedp.ByID),
 		)
 
 ## Engine Methods
