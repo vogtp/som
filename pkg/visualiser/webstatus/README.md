@@ -1,7 +1,7 @@
 # Service Oriented Monitoring (SOM)
 <!--
-[![GoDoc](https://pkg.go.dev/badge/github.com/vogtp/som?status.svg)](https://pkg.go.dev/github.com/vogtp/som?tab=doc)
-[![Go Report Card](https://goreportcard.com/badge/github.com/vogtp/som)](https://goreportcard.com/report/github.com/vogtp/som)&nbsp;
+[![GoDoc](https://pkg.go.dev/badge/github.com/vogtp/som?status.svg)](https://pkg.go.dev/github.com/vogtp/som?tab=doc) &nbsp;
+[![Go Report Card](https://goreportcard.com/badge/github.com/vogtp/som)](https://goreportcard.com/report/github.com/vogtp/som) &nbsp;
 [![Release](https://img.shields.io/github/release/vogtp/som.svg?style=flat-square)](https://github.com/vogtp/som/releases)&nbsp;
 [![Go](https://github.com/vogtp/som/actions/workflows/go.yml/badge.svg)](https://github.com/vogtp/som/actions/workflows/go.yml)&nbsp;
 [![codecov](https://codecov.io/gh/vogtp/som/branch/main/graph/badge.svg?token=DV0IDZ2FXE)](https://codecov.io/gh/vogtp/som)&nbsp;
