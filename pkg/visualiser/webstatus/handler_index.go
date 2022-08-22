@@ -81,8 +81,8 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 			Name:            k,
 			PromName:        bridger.PrometheusName(k),
 			Status:          "\n" + stat.String(),
-			AvailabilityCur: stat.Availability().String(),
-			AvailabilityAvg: avail.String(),
+			AvailabilityCur: avail.String(),
+			AvailabilityAvg: stat.Availability().String(),
 			Img:             stat.Level().Img(),
 
 			LastUpdate:   stat.LastUpdate().Format(cfg.TimeFormatString),
