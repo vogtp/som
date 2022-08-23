@@ -32,15 +32,15 @@ func AddRule(r *Rule) error {
 	return nil
 }
 
-func parseRules() {
+func parseRulesCfg() {
 	hcl := core.Get().HCL().Named("rules")
 	raw := viper.Get(cfg.AlertRules)
 	slc, ok := raw.([]any)
 	if !ok {
-		hcl.Errorf("Cannot get destinations: %v", raw)
+		hcl.Errorf("Cannot get rules: %v", raw)
 		return
 	}
-	for i, _ := range slc {
+	for i := range slc {
 		cfg := viper.Sub(fmt.Sprintf("%s.%v", cfg.AlertRules, i))
 		name := cfg.GetString(cfgAlertDestName)
 		if len(name) < 1 {

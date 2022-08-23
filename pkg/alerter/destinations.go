@@ -9,14 +9,6 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
-type destinationKind uint
-
-const (
-	kindUnknown destinationKind = iota
-	kindMail
-	kindTeams
-)
-
 const (
 	cfgAlertDestName         = "name"
 	cfgAlertDestMailTo       = "to"
@@ -28,10 +20,11 @@ var destinations map[string]*Destination = make(map[string]*Destination, 0)
 // Destination is a endpoint for alerting (e.g. mail to a group)
 type Destination struct {
 	Name string
-	Kind destinationKind
+	Kind string
 	Cfg  *viper.Viper
 }
 
+// AddDestination adds a destination (mail group, chat root) to alerting
 func AddDestination(d *Destination) error {
 	if d == nil {
 		return errors.New("destination is nil")
@@ -39,7 +32,10 @@ func AddDestination(d *Destination) error {
 	if len(d.Name) < 1 {
 		return errors.New("a destination must have an name")
 	}
-
+	_, exists := engines[d.Kind]
+	if !exists {
+		return fmt.Errorf("destination kind %s does not extist", d.Kind)
+	}
 	_, found := destinations[d.Name]
 	if found {
 		return fmt.Errorf("doublicated destination name %s: no adding", d.Name)
@@ -49,7 +45,7 @@ func AddDestination(d *Destination) error {
 	return nil
 }
 
-func parseDestinations() {
+func parseDestinationsCfg() {
 	hcl := core.Get().HCL().Named("destinations")
 	raw := viper.Get(cfg.AlertDestinations)
 	slc, ok := raw.([]any)
@@ -59,7 +55,7 @@ func parseDestinations() {
 	}
 	for i, l := range slc {
 		m := l.(map[string]any)
-		for k, _ := range m {
+		for k := range m {
 			cfg := viper.Sub(fmt.Sprintf("%s.%v.%v", cfg.AlertDestinations, i, k))
 			if cfg == nil {
 				hcl.Warnf("Destination index %v is nil", i)
@@ -70,15 +66,10 @@ func parseDestinations() {
 				hcl.Warn("No destination name, skipping")
 				continue
 			}
-			kind, err := parseKind(k)
-			if err != nil {
-				hcl.Warnf("Cannot parse destination: %v", err)
-				continue
-			}
 			hcl.Infof("Alert destination %v: %q", k, name)
 			d := &Destination{
 				Name: name,
-				Kind: kind,
+				Kind: k,
 				Cfg:  cfg,
 			}
 
@@ -88,15 +79,4 @@ func parseDestinations() {
 		}
 	}
 	hcl.Warnf("Loaded %v alert destinations", len(destinations))
-}
-
-func parseKind(k string) (destinationKind, error) {
-	switch k {
-	case "mail":
-		return kindMail, nil
-	case "teams":
-		return kindTeams, nil
-	default:
-		return kindUnknown, fmt.Errorf("Unknown destination kind: %s", k)
-	}
 }

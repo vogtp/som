@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image/png"
+	"sync"
 
 	goteamsnotify "github.com/atc0005/go-teams-notify/v2"
 	"github.com/nfnt/resize"
@@ -23,36 +24,56 @@ const (
 
 // Teams  alerter
 type Teams struct {
-	hcl        hcl.Logger
-	webhookURL string
+	hcl hcl.Logger
+	mu  sync.Mutex
 }
 
 // NewTeams registers a Teams alerter on the event bus
-func NewTeams() {
+func NewTeams() (Engine, error) {
 	bus := core.Get().Bus()
 	hcl := bus.GetLogger().Named("teams")
-	url := viper.GetString(cfg.AlertTeamsWebhook)
-	if ok, err := goteamsnotify.IsValidWebhookURL(url); !ok || err != nil {
-		hcl.Errorf("Not starting teams alerter: teams URL not valid: %v", err)
-		return
-	}
-	d := Teams{
-		hcl:        hcl,
-		webhookURL: url,
-	}
-	bus.Alert.Handle(d.handle)
+	return &Teams{
+		hcl: hcl,
+	}, nil
 }
 
-func (teams *Teams) handle(e *msg.AlertMsg) {
+// Kind returns what kind of alerter engine it is
+func (teams *Teams) Kind() string { return "teams" }
+
+// Send the alert
+func (teams *Teams) Send(e *msg.AlertMsg, d *Destination) error {
+	teams.mu.Lock()
+	defer teams.mu.Unlock()
 	teams.hcl.Debug("got event %v: %v", e.Name, e.Err())
 	teams.hcl.Infof("Sending teams alert %s: %v", e.Name, e.Err())
-	err := teams.sendAlert(e)
+	err := teams.sendAlert(e, d)
 	if err != nil {
-		teams.hcl.Errorf("cannot send to teams: %v", err)
+		return fmt.Errorf("cannot send to teams: %v", err)
 	}
+	return nil
 }
 
-func (teams *Teams) sendAlert(e *msg.AlertMsg) error {
+func (teams *Teams) checkDestinationWebhooks() (ret error) {
+	for _, d := range destinations {
+		if d.Kind != teams.Kind() {
+			continue
+		}
+		url := d.Cfg.GetString(cfgAlertDestTeamsWebhook)
+		if ok, err := goteamsnotify.IsValidWebhookURL(url); !ok || err != nil {
+			teams.hcl.Warnf("%s: teams webhook URL %q not valid: %v", d.Name, url, err)
+			if err != nil {
+				ret = err
+			}
+		}
+	}
+	return ret
+}
+
+func (teams *Teams) sendAlert(e *msg.AlertMsg, d *Destination) error {
+	webhookURL := d.Cfg.GetString(cfgAlertDestTeamsWebhook)
+	if ok, err := goteamsnotify.IsValidWebhookURL(webhookURL); !ok || err != nil {
+		return fmt.Errorf("not sending teams message webhook URL %s not valid: %v", webhookURL, err)
+	}
 	img := ""
 	//fullImage := fmt.Sprintf("<img src='%s/%s?file=%%s.%%s' />", viper.GetString(cfg.AlertDetailURL), e.ID)
 	for _, f := range e.Files {
@@ -99,7 +120,7 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg) error {
 		return fmt.Errorf("error creating new teams message card: %w", err)
 	}
 
-	return mstClient.SendWithRetry(context.TODO(), teams.webhookURL, msgCard, 3, 5)
+	return mstClient.SendWithRetry(context.TODO(), webhookURL, msgCard, 3, 5)
 }
 
 func (teams *Teams) getImage(img []byte) (string, error) {
