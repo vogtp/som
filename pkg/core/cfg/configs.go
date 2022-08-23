@@ -28,8 +28,6 @@ const (
 	AlertSubject = "alert.subject"
 	// AlertMailFrom from mail adr
 	AlertMailFrom = "alert.mail.from"
-	// AlertMailTo receipient of main alert
-	AlertMailTo = "alert.mail.to"
 	// AlertMailSMTPHost smtp host
 	AlertMailSMTPHost = "alert.mail.smtp.host"
 	// AlertMailSMTPPort smtp port
@@ -46,9 +44,6 @@ const (
 
 	// AlertVisualiserURL is the URL of the webserver serving details
 	AlertVisualiserURL = "alert.visualiserURL"
-
-	// AlertTeamsWebhook webhook of teams messages
-	AlertTeamsWebhook = "alert.teams.webhook"
 )
 
 func init() {
