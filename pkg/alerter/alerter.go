@@ -4,7 +4,6 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/stater/alertmgr"
 )
 
 const (
@@ -13,6 +12,7 @@ const (
 	cfgAlertDestTeamsWebhook = "webhook"
 )
 
+// Alerter is the main alerter stuct
 type Alerter struct {
 	hcl     hcl.Logger
 	dsts    map[string]*Destination
@@ -20,6 +20,7 @@ type Alerter struct {
 	rules   []Rule
 }
 
+// New creates an alerter
 func New(c *core.Core) *Alerter {
 	a := &Alerter{
 		hcl:     c.HCL().Named("alerter"),
