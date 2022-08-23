@@ -1,6 +1,7 @@
 data:
     dir: "data/"
 alert:
+    enabled: true
     delay: 15m
     intervall: 12h
     level: warning
@@ -14,11 +15,45 @@ alert:
         smtp:
             host: # TODO add mail server
             port: 25
-        to:
-            -  # TODO add receipients
     subject: "SOM Alert:"
-    teams:
-        webhook: # TODO add teams webhook url
+    destinations:
+        - teams:
+              name: Teams QM
+              subject: "SOM QM Teams:"
+              webhook: # WebHook for QM Teams room
+        - teams:
+              name: Teams Prod
+              webhook: # WebHook for Production Teams room
+        - mail:
+              name: Mail to colleges
+              to:
+                  -  # add colleges email
+        - mail:
+              enabled: false
+              name: Mail to boss
+              to:
+                  -  # add boss email
+    rules:
+        - name: QM
+          conditions:
+              status:
+                  level: warning
+              szenario:
+                  # include: google
+                  exclude:
+                      - crasher
+          destinations:
+              - Teams QM
+              - Mail to colleges
+        - name: Prod
+          conditions:
+              - level: down
+          enabled: true
+          subject: "SOM Alert:"
+          destinations:
+              - Teams Prod
+              - Mail to colleges
+              - Mail to boss # no problem destination is disabled anyway, he will not get mails
 browser:
     noclose: false
     show: false
@@ -34,7 +69,7 @@ check:
     repeat: 5m0s
     timeout: 1m0s
     region: default
-    #user: # default user
+    #user: # default user (manly usefull for testing)
 config:
     save: false
 core:
