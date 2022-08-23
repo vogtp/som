@@ -18,6 +18,9 @@ const (
 	cfgAlertDestMailTo       = "to"
 	cfgAlertDestTeamsWebhook = "webhook"
 	cfgAlertEnabled          = "enabled"
+	cfgAlertRuleConditions   = "conditions"
+	cfgInclude               = "include"
+	cfgExclude               = "exclude"
 )
 
 func getCfgBool(key string, r *Rule, d *Destination) bool {
@@ -67,11 +70,13 @@ func New(c *core.Core) *Alerter {
 		conditions: make(map[string]Conditon),
 		rules:      make([]Rule, 0),
 	}
-	a.addDefaultEngines()
+	a.addDefaultComponents()
 	return a
 }
 
-func (a *Alerter) addDefaultEngines() {
+func (a *Alerter) addDefaultComponents() {
+	a.AddConditon(StatusCond{})
+	a.AddConditon(SzenarioCond{})
 	if err := a.AddEngine(NewMailer()); err != nil {
 		a.hcl.Warnf("Cannot create engine: %v", err)
 	}
@@ -85,15 +90,15 @@ func (a *Alerter) Run() (ret error) {
 	a.parseConfig()
 	if err := a.initDests(); err != nil {
 		ret = err
-		a.hcl.Warnf("problems initialiseing alerter destinations: %v", err)
+		a.hcl.Warnf("problems initialising alerter destinations: %v", err)
 	}
 	if err := a.initRules(); err != nil {
 		ret = err
-		a.hcl.Warnf("problems initialiseing alerter rules: %v", err)
+		a.hcl.Warnf("problems initialising alerter rules: %v", err)
 	}
 	if err := a.initEgninges(); err != nil {
 		ret = err
-		a.hcl.Warnf("problems initialiseing alerter engines: %v", err)
+		a.hcl.Warnf("problems initialising alerter engines: %v", err)
 	}
 	a.c.Bus().Alert.Handle(a.handle)
 	return ret
@@ -111,8 +116,9 @@ func (a *Alerter) initEgninges() (ret error) {
 
 func (a *Alerter) handle(msg *msg.AlertMsg) {
 	for _, r := range a.rules {
-		if !r.Check(msg) {
-			a.hcl.Debugf("%s does not macht condtions of rule %s", msg.Name, r.Name)
+		if err := r.DoAlert(msg); err != nil {
+			a.hcl.Infof("Not alerting %s: %v", msg.Name, err)
+			continue
 		}
 		for _, d := range r.Destinations {
 			if !getCfgBool(cfgAlertEnabled, &r, &d) {

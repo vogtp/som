@@ -9,22 +9,27 @@ import (
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
+type condWrapper struct {
+	cond Conditon
+	cfg  *viper.Viper
+}
+
 // Rule a rule for alerting
 type Rule struct {
 	Name         string
 	Destinations []Destination
-	Conditions   []Conditon
+	Conditions   []condWrapper
 	Cfg          *viper.Viper
 }
 
-// Check checks if the condtions a matched
-func (r *Rule) Check(mgs *msg.AlertMsg) bool {
+// DoAlert checks if the condtions a matched
+func (r *Rule) DoAlert(mgs *msg.AlertMsg) error {
 	for _, c := range r.Conditions {
-		if !c.Check(mgs) {
-			return false
+		if err := c.cond.DoAlert(mgs, c.cfg); err != nil {
+			return fmt.Errorf("rule %q condtion %q: %v", r.Name, c.cond.Kind(), err)
 		}
 	}
-	return true
+	return nil
 }
 
 // AddRule adds an alerting Rule
@@ -49,7 +54,9 @@ func (a *Alerter) initRules() (ret error) {
 			ret = fmt.Errorf("rule %s is not valid: %v", r.Name, err)
 			a.hcl.Warn(ret.Error())
 			ret = err
+			continue
 		}
+		a.parseConditions(&r)
 		validRules = append(validRules, r)
 	}
 	a.rules = validRules
@@ -93,11 +100,36 @@ func (a *Alerter) parseRulesCfg() {
 			continue
 		}
 		r := &Rule{
-			Name: name,
-			Cfg:  cfg,
+			Name:       name,
+			Cfg:        cfg,
+			Conditions: make([]condWrapper, 0),
 		}
 		if err := a.AddRule(r); err != nil {
 			a.hcl.Warnf("Not adding rule %s: %v", name, err)
 		}
+	}
+}
+
+func (a *Alerter) parseConditions(r *Rule) {
+	raw := r.Cfg.Get(cfgAlertRuleConditions)
+	slc, ok := raw.(map[string]any)
+	if !ok {
+		a.hcl.Errorf("Cannot get conditions of rule %s: %v", r.Name, raw)
+		return
+	}
+	for n := range slc {
+		cond, ok := a.conditions[n]
+		if !ok {
+			a.hcl.Warnf("rule %q: no such codition: %q", r.Name, n)
+			continue
+		}
+		cfg := r.Cfg.Sub(fmt.Sprintf("%s.%v", cfgAlertRuleConditions, n))
+		if err := cond.CheckConfig(cfg); err != nil {
+			a.hcl.Warnf("Condition %q of rule %q contains errors: %v", cond.Kind(), r.Name, err)
+		}
+		r.Conditions = append(r.Conditions, condWrapper{
+			cond: cond,
+			cfg:  cfg,
+		})
 	}
 }
