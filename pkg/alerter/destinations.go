@@ -10,9 +10,9 @@ import (
 
 // Destination is a endpoint for alerting (e.g. mail to a group)
 type Destination struct {
-	Name string
-	Kind string
-	Cfg  *viper.Viper
+	name string
+	kind string
+	cfg  *viper.Viper
 }
 
 // AddDestination adds a destination (mail group, chat root) to alerting
@@ -20,26 +20,26 @@ func (a *Alerter) AddDestination(d *Destination) error {
 	if d == nil {
 		return errors.New("destination is nil")
 	}
-	if len(d.Name) < 1 {
+	if len(d.name) < 1 {
 		return errors.New("a destination must have an name")
 	}
 	if !getCfgBool(cfgAlertEnabled, nil, d) {
-		return fmt.Errorf("%s is not enabled", d.Name)
+		return fmt.Errorf("%s is not enabled", d.name)
 	}
-	_, found := a.dsts[d.Name]
+	_, found := a.dsts[d.name]
 	if found {
-		return fmt.Errorf("doublicated destination name %s: no adding", d.Name)
+		return fmt.Errorf("doublicated destination name %s: no adding", d.name)
 	}
-	a.dsts[d.Name] = d
+	a.dsts[d.name] = d
 	return nil
 }
 
 func (a *Alerter) initDests() (ret error) {
 	validDst := make(map[string]*Destination, len(a.dsts))
 	for k, d := range a.dsts {
-		_, exists := a.engines[d.Kind]
+		_, exists := a.engines[d.kind]
 		if !exists {
-			ret = fmt.Errorf("destination kind %s does not extist", d.Kind)
+			ret = fmt.Errorf("destination kind %s does not extist", d.kind)
 			a.hcl.Warn(ret.Error())
 			continue
 		}
@@ -76,9 +76,9 @@ func (a *Alerter) parseDestinationsCfg() {
 			}
 			a.hcl.Infof("Alert destination %v: %q", k, name)
 			d := &Destination{
-				Name: name,
-				Kind: k,
-				Cfg:  cfg,
+				name: name,
+				kind: k,
+				cfg:  cfg,
 			}
 
 			if err := a.AddDestination(d); err != nil {

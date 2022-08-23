@@ -16,17 +16,17 @@ type condWrapper struct {
 
 // Rule a rule for alerting
 type Rule struct {
-	Name         string
-	Destinations []Destination
-	Conditions   []condWrapper
-	Cfg          *viper.Viper
+	name         string
+	destinations []Destination
+	conditions   []condWrapper
+	cfg          *viper.Viper
 }
 
 // DoAlert checks if the condtions a matched
 func (r *Rule) DoAlert(mgs *msg.AlertMsg) error {
-	for _, c := range r.Conditions {
+	for _, c := range r.conditions {
 		if err := c.cond.DoAlert(mgs, c.cfg); err != nil {
-			return fmt.Errorf("rule %q condtion %q: %v", r.Name, c.cond.Kind(), err)
+			return fmt.Errorf("rule %q condtion %q: %v", r.name, c.cond.Kind(), err)
 		}
 	}
 	return nil
@@ -37,11 +37,11 @@ func (a *Alerter) AddRule(r *Rule) error {
 	if r == nil {
 		return errors.New("rule is nil")
 	}
-	if len(r.Name) < 1 {
+	if len(r.name) < 1 {
 		return errors.New("a rule must have an name")
 	}
 	if !getCfgBool(cfgAlertEnabled, r, nil) {
-		return fmt.Errorf("%s is not enabled", r.Name)
+		return fmt.Errorf("%s is not enabled", r.name)
 	}
 	a.rules = append(a.rules, *r)
 	return nil
@@ -51,7 +51,7 @@ func (a *Alerter) initRules() (ret error) {
 	validRules := make([]Rule, 0, len(a.rules))
 	for _, r := range a.rules {
 		if err := a.isValidRule(&r); err != nil {
-			ret = fmt.Errorf("rule %s is not valid: %v", r.Name, err)
+			ret = fmt.Errorf("rule %s is not valid: %v", r.name, err)
 			a.hcl.Warn(ret.Error())
 			ret = err
 			continue
@@ -69,19 +69,19 @@ func (a *Alerter) initRules() (ret error) {
 }
 
 func (a *Alerter) isValidRule(r *Rule) error {
-	dests := r.Cfg.GetStringSlice(cfgAlertDest)
+	dests := r.cfg.GetStringSlice(cfgAlertDest)
 	for _, d := range dests {
 		dst, found := a.dsts[d]
 		if !found {
 			a.hcl.Warnf("No such destination %q ignroing", d)
 			continue
 		}
-		r.Destinations = append(r.Destinations, *dst)
+		r.destinations = append(r.destinations, *dst)
 	}
-	if len(r.Destinations) < 1 {
+	if len(r.destinations) < 1 {
 		return errors.New("a rule without destinations does not make sens")
 	}
-	a.hcl.Infof("Added rule %s", r.Name)
+	a.hcl.Infof("Added rule %s", r.name)
 	return nil
 }
 
@@ -100,9 +100,9 @@ func (a *Alerter) parseRulesCfg() {
 			continue
 		}
 		r := &Rule{
-			Name:       name,
-			Cfg:        cfg,
-			Conditions: make([]condWrapper, 0),
+			name:       name,
+			cfg:        cfg,
+			conditions: make([]condWrapper, 0),
 		}
 		if err := a.AddRule(r); err != nil {
 			a.hcl.Warnf("Not adding rule %s: %v", name, err)
@@ -111,23 +111,23 @@ func (a *Alerter) parseRulesCfg() {
 }
 
 func (a *Alerter) parseConditions(r *Rule) {
-	raw := r.Cfg.Get(cfgAlertRuleConditions)
+	raw := r.cfg.Get(cfgAlertRuleConditions)
 	slc, ok := raw.(map[string]any)
 	if !ok {
-		a.hcl.Errorf("Cannot get conditions of rule %s: %v", r.Name, raw)
+		a.hcl.Errorf("Cannot get conditions of rule %s: %v", r.name, raw)
 		return
 	}
 	for n := range slc {
 		cond, ok := a.conditions[n]
 		if !ok {
-			a.hcl.Warnf("rule %q: no such codition: %q", r.Name, n)
+			a.hcl.Warnf("rule %q: no such codition: %q", r.name, n)
 			continue
 		}
-		cfg := r.Cfg.Sub(fmt.Sprintf("%s.%v", cfgAlertRuleConditions, n))
+		cfg := r.cfg.Sub(fmt.Sprintf("%s.%v", cfgAlertRuleConditions, n))
 		if err := cond.CheckConfig(cfg); err != nil {
-			a.hcl.Warnf("Condition %q of rule %q contains errors: %v", cond.Kind(), r.Name, err)
+			a.hcl.Warnf("Condition %q of rule %q contains errors: %v", cond.Kind(), r.name, err)
 		}
-		r.Conditions = append(r.Conditions, condWrapper{
+		r.conditions = append(r.conditions, condWrapper{
 			cond: cond,
 			cfg:  cfg,
 		})

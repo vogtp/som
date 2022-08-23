@@ -38,12 +38,12 @@ func getCfgString(key string, r *Rule, d *Destination) string {
 func getCfg(key string, r *Rule, d *Destination) any {
 	v := viper.Get(fmt.Sprintf("alert.%s", key))
 	if d != nil {
-		if s := d.Cfg.Get(key); s != nil {
+		if s := d.cfg.Get(key); s != nil {
 			v = s
 		}
 	}
 	if r != nil {
-		if s := r.Cfg.Get(key); s != nil {
+		if s := r.cfg.Get(key); s != nil {
 			v = s
 		}
 	}
@@ -120,12 +120,12 @@ func (a *Alerter) handle(msg *msg.AlertMsg) {
 			a.hcl.Infof("Not alerting %s: %v", msg.Name, err)
 			continue
 		}
-		for _, d := range r.Destinations {
+		for _, d := range r.destinations {
 			if !getCfgBool(cfgAlertEnabled, &r, &d) {
 				a.hcl.Warnf("not alerting %s alerting is disabled", msg.Name)
 				continue
 			}
-			a.engines[d.Kind].Send(msg, &r, &d)
+			a.engines[d.kind].Send(msg, &r, &d)
 		}
 	}
 }

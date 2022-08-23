@@ -55,19 +55,19 @@ func (teams *Teams) Send(e *msg.AlertMsg, r *Rule, d *Destination) error {
 
 func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 	for _, r := range a.rules {
-		for _, d := range r.Destinations {
-			if d.Kind != teams.Kind() {
+		for _, d := range r.destinations {
+			if d.kind != teams.Kind() {
 				continue
 			}
-			url := d.Cfg.GetString(cfgAlertDestTeamsWebhook)
+			url := d.cfg.GetString(cfgAlertDestTeamsWebhook)
 			if ok, err := goteamsnotify.IsValidWebhookURL(url); !ok || err != nil {
-				teams.hcl.Warnf("%s: teams webhook URL %q not valid: %v", d.Name, url, err)
+				teams.hcl.Warnf("%s: teams webhook URL %q not valid: %v", d.name, url, err)
 				if err != nil {
 					ret = err
 				}
 			}
 			if len(getCfgString(cfgAlertSubject, &r, &d)) < 1 {
-				teams.hcl.Warnf("%s %s has no subject", r.Name, d.Name)
+				teams.hcl.Warnf("%s %s has no subject", r.name, d.name)
 			}
 		}
 	}
@@ -75,7 +75,7 @@ func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 }
 
 func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
-	webhookURL := d.Cfg.GetString(cfgAlertDestTeamsWebhook)
+	webhookURL := d.cfg.GetString(cfgAlertDestTeamsWebhook)
 	if ok, err := goteamsnotify.IsValidWebhookURL(webhookURL); !ok || err != nil {
 		return fmt.Errorf("not sending teams message webhook URL %s not valid: %v", webhookURL, err)
 	}

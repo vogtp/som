@@ -20,7 +20,7 @@ type Mail struct {
 	mu       sync.Mutex
 	smtpHost string
 	smtpPort int
-	from string
+	from     string
 }
 
 // NewMailer registers a mail alerter on the event bus
@@ -60,21 +60,21 @@ func (alt *Mail) checkConfig(a *Alerter) (ret error) {
 		alt.hcl.Warn(ret.Error())
 	}
 	for _, r := range a.rules {
-		for _, d := range r.Destinations {
-			if d.Kind != alt.Kind() {
+		for _, d := range r.destinations {
+			if d.kind != alt.Kind() {
 				continue
 			}
 			if len(getCfgString(cfgAlertSubject, &r, &d)) < 1 {
-				alt.hcl.Warnf("%s %s has no subject", r.Name, d.Name)
+				alt.hcl.Warnf("%s %s has no subject", r.name, d.name)
 			}
-			to := d.Cfg.GetStringSlice(cfgAlertDestMailTo)
+			to := d.cfg.GetStringSlice(cfgAlertDestMailTo)
 			if len(to) < 1 {
-				ret = fmt.Errorf("mail dest %q: no receipients %q", d.Name, to)
+				ret = fmt.Errorf("mail dest %q: no receipients %q", d.name, to)
 				alt.hcl.Warn(ret.Error())
 			}
 			for _, t := range to {
 				if !strings.Contains(t, "@") {
-					ret = fmt.Errorf("mail dest %q: invaluid to %q", d.Name, t)
+					ret = fmt.Errorf("mail dest %q: invaluid to %q", d.name, t)
 					alt.hcl.Warn(ret.Error())
 				}
 			}
@@ -97,7 +97,7 @@ func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {
 }
 
 func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
-	to := d.Cfg.GetStringSlice(cfgAlertDestMailTo)
+	to := d.cfg.GetStringSlice(cfgAlertDestMailTo)
 	if len(to) < 1 {
 		alt.hcl.Debugf("No mail-to not sending %s: %v", e.Name, e.Err())
 		return nil
