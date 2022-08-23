@@ -34,12 +34,17 @@ func getHTML(e *msg.AlertMsg) (string, error) {
 		Alert:             e,
 		Topology:          "none",
 	}
-	if t, ok := e.Stati[alertmgr.KeyTopology]; ok {
-		data.Topology = t
+	topo, foundTopo := e.Stati[alertmgr.KeyTopology]
+	if foundTopo {
+		data.Topology = fmt.Sprintf("%s", topo)
 		delete(data.Alert.Stati, alertmgr.KeyTopology)
 	}
 	var body bytes.Buffer
 	err := templates.ExecuteTemplate(&body, "alert.gohtml", &data)
+	if foundTopo {
+		// we are reusing this alert so readd the topology
+		e.Stati[alertmgr.KeyTopology] = topo
+	}
 	return body.String(), err
 }
 
