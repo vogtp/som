@@ -53,8 +53,8 @@ func (teams *Teams) Send(e *msg.AlertMsg, d *Destination) error {
 	return nil
 }
 
-func (teams *Teams) checkDestinationWebhooks() (ret error) {
-	for _, d := range destinations {
+func (teams *Teams) checkConfig(a *Alerter) (ret error) {
+	for _, d := range a.dsts {
 		if d.Kind != teams.Kind() {
 			continue
 		}
