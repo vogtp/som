@@ -12,8 +12,8 @@ func init() {
 // Load the szenarios and return the config
 func Load() *szenario.Config {
 	szConfig := szenario.New()
-	userTypeWorld := szenario.MustUserType(szConfig.CreateUsertType("world", "World contains szenarios accessible without password"))
-	userTypeStaf := szenario.MustUserType(szConfig.CreateUsertType("staf", "Staf contains szenarios relevant for staf members"))
+	userTypeWorld := szenario.MustUserType(szConfig.CreateUserType("world", "World contains szenarios accessible without password"))
+	userTypeStaf := szenario.MustUserType(szConfig.CreateUserType("staf", "Staf contains szenarios relevant for staf members"))
 
 	szConfig.Add(
 		"google",

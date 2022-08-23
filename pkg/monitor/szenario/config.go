@@ -21,7 +21,7 @@ func New() *Config {
 	c := &Config{
 		userTypes: make(map[string]*UserType),
 	}
-	c.allSz = MustUserType(c.CreateUsertType(UserTypeAll, "usertype containing all szenarios"))
+	c.allSz = MustUserType(c.CreateUserType(UserTypeAll, "usertype containing all szenarios"))
 	return c
 }
 

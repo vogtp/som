@@ -81,8 +81,8 @@ func (c Config) GetUserTypes() []string {
 	return utList
 }
 
-// CreateUsertType creates a user type
-func (c Config) CreateUsertType(n string, desc string) (*UserType, error) {
+// CreateUserType creates a user type
+func (c Config) CreateUserType(n string, desc string) (*UserType, error) {
 	ut, found := c.userTypes[n]
 	if found {
 		ut.Desc = desc
