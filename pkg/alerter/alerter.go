@@ -49,27 +49,40 @@ func getCfg(key string, r *Rule, d *Destination) any {
 
 // Alerter is the main alerter stuct
 type Alerter struct {
-	hcl     hcl.Logger
-	c       *core.Core
-	dsts    map[string]*Destination
-	engines map[string]Engine
-	rules   []Rule
+	hcl        hcl.Logger
+	c          *core.Core
+	dsts       map[string]*Destination
+	engines    map[string]Engine
+	conditions map[string]Conditon
+	rules      []Rule
 }
 
 // New creates an alerter
 func New(c *core.Core) *Alerter {
 	a := &Alerter{
-		hcl:     c.HCL().Named("alerter"),
-		c:       c,
-		dsts:    make(map[string]*Destination, 0),
-		engines: make(map[string]Engine),
-		rules:   make([]Rule, 0),
+		hcl:        c.HCL().Named("alerter"),
+		c:          c,
+		dsts:       make(map[string]*Destination),
+		engines:    make(map[string]Engine),
+		conditions: make(map[string]Conditon),
+		rules:      make([]Rule, 0),
 	}
+	a.addDefaultEngines()
 	return a
+}
+
+func (a *Alerter) addDefaultEngines() {
+	if err := a.AddEngine(NewMailer()); err != nil {
+		a.hcl.Warnf("Cannot create engine: %v", err)
+	}
+	if err := a.AddEngine(NewTeams()); err != nil {
+		a.hcl.Warnf("Cannot create engine: %v", err)
+	}
 }
 
 // Run the alerter
 func (a *Alerter) Run() (ret error) {
+	a.parseConfig()
 	if err := a.initDests(); err != nil {
 		ret = err
 		a.hcl.Warnf("problems initialiseing alerter destinations: %v", err)
@@ -98,7 +111,9 @@ func (a *Alerter) initEgninges() (ret error) {
 
 func (a *Alerter) handle(msg *msg.AlertMsg) {
 	for _, r := range a.rules {
-		// TODO check requirement
+		if !r.Check(msg) {
+			a.hcl.Debugf("%s does not macht condtions of rule %s", msg.Name, r.Name)
+		}
 		for _, d := range r.Destinations {
 			if !getCfgBool(cfgAlertEnabled, &r, &d) {
 				a.hcl.Warnf("not alerting %s alerting is disabled", msg.Name)

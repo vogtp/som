@@ -6,13 +6,25 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/msg"
 )
 
 // Rule a rule for alerting
 type Rule struct {
 	Name         string
 	Destinations []Destination
+	Conditions   []Conditon
 	Cfg          *viper.Viper
+}
+
+// Check checks if the condtions a matched
+func (r *Rule) Check(mgs *msg.AlertMsg) bool {
+	for _, c := range r.Conditions {
+		if !c.Check(mgs) {
+			return false
+		}
+	}
+	return true
 }
 
 // AddRule adds an alerting Rule
