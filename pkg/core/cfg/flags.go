@@ -34,6 +34,9 @@ const (
 	// BusEndpoints are the endpoints the bus connects to
 	BusEndpoints = "bus.endpoint"
 
+	// AlertEnabled is used to disable alerting globally
+	AlertEnabled = "alert.enabled"
+
 	// CfgSave triggers periodic config saves
 	CfgSave = "config.save"
 )
@@ -50,7 +53,7 @@ func init() {
 	pflag.Int(WebPort, 0, "Port the webserver runs on")
 	pflag.String(BusLogLevel, "off", "Log level of the grav bus")
 	pflag.Bool(CfgSave, false, "Should the configs be written to file periodically")
-
+	pflag.Bool(AlertEnabled, true, "Disable alerting")
 	pflag.StringSlice(BusEndpoints, nil, "List of external grav endpoints (e.g. localhost:8080/meta/message) use multiple times to add multiple endpoints")
 
 }

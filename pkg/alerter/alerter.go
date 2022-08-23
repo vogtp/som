@@ -17,7 +17,16 @@ const (
 	cfgAlertDestName         = "name"
 	cfgAlertDestMailTo       = "to"
 	cfgAlertDestTeamsWebhook = "webhook"
+	cfgAlertEnabled          = "enabled"
 )
+
+func getCfgBool(key string, r *Rule, d *Destination) bool {
+	c := getCfg(key, r, d)
+	if c == nil {
+		return true
+	}
+	return cast.ToBool(c)
+}
 
 func getCfgString(key string, r *Rule, d *Destination) string {
 	return cast.ToString(getCfg(key, r, d))
@@ -25,11 +34,15 @@ func getCfgString(key string, r *Rule, d *Destination) string {
 
 func getCfg(key string, r *Rule, d *Destination) any {
 	v := viper.Get(fmt.Sprintf("alert.%s", key))
-	if s := d.Cfg.Get(key); s != nil {
-		v = s
+	if d != nil {
+		if s := d.Cfg.Get(key); s != nil {
+			v = s
+		}
 	}
-	if s := r.Cfg.Get(key); s != nil {
-		v = s
+	if r != nil {
+		if s := r.Cfg.Get(key); s != nil {
+			v = s
+		}
 	}
 	return v
 }
@@ -87,6 +100,10 @@ func (a *Alerter) handle(msg *msg.AlertMsg) {
 	for _, r := range a.rules {
 		// TODO check requirement
 		for _, d := range r.Destinations {
+			if !getCfgBool(cfgAlertEnabled, &r, &d) {
+				a.hcl.Warnf("not alerting %s alerting is disabled", msg.Name)
+				continue
+			}
 			a.engines[d.Kind].Send(msg, &r, &d)
 		}
 	}

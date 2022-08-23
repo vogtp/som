@@ -20,6 +20,12 @@ func (a *Alerter) AddRule(r *Rule) error {
 	if r == nil {
 		return errors.New("rule is nil")
 	}
+	if len(r.Name) < 1 {
+		return errors.New("a rule must have an name")
+	}
+	if !getCfgBool(cfgAlertEnabled, r, nil) {
+		return fmt.Errorf("%s is not enabled", r.Name)
+	}
 	a.rules = append(a.rules, *r)
 	return nil
 }

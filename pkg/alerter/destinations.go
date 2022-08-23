@@ -23,6 +23,9 @@ func (a *Alerter) AddDestination(d *Destination) error {
 	if len(d.Name) < 1 {
 		return errors.New("a destination must have an name")
 	}
+	if !getCfgBool(cfgAlertEnabled, nil, d) {
+		return fmt.Errorf("%s is not enabled", d.Name)
+	}
 	_, found := a.dsts[d.Name]
 	if found {
 		return fmt.Errorf("doublicated destination name %s: no adding", d.Name)
