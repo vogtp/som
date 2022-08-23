@@ -48,8 +48,14 @@ func getHTML(e *msg.AlertMsg) (string, error) {
 	return body.String(), err
 }
 
-func getSubject(e *msg.AlertMsg) string {
+func getSubject(e *msg.AlertMsg, r *Rule, d *Destination) string {
 	subj := fmt.Sprintf("%s %s - ", viper.GetString(cfg.AlertSubject), e.Level)
+	if s := d.Cfg.GetString(cfgAlertSubject); len(s) > 0 {
+		subj = s
+	}
+	if s := r.Cfg.GetString(cfgAlertSubject); len(s) > 0 {
+		subj = s
+	}
 	if !strings.Contains(strings.ToLower(e.Err().Error()), strings.ToLower(e.Name)) {
 		subj = fmt.Sprintf("%v %s:", subj, e.Name)
 	}

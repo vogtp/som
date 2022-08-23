@@ -41,12 +41,12 @@ func NewTeams() (Engine, error) {
 func (teams *Teams) Kind() string { return "teams" }
 
 // Send the alert
-func (teams *Teams) Send(e *msg.AlertMsg, d *Destination) error {
+func (teams *Teams) Send(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	teams.mu.Lock()
 	defer teams.mu.Unlock()
 	teams.hcl.Debug("got event %v: %v", e.Name, e.Err())
 	teams.hcl.Infof("Sending teams alert %s: %v", e.Name, e.Err())
-	err := teams.sendAlert(e, d)
+	err := teams.sendAlert(e, r, d)
 	if err != nil {
 		return fmt.Errorf("cannot send to teams: %v", err)
 	}
@@ -69,7 +69,7 @@ func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 	return ret
 }
 
-func (teams *Teams) sendAlert(e *msg.AlertMsg, d *Destination) error {
+func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	webhookURL := d.Cfg.GetString(cfgAlertDestTeamsWebhook)
 	if ok, err := goteamsnotify.IsValidWebhookURL(webhookURL); !ok || err != nil {
 		return fmt.Errorf("not sending teams message webhook URL %s not valid: %v", webhookURL, err)
@@ -97,7 +97,7 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, d *Destination) error {
 	}
 	mstClient := goteamsnotify.NewClient()
 	msgCard := goteamsnotify.NewMessageCard()
-	msgCard.Title = getSubject(e)
+	msgCard.Title = getSubject(e, r, d)
 	msgCard.Text = fmt.Sprintf("<p>\n%s\n</p>\n%s", text, img)
 
 	pa, err := goteamsnotify.NewMessageCardPotentialAction(

@@ -8,6 +8,8 @@ import (
 
 const (
 	cfgAlertDest             = "destinations"
+	cfgAlertSubject          = "subject"
+	cfgAlerMailFrom          = "from"
 	cfgAlertDestName         = "name"
 	cfgAlertDestMailTo       = "to"
 	cfgAlertDestTeamsWebhook = "webhook"
@@ -66,7 +68,7 @@ func (a *Alerter) handle(msg *msg.AlertMsg) {
 	for _, r := range a.rules {
 		// TODO check requirement
 		for _, d := range r.Destinations {
-			a.engines[d.Kind].Send(msg, &d)
+			a.engines[d.Kind].Send(msg, &r, &d)
 		}
 	}
 }

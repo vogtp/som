@@ -9,7 +9,7 @@ import (
 // Engine sends out alerts
 type Engine interface {
 	Kind() string
-	Send(*msg.AlertMsg, *Destination) error
+	Send(*msg.AlertMsg, *Rule, *Destination) error
 	checkConfig(*Alerter) error
 }
 

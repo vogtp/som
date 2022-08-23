@@ -44,12 +44,12 @@ func NewMailer() (Engine, error) {
 func (alt *Mail) Kind() string { return "mail" }
 
 // Send the alert
-func (alt *Mail) Send(e *msg.AlertMsg, d *Destination) error {
+func (alt *Mail) Send(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	alt.mu.Lock()
 	defer alt.mu.Unlock()
 	alt.hcl.Debug("got event %v: %v", e.Name, e.Err())
 
-	if err := alt.sendAlert(e, d); err != nil {
+	if err := alt.sendAlert(e, r, d); err != nil {
 		return fmt.Errorf("cannot send mail: %v", err)
 	}
 	return nil
@@ -92,13 +92,13 @@ func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {
 	})
 }
 
-func (alt *Mail) sendAlert(e *msg.AlertMsg, d *Destination) error {
+func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	to := d.Cfg.GetStringSlice(cfgAlertDestMailTo)
 	if len(to) < 1 {
 		alt.hcl.Debugf("No mail-to not sending %s: %v", e.Name, e.Err())
 		return nil
 	}
-	subj := getSubject(e)
+	subj := getSubject(e, r, d)
 	m := gomail.NewMessage()
 	m.SetHeader("From", alt.from)
 	m.SetHeader("To", to...)
