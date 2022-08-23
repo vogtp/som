@@ -3,6 +3,7 @@ package alerter
 import (
 	"fmt"
 
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
@@ -19,11 +20,15 @@ const (
 )
 
 func getCfgString(key string, r *Rule, d *Destination) string {
-	v := viper.GetString(fmt.Sprintf("alert.%s", key))
-	if s := d.Cfg.GetString(key); len(s) > 0 {
+	return cast.ToString(getCfg(key, r, d))
+}
+
+func getCfg(key string, r *Rule, d *Destination) any {
+	v := viper.Get(fmt.Sprintf("alert.%s", key))
+	if s := d.Cfg.Get(key); s != nil {
 		v = s
 	}
-	if s := r.Cfg.GetString(key); len(s) > 0 {
+	if s := r.Cfg.Get(key); s != nil {
 		v = s
 	}
 	return v
