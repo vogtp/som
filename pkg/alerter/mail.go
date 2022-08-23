@@ -20,7 +20,6 @@ type Mail struct {
 	mu       sync.Mutex
 	smtpHost string
 	smtpPort int
-	//	to       []string
 	from string
 }
 
@@ -60,19 +59,24 @@ func (alt *Mail) checkConfig(a *Alerter) (ret error) {
 		ret = fmt.Errorf("mail from %q is not valid", alt.from)
 		alt.hcl.Warn(ret.Error())
 	}
-	for _, d := range a.dsts {
-		if d.Kind != alt.Kind() {
-			continue
-		}
-		to := d.Cfg.GetStringSlice(cfgAlertDestMailTo)
-		if len(to) < 1 {
-			ret = fmt.Errorf("mail dest %q: no receipients %q", d.Name, to)
-			alt.hcl.Warn(ret.Error())
-		}
-		for _, t := range to {
-			if !strings.Contains(t, "@") {
-				ret = fmt.Errorf("mail dest %q: invaluid to %q", d.Name, t)
+	for _, r := range a.rules {
+		for _, d := range r.Destinations {
+			if d.Kind != alt.Kind() {
+				continue
+			}
+			if len(getCfgString(cfgAlertSubject, &r, &d)) < 1 {
+				alt.hcl.Warnf("%s %s has no subject", r.Name, d.Name)
+			}
+			to := d.Cfg.GetStringSlice(cfgAlertDestMailTo)
+			if len(to) < 1 {
+				ret = fmt.Errorf("mail dest %q: no receipients %q", d.Name, to)
 				alt.hcl.Warn(ret.Error())
+			}
+			for _, t := range to {
+				if !strings.Contains(t, "@") {
+					ret = fmt.Errorf("mail dest %q: invaluid to %q", d.Name, t)
+					alt.hcl.Warn(ret.Error())
+				}
 			}
 		}
 	}
