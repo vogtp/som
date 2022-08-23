@@ -30,7 +30,7 @@ func NewMailer() (Engine, error) {
 	hcl := bus.GetLogger().Named("mail")
 	mailHost := viper.GetString(cfg.AlertMailSMTPHost)
 	if len(mailHost) < 1 {
-		return nil, fmt.Errorf("not adding mail alerter: no mail host given")
+		return nil, fmt.Errorf("not creating mail alerter: no mail host given")
 	}
 	return &Mail{
 		hcl:      hcl,
@@ -53,6 +53,30 @@ func (alt *Mail) Send(e *msg.AlertMsg, d *Destination) error {
 		return fmt.Errorf("cannot send mail: %v", err)
 	}
 	return nil
+}
+
+func (alt *Mail) checkConfig(a *Alerter) (ret error) {
+	if !strings.Contains(alt.from, "@") {
+		ret = fmt.Errorf("mail from %q is not valid", alt.from)
+		alt.hcl.Warn(ret.Error())
+	}
+	for _, d := range a.dsts {
+		if d.Kind != alt.Kind() {
+			continue
+		}
+		to := d.Cfg.GetStringSlice(cfgAlertDestMailTo)
+		if len(to) < 1 {
+			ret = fmt.Errorf("mail dest %q: no receipients %q", d.Name, to)
+			alt.hcl.Warn(ret.Error())
+		}
+		for _, t := range to {
+			if !strings.Contains(t, "@") {
+				ret = fmt.Errorf("mail dest %q: invaluid to %q", d.Name, t)
+				alt.hcl.Warn(ret.Error())
+			}
+		}
+	}
+	return ret
 }
 
 func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {

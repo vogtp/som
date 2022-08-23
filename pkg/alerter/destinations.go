@@ -23,17 +23,32 @@ func (a *Alerter) AddDestination(d *Destination) error {
 	if len(d.Name) < 1 {
 		return errors.New("a destination must have an name")
 	}
-	_, exists := a.engines[d.Kind]
-	if !exists {
-		return fmt.Errorf("destination kind %s does not extist", d.Kind)
-	}
 	_, found := a.dsts[d.Name]
 	if found {
 		return fmt.Errorf("doublicated destination name %s: no adding", d.Name)
 	}
-
 	a.dsts[d.Name] = d
 	return nil
+}
+
+func (a *Alerter) initDests() (ret error) {
+	validDst := make(map[string]*Destination, len(a.dsts))
+	for k, d := range a.dsts {
+		_, exists := a.engines[d.Kind]
+		if !exists {
+			ret = fmt.Errorf("destination kind %s does not extist", d.Kind)
+			a.hcl.Warn(ret.Error())
+			continue
+		}
+		validDst[k] = d
+	}
+	a.dsts = validDst
+	if len(a.dsts) < 1 {
+		ret = errors.New("no valid alerting destinations")
+		a.hcl.Error(ret.Error())
+	}
+	a.hcl.Warnf("Loaded %v alert destinations", len(a.dsts))
+	return ret
 }
 
 func (a *Alerter) parseDestinationsCfg() {
@@ -68,5 +83,4 @@ func (a *Alerter) parseDestinationsCfg() {
 			}
 		}
 	}
-	a.hcl.Warnf("Loaded %v alert destinations", len(a.dsts))
 }

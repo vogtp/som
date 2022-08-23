@@ -9,23 +9,17 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 	c, close := core.New(name, coreOpts...)
 	a := New(c)
 
-	m, err := NewMailer()
-	if err == nil {
-		a.AddEngine(m)
-	} else {
-		a.hcl.Warnf("Cannot creater mailer engine: %v", err)
+	if err := a.AddEngine(NewMailer()); err != nil {
+		a.hcl.Warnf("Cannot create engine: %v", err)
 	}
-	t, err := NewTeams()
-	if err == nil {
-		a.AddEngine(t)
-	} else {
-		a.hcl.Warnf("Cannot creater teams engine: %v", err)
+	if err := a.AddEngine(NewTeams()); err != nil {
+		a.hcl.Warnf("Cannot create engine: %v", err)
 	}
 
 	a.parseConfig()
-	if teams, ok := t.(*Teams); ok {
-		teams.checkConfig(a)
+	if err := a.Run(); err != nil {
+		a.hcl.Warnf("Error running the alerter: %v", err)
 	}
-	c.Bus().Alert.Handle(a.handle)
+
 	return close, nil
 }

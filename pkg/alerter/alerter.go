@@ -7,6 +7,7 @@ import (
 )
 
 const (
+	cfgAlertDest             = "destinations"
 	cfgAlertDestName         = "name"
 	cfgAlertDestMailTo       = "to"
 	cfgAlertDestTeamsWebhook = "webhook"
@@ -15,6 +16,7 @@ const (
 // Alerter is the main alerter stuct
 type Alerter struct {
 	hcl     hcl.Logger
+	c       *core.Core
 	dsts    map[string]*Destination
 	engines map[string]Engine
 	rules   []Rule
@@ -24,12 +26,40 @@ type Alerter struct {
 func New(c *core.Core) *Alerter {
 	a := &Alerter{
 		hcl:     c.HCL().Named("alerter"),
+		c:       c,
 		dsts:    make(map[string]*Destination, 0),
 		engines: make(map[string]Engine),
 		rules:   make([]Rule, 0),
 	}
-
 	return a
+}
+
+// Run the alerter
+func (a *Alerter) Run() (ret error) {
+	if err := a.initDests(); err != nil {
+		ret = err
+		a.hcl.Warnf("problems initialiseing alerter destinations: %v", err)
+	}
+	if err := a.initRules(); err != nil {
+		ret = err
+		a.hcl.Warnf("problems initialiseing alerter rules: %v", err)
+	}
+	if err := a.initEgninges(); err != nil {
+		ret = err
+		a.hcl.Warnf("problems initialiseing alerter engines: %v", err)
+	}
+	a.c.Bus().Alert.Handle(a.handle)
+	return ret
+}
+
+func (a *Alerter) initEgninges() (ret error) {
+	for _, e := range a.engines {
+		if err := e.checkConfig(a); err != nil {
+			a.hcl.Warnf("Engine %s has config errors: %v", e.Kind(), err)
+			ret = err
+		}
+	}
+	return ret
 }
 
 func (a *Alerter) handle(msg *msg.AlertMsg) {

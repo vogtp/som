@@ -10,10 +10,14 @@ import (
 type Engine interface {
 	Kind() string
 	Send(*msg.AlertMsg, *Destination) error
+	checkConfig(*Alerter) error
 }
 
 // AddEngine add an engine (mail, chat etc) to alerting
-func (a *Alerter) AddEngine(e Engine) error {
+func (a *Alerter) AddEngine(e Engine, err error) error {
+	if err != nil {
+		return err
+	}
 	if e == nil {
 		return errors.New("engine must not be nil")
 	}
