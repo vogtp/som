@@ -1,6 +1,9 @@
 package alerter
 
 import (
+	"fmt"
+
+	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
@@ -14,6 +17,17 @@ const (
 	cfgAlertDestMailTo       = "to"
 	cfgAlertDestTeamsWebhook = "webhook"
 )
+
+func getCfgString(key string, r *Rule, d *Destination) string {
+	v := viper.GetString(fmt.Sprintf("alert.%s", key))
+	if s := d.Cfg.GetString(key); len(s) > 0 {
+		v = s
+	}
+	if s := r.Cfg.GetString(key); len(s) > 0 {
+		v = s
+	}
+	return v
+}
 
 // Alerter is the main alerter stuct
 type Alerter struct {
