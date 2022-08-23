@@ -10,13 +10,9 @@ import (
 	"github.com/vogtp/go-hcl"
 )
 
-var (
-	configFIleName = "som"
-)
-
 // SetConfigFileName sets the config file name
 func SetConfigFileName(n string) {
-	configFIleName = n
+	viper.Set(CfgFile, n)
 }
 
 // Parse parses the config
@@ -30,7 +26,7 @@ func Parse() {
 
 	viper.BindPFlags(pflag.CommandLine)
 	viper.SetConfigType("yaml")
-	viper.SetConfigName(configFIleName)
+	viper.SetConfigName(viper.GetString(CfgFile))
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("/etc/som/")
 	viper.AddConfigPath("/som/")
@@ -52,9 +48,6 @@ func Parse() {
 }
 
 func processConfigFile() {
-	if len(configFIleName) < 1 {
-		return
-	}
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			hcl.Debugf("config not found: %v", err)
@@ -72,7 +65,7 @@ func processConfigFile() {
 			}
 			// should we write it regular and overwrite?
 			hcl.Info("Writing config")
-			if err := viper.WriteConfigAs(configFIleName); err != nil {
+			if err := viper.WriteConfigAs(viper.GetString(CfgFile)); err != nil {
 				hcl.Warnf("Could not write config: %v", err)
 			}
 			<-time.After(time.Hour)
