@@ -18,8 +18,13 @@ var (
 	defaultLogLevel = hclog.Error
 )
 
+// AddCommand adds a *cobra.Command to somctl
+func AddCommand(c *cobra.Command) {
+	rootCtl.AddCommand(c)
+}
+
 // Command adds the root command
-func Command(szCfg *szenario.Config) (*cobra.Command, error) {
+func Command(szCfg *szenario.Config) error {
 	processFlags()
 
 	c, coreClose = core.New("somctl", core.Szenario(szCfg))
@@ -29,9 +34,9 @@ func Command(szCfg *szenario.Config) (*cobra.Command, error) {
 
 	if err := rootCtl.Execute(); err != nil {
 		fmt.Println(err)
-		return nil, err
+		return err
 	}
-	return rootCtl, nil
+	return nil
 }
 
 var (
