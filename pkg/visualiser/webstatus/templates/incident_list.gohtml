@@ -27,27 +27,27 @@
 <tr>
     <td> 
      <a href="{{ .DetailLink }}{{$.Query}}">
-      <img class="level" title="{{.IncidentInfo.Level}}" src="{{$.Baseurl}}/static/status/{{.IncidentInfo.Level.Img}}.png" />
+      <img class="level" title="{{.Level}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
      </a>
     </td>
     <td> 
      <a href="{{ .DetailLink }}{{$.Query}}">
-        {{ .IncidentInfo.Start.Format $.Timeformat }}
+        {{ .Start }}
      </a>
     </td>
     <td>
-        {{ if not .IncidentInfo.End.IsZero }}
+        {{ if not .End.IsZero }}
         <a href="{{ .DetailLink }}{{$.Query}}">
-         {{ .IncidentInfo.End.Format $.Timeformat }}
+         {{ .End }}
         </a>
         {{ end }}
     </td>
     <td> <a href="{{ .DetailLink }}{{$.Query}}">
-        {{ .IncidentInfo.Name }}
+        {{ .Name }}
      </a> 
     </td>
     <td> <a href="{{ .DetailLink }}{{$.Query}}">
-        {{ .EvtCnt }} 
+        {{ .Total }} 
      </a>
     </td>
     <td> 

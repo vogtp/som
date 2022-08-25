@@ -90,8 +90,8 @@ type incidentInfo struct {
 }
 
 type incidentFile struct {
-	Path         string
-	Name         string
+	// Path         string
+	// Name         string
 	IncidentInfo *incidentInfo
 	Error        string
 	DetailLink   string
@@ -109,6 +109,9 @@ func (s *WebStatus) getIncidentInfo(file string) (ai *incidentInfo, err error) {
 	ii := &incidentInfo{
 		IncidentMsg: im,
 		Level:       status.Level(im.IntLevel),
+	}
+	if len(ii.ByteState) < 1 {
+		s.hcl.Warn("NO BYTE STATE IN incidenInfo")
 	}
 	return ii, err
 }
@@ -196,10 +199,10 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 	}
 	filtered := make([]incidentFile, 0, len(fileList))
 	for _, ai := range fileList {
-		if strings.ToLower(ai.Name) != filter &&
-			ai.IncidentInfo.IncidentID != filter {
-			continue
-		}
+		// if strings.ToLower(ai.Name) != filter &&
+		// 	ai.IncidentInfo.IncidentID != filter {
+		// 	continue
+		// }
 		filtered = append(filtered, ai)
 	}
 	return filtered
@@ -207,10 +210,10 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 
 func (s *WebStatus) getIncidentDetailFiles(root string, filter string) (fileList []incidentFile, err error) {
 	// FIXME filter will not work
-	fileList, err = s.readIncidentCache(root)
-	if err == nil {
-		return filterIncidents(fileList, filter), nil
-	}
+	// fileList, err = s.readIncidentCache(root)
+	// if err == nil {
+	// 	return filterIncidents(fileList, filter), nil
+	// }
 
 	files, err := ioutil.ReadDir(root)
 	if err != nil {
@@ -239,8 +242,8 @@ func (s *WebStatus) getIncidentDetailFiles(root string, filter string) (fileList
 		//details := root[len(s.getIncidentRoot())+1:]
 		fileList = append([]incidentFile{
 			{
-				Path:         path,
-				Name:         f.Name(),
+				// Path:         path,
+				// Name:         f.Name(),
 				IncidentInfo: ai,
 				Error:        s.getIncidentError(path),
 				DetailLink:   fmt.Sprintf("%s/%s/%s/", baseurl, IncidentDetailPath, ai.IncidentID),

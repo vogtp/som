@@ -55,7 +55,7 @@ function resize(id)
     <td class="list">
         {{if gt .Level $.OK}}
         {{ .Error}} <br> 
-        {{ index $.Image .LastEvent.ID }} 
+        {{ index $.Image .LastEvent.ID.String }} 
         
         {{ end }}
        

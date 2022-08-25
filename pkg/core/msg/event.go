@@ -31,7 +31,7 @@ func (m *SzenarioEvtMsg) copy() *SzenarioEvtMsg {
 
 func createSzenarioEvtMsg() *SzenarioEvtMsg {
 	e := &SzenarioEvtMsg{
-		ID:       uuid.NewString(),
+		ID:       uuid.New(),
 		Name:     "",
 		Region:   viper.GetString(cfg.CheckRegion),
 		Time:     time.Time{},
@@ -61,7 +61,7 @@ func NewSzenarioEvtMsg(name string, username string, now time.Time) *SzenarioEvt
 
 // SzenarioEvtMsg contains all typicall fields
 type SzenarioEvtMsg struct {
-	ID         string    `json:"ID"`
+	ID         uuid.UUID `json:"ID"`
 	IncidentID string    `json:"Incident"`
 	Name       string    `json:"Name"`
 	Time       time.Time `json:"Time"`
@@ -71,10 +71,10 @@ type SzenarioEvtMsg struct {
 	mu         sync.RWMutex
 	Counters   map[string]any `json:"Counters"`
 	// any is ugly for go, but much nicer json since float and int are different
-	Stati     map[string]string
+	Stati map[string]string
 	Files     []FileMsgItem `json:"Files"`
-	ProbeOS   string        `json:"OS"`
-	ProbeHost string        `json:"Host"`
+	ProbeOS   string `json:"OS"`
+	ProbeHost string `json:"Host"`
 }
 
 // AddErr adds a non nil error to the message

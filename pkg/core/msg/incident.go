@@ -22,8 +22,8 @@ type IncidentMsg struct {
 	Type      IncidentMsgType
 	Start     time.Time
 	End       time.Time
-	IntLevel  int    `json:"Level"`
-	ByteState []byte `json:"State"`
+	IntLevel  int    `json:"Level" gorm:"column:Level"`
+	ByteState []byte `json:"State" gorm:"column:State"`
 }
 
 // NewIncidentMsg creates a incident message

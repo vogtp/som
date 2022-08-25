@@ -40,13 +40,13 @@ func Test_szGroup_JSON(t *testing.T) {
 	rug := New()
 
 	rug.AddEvent(&msg.SzenarioEvtMsg{
-		ID:       uuid.NewString(),
+		ID:       uuid.New(),
 		Name:     "testSzenario1",
 		Region:   "testRegion1",
 		Username: "testUser1",
 	})
 	rug.AddEvent(&msg.SzenarioEvtMsg{
-		ID:       uuid.NewString(),
+		ID:       uuid.New(),
 		Name:     "testSzenario2",
 		Region:   "testRegion1",
 		Username: "testUser1",

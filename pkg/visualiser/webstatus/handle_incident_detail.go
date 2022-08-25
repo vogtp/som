@@ -4,19 +4,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
 	// IncidentDetailPath is the path of the incitedent details
 	IncidentDetailPath = "/incident/detail/"
 )
+
+type incidentData struct {
+	*db.IncidentModel
+	Status   status.Status
+	Errors   []string
+	Counters map[string]string
+	Stati    map[string]string
+	Files    []msg.FileMsgItem
+}
 
 func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request) {
 	id := ""
@@ -31,12 +41,14 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	}
 
 	s.hcl.Infof("incidents details %s requested", id)
-	files, err := s.getIncidentDetailFiles(s.getIncidentRoot(), id)
+	//files, err := s.getIncidentDetailFiles(s.getIncidentRoot(), id)
+	a := db.Access{}
+	incidents, err := a.GetIncident(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	aCnt := len(files)
+	aCnt := len(incidents)
 	url := r.URL.String()
 	if len(r.URL.RawQuery) > 0 {
 		url += "&"
@@ -53,7 +65,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		End        time.Time
 		Level      status.Level
 		IncidentID string
-		Incidents  []*incidentInfo
+		Incidents  []incidentData
 	}{
 		commonData: common("SOM Incident", r),
 		IncidentID: id,
@@ -61,53 +73,64 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Level:      status.Unknown,
 		Timeformat: cfg.TimeFormatString,
 		ThisURL:    url,
-		Incidents:  make([]*incidentInfo, aCnt),
+		Incidents:  make([]incidentData, aCnt),
 	}
+	s.hcl.Infof("found %v incident recs", len(incidents))
 
-	sort.Slice(files, func(i, j int) bool {
-		return files[i].IncidentInfo.Time.Before(files[j].IncidentInfo.Time)
-	})
-	for i, f := range files {
-		data.Name = f.IncidentInfo.Name
-		data.Start = f.IncidentInfo.Start
-		data.End = f.IncidentInfo.End
-		a, err := s.getIncident(f.Path)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		if a.Level > data.Level {
-			data.Level = a.Level
+	for i, f := range incidents {
+		data.Name = f.Name
+		data.Start = f.Start
+		data.End = f.End
+
+		if f.Level() > data.Level {
+			data.Level = f.Level()
 		}
 		stat := status.New()
-		err = json.Unmarshal(a.ByteState, stat)
+		err = json.Unmarshal(f.ByteState, stat)
 		if err != nil {
 			s.hcl.Warnf("Cannot unmarsh state of incident: %v", err)
 		}
-		a.Status = prepaireStatus(stat)
-		data.Incidents[aCnt-i-1] = a
+
+		id := incidentData{
+			IncidentModel: &f,
+			Status:        prepaireStatus(stat),
+			Counters:      make(map[string]string),
+			Stati:         make(map[string]string),
+			Errors:        make([]string, 0),
+			Files:         make([]msg.FileMsgItem, 0),
+		}
+		fmt.Printf("Err %v\n", id.Error)
+		if errs, err := a.GetErrors(f.ID); err != nil {
+			for _, e := range errs {
+				fmt.Printf("Errs %v\n", e)
+				id.Errors = append(id.Errors, e.Error)
+			}
+		}
+
+		data.Incidents[aCnt-i-1] = id
 	}
 	data.Title = fmt.Sprintf("SOM Incident: %s", data.Name)
 
-	r.ParseForm()
-	file := r.Form.Get("file")
-	if len(file) > 0 && len(data.Incidents) > 0 {
-		s.hcl.Infof("Serving file: %v", file)
-		parts := strings.Split(file, ".")
-		for _, f := range data.Incidents[0].Files {
-			if f.Name != parts[0] || f.Type.Ext != parts[1] {
-				continue
-			}
-			w.WriteHeader(http.StatusOK)
-			w.Header().Add("Content-Type", f.Type.MimeType)
-			_, err := w.Write(f.Payload)
-			if err != nil {
-				s.hcl.Warnf("Cannot write file %s: %v", file, err)
-			}
-			return
-		}
-		return
-	}
+	// FIXME: migrate
+	// r.ParseForm()
+	// file := r.Form.Get("file")
+	// if len(file) > 0 && len(data.Incidents) > 0 {
+	// 	s.hcl.Infof("Serving file: %v", file)
+	// 	parts := strings.Split(file, ".")
+	// 	for _, f := range data.Incidents[0].Files {
+	// 		if f.Name != parts[0] || f.Type.Ext != parts[1] {
+	// 			continue
+	// 		}
+	// 		w.WriteHeader(http.StatusOK)
+	// 		w.Header().Add("Content-Type", f.Type.MimeType)
+	// 		_, err := w.Write(f.Payload)
+	// 		if err != nil {
+	// 			s.hcl.Warnf("Cannot write file %s: %v", file, err)
+	// 		}
+	// 		return
+	// 	}
+	// 	return
+	// }
 	err = templates.ExecuteTemplate(w, "incident_detail.gohtml", data)
 	if err != nil {
 		s.hcl.Errorf("index Template error %v", err)

@@ -63,9 +63,9 @@ func prepaireStatus(stat status.Status) *statusData {
 					if f.Type == mime.Png {
 						img, err := getImage(f.Payload)
 						if err != nil {
-							data.Image[evt.ID] = template.HTML(err.Error())
+							data.Image[evt.ID.String()] = template.HTML(err.Error())
 						}
-						data.Image[evt.ID] = template.HTML(img)
+						data.Image[evt.ID.String()] = template.HTML(img)
 						break
 					}
 				}

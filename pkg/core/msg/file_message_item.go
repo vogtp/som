@@ -1,12 +1,14 @@
 package msg
 
 import (
+	"github.com/google/uuid"
 	"github.com/iancoleman/strcase"
 	"github.com/vogtp/som/pkg/core/mime"
 )
 
 // FileMsgItem contains a file
 type FileMsgItem struct {
+	MsgID      uuid.UUID `json:"-"  gorm:"type:uuid"`
 	Name    string `json:"Name"`
 	Type    mime.Type
 	Size    int `json:"Size"`

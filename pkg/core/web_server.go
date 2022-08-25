@@ -94,6 +94,7 @@ func (w *WebServer) Start() {
 
 // Stop the webserver
 func (w *WebServer) Stop() {
+	w.hcl.Warn("Stopping web server")
 	w.srv.Shutdown(context.Background())
 }
 
