@@ -19,7 +19,7 @@ var (
 )
 
 // Command adds the root command
-func Command(szCfg *szenario.Config) error {
+func Command(szCfg *szenario.Config) (*cobra.Command, error) {
 	processFlags()
 
 	c, coreClose = core.New("somctl", core.Szenario(szCfg))
@@ -29,9 +29,9 @@ func Command(szCfg *szenario.Config) error {
 
 	if err := rootCtl.Execute(); err != nil {
 		fmt.Println(err)
-		return err
+		return nil, err
 	}
-	return nil
+	return rootCtl, nil
 }
 
 var (
