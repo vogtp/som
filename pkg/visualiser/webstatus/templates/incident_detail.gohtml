@@ -74,8 +74,8 @@
 <td class="list">
 {{ range  .Files }}
 {{ if ne .Type.MimeType "text/html"}}
-<img src='{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}' />
-<p><a href="{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}">{{ .Name }}.{{ .Type.Ext }} </a></p>
+<img src='{{$.FilesURL}}/{{.ID}}' />
+<p><a href="{{$.FilesURL}}/{{.ID}}">{{ .Name }}.{{ .Type.Ext }} </a></p>
 {{ end }}
 {{ end }}
 </td>
@@ -86,7 +86,7 @@
 <td class="list">
 {{ range  .Files }}
 {{ if eq .Type.MimeType "text/html"}}
-<a href="{{$.ThisURL}}file={{.Name}}.{{ .Type.Ext }}">{{ .Name }}.{{ .Type.Ext}} </a>
+<a href="{{$.FilesURL}}/{{.ID}}">{{ .Name }}.{{ .Type.Ext}} </a>
 {{ end }}
 {{ end }}
 </td>

@@ -26,8 +26,8 @@ func (s *WebStatus) MigrateIncidents() {
 }
 
 func (s *WebStatus) Query() {
-	s.Incidents()
-	//s.Summay()
+	// s.Incidents()
+	s.Summay()
 }
 
 func (s *WebStatus) Incidents() {

@@ -50,17 +50,12 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	aCnt := len(incidents)
-	url := r.URL.String()
-	if len(r.URL.RawQuery) > 0 {
-		url += "&"
-	} else {
-		url += "?"
-	}
+
 	var data = struct {
 		*commonData
 		PromURL    string
 		Timeformat string
-		ThisURL    string
+		FilesURL   string
 		Name       string
 		Start      time.Time
 		End        time.Time
@@ -73,9 +68,9 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		PromURL:    fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Level:      status.Unknown,
 		Timeformat: cfg.TimeFormatString,
-		ThisURL:    url,
 		Incidents:  make([]incidentData, aCnt),
 	}
+	data.FilesURL = data.Baseurl + "/" + FilesPath
 	s.hcl.Infof("found %v incident recs", len(incidents))
 
 	for i, f := range incidents {
@@ -113,34 +108,15 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
+		if fils, err := a.GetFiles(f.ID); err == nil {
+			id.Files = fils
+		} else {
+			s.hcl.Warnf("Loading counters: %v", err)
+		}
 		data.Incidents[aCnt-i-1] = id
 	}
 	data.Title = fmt.Sprintf("SOM Incident: %s", data.Name)
 
-	for _, i := range data.Incidents {
-		fmt.Printf("Err %v\n", i.Error)
-	}
-
-	// FIXME: migrate
-	// r.ParseForm()
-	// file := r.Form.Get("file")
-	// if len(file) > 0 && len(data.Incidents) > 0 {
-	// 	s.hcl.Infof("Serving file: %v", file)
-	// 	parts := strings.Split(file, ".")
-	// 	for _, f := range data.Incidents[0].Files {
-	// 		if f.Name != parts[0] || f.Type.Ext != parts[1] {
-	// 			continue
-	// 		}
-	// 		w.WriteHeader(http.StatusOK)
-	// 		w.Header().Add("Content-Type", f.Type.MimeType)
-	// 		_, err := w.Write(f.Payload)
-	// 		if err != nil {
-	// 			s.hcl.Warnf("Cannot write file %s: %v", file, err)
-	// 		}
-	// 		return
-	// 	}
-	// 	return
-	// }
 	err = templates.ExecuteTemplate(w, "incident_detail.gohtml", data)
 	if err != nil {
 		s.hcl.Errorf("index Template error %v", err)

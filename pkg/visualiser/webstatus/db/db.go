@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/msg"
 	"gorm.io/gorm"
 )
 
@@ -44,6 +45,7 @@ func (a *Access) _initDB() (*gorm.DB, error) {
 		&statiModel{},
 		&ErrorModel{},
 		&counterModel{},
+		&msg.FileMsgItem{},
 	)
 	a.hcl.Infof("Loaded DB %s", path)
 	return db, err

@@ -55,6 +55,31 @@ func (a *Access) GetErrors(id uuid.UUID) ([]ErrorModel, error) {
 	return result, err
 }
 
+func (a *Access) GetFile(id int) (*msg.FileMsgItem, error) {
+	db := a.getDb()
+	var result *msg.FileMsgItem
+	search := db.Model(&msg.FileMsgItem{}).Where("id = ?", id)
+	err := search.First(&result).Error
+	if err != nil {
+		return nil, fmt.Errorf("cannot load errors: %w", err)
+	}
+	return result, err
+}
+
+func (a *Access) GetFiles(id uuid.UUID) ([]msg.FileMsgItem, error) {
+	db := a.getDb()
+	result := make([]msg.FileMsgItem, 0)
+	search := db.Model(&msg.FileMsgItem{}).Order("name")
+	if len(id) > 0 {
+		search = search.Where("parent_id = ?", id)
+	}
+	err := search.Find(&result).Error
+	if err != nil {
+		return nil, fmt.Errorf("cannot load errors: %w", err)
+	}
+	return result, err
+}
+
 func (a *Access) GetCounters(id uuid.UUID) (map[string]string, error) {
 	return a.getMap(&counterModel{}, id)
 }
@@ -144,6 +169,22 @@ func (a *Access) SaveCounters(msg *msg.SzenarioEvtMsg) error {
 			Name:     k,
 			Value:    fmt.Sprintf("%v", v),
 		}).Error; err != nil {
+			if reterr == nil {
+				reterr = err
+			} else {
+				err = fmt.Errorf("%v %w", reterr, err)
+			}
+		}
+	}
+	return reterr
+}
+
+func (a *Access) SaveFiles(msg *msg.SzenarioEvtMsg) error {
+	db := a.getDb()
+	var reterr error
+	for _, f := range msg.Files {
+		f.ParentID = msg.ID
+		if err := db.Save(&f).Error; err != nil {
 			if reterr == nil {
 				reterr = err
 			} else {

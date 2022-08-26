@@ -21,6 +21,7 @@ func (s *WebStatus) routes() {
 	w.HandleFunc(AlertDetailPath, s.handleAlertDetail)
 	w.HandleFunc(incidentListPath, s.handleIncidentList)
 	w.HandleFunc(IncidentDetailPath, s.handleIncidentDetail)
+	w.HandleFunc(FilesPath, s.handleFiles)
 
 	// legacy
 	// w.HandleFunc("/chart/", s.handleChart)

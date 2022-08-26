@@ -32,6 +32,13 @@ func (a *Access) SaveIncident(msg *msg.IncidentMsg) error {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
+	if err := a.SaveFiles(msg.SzenarioEvtMsg); err != nil {
+		if reterr == nil {
+			reterr = err
+		} else {
+			err = fmt.Errorf("%v %w", reterr, err)
+		}
+	}
 	model := IncidentModel{
 		Start:         msg.Start,
 		End:           msg.End,

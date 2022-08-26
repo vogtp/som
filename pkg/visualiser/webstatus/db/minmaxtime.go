@@ -12,7 +12,7 @@ type MinMaxTime struct {
 	t time.Time
 }
 
-// Scan scan value into Jsonb, implements sql.Scanner interface
+// Scan scan value the time, implements sql.Scanner interface
 func (mmt *MinMaxTime) Scan(value interface{}) error {
 	s, ok := value.(string)
 	if !ok {
@@ -24,7 +24,7 @@ func (mmt *MinMaxTime) Scan(value interface{}) error {
 	return err
 }
 
-// Value return json value, implement driver.Valuer interface
+// Value return the time, implement driver.Valuer interface
 func (mmt MinMaxTime) Value() (driver.Value, error) {
 	return mmt.t, nil
 }
@@ -33,6 +33,7 @@ func (mmt MinMaxTime) String() string {
 	return mmt.t.Format(cfg.TimeFormatString)
 }
 
+// IsZero is wraps time.Time.IsZero
 func (mmt MinMaxTime) IsZero() bool {
 	return mmt.t.IsZero()
 }

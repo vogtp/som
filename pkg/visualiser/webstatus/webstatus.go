@@ -12,6 +12,7 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/data"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 var (
@@ -103,10 +104,14 @@ func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
 	}
 }
 
-func (s *WebStatus) handleIncident(a *msg.IncidentMsg) {
-	s.hcl.Debugf("Webstatus got %s incident %s", a.Name, a.Type.String())
-	if err := s.saveIncident(a); err != nil {
+func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
+	s.hcl.Debugf("Webstatus got %s incident %s", i.Name, i.Type.String())
+	if err := s.saveIncident(i); err != nil {
 		s.hcl.Warnf("Cannot save incident: %v", err)
+	}
+	a := db.Access{}
+	if err := a.SaveIncident(i); err != nil {
+		s.hcl.Warnf("Cannot save incident to DB: %v", err)
 	}
 }
 

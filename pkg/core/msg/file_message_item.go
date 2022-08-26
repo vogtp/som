@@ -8,11 +8,12 @@ import (
 
 // FileMsgItem contains a file
 type FileMsgItem struct {
-	MsgID      uuid.UUID `json:"-"  gorm:"type:uuid"`
-	Name    string `json:"Name"`
-	Type    mime.Type
-	Size    int `json:"Size"`
-	Payload []byte
+	ID       uint      `json:"-" gorm:"primaryKey"`
+	ParentID uuid.UUID `json:"-"  gorm:"type:uuid"`
+	Name     string    `json:"Name"`
+	Type     mime.Type
+	Size     int `json:"Size"`
+	Payload  []byte
 }
 
 // NewFileMsgItem creates a new FileMsgItem
