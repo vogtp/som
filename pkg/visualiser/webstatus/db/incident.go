@@ -108,7 +108,7 @@ func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
 func (a *Access) GetIncidentSummary(szName string) ([]IncidentSummary, error) {
 	db := a.getDb()
 	result := make([]IncidentSummary, 0)
-	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start, Error").Group("incident_id").Order("Start")
+	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start, MAX(Error) as Error").Group("incident_id").Order("Start")
 	if len(szName) > 1 && szName != "all" {
 		search = search.Where("name like ?", szName)
 	}
