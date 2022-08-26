@@ -21,7 +21,8 @@
   <td>{{ .Time.Format $.Timeformat }} </td>
   <td> {{ .Username }} </td>
   <td> {{ .Region }} </td>
-  <td>  {{ .Error }} </td>
+  <td>  {{ .Error }} 
+  </td>
 </tr>
 {{ end }}
 </table>
@@ -45,7 +46,7 @@
 <td class="list">Errors:</td>
 <td class="list">
 {{ range .Errors }}
-<p>{{ . }} </p>
+<p> {{ .Error }} </p>
 {{ end }}
 </td>
 </tr>

@@ -20,12 +20,13 @@ const (
 )
 
 type incidentData struct {
-	*db.IncidentModel
+	db.IncidentModel
 	Status   status.Status
-	Errors   []string
+	Errors   []db.ErrorModel
 	Counters map[string]string
 	Stati    map[string]string
 	Files    []msg.FileMsgItem
+	ErrStr   string
 }
 
 func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request) {
@@ -92,24 +93,26 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		}
 
 		id := incidentData{
-			IncidentModel: &f,
+			IncidentModel: f,
 			Status:        prepaireStatus(stat),
 			Counters:      make(map[string]string),
 			Stati:         make(map[string]string),
-			Errors:        make([]string, 0),
 			Files:         make([]msg.FileMsgItem, 0),
 		}
-		fmt.Printf("Err %v\n", id.Error)
-		if errs, err := a.GetErrors(f.ID); err != nil {
-			for _, e := range errs {
-				fmt.Printf("Errs %v\n", e)
-				id.Errors = append(id.Errors, e.Error)
-			}
+		id.ErrStr = id.Error
+		if errs, err := a.GetErrors(f.ID); err == nil {
+			id.Errors = errs
+		} else {
+			s.hcl.Warnf("Loading errors: %v", err)
 		}
 
 		data.Incidents[aCnt-i-1] = id
 	}
 	data.Title = fmt.Sprintf("SOM Incident: %s", data.Name)
+
+	for _, i := range data.Incidents {
+		fmt.Printf("Err %v\n", i.Error)
+	}
 
 	// FIXME: migrate
 	// r.ParseForm()
