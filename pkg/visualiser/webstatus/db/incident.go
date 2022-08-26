@@ -108,24 +108,24 @@ func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
 func (a *Access) GetIncidentSummary(szName string) ([]IncidentSummary, error) {
 	db := a.getDb()
 	result := make([]IncidentSummary, 0)
-	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start").Group("incident_id").Order("Start")
+	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start, Error").Group("incident_id").Order("Start")
 	if len(szName) > 1 && szName != "all" {
 		search = search.Where("name like ?", szName)
 	}
 	err := search.Find(&result).Error
 
-	for i, r := range result {
-		incs, err := a.GetIncident(r.IncidentID)
-		if err != nil {
-			a.hcl.Infof("incident not found: %v", err)
-			continue
-		}
-		for _, inc := range incs {
-			if len(inc.Error) < 1 {
-				continue
-			}
-			result[i].Error = inc.Error
-		}
-	}
+	// for i, r := range result {
+	// 	incs, err := a.GetIncident(r.IncidentID)
+	// 	if err != nil {
+	// 		a.hcl.Infof("incident not found: %v", err)
+	// 		continue
+	// 	}
+	// 	for _, inc := range incs {
+	// 		if len(inc.Error) < 1 {
+	// 			continue
+	// 		}
+	// 		result[i].Error = inc.Error
+	// 	}
+	// }
 	return result, err
 }
