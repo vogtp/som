@@ -29,20 +29,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	if len(name) < 1 {
 		name = "All Szenarios"
 	}
-	s.hcl.Infof("incidents for szenario %s requested", sz)
-	// files, err := s.getIncidentFiles(s.getIncidentRoot(), sz)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	// s.hcl.Infof("incidents count: %v", len(files))
-	// sort.Slice(files, func(i, j int) bool {
-	// 	if (files[i].IncidentInfo.End.IsZero() || files[j].IncidentInfo.End.IsZero()) && !(files[i].IncidentInfo.End.IsZero() && files[j].IncidentInfo.End.IsZero()) {
-	// 		return files[i].IncidentInfo.End.IsZero() && !files[j].IncidentInfo.End.IsZero()
-	// 	}
-	// 	return files[i].IncidentInfo.Start.After(files[j].IncidentInfo.Start)
-	// })
+	s.hcl.Debugf("incidents for szenario %s requested", sz)
 
 	summary, err := s.DB().GetIncidentSummary(sz)
 	if err != nil {

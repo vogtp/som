@@ -9,9 +9,11 @@ import (
 
 func (s *WebStatus) routes() {
 	w := core.Get().WebServer()
-	fs := http.StripPrefix("/som/", http.FileServer(http.FS(assetData)))
-	w.Handle("/static/", fs)
 
+	w.Handle("/static/", http.StripPrefix("/som/", http.FileServer(http.FS(assetData))))
+	w.HandleFunc(FilesPath, s.handleFiles)
+
+	// handlers below this line will be reported in the log
 	w.AddMiddleware(s.reportRequest)
 	w.HandleFunc("/", s.handleIndex)
 	w.HandleFunc("/docu", s.handleDocu)
@@ -21,7 +23,6 @@ func (s *WebStatus) routes() {
 	w.HandleFunc(AlertDetailPath, s.handleAlertDetail)
 	w.HandleFunc(incidentListPath, s.handleIncidentList)
 	w.HandleFunc(IncidentDetailPath, s.handleIncidentDetail)
-	w.HandleFunc(FilesPath, s.handleFiles)
 
 	// legacy
 	// w.HandleFunc("/chart/", s.handleChart)

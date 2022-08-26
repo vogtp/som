@@ -29,7 +29,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No such file", http.StatusBadRequest)
 		return
 	}
-	s.hcl.Infof("file %s requested", idStr)
+	s.hcl.Debugf("file %s requested", idStr)
 
 	file, err := s.DB().GetFile(id)
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No such file", http.StatusBadRequest)
 		return
 	}
-	s.hcl.Infof("Serving file: %s.%s", file.Name, file.Type.Ext)
+	s.hcl.Debugf("Serving file: %s.%s", file.Name, file.Type.Ext)
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", file.Type.MimeType)

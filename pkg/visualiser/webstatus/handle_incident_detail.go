@@ -40,9 +40,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	if strings.HasSuffix(id, "/") {
 		id = id[:len(id)-1]
 	}
-
-	s.hcl.Infof("incidents details %s requested", id)
-	//files, err := s.getIncidentDetailFiles(s.getIncidentRoot(), id)
+	s.hcl.Debugf("incidents details %s requested", id)
 
 	incidents, err := s.DB().GetIncident(id)
 	if err != nil {
@@ -71,7 +69,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Incidents:  make([]incidentData, aCnt),
 	}
 	data.FilesURL = data.Baseurl + "/" + FilesPath
-	s.hcl.Infof("found %v incident recs", len(incidents))
+	s.hcl.Debugf("found %v incident records", len(incidents))
 
 	for i, f := range incidents {
 		data.Name = f.Name
