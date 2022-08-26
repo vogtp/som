@@ -23,7 +23,13 @@ type SzenarioModel struct {
 	Error     string
 }
 
-type stati struct {
+type statiModel struct {
+	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
+	Name     string
+	Value    string
+}
+
+type counterModel struct {
 	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
 	Name     string
 	Value    string
@@ -44,7 +50,32 @@ func (a *Access) GetErrors(id uuid.UUID) ([]ErrorModel, error) {
 	}
 	err := search.Find(&result).Error
 	if err != nil {
-		return nil, fmt.Errorf("cannot load error: %w", err)
+		return nil, fmt.Errorf("cannot load errors: %w", err)
+	}
+	return result, err
+}
+
+func (a *Access) GetCounters(id uuid.UUID) (map[string]string, error) {
+	return a.getMap(&counterModel{}, id)
+}
+func (a *Access) GetStati(id uuid.UUID) (map[string]string, error) {
+	return a.getMap(&statiModel{}, id)
+}
+
+func (a *Access) getMap(model any, id uuid.UUID) (map[string]string, error) {
+	db := a.getDb()
+	result := make(map[string]string)
+	list := make([]statiModel, 0)
+	search := db.Model(model).Order("name")
+	if len(id) > 0 {
+		search = search.Where("parent_id = ?", id)
+	}
+	err := search.Find(&list).Error
+	if err != nil {
+		return nil, fmt.Errorf("cannot load stati: %w", err)
+	}
+	for _, s := range list {
+		result[s.Name] = s.Value
 	}
 	return result, err
 }
@@ -89,10 +120,29 @@ func (a *Access) SaveStati(msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error
 	for k, v := range msg.Stati {
-		if err := db.Save(stati{
+		if err := db.Save(statiModel{
 			ParentID: msg.ID,
 			Name:     k,
 			Value:    v,
+		}).Error; err != nil {
+			if reterr == nil {
+				reterr = err
+			} else {
+				err = fmt.Errorf("%v %w", reterr, err)
+			}
+		}
+	}
+	return reterr
+}
+
+func (a *Access) SaveCounters(msg *msg.SzenarioEvtMsg) error {
+	db := a.getDb()
+	var reterr error
+	for k, v := range msg.Counters {
+		if err := db.Save(counterModel{
+			ParentID: msg.ID,
+			Name:     k,
+			Value:    fmt.Sprintf("%v", v),
 		}).Error; err != nil {
 			if reterr == nil {
 				reterr = err

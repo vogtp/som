@@ -41,8 +41,9 @@ func (a *Access) _initDB() (*gorm.DB, error) {
 	// Migrate the schema
 	err = db.AutoMigrate(
 		&IncidentModel{},
-		&stati{},
+		&statiModel{},
 		&ErrorModel{},
+		&counterModel{},
 	)
 	a.hcl.Infof("Loaded DB %s", path)
 	return db, err

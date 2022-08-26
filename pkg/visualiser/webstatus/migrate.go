@@ -33,7 +33,7 @@ func (s *WebStatus) Query() {
 func (s *WebStatus) Incidents() {
 	a := db.Access{}
 
-	incidents, err := a.GetIncidents()
+	incidents, err := a.GetIncident("")
 	if err != nil {
 		panic(err)
 	}

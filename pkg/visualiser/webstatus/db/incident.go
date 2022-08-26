@@ -11,6 +11,13 @@ import (
 func (a *Access) SaveIncident(msg *msg.IncidentMsg) error {
 	db := a.getDb()
 	var reterr error
+	if err := a.SaveCounters(msg.SzenarioEvtMsg); err != nil {
+		if reterr == nil {
+			reterr = err
+		} else {
+			err = fmt.Errorf("%v %w", reterr, err)
+		}
+	}
 	if err := a.SaveStati(msg.SzenarioEvtMsg); err != nil {
 		if reterr == nil {
 			reterr = err
@@ -75,10 +82,6 @@ func (a *Access) IncidentSzenarios() []string {
 	result := make([]string, 0)
 	db.Model(&IncidentModel{}).Distinct("name").Find(&result)
 	return result
-}
-
-func (a *Access) GetIncidents() ([]IncidentModel, error) {
-	return a.GetIncident("")
 }
 
 func (a *Access) GetIncident(id string) ([]IncidentModel, error) {

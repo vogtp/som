@@ -95,8 +95,6 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		id := incidentData{
 			IncidentModel: f,
 			Status:        prepaireStatus(stat),
-			Counters:      make(map[string]string),
-			Stati:         make(map[string]string),
 			Files:         make([]msg.FileMsgItem, 0),
 		}
 		id.ErrStr = id.Error
@@ -105,7 +103,16 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		} else {
 			s.hcl.Warnf("Loading errors: %v", err)
 		}
-
+		if stati, err := a.GetStati(f.ID); err == nil {
+			id.Stati = stati
+		} else {
+			s.hcl.Warnf("Loading stati: %v", err)
+		}
+		if ctrs, err := a.GetCounters(f.ID); err == nil {
+			id.Counters = ctrs
+		} else {
+			s.hcl.Warnf("Loading counters: %v", err)
+		}
 		data.Incidents[aCnt-i-1] = id
 	}
 	data.Title = fmt.Sprintf("SOM Incident: %s", data.Name)
