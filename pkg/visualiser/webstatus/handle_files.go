@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -32,8 +30,8 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.hcl.Infof("file %s requested", idStr)
-	a := db.Access{}
-	file, err := a.GetFile(id)
+
+	file, err := s.DB().GetFile(id)
 	if err != nil {
 		s.hcl.Warnf("No such file %s: %v", idStr, err)
 		http.Error(w, "No such file", http.StatusBadRequest)

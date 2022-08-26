@@ -8,6 +8,7 @@ import (
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
+// SzenarioModel model for szenarios
 type SzenarioModel struct {
 	ID         uuid.UUID `json:"ID"  gorm:"primaryKey;type:uuid"`
 	IncidentID string    `json:"Incident" gorm:"index"`
@@ -35,12 +36,14 @@ type counterModel struct {
 	Value    string
 }
 
+// ErrorModel model for errors
 type ErrorModel struct {
 	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
 	Idx      int
 	Error    string
 }
 
+// GetErrors returns a list of error models by parent id (uuid)
 func (a *Access) GetErrors(id uuid.UUID) ([]ErrorModel, error) {
 	db := a.getDb()
 	result := make([]ErrorModel, 0)
@@ -55,6 +58,7 @@ func (a *Access) GetErrors(id uuid.UUID) ([]ErrorModel, error) {
 	return result, err
 }
 
+// GetFile returns a file
 func (a *Access) GetFile(id int) (*msg.FileMsgItem, error) {
 	db := a.getDb()
 	var result *msg.FileMsgItem
@@ -66,6 +70,7 @@ func (a *Access) GetFile(id int) (*msg.FileMsgItem, error) {
 	return result, err
 }
 
+// GetFiles returns a list of files by parent id (uuid)
 func (a *Access) GetFiles(id uuid.UUID) ([]msg.FileMsgItem, error) {
 	db := a.getDb()
 	result := make([]msg.FileMsgItem, 0)
@@ -80,9 +85,12 @@ func (a *Access) GetFiles(id uuid.UUID) ([]msg.FileMsgItem, error) {
 	return result, err
 }
 
+// GetCounters returns a map of counters by parent id (uuid)
 func (a *Access) GetCounters(id uuid.UUID) (map[string]string, error) {
 	return a.getMap(&counterModel{}, id)
 }
+
+// GetStati returns a map of stati by parent id (uuid)
 func (a *Access) GetStati(id uuid.UUID) (map[string]string, error) {
 	return a.getMap(&statiModel{}, id)
 }
@@ -105,6 +113,7 @@ func (a *Access) getMap(model any, id uuid.UUID) (map[string]string, error) {
 	return result, err
 }
 
+// SzenarioModelFromMsg wraps a szenario msg into a model
 func (a Access) SzenarioModelFromMsg(msg *msg.SzenarioEvtMsg) SzenarioModel {
 	sm := SzenarioModel{
 		ID:         msg.ID,
@@ -122,6 +131,7 @@ func (a Access) SzenarioModelFromMsg(msg *msg.SzenarioEvtMsg) SzenarioModel {
 	return sm
 }
 
+// SaveErrors saves all errors of a szenarion message
 func (a *Access) SaveErrors(msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error
@@ -141,6 +151,7 @@ func (a *Access) SaveErrors(msg *msg.SzenarioEvtMsg) error {
 	return reterr
 }
 
+// SaveStati saves all stati of a szenarion message
 func (a *Access) SaveStati(msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error
@@ -160,6 +171,7 @@ func (a *Access) SaveStati(msg *msg.SzenarioEvtMsg) error {
 	return reterr
 }
 
+// SaveCounters saves all counters of a szenarion message
 func (a *Access) SaveCounters(msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error
@@ -179,6 +191,7 @@ func (a *Access) SaveCounters(msg *msg.SzenarioEvtMsg) error {
 	return reterr
 }
 
+// SaveFiles saves all files of a szenarion message
 func (a *Access) SaveFiles(msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error

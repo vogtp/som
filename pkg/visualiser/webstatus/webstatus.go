@@ -33,6 +33,7 @@ type WebStatus struct {
 	alertCache       map[string]string
 	muICache         sync.Mutex
 	incidentCache    map[string]string
+	db               *db.Access
 }
 
 // New registers a WebStatus on the event bus
@@ -109,8 +110,7 @@ func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 	if err := s.saveIncident(i); err != nil {
 		s.hcl.Warnf("Cannot save incident: %v", err)
 	}
-	a := db.Access{}
-	if err := a.SaveIncident(i); err != nil {
+	if err := s.DB().SaveIncident(i); err != nil {
 		s.hcl.Warnf("Cannot save incident to DB: %v", err)
 	}
 }
@@ -134,4 +134,12 @@ func (s *WebStatus) handleTimeseries(e *msg.SzenarioEvtMsg) {
 		s.data.Timeseries[e.Name] = ts
 	}
 	ts.Add(e.Time, f)
+}
+
+// DB returns the db.Access
+func (s *WebStatus) DB() *db.Access {
+	if s.db == nil {
+		s.db = &db.Access{}
+	}
+	return s.db
 }

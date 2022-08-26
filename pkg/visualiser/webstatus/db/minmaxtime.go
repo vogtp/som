@@ -8,6 +8,7 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
+// MinMaxTime is a wrapper around time to support SQL max and min
 type MinMaxTime struct {
 	t time.Time
 }
@@ -29,6 +30,7 @@ func (mmt MinMaxTime) Value() (driver.Value, error) {
 	return mmt.t, nil
 }
 
+// String formats the time
 func (mmt MinMaxTime) String() string {
 	return mmt.t.Format(cfg.TimeFormatString)
 }

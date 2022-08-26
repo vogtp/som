@@ -8,6 +8,7 @@ import (
 	"github.com/vogtp/som/pkg/core/status"
 )
 
+// SaveIncident saves a incident to DB
 func (a *Access) SaveIncident(msg *msg.IncidentMsg) error {
 	db := a.getDb()
 	var reterr error
@@ -57,6 +58,7 @@ func (a *Access) SaveIncident(msg *msg.IncidentMsg) error {
 	return reterr
 }
 
+// IncidentModel the DB model of a incident (use msg?)
 type IncidentModel struct {
 	SzenarioModel
 	Start     time.Time `gorm:"index"`
@@ -65,10 +67,12 @@ type IncidentModel struct {
 	ByteState []byte    `json:"State" gorm:"column:State"`
 }
 
+// Level convinience method that calls status Level
 func (im IncidentModel) Level() status.Level {
 	return status.Level(im.IntLevel)
 }
 
+// IncidentSummary db model for the incident list
 type IncidentSummary struct {
 	IncidentID string
 	Name       string
@@ -80,10 +84,12 @@ type IncidentSummary struct {
 	DetailLink string
 }
 
+// Level convinience method that calls status Level
 func (il IncidentSummary) Level() status.Level {
 	return status.Level(il.IntLevel)
 }
 
+// IncidentSzenarios lists all szenarios that have incidents
 func (a *Access) IncidentSzenarios() []string {
 	db := a.getDb()
 	result := make([]string, 0)
@@ -91,6 +97,7 @@ func (a *Access) IncidentSzenarios() []string {
 	return result
 }
 
+// GetIncident returns a incident list by id (uuid)
 func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
 	db := a.getDb()
 	result := make([]IncidentModel, 0)
@@ -105,6 +112,7 @@ func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
 	return result, err
 }
 
+// GetIncidentSummary returns a incident summary list by szeanrio name
 func (a *Access) GetIncidentSummary(szName string) ([]IncidentSummary, error) {
 	db := a.getDb()
 	result := make([]IncidentSummary, 0)
@@ -113,19 +121,5 @@ func (a *Access) GetIncidentSummary(szName string) ([]IncidentSummary, error) {
 		search = search.Where("name like ?", szName)
 	}
 	err := search.Find(&result).Error
-
-	// for i, r := range result {
-	// 	incs, err := a.GetIncident(r.IncidentID)
-	// 	if err != nil {
-	// 		a.hcl.Infof("incident not found: %v", err)
-	// 		continue
-	// 	}
-	// 	for _, inc := range incs {
-	// 		if len(inc.Error) < 1 {
-	// 			continue
-	// 		}
-	// 		result[i].Error = inc.Error
-	// 	}
-	// }
 	return result, err
 }

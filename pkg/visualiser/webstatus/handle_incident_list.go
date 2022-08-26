@@ -44,9 +44,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	// 	return files[i].IncidentInfo.Start.After(files[j].IncidentInfo.Start)
 	// })
 
-	a := db.Access{}
-
-	summary, err := a.GetIncidentSummary(sz)
+	summary, err := s.DB().GetIncidentSummary(sz)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -70,7 +68,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Timeformat:       cfg.TimeFormatString,
 		IncidentListPath: incidentListPath,
 		Incidents:        summary,
-		Szenarios:        a.IncidentSzenarios(),
+		Szenarios:        s.DB().IncidentSzenarios(),
 	}
 
 	err = templates.ExecuteTemplate(w, "incident_list.gohtml", data)

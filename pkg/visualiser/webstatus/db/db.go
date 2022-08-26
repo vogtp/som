@@ -13,6 +13,7 @@ import (
 
 const dbName = "som.sqlite"
 
+// Access wraps the DB
 type Access struct {
 	hcl hcl.Logger
 	db  *gorm.DB
@@ -32,9 +33,7 @@ func (a *Access) getDb() *gorm.DB {
 
 func (a *Access) _initDB() (*gorm.DB, error) {
 	path := fmt.Sprintf("%s/%s", viper.GetString(cfg.DataDir), dbName)
-	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{
-		//	Logger: core.Get().HCL().GormLogger(),
-	})
+	db, err := gorm.Open(sqlite.Open(path), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("cannot open DB %q: %w", path, err)
 	}

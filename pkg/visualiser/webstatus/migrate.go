@@ -2,13 +2,11 @@ package webstatus
 
 import (
 	"fmt"
-
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
-// MigrateIncidents ..
+// MigrateIncidents TODO remove
 func (s *WebStatus) MigrateIncidents() {
-	a := db.Access{}
+	a := s.DB()
 	files, err := s.getIncidentDetailFiles(s.getIncidentRoot(), "")
 	if err != nil {
 		panic(err)
@@ -25,13 +23,15 @@ func (s *WebStatus) MigrateIncidents() {
 	}
 }
 
+// Query TODO remove
 func (s *WebStatus) Query() {
 	// s.Incidents()
 	s.Summay()
 }
 
+// Incidents TODO remove
 func (s *WebStatus) Incidents() {
-	a := db.Access{}
+	a := s.DB()
 
 	incidents, err := a.GetIncident("")
 	if err != nil {
@@ -43,8 +43,9 @@ func (s *WebStatus) Incidents() {
 	fmt.Printf("Total incidents: %v\n", len(incidents))
 }
 
+// Summay TODO remove
 func (s *WebStatus) Summay() {
-	a := db.Access{}
+	a := s.DB()
 
 	summary, err := a.GetIncidentSummary("")
 	if err != nil {
