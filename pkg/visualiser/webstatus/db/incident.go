@@ -93,7 +93,7 @@ func (il IncidentSummary) Level() status.Level {
 func (a *Access) IncidentSzenarios() []string {
 	db := a.getDb()
 	result := make([]string, 0)
-	db.Model(&IncidentModel{}).Distinct("name").Find(&result)
+	db.Model(&IncidentModel{}).Distinct("name").Order("name").Find(&result)
 	return result
 }
 
@@ -105,7 +105,7 @@ func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
 	if len(id) > 0 {
 		search = search.Where("incident_id = ?", id)
 	}
-	err := search.Find(&result).Error
+ 	err := search.Find(&result).Error
 	if err != nil {
 		return nil, fmt.Errorf("cannot load incident: %w", err)
 	}
@@ -116,7 +116,8 @@ func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
 func (a *Access) GetIncidentSummary(szName string) ([]IncidentSummary, error) {
 	db := a.getDb()
 	result := make([]IncidentSummary, 0)
-	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start, MAX(Error) as Error").Group("incident_id").Order("Start")
+	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start, MAX(Error) as Error")
+	search = search.Group("incident_id").Order("Start desc")
 	if len(szName) > 1 && szName != "all" {
 		search = search.Where("name like ?", szName)
 	}
