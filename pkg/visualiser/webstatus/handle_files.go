@@ -32,7 +32,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 	}
 	s.hcl.Debugf("file %s requested", idStr)
 
-	file, err := s.DB().GetFile(id)
+	file, err := s.DB().GetFile(r.Context(), id)
 	if err != nil {
 		s.hcl.Warnf("No such file %s: %v", idStr, err)
 		http.Error(w, "No such file", http.StatusBadRequest)

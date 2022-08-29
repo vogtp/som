@@ -1,12 +1,14 @@
 package webstatus
 
 import (
+	"context"
 	"fmt"
 )
 
 // MigrateIncidents TODO remove
 func (s *WebStatus) MigrateIncidents() {
 	a := s.DB()
+	ctx := context.Background()
 	files, err := s.getIncidentDetailFiles(s.getIncidentRoot(), "")
 	if err != nil {
 		panic(err)
@@ -16,7 +18,7 @@ func (s *WebStatus) MigrateIncidents() {
 		if len(f.IncidentInfo.ByteState) < 1 {
 			fmt.Println("NO BYTE STATE in files")
 		}
-		if err := a.SaveIncident(f.IncidentInfo.IncidentMsg); err != nil {
+		if err := a.SaveIncident(ctx, f.IncidentInfo.IncidentMsg); err != nil {
 			panic(err)
 		}
 
@@ -33,7 +35,7 @@ func (s *WebStatus) Query() {
 func (s *WebStatus) Incidents() {
 	a := s.DB()
 
-	incidents, err := a.GetIncident("")
+	incidents, err := a.GetIncident(context.Background(), "")
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +49,7 @@ func (s *WebStatus) Incidents() {
 func (s *WebStatus) Summay() {
 	a := s.DB()
 
-	summary, err := a.GetIncidentSummary("")
+	summary, err := a.GetIncidentSummary(context.Background(), "")
 	if err != nil {
 		panic(err)
 	}

@@ -1,6 +1,7 @@
 package webstatus
 
 import (
+	"context"
 	"embed"
 	"html/template"
 	"strings"
@@ -110,7 +111,7 @@ func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 	if err := s.saveIncident(i); err != nil {
 		s.hcl.Warnf("Cannot save incident: %v", err)
 	}
-	if err := s.DB().SaveIncident(i); err != nil {
+	if err := s.DB().SaveIncident(context.Background(), i); err != nil {
 		s.hcl.Warnf("Cannot save incident to DB: %v", err)
 	}
 }
@@ -141,5 +142,6 @@ func (s *WebStatus) DB() *db.Access {
 	if s.db == nil {
 		s.db = &db.Access{}
 	}
+
 	return s.db
 }

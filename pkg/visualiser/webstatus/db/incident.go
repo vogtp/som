@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -9,31 +10,31 @@ import (
 )
 
 // SaveIncident saves a incident to DB
-func (a *Access) SaveIncident(msg *msg.IncidentMsg) error {
+func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 	db := a.getDb()
 	var reterr error
-	if err := a.SaveCounters(msg.SzenarioEvtMsg); err != nil {
+	if err := a.SaveCounters(ctx, msg.SzenarioEvtMsg); err != nil {
 		if reterr == nil {
 			reterr = err
 		} else {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-	if err := a.SaveStati(msg.SzenarioEvtMsg); err != nil {
+	if err := a.SaveStati(ctx, msg.SzenarioEvtMsg); err != nil {
 		if reterr == nil {
 			reterr = err
 		} else {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-	if err := a.SaveErrors(msg.SzenarioEvtMsg); err != nil {
+	if err := a.SaveErrors(ctx, msg.SzenarioEvtMsg); err != nil {
 		if reterr == nil {
 			reterr = err
 		} else {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-	if err := a.SaveFiles(msg.SzenarioEvtMsg); err != nil {
+	if err := a.SaveFiles(ctx, msg.SzenarioEvtMsg); err != nil {
 		if reterr == nil {
 			reterr = err
 		} else {
@@ -47,7 +48,7 @@ func (a *Access) SaveIncident(msg *msg.IncidentMsg) error {
 		ByteState:     msg.ByteState,
 		SzenarioModel: a.SzenarioModelFromMsg(msg.SzenarioEvtMsg),
 	}
-	if err := db.Save(model).Error; err != nil {
+	if err := db.WithContext(ctx).Save(model).Error; err != nil {
 		if reterr == nil {
 			reterr = err
 		} else {
@@ -90,22 +91,22 @@ func (il IncidentSummary) Level() status.Level {
 }
 
 // IncidentSzenarios lists all szenarios that have incidents
-func (a *Access) IncidentSzenarios() []string {
+func (a *Access) IncidentSzenarios(ctx context.Context) []string {
 	db := a.getDb()
 	result := make([]string, 0)
-	db.Model(&IncidentModel{}).Distinct("name").Order("name").Find(&result)
+	db.Model(&IncidentModel{}).Distinct("name").Order("name").WithContext(ctx).Find(&result)
 	return result
 }
 
 // GetIncident returns a incident list by id (uuid)
-func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
+func (a *Access) GetIncident(ctx context.Context, id string) ([]IncidentModel, error) {
 	db := a.getDb()
 	result := make([]IncidentModel, 0)
 	search := db.Model(&IncidentModel{}).Order("time")
 	if len(id) > 0 {
 		search = search.Where("incident_id = ?", id)
 	}
- 	err := search.Find(&result).Error
+	err := search.WithContext(ctx).Find(&result).Error
 	if err != nil {
 		return nil, fmt.Errorf("cannot load incident: %w", err)
 	}
@@ -113,7 +114,7 @@ func (a *Access) GetIncident(id string) ([]IncidentModel, error) {
 }
 
 // GetIncidentSummary returns a incident summary list by szeanrio name
-func (a *Access) GetIncidentSummary(szName string) ([]IncidentSummary, error) {
+func (a *Access) GetIncidentSummary(ctx context.Context, szName string) ([]IncidentSummary, error) {
 	db := a.getDb()
 	result := make([]IncidentSummary, 0)
 	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start, MAX(Error) as Error")
@@ -121,6 +122,6 @@ func (a *Access) GetIncidentSummary(szName string) ([]IncidentSummary, error) {
 	if len(szName) > 1 && szName != "all" {
 		search = search.Where("name like ?", szName)
 	}
-	err := search.Find(&result).Error
+	err := search.WithContext(ctx).Find(&result).Error
 	return result, err
 }

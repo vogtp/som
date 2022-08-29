@@ -31,7 +31,8 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	}
 	s.hcl.Debugf("incidents for szenario %s requested", sz)
 
-	summary, err := s.DB().GetIncidentSummary(sz)
+	ctx := r.Context()
+	summary, err := s.DB().GetIncidentSummary(ctx, sz)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -55,7 +56,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Timeformat:       cfg.TimeFormatString,
 		IncidentListPath: incidentListPath,
 		Incidents:        summary,
-		Szenarios:        s.DB().IncidentSzenarios(),
+		Szenarios:        s.DB().IncidentSzenarios(ctx),
 	}
 
 	err = templates.ExecuteTemplate(w, "incident_list.gohtml", data)

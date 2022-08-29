@@ -28,6 +28,7 @@ func (a *Access) getDb() *gorm.DB {
 		}
 		a.db = db
 	}
+	
 	return a.db
 }
 
