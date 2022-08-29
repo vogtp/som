@@ -19,8 +19,17 @@ func (mmt *MinMaxTime) Scan(value interface{}) error {
 	if !ok {
 		return fmt.Errorf("cannot parse time: %v (%T) is not string", value, value)
 	}
+	if s == "0001-01-01 00:00:00+00:00" {
+		// no time
+		mmt.t = time.Time{}
+		return nil
+	}
 	format := "2006-01-02 15:04:05.9999999"
-	t, err := time.Parse(format, s[:len(format)])
+	l := len(format)
+	if len(s) < l {
+		return fmt.Errorf("cannot parse time: %v", s)
+	}
+	t, err := time.Parse(format, s[:l])
 	mmt.t = t
 	return err
 }
