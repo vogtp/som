@@ -107,7 +107,7 @@ func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
 }
 
 func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
-	s.hcl.Debugf("Webstatus got %s incident %s", i.Name, i.Type.String())
+	s.hcl.Infof("Webstatus got  %s %s (%s - %s) ", i.Type.String(), i.Name, i.Start.Format(cfg.TimeFormatString), i.End.Format(cfg.TimeFormatString))
 	if err := s.saveIncident(i); err != nil {
 		s.hcl.Warnf("Cannot save incident: %v", err)
 	}
