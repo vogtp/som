@@ -55,7 +55,9 @@ func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-
+	if err := db.WithContext(ctx).Model(&model).Where("id = ?", model.ID).Update("end", model.End).Error; err != nil {
+		a.hcl.Warnf("Cannot update incident end times: %v", err)
+	}
 	return reterr
 }
 
@@ -117,7 +119,7 @@ func (a *Access) GetIncident(ctx context.Context, id string) ([]IncidentModel, e
 func (a *Access) GetIncidentSummary(ctx context.Context, szName string) ([]IncidentSummary, error) {
 	db := a.getDb()
 	result := make([]IncidentSummary, 0)
-	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(time) as End, MIN(time) as Start, MAX(Error) as Error")
+	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(end) as End, MIN(start) as Start, MAX(Error) as Error")
 	search = search.Group("incident_id").Order("Start desc")
 	if len(szName) > 1 && szName != "all" {
 		search = search.Where("name like ?", szName)
