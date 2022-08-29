@@ -59,7 +59,7 @@ func (a *Access) GetErrors(id uuid.UUID) ([]ErrorModel, error) {
 }
 
 // GetFile returns a file
-func (a *Access) GetFile(id int) (*msg.FileMsgItem, error) {
+func (a *Access) GetFile(id uuid.UUID) (*msg.FileMsgItem, error) {
 	db := a.getDb()
 	var result *msg.FileMsgItem
 	search := db.Model(&msg.FileMsgItem{}).Where("id = ?", id)
@@ -197,6 +197,9 @@ func (a *Access) SaveFiles(msg *msg.SzenarioEvtMsg) error {
 	var reterr error
 	for _, f := range msg.Files {
 		f.ParentID = msg.ID
+		if f.ID == uuid.Nil {
+			f.ID = uuid.New()
+		}
 		if err := db.Save(&f).Error; err != nil {
 			if reterr == nil {
 				reterr = err

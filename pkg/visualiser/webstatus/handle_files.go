@@ -2,8 +2,9 @@ package webstatus
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -23,9 +24,9 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 		idStr = idStr[:len(idStr)-1]
 	}
 
-	id, err := strconv.Atoi(idStr)
+	id, err := uuid.Parse(idStr)
 	if err != nil {
-		s.hcl.Warnf("ID is not int %s: %v", idStr, err)
+		s.hcl.Warnf("ID is not a UUID %s: %v", idStr, err)
 		http.Error(w, "No such file", http.StatusBadRequest)
 		return
 	}
