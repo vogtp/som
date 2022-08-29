@@ -48,3 +48,13 @@ func (mmt MinMaxTime) String() string {
 func (mmt MinMaxTime) IsZero() bool {
 	return mmt.t.IsZero()
 }
+
+// Before is wraps time.Time.Before
+func (mmt MinMaxTime) Before(t MinMaxTime) bool {
+	return mmt.t.Before(t.t)
+}
+
+// After is wraps time.Time.After
+func (mmt MinMaxTime) After(t MinMaxTime) bool {
+	return mmt.t.After(t.t)
+}
