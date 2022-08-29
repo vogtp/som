@@ -3,6 +3,7 @@ package webstatus
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -42,6 +43,19 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	for i, s := range summary {
 		summary[i].DetailLink = fmt.Sprintf("%s/%s/%s/", baseurl, IncidentDetailPath, s.IncidentID)
 	}
+
+	sort.Slice(summary, func(i, j int) bool {
+		if summary[i].End.IsZero() && summary[j].End.IsZero() {
+			return summary[i].Start.After(summary[j].Start)
+		}
+		if summary[i].End.IsZero() {
+			return true
+		}
+		if summary[j].End.IsZero() {
+			return false
+		}
+		return summary[i].Start.After(summary[j].Start)
+	})
 
 	var data = struct {
 		*commonData
