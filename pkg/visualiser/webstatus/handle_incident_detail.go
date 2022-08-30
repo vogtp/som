@@ -49,6 +49,15 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	aCnt := len(incidents)
+	if aCnt < 1 {
+		err = templates.ExecuteTemplate(w, "empty.gohtml", common("SOM No such Incident", r))
+		if err != nil {
+			s.hcl.Errorf("index Template error %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 
 	var data = struct {
 		*commonData
