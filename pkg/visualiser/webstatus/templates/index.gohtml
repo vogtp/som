@@ -66,11 +66,7 @@ th, td {
        {{ .AvgTime }}
     </td>
     <td> 
-        {{ if $.LocalGraph }}
-            <img title="Last Update: {{ .LastUpdate.Format "02.01.2006 15:04:05" }}" src="{{$.Baseurl}}/chart/{{.Name}}?width=600&height=100" /> 
-        {{ else }}
-            <iframe src="{{ $.PromURL }}/consoles/som_{{$.GraphStyle}}.html?szenario={{ .PromName }}&duration={{ $.Duration }}&width=600&height=100" width="610" height="110" scrolling="no" frameborder="0"></iframe>
-        {{end}}
+        <iframe src="{{ $.PromURL }}/consoles/som_{{$.GraphStyle}}.html?szenario={{ .PromName }}&duration={{ $.Duration }}&width=600&height=100" width="610" height="110" scrolling="no" frameborder="0"></iframe>
     </td>
 </tr>
 {{ end }}

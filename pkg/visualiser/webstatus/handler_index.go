@@ -30,7 +30,6 @@ type indexValue struct {
 func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 	var data = struct {
 		*commonData
-		LocalGraph  bool
 		PromURL     string
 		Duration    int
 		DurationStr string
@@ -39,7 +38,6 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 	}{
 		commonData:  common("SOM Szenarios", r),
 		PromURL:     fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
-		LocalGraph:  false,
 		Duration:    7 * 24 * 60 * 60,
 		DurationStr: "7d",
 		GraphStyle:  "avail",

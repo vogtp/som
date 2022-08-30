@@ -10,7 +10,6 @@ import (
 
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/status"
-	"github.com/vogtp/som/pkg/visualiser/data"
 )
 
 const jsonDBFile = "webstatus.json"
@@ -20,7 +19,6 @@ type szenarioData struct {
 	mu            sync.RWMutex `json:"-"`
 	Status        status.Status
 	Availabilites map[string]status.Availability
-	Timeseries    map[string]*data.Timeserie
 }
 
 func newSzenarioData(hcl hcl.Logger) *szenarioData {
@@ -28,7 +26,6 @@ func newSzenarioData(hcl hcl.Logger) *szenarioData {
 		hcl:           hcl.Named("data"),
 		Status:        status.New(),
 		Availabilites: make(map[string]status.Availability),
-		Timeseries:    make(map[string]*data.Timeserie),
 	}
 	return sd
 }

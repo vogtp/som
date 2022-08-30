@@ -12,7 +12,6 @@ import (
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/visualiser/data"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
@@ -114,27 +113,6 @@ func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 	if err := s.DB().SaveIncident(context.Background(), i); err != nil {
 		s.hcl.Warnf("Cannot save incident to DB: %v", err)
 	}
-}
-
-func (s *WebStatus) handleTimeseries(e *msg.SzenarioEvtMsg) {
-	if e.Err() != nil {
-		// do not record time in case of errors
-		return
-	}
-	tot, ok := e.Counters["step.total"]
-	if !ok {
-		return
-	}
-	f, ok := tot.(float64)
-	if !ok {
-		return
-	}
-	ts, ok := s.data.Timeseries[e.Name]
-	if !ok {
-		ts = &data.Timeserie{}
-		s.data.Timeseries[e.Name] = ts
-	}
-	ts.Add(e.Time, f)
 }
 
 // DB returns the db.Access
