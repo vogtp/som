@@ -205,10 +205,7 @@ func (a *Access) SaveFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
 	var reterr error
 	pcr := &parentChildRelation{ParentID: msg.ID}
 	for _, f := range msg.Files {
-		if f.ID == uuid.Nil {
-			f.ID = uuid.New()
-		}
-		pcr.ChildID = f.ID
+		f.CalculateID()
 		if err := db.WithContext(ctx).Save(&f).Error; err != nil {
 			if reterr == nil {
 				reterr = err
@@ -217,6 +214,7 @@ func (a *Access) SaveFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
 			}
 			continue
 		}
+		pcr.ChildID = f.ID
 		if err := db.WithContext(ctx).Save(&pcr).Error; err != nil {
 			if reterr == nil {
 				reterr = err
