@@ -13,8 +13,20 @@
     {{end}}
     <link rel="shortcut icon" type="image/png" href="{{.Baseurl}}/static/favicon.png">  
     <!--Use bootstrap to make the application look nice-->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <script async src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <link href="{{.Baseurl}}/static/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+      integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB"
+      crossorigin="anonymous"
+    ></script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
   </head>
   <style>
     th, td {
@@ -27,6 +39,12 @@
     img.level {
       width: 25px
     }
+
+    .form-select {
+      display: inline;
+      width: auto;
+    }
+    
   </style>
 
 <script>
@@ -41,10 +59,16 @@ function showIfDebug(el) {
 }
 }
 </script>
-  <body class="container">
+  <body>
   <base href="{{.Baseurl}}">
     <!--Embed the menu.html template at this location-->
     {{ template "menu.gohtml" . }}
+
+  <div class="container" style="margin-top: 4rem;">
+     
+   <div class="page-header"> 
+
     {{ if .Title }}
     <h2> {{.Title}} </h2>
     {{end}}
+   </div>

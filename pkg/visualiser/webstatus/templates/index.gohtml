@@ -30,7 +30,7 @@ th, td {
     <td>Average</td>
     <td style="text-align: right">
          TIme Range:
-        <select name="graphStyle" id="duration" onchange="updateDuration(this)">
+        <select name="graphDuration" class="form-select" id="duration" onchange="updateDuration(this)">
             <option selected disabled hidden>{{ .DurationStr}}</option>
             <option value="1h" >1h</option>
             <option value="1d" >1d</option>
@@ -39,7 +39,7 @@ th, td {
         </select>
     
         Graph Style:
-        <select name="graphStyle" id="graphStyle" onchange="updateGraphStyle(this)">
+        <select name="graphStyle" class="form-select" id="graphStyle" onchange="updateGraphStyle(this)">
             <option selected disabled hidden>Choose</option>
             <option value="avail" {{ if eq .GraphStyle "avail" }}selected{{end}} >Availability</option>
             <option value="steps" {{ if eq .GraphStyle "steps" }}selected{{end}}>Step Times</option>

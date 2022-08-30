@@ -64,8 +64,10 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		IncidentListPath string
 		Incidents        []db.IncidentSummary
 		Szenarios        []string
+		FilterName       string
 	}{
 		commonData:       common(fmt.Sprintf("SOM Incidents: %s", name), r),
+		FilterName:       name,
 		PromURL:          fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:       cfg.TimeFormatString,
 		IncidentListPath: incidentListPath,

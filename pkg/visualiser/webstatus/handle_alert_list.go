@@ -40,8 +40,10 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		AlertListPath string
 		Alerts        []alertFile
 		Szenarios     []string
+		FilterName    string
 	}{
 		commonData:    common(fmt.Sprintf("SOM Alerts: %s", name), r),
+		FilterName:    name,
 		PromURL:       fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:    cfg.TimeFormatString,
 		AlertListPath: alertListPath,
