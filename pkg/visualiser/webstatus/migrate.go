@@ -3,6 +3,8 @@ package webstatus
 import (
 	"context"
 	"fmt"
+
+	"github.com/google/uuid"
 )
 
 // MigrateIncidents TODO remove
@@ -43,6 +45,20 @@ func (s *WebStatus) Incidents() {
 		fmt.Printf("%s %-20s %10v %v %v %v\n", r.IncidentID, r.Name, r.Level(), r.Start, r.End, r.Error)
 	}
 	fmt.Printf("Total incidents: %v\n", len(incidents))
+}
+
+// Files TODO remove
+func (s *WebStatus) Files(pid uuid.UUID) {
+	a := s.DB()
+
+	files, err := a.GetFiles(context.Background(), pid)
+	if err != nil {
+		panic(err)
+	}
+	for _, f := range files {
+		fmt.Printf("%s %-20s %10v %v \n", f.Name, f.Type.Ext, f.Size, f.Type.MimeType)
+	}
+	fmt.Printf("Total files: %v\n", len(files))
 }
 
 // Summay TODO remove

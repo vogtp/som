@@ -9,7 +9,6 @@ import (
 // FileMsgItem contains a file
 type FileMsgItem struct {
 	ID       uuid.UUID `json:"ID"  gorm:"primaryKey;type:uuid"`
-	ParentID uuid.UUID `json:"-"  gorm:"type:uuid"`
 	Name     string    `json:"Name"`
 	Type     mime.Type
 	Size     int `json:"Size"`

@@ -44,6 +44,11 @@ type ErrorModel struct {
 	Error    string
 }
 
+type parentChildRelation struct {
+	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
+	ChildID  uuid.UUID `gorm:"primaryKey;type:uuid"`
+}
+
 // GetErrors returns a list of error models by parent id (uuid)
 func (a *Access) GetErrors(ctx context.Context, id uuid.UUID) ([]ErrorModel, error) {
 	db := a.getDb()
@@ -72,12 +77,14 @@ func (a *Access) GetFile(ctx context.Context, id uuid.UUID) (*msg.FileMsgItem, e
 }
 
 // GetFiles returns a list of files by parent id (uuid)
-func (a *Access) GetFiles(ctx context.Context, id uuid.UUID) ([]msg.FileMsgItem, error) {
+func (a *Access) GetFiles(ctx context.Context, parent uuid.UUID) ([]msg.FileMsgItem, error) {
 	db := a.getDb()
 	result := make([]msg.FileMsgItem, 0)
 	search := db.Model(&msg.FileMsgItem{}).Order("name")
-	if len(id) > 0 {
-		search = search.Where("parent_id = ?", id)
+
+	if len(parent) > 0 {
+		subQuery := db.Select("child_id").Model(parentChildRelation{}).Where("parent_id = ?", parent)
+		search = search.Where("id IN (?)", subQuery)
 	}
 	err := search.WithContext(ctx).Find(&result).Error
 	if err != nil {
@@ -196,12 +203,21 @@ func (a *Access) SaveCounters(ctx context.Context, msg *msg.SzenarioEvtMsg) erro
 func (a *Access) SaveFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error
+	pcr := &parentChildRelation{ParentID: msg.ID}
 	for _, f := range msg.Files {
-		f.ParentID = msg.ID
 		if f.ID == uuid.Nil {
 			f.ID = uuid.New()
 		}
+		pcr.ChildID = f.ID
 		if err := db.WithContext(ctx).Save(&f).Error; err != nil {
+			if reterr == nil {
+				reterr = err
+			} else {
+				err = fmt.Errorf("%v %w", reterr, err)
+			}
+			continue
+		}
+		if err := db.WithContext(ctx).Save(&pcr).Error; err != nil {
 			if reterr == nil {
 				reterr = err
 			} else {

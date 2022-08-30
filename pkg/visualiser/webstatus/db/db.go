@@ -28,7 +28,7 @@ func (a *Access) getDb() *gorm.DB {
 		}
 		a.db = db
 	}
-	
+
 	return a.db
 }
 
@@ -46,6 +46,7 @@ func (a *Access) _initDB() (*gorm.DB, error) {
 		&ErrorModel{},
 		&counterModel{},
 		&msg.FileMsgItem{},
+		&parentChildRelation{},
 	)
 	a.hcl.Infof("Loaded DB %s", path)
 	return db, err
