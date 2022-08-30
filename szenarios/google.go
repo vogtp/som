@@ -40,9 +40,11 @@ func (gs GoogleSzenario) Execute(engine szenario.Engine) (err error) {
 	for _, c := range gs.MustContain {
 		checks = append(checks, engine.Contains(c))
 	}
-	engine.Step("Check",
-		engine.Body(checks...),
-	)
+	if !engine.IsPresent(`#result-stats`, chromedp.ByID) {
+		// mainly to ensure loading
+		engine.SetStatus("waitForLoading", "ID result-stats no found")
+	}
+	engine.Step("Check", engine.Body(checks...))
 
 	return nil
 }
