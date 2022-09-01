@@ -83,22 +83,22 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 			AlertModel: alert,
 		}
 		alertDetail.ErrStr = alertDetail.Error
-		if errs, err := s.DB().GetErrors(ctx, alert.ID); err == nil {
+		if errs, err := s.DB().GetErrors(ctx, alert.UUID); err == nil {
 			alertDetail.Errors = errs
 		} else {
 			s.hcl.Warnf("Loading errors: %v", err)
 		}
-		if stati, err := s.DB().GetStati(ctx, alert.ID); err == nil {
+		if stati, err := s.DB().GetStati(ctx, alert.UUID); err == nil {
 			alertDetail.Stati = stati
 		} else {
 			s.hcl.Warnf("Loading stati: %v", err)
 		}
-		if ctrs, err := s.DB().GetCounters(ctx, alert.ID); err == nil {
+		if ctrs, err := s.DB().GetCounters(ctx, alert.UUID); err == nil {
 			alertDetail.Counters = ctrs
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
-		if fils, err := s.DB().GetFiles(ctx, alert.ID); err == nil {
+		if fils, err := s.DB().GetFiles(ctx, alert.UUID); err == nil {
 			alertDetail.Files = fils
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)

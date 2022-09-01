@@ -52,7 +52,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 			//Name:       a.Name,
 			AlertInfo: &a,
 			//Error:      a.Error,
-			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.ID),
+			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.UUID),
 		}
 	}
 	s.hcl.Infof("Loaded %v alerts", len(alerts))

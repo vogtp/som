@@ -2,6 +2,7 @@ package webstatus
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,9 +13,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -116,45 +119,46 @@ func (s *WebStatus) getIncidentInfo(file string) (ai *incidentInfo, err error) {
 	return ii, err
 }
 
-func (s *WebStatus) getIncidentFiles(root string, filter string) (fileList []incidentFile, err error) {
-	files, err := s.getIncidentDetailFiles(root, filter)
-	if err != nil {
-		return nil, err
-	}
-	incidents := make(map[string]incidentFile, 0)
-	for _, f := range files {
-		i, ok := incidents[f.IncidentInfo.IncidentID]
-		if ok {
-			if i.IncidentInfo.Start.After(f.IncidentInfo.Start) {
-				i.IncidentInfo.Start = f.IncidentInfo.Start
-			}
-			if i.IncidentInfo.End.Before(f.IncidentInfo.End) {
-				i.IncidentInfo.End = f.IncidentInfo.End
-			}
-			if i.IncidentInfo.End.Before(f.IncidentInfo.Time) {
-				i.IncidentInfo.End = time.Time{}
-			}
-			if i.IncidentInfo.Level < f.IncidentInfo.Level {
-				i.IncidentInfo.Level = f.IncidentInfo.Level
-			}
-			if f.IncidentInfo.Err() != nil {
-				i.Error = f.IncidentInfo.Err().Error()
-			}
-			i.EvtCnt++
-			incidents[f.IncidentInfo.IncidentID] = i
-			continue
+/*
+	func (s *WebStatus) getIncidentFiles(root string, filter string) (fileList []incidentFile, err error) {
+		files, err := s.getIncidentDetailFiles(root, filter)
+		if err != nil {
+			return nil, err
 		}
-		f.EvtCnt = 1
-		incidents[f.IncidentInfo.IncidentID] = f
-	}
+		incidents := make(map[string]incidentFile, 0)
+		for _, f := range files {
+			i, ok := incidents[f.IncidentInfo.IncidentID]
+			if ok {
+				if i.IncidentInfo.Start.After(f.IncidentInfo.Start) {
+					i.IncidentInfo.Start = f.IncidentInfo.Start
+				}
+				if i.IncidentInfo.End.Before(f.IncidentInfo.End) {
+					i.IncidentInfo.End = f.IncidentInfo.End
+				}
+				if i.IncidentInfo.End.Before(f.IncidentInfo.Time) {
+					i.IncidentInfo.End = time.Time{}
+				}
+				if i.IncidentInfo.Level < f.IncidentInfo.Level {
+					i.IncidentInfo.Level = f.IncidentInfo.Level
+				}
+				if f.IncidentInfo.Err() != nil {
+					i.Error = f.IncidentInfo.Err().Error()
+				}
+				i.EvtCnt++
+				incidents[f.IncidentInfo.IncidentID] = i
+				continue
+			}
+			f.EvtCnt = 1
+			incidents[f.IncidentInfo.IncidentID] = f
+		}
 
-	ret := make([]incidentFile, 0, len(incidents))
-	for _, v := range incidents {
-		ret = append(ret, v)
+		ret := make([]incidentFile, 0, len(incidents))
+		for _, v := range incidents {
+			ret = append(ret, v)
+		}
+		return ret, nil
 	}
-	return ret, nil
-}
-
+*/
 func (s *WebStatus) removeIncidentCache(root string) error {
 	cacheFile := fmt.Sprintf("%s/%s", root, cacheFileName)
 	err := os.Remove(cacheFile)
@@ -208,7 +212,7 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 	return filtered
 }
 
-func (s *WebStatus) getIncidentDetailFiles(root string, filter string) (fileList []incidentFile, err error) {
+func (s *WebStatus) getIncidentDetailFiles(a *db.Access, root string, filter string) (fileList []incidentFile, err error) {
 	// FIXME filter will not work
 	// fileList, err = s.readIncidentCache(root)
 	// if err == nil {
@@ -219,12 +223,12 @@ func (s *WebStatus) getIncidentDetailFiles(root string, filter string) (fileList
 	if err != nil {
 		return nil, fmt.Errorf("cannot read %s: %v", root, err)
 	}
-	baseurl := core.Get().WebServer().BasePath()
+	// baseurl := core.Get().WebServer().BasePath()
 	hasFiles := false
 	for _, f := range files {
 		path := fmt.Sprintf("%s/%s", root, f.Name())
 		if f.IsDir() {
-			subFiles, err := s.getIncidentDetailFiles(path, filter)
+			subFiles, err := s.getIncidentDetailFiles(a, path, filter)
 			if err != nil {
 				return nil, err
 			}
@@ -239,16 +243,19 @@ func (s *WebStatus) getIncidentDetailFiles(root string, filter string) (fileList
 			s.hcl.Warnf("cannot parse incidentinfo from filename %s: %v", f.Name(), err)
 			continue
 		}
+		if err := a.SaveIncident(context.Background(), ai.IncidentMsg); err != nil {
+			hcl.Errorf("Save incident: %v", err)
+		}
 		//details := root[len(s.getIncidentRoot())+1:]
-		fileList = append([]incidentFile{
-			{
-				// Path:         path,
-				// Name:         f.Name(),
-				IncidentInfo: ai,
-				Error:        s.getIncidentError(path),
-				DetailLink:   fmt.Sprintf("%s/%s/%s/", baseurl, IncidentDetailPath, ai.IncidentID),
-			},
-		}, fileList...)
+		// fileList = append([]incidentFile{
+		// 	{
+		// 		// Path:         path,
+		// 		// Name:         f.Name(),
+		// 		IncidentInfo: ai,
+		// 		Error:        s.getIncidentError(path),
+		// 		DetailLink:   fmt.Sprintf("%s/%s/%s/", baseurl, IncidentDetailPath, ai.IncidentID),
+		// 	},
+		// }, fileList...)
 		hasFiles = true
 	}
 	if hasFiles {

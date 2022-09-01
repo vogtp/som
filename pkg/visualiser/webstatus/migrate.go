@@ -5,52 +5,50 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
 // MigrateIncidents TODO remove
 func (s *WebStatus) MigrateIncidents() {
 	a := s.DB()
-	ctx := context.Background()
-	files, err := s.getIncidentDetailFiles(s.getIncidentRoot(), "")
+	//ctx := context.Background()
+	_, err := s.getIncidentDetailFiles(a, s.getIncidentRoot(), "")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Loaded %v incident files\n", len(files))
-	for _, f := range files {
-		if len(f.IncidentInfo.ByteState) < 1 {
-			fmt.Println("NO BYTE STATE in files")
-		}
-		if err := a.SaveIncident(ctx, f.IncidentInfo.IncidentMsg); err != nil {
-			panic(err)
-		}
+	// fmt.Printf("Migrated %v incident files\n", len(files))
+	// for _, f := range files {
+	// 	if len(f.IncidentInfo.ByteState) < 1 {
+	// 		fmt.Println("NO BYTE STATE in files")
+	// 	}
+	// 	if err := a.SaveIncident(ctx, f.IncidentInfo.IncidentMsg); err != nil {
+	// 		panic(err)
+	// 	}
 
-	}
+	// }
 }
 
 // MigrateAlerts TODO remove
 func (s *WebStatus) MigrateAlerts() {
 	a := s.DB()
-	ctx := context.Background()
-	files, err := s.getAlertFiles(s.getAlertRoot(), "")
+	_, err := s.getAlertFiles(a, s.getAlertRoot(), "")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Loaded %v alert files\n", len(files))
-	errCnt := 0
-	for _, f := range files {
-		alert, err := s.getAlert(f.Path)
-		if err != nil {
-			panic(err)
-		}
-		if err := a.SaveAlert(ctx, alert); err != nil {
-			hcl.Errorf("Cannot save alert %s: %v", alert.ID.String(), err)
-			errCnt++
-		}
+	// fmt.Printf("Migrated %v alert files\n", len(files))
+	// errCnt := 0
+	// for _, f := range files {
+	// 	alert, err := s.getAlert(f.Path)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	if err := a.SaveAlert(ctx, alert); err != nil {
+	// 		hcl.Errorf("Cannot save alert %s: %v", alert.ID.String(), err)
+	// 		errCnt++
+	// 	}
 
-	}
-	hcl.Infof("Got %v/%v errors", errCnt, len(files))
+	// }
+	// hcl.Infof("Got %v/%v errors", errCnt, len(files))
 }
 
 // Alerts TODO remove

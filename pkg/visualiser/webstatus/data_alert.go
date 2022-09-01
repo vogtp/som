@@ -2,6 +2,7 @@ package webstatus
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -9,8 +10,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -115,17 +118,17 @@ func (s *WebStatus) getAlertInfo(file string) (ai *alertInfo, err error) {
 	return ai, nil
 }
 
-func (s *WebStatus) getAlertFiles(root string, filter string) (fileList []alertFile, err error) {
+func (s *WebStatus) getAlertFiles(a *db.Access, root string, filter string) (fileList []alertFile, err error) {
 	files, err := ioutil.ReadDir(root)
 	doFilter := len(filter) > 0
 	if err != nil {
 		return nil, fmt.Errorf("cannot read %s: %v", root, err)
 	}
-	baseurl := core.Get().WebServer().BasePath()
+	//	baseurl := core.Get().WebServer().BasePath()
 	for _, f := range files {
 		path := fmt.Sprintf("%s/%s", root, f.Name())
 		if f.IsDir() {
-			subFiles, err := s.getAlertFiles(path, filter)
+			subFiles, err := s.getAlertFiles(a, path, filter)
 			if err != nil {
 				return nil, err
 			}
@@ -141,15 +144,23 @@ func (s *WebStatus) getAlertFiles(root string, filter string) (fileList []alertF
 			ai.ID != filter {
 			continue
 		}
-		fileList = append([]alertFile{
-			{
-				Path:       path,
-				Name:       f.Name(),
-				AlertInfo:  ai,
-				Error:      s.getAlertError(path),
-				DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, ai.ID),
-			},
-		}, fileList...)
+		alert, err := s.getAlert(path)
+		if err != nil {
+			panic(err)
+		}
+		if err := a.SaveAlert(context.Background(), alert); err != nil {
+			hcl.Errorf("Cannot save alert %s: %v", alert.ID.String(), err)
+
+		}
+		// fileList = append([]alertFile{
+		// 	{
+		// 		Path:       path,
+		// 		Name:       f.Name(),
+		// 		AlertInfo:  ai,
+		// 		Error:      s.getAlertError(path),
+		// 		DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, ai.ID),
+		// 	},
+		// }, fileList...)
 	}
 	return fileList, nil
 }

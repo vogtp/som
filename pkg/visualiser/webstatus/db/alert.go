@@ -40,7 +40,7 @@ func (a *Access) SaveAlert(ctx context.Context, msg *msg.AlertMsg) error {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-	model := AlertModel{
+	model := &AlertModel{
 		IntLevel:      int(status.Unknown.FromString(msg.Level)),
 		SzenarioModel: a.SzenarioModelFromMsg(msg.SzenarioEvtMsg),
 	}
@@ -79,7 +79,7 @@ func (a *Access) GetAlert(ctx context.Context, id string) ([]AlertModel, error) 
 	result := make([]AlertModel, 0)
 	search := db.Model(&AlertModel{}).Order("time")
 	if len(id) > 0 {
-		search = search.Where("id = ?", id)
+		search = search.Where("uuid = ?", id)
 	}
 	err := search.WithContext(ctx).Find(&result).Error
 	if err != nil {

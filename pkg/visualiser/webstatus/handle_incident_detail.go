@@ -101,22 +101,22 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 			Files:         make([]msg.FileMsgItem, 0),
 		}
 		id.ErrStr = id.Error
-		if errs, err := s.DB().GetErrors(ctx, f.ID); err == nil {
+		if errs, err := s.DB().GetErrors(ctx, f.UUID); err == nil {
 			id.Errors = errs
 		} else {
 			s.hcl.Warnf("Loading errors: %v", err)
 		}
-		if stati, err := s.DB().GetStati(ctx, f.ID); err == nil {
+		if stati, err := s.DB().GetStati(ctx, f.UUID); err == nil {
 			id.Stati = stati
 		} else {
 			s.hcl.Warnf("Loading stati: %v", err)
 		}
-		if ctrs, err := s.DB().GetCounters(ctx, f.ID); err == nil {
+		if ctrs, err := s.DB().GetCounters(ctx, f.UUID); err == nil {
 			id.Counters = ctrs
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
-		if fils, err := s.DB().GetFiles(ctx, f.ID); err == nil {
+		if fils, err := s.DB().GetFiles(ctx, f.UUID); err == nil {
 			id.Files = fils
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
