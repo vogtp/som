@@ -27,12 +27,6 @@ func (s *WebStatus) MigrateIncidents() {
 	}
 }
 
-// Query TODO remove
-func (s *WebStatus) Query() {
-	// s.Incidents()
-	s.Summay()
-}
-
 // Incidents TODO remove
 func (s *WebStatus) Incidents() {
 	a := s.DB()
@@ -61,8 +55,8 @@ func (s *WebStatus) Files(pid uuid.UUID) {
 	fmt.Printf("Total files: %v\n", len(files))
 }
 
-// Summay TODO remove
-func (s *WebStatus) Summay() {
+// IncidentsSummary TODO remove
+func (s *WebStatus) IncidentsSummary() {
 	a := s.DB()
 
 	summary, err := a.GetIncidentSummary(context.Background(), "")
