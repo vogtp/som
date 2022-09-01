@@ -96,7 +96,7 @@ func (il IncidentSummary) Level() status.Level {
 func (a *Access) IncidentSzenarios(ctx context.Context) []string {
 	db := a.getDb()
 	result := make([]string, 0)
-	db.Model(&IncidentModel{}).Distinct("name").Order("name").WithContext(ctx).Find(&result)
+	db.Model(&IncidentModel{}).Distinct("name").Order("name COLLATE NOCASE").WithContext(ctx).Find(&result)
 	return result
 }
 
