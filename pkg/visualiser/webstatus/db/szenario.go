@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/stater/alertmgr"
 )
 
 // SzenarioModel model for szenarios
@@ -27,21 +28,21 @@ type SzenarioModel struct {
 
 type statiModel struct {
 	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
-	Name     string
-	Value    string
+	Name     string    `gorm:"primaryKey"`
+	Value    string    `gorm:"primaryKey"`
 }
 
 type counterModel struct {
 	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
-	Name     string
-	Value    string
+	Name     string    `gorm:"primaryKey"`
+	Value    string    `gorm:"primaryKey"`
 }
 
 // ErrorModel model for errors
 type ErrorModel struct {
-	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
-	Idx      int
-	Error    string
+	ParentID uuid.UUID `gorm:"index;type:uuid"`
+	Idx      int       `gorm:"primaryKey"`
+	Error    string    `gorm:"primaryKey"`
 }
 
 type parentChildRelation struct {
@@ -164,6 +165,9 @@ func (a *Access) SaveStati(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error
 	for k, v := range msg.Stati {
+		if k == alertmgr.KeyTopology {
+			continue
+		}
 		if err := db.WithContext(ctx).Save(statiModel{
 			ParentID: msg.ID,
 			Name:     k,
