@@ -41,6 +41,7 @@ func (rg *regGroup) getOrCreateGroup(key string) UserGroup {
 	c := &usrGroup{
 		evtGroup: &evtGroup{
 			Group: &Group{
+				cfg:      rg.cfg,
 				key:      key,
 				children: make([]Grouper, 0),
 			},

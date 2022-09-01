@@ -28,12 +28,13 @@ type statusGroup struct {
 
 // New Creates a TopGroup to correlate event messages
 func New() Status {
-	return &statusGroup{
+	sg := &statusGroup{
 		Group: &Group{
 			key:      "root",
 			children: make([]Grouper, 0),
 		},
 	}
+	return sg
 }
 
 func (statusGroup) New(k string) Grouper {
@@ -53,6 +54,7 @@ func (sg *statusGroup) getOrCreateGroup(key string) SzenarioGroup {
 	}
 	c := &szGroup{
 		Group: &Group{
+			cfg:      sg.cfg,
 			key:      key,
 			children: make([]Grouper, 0),
 		},

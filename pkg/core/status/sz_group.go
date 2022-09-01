@@ -40,6 +40,7 @@ func (sg *szGroup) getOrCreateGroup(key string) RegionGroup {
 	}
 	c := &regGroup{
 		Group: &Group{
+			cfg:      sg.cfg,
 			key:      key,
 			children: make([]Grouper, 0),
 		},

@@ -2,6 +2,7 @@ package status
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -46,6 +47,10 @@ func (w evtWrapper) New(k string) Grouper {
 // Key returns the name of the event
 func (w evtWrapper) Key() string {
 	return w.evt.ID.String()
+}
+
+func (w *evtWrapper) SetConfig(cfg *Config) {
+	// to nothing
 }
 
 // Level returns the error level
@@ -106,13 +111,14 @@ func (e evtGroup) Level() Level {
 		return Unknown
 	}
 	lastChild := e.Group.children[lcIdx]
-	// TODO: This nice for overview but not for incidents
-	// if evt, ok := lastChild.(*evtWrapper); ok {
-	// 	// if the newest event is older than 100 * repeat time set the status to unknown
-	// 	if time.Since(evt.evt.Time) > viper.GetDuration(cfg.CheckRepeat)*100 {
-	// 		return Unknown
-	// 	}
-	// }
+	if e.cfg.UnknownTimeout > 0 {
+		if evt, ok := lastChild.(*evtWrapper); ok {
+			// if the newest event is older than 100 * repeat time set the status to unknown
+			if time.Since(evt.evt.Time) > e.cfg.UnknownTimeout {
+				return Unknown
+			}
+		}
+	}
 	lvl := e.Group.Level()
 	if lvl == OK {
 		return lvl

@@ -26,6 +26,7 @@ func (l *testLevel) Key() string {
 }
 func (l testLevel) Add(Grouper)                  { panic("operation not allowed") }
 func (l testLevel) Level() Level                 { return Level(l.l) }
+func (l testLevel) SetConfig(*Config)            {}
 func (l testLevel) MarshalJSON() ([]byte, error) { return []byte(Level(l.l).String()), nil }
 func (l testLevel) Availability() Availability {
 	if l.l == OK {
