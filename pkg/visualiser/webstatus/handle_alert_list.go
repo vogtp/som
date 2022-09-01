@@ -6,12 +6,22 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
+	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
 	alertListPath = "/alert/list/"
 )
+
+type alertData struct {
+	//Path       string
+	//Name       string
+	AlertInfo *db.AlertModel
+	//Error      string
+	DetailLink string
+}
 
 func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	sz := ""
@@ -28,17 +38,30 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		name = "All Szenarios"
 	}
 	s.hcl.Infof("alerts for szenario %s requested", sz)
-	files, err := s.getAlertFiles(s.getAlertRoot(), sz)
+	ctx := r.Context()
+	alerts, err := s.DB().GetAlertBySzenario(ctx, sz)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	baseurl := core.Get().WebServer().BasePath()
+	alertDatas := make([]alertData, len(alerts))
+	for i, a := range alerts {
+		alertDatas[i] = alertData{
+			//Path:       a.ID.String(),
+			//Name:       a.Name,
+			AlertInfo: &a,
+			//Error:      a.Error,
+			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.ID),
+		}
+	}
+	s.hcl.Infof("Loaded %v alerts", len(alerts))
 	var data = struct {
 		*commonData
 		PromURL       string
 		Timeformat    string
 		AlertListPath string
-		Alerts        []alertFile
+		Alerts        []alertData
 		Szenarios     []string
 		FilterName    string
 	}{
@@ -47,10 +70,8 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		PromURL:       fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:    cfg.TimeFormatString,
 		AlertListPath: alertListPath,
-		Alerts:        files,
-	}
-	for _, stat := range s.data.Status.Szenarios() {
-		data.Szenarios = append(data.Szenarios, stat.Key())
+		Alerts:        alertDatas,
+		Szenarios:     s.DB().AlertSzenarios(ctx),
 	}
 	err = templates.ExecuteTemplate(w, "alert_list.gohtml", data)
 	if err != nil {
