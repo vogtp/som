@@ -2,6 +2,8 @@ package status
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/vogtp/go-hcl"
@@ -93,6 +95,9 @@ func (sg statusGroup) Szenarios() []SzenarioGroup {
 	for i, c := range sg.children {
 		rgs[i] = c.(SzenarioGroup)
 	}
+	sort.Slice(rgs, func(i, j int) bool {
+		return strings.ToLower(rgs[i].Key()) < strings.ToLower(rgs[j].Key())
+	})
 	return rgs
 }
 

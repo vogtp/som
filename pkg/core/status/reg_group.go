@@ -2,6 +2,8 @@ package status
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/vogtp/som/pkg/core/msg"
@@ -73,6 +75,9 @@ func (rg regGroup) Users() []UserGroup {
 	for i, c := range rg.children {
 		rgs[i] = c.(UserGroup)
 	}
+	sort.Slice(rgs, func(i, j int) bool {
+		return strings.ToLower(rgs[i].Key()) < strings.ToLower(rgs[j].Key())
+	})
 	return rgs
 }
 
