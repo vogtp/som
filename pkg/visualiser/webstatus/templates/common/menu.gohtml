@@ -1,33 +1,80 @@
 <!--menu.html-->
 
 <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
-  <div class="container">
-    <div class="navbar-header">
+  <div class="container-fluid">
       
-      <a class="navbar-brand" href="{{.Baseurl}}/{{.Query}}">
-          Overview
-      </a>
-      <a class="navbar-brand" href="{{.Baseurl}}/incident/list{{.Query}}">
-          Incidents
-      </a>
-      <a class="navbar-brand" href="{{.Baseurl}}/alert/list{{.Query}}">
-          Alerts
-      </a>
-      <a class="navbar-brand" href="{{.Baseurl}}/topology/{{.Query}}">
-          Topology
-      </a>
-      <a id="mesh_info" class="navbar-brand" href="{{.Baseurl}}/mesh_info{{.Query}}">
-          Mesh
-      </a>
-      <a class="navbar-brand" href="{{.Baseurl}}/docu{{.Query}}">
-          Documentation
-      </a>
-    
+      
+    <a class="navbar-brand" href="{{.Baseurl}}/{{.Query}}"> SOM</a> 
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    <div class="collapse navbar-collapse" id="navbarColor01">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{{.Baseurl}}/{{.Query}}"> Overview
+            <span class="visually-hidden">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{.Baseurl}}/incident/list{{.Query}}"> Incidents </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{.Baseurl}}/alert/list{{.Query}}"> Alerts </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{.Baseurl}}/topology/{{.Query}}"> Topology </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{.Baseurl}}/docu{{.Query}}"> Documentation </a>
+        </li>
+        
+      
+        <li class="nav-item dropdown d-flex  my-2 my-sm-0">
+          <a onclick="setDebug()" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Settings</a>
+          <div class="dropdown-menu">
+            <!--
+            <a class="dropdown-item" href="#">Action</a>
+            <a class="dropdown-item" href="#">Another action</a>
+            <a class="dropdown-item" href="#">Something else here</a>
+            <div class="dropdown-divider"></div>
+            -->
+            <a class="dropdown-item" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="debug" checked="false" onchange="updateDebug(this)">
+              <label class="form-check-label" for="debug">Debug</label>
+            </div>
+          </div>
+        </li>
+      </ul>
       
     </div>
+      
   </div>
 </nav>
 
+
 <script>
   showIfDebug("mesh_info")
+
+  function updateDebug(selectObject) {
+    url = new URL(window.location.href)
+    if ( selectObject.checked ) {
+      url.searchParams.set('debug', 1);
+    }else{
+      url.searchParams.delete('debug')
+    }
+      window.location.href = url
+  }
+  function setDebug(){
+    url = new URL(window.location.href)
+    val = false
+    if (url.searchParams.has('debug') && url.searchParams.get('debug') != "0") {
+      val = true
+    }
+    $('#debug').prop('checked', val);
+  }
+  setDebug()
 </script>
