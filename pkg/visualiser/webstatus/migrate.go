@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/cfg"
 )
 
 // MigrateIncidents TODO remove
@@ -25,6 +27,44 @@ func (s *WebStatus) MigrateIncidents() {
 		}
 
 	}
+}
+
+// MigrateAlerts TODO remove
+func (s *WebStatus) MigrateAlerts() {
+	a := s.DB()
+	ctx := context.Background()
+	files, err := s.getAlertFiles(s.getAlertRoot(), "")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Loaded %v alert files\n", len(files))
+	errCnt := 0
+	for _, f := range files {
+		alert, err := s.getAlert(f.Path)
+		if err != nil {
+			panic(err)
+		}
+		if err := a.SaveAlert(ctx, alert); err != nil {
+			hcl.Errorf("Cannot save alert %s: %v", alert.ID.String(), err)
+			errCnt++
+		}
+
+	}
+	hcl.Infof("Got %v/%v errors", errCnt, len(files))
+}
+
+// Alerts TODO remove
+func (s *WebStatus) Alerts() {
+	a := s.DB()
+
+	alerts, err := a.GetAlert(context.Background(), "")
+	if err != nil {
+		panic(err)
+	}
+	for _, r := range alerts {
+		fmt.Printf("%s %-20s %10v %v \n", r.Time.Format(cfg.TimeFormatString), r.Name, r.Level(), r.Error)
+	}
+	fmt.Printf("Total alerts: %v\n", len(alerts))
 }
 
 // Incidents TODO remove
