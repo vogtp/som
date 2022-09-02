@@ -70,6 +70,9 @@ check:
     timeout: 1m0s
     region: default
     #user: # default user (manly usefull for testing)
+status:
+    timeout: 6h
+    cleanup: 168h
 config:
     save: false
 core:

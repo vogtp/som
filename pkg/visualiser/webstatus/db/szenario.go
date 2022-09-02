@@ -7,11 +7,17 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/stater/alertmgr"
+	"gorm.io/gorm"
 )
 
 // SzenarioModel model for szenarios
 type SzenarioModel struct {
-	ID         uuid.UUID `json:"ID"  gorm:"primaryKey;type:uuid"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	ID         uuid.UUID `json:"ID"  gorm:"primarykey;type:uuid"`
 	IncidentID string    `json:"Incident" gorm:"index"`
 	Name       string    `json:"Name" gorm:"index"`
 	Time       time.Time `json:"Time" gorm:"index"`
@@ -26,20 +32,23 @@ type SzenarioModel struct {
 }
 
 type statiModel struct {
-	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
+	gorm.Model
+	ParentID uuid.UUID `gorm:"index;type:uuid"`
 	Name     string
 	Value    string
 }
 
 type counterModel struct {
-	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
+	gorm.Model
+	ParentID uuid.UUID `gorm:"index;type:uuid"`
 	Name     string
 	Value    string
 }
 
 // ErrorModel model for errors
 type ErrorModel struct {
-	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
+	gorm.Model
+	ParentID uuid.UUID `gorm:"index;type:uuid"`
 	Idx      int
 	Error    string
 }
@@ -144,7 +153,7 @@ func (a *Access) SaveErrors(ctx context.Context, msg *msg.SzenarioEvtMsg) error 
 	db := a.getDb()
 	var reterr error
 	for i, e := range msg.Errors {
-		if err := db.WithContext(ctx).Save(ErrorModel{
+		if err := db.WithContext(ctx).Save(&ErrorModel{
 			ParentID: msg.ID,
 			Idx:      i,
 			Error:    e,
@@ -164,7 +173,10 @@ func (a *Access) SaveStati(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
 	db := a.getDb()
 	var reterr error
 	for k, v := range msg.Stati {
-		if err := db.WithContext(ctx).Save(statiModel{
+		if k == alertmgr.KeyTopology {
+			continue
+		}
+		if err := db.WithContext(ctx).Save(&statiModel{
 			ParentID: msg.ID,
 			Name:     k,
 			Value:    v,
@@ -184,7 +196,7 @@ func (a *Access) SaveCounters(ctx context.Context, msg *msg.SzenarioEvtMsg) erro
 	db := a.getDb()
 	var reterr error
 	for k, v := range msg.Counters {
-		if err := db.WithContext(ctx).Save(counterModel{
+		if err := db.WithContext(ctx).Save(&counterModel{
 			ParentID: msg.ID,
 			Name:     k,
 			Value:    fmt.Sprintf("%v", v),

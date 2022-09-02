@@ -21,6 +21,7 @@ type Grouper interface {
 	Level() Level
 	Availability() Availability
 	Add(Grouper)
+	SetConfig(*Config)
 	json.Marshaler
 	json.Unmarshaler
 }
@@ -29,6 +30,7 @@ type Grouper interface {
 type Group struct {
 	children []Grouper
 	key      string
+	cfg      Config
 }
 
 type jsonGroup struct {
@@ -58,6 +60,14 @@ func (g *Group) Add(c Grouper) {
 // Key returns the key of the group item
 func (g Group) Key() string {
 	return g.key
+}
+
+// SetConfig recursively set the config
+func (g *Group) SetConfig(cfg *Config) {
+	g.cfg = *cfg
+	for _, c := range g.children {
+		c.SetConfig(cfg)
+	}
 }
 
 // Availability is the availability of a group

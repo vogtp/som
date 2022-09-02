@@ -5,32 +5,64 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/core/cfg"
 )
 
 // MigrateIncidents TODO remove
 func (s *WebStatus) MigrateIncidents() {
 	a := s.DB()
-	ctx := context.Background()
-	files, err := s.getIncidentDetailFiles(s.getIncidentRoot(), "")
+	//ctx := context.Background()
+	_, err := s.getIncidentDetailFiles(a, s.getIncidentRoot(), "")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Loaded %v incident files\n", len(files))
-	for _, f := range files {
-		if len(f.IncidentInfo.ByteState) < 1 {
-			fmt.Println("NO BYTE STATE in files")
-		}
-		if err := a.SaveIncident(ctx, f.IncidentInfo.IncidentMsg); err != nil {
-			panic(err)
-		}
+	// fmt.Printf("Migrated %v incident files\n", len(files))
+	// for _, f := range files {
+	// 	if len(f.IncidentInfo.ByteState) < 1 {
+	// 		fmt.Println("NO BYTE STATE in files")
+	// 	}
+	// 	if err := a.SaveIncident(ctx, f.IncidentInfo.IncidentMsg); err != nil {
+	// 		panic(err)
+	// 	}
 
-	}
+	// }
 }
 
-// Query TODO remove
-func (s *WebStatus) Query() {
-	// s.Incidents()
-	s.Summay()
+// MigrateAlerts TODO remove
+func (s *WebStatus) MigrateAlerts() {
+	a := s.DB()
+	_, err := s.getAlertFiles(a, s.getAlertRoot(), "")
+	if err != nil {
+		panic(err)
+	}
+	// fmt.Printf("Migrated %v alert files\n", len(files))
+	// errCnt := 0
+	// for _, f := range files {
+	// 	alert, err := s.getAlert(f.Path)
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	if err := a.SaveAlert(ctx, alert); err != nil {
+	// 		hcl.Errorf("Cannot save alert %s: %v", alert.ID.String(), err)
+	// 		errCnt++
+	// 	}
+
+	// }
+	// hcl.Infof("Got %v/%v errors", errCnt, len(files))
+}
+
+// Alerts TODO remove
+func (s *WebStatus) Alerts() {
+	a := s.DB()
+
+	alerts, err := a.GetAlert(context.Background(), "")
+	if err != nil {
+		panic(err)
+	}
+	for _, r := range alerts {
+		fmt.Printf("%s %-20s %10v %v \n", r.Time.Format(cfg.TimeFormatString), r.Name, r.Level(), r.Error)
+	}
+	fmt.Printf("Total alerts: %v\n", len(alerts))
 }
 
 // Incidents TODO remove
@@ -61,8 +93,8 @@ func (s *WebStatus) Files(pid uuid.UUID) {
 	fmt.Printf("Total files: %v\n", len(files))
 }
 
-// Summay TODO remove
-func (s *WebStatus) Summay() {
+// IncidentsSummary TODO remove
+func (s *WebStatus) IncidentsSummary() {
 	a := s.DB()
 
 	summary, err := a.GetIncidentSummary(context.Background(), "")

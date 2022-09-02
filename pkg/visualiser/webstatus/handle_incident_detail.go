@@ -79,7 +79,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Incidents:  make([]incidentData, aCnt),
 	}
 	data.FilesURL = data.Baseurl + "/" + FilesPath
-	s.hcl.Debugf("found %v incident records", len(incidents))
+	s.hcl.Debugf("found %v incident records", aCnt)
 
 	for i, f := range incidents {
 		data.Name = f.Name

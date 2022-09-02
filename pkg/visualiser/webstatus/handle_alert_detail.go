@@ -8,12 +8,22 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
 	// AlertDetailPath is the path of the alert details
 	AlertDetailPath = "/alert/detail/"
 )
+
+type alertDetailData struct {
+	db.AlertModel
+	Errors   []db.ErrorModel
+	Counters map[string]string
+	Stati    map[string]string
+	Files    []msg.FileMsgItem
+	ErrStr   string
+}
 
 func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	id := ""
@@ -28,12 +38,23 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.hcl.Infof("alerts details %s requested", id)
-	files, err := s.getAlertFiles(s.getAlertRoot(), id)
+	ctx := r.Context()
+	alerts, err := s.DB().GetAlert(ctx, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	aCnt := len(files)
+
+	aCnt := len(alerts)
+	if aCnt < 1 {
+		err = templates.ExecuteTemplate(w, "empty.gohtml", common("SOM No such Alert", r))
+		if err != nil {
+			s.hcl.Errorf("index Template error %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		return
+	}
 	url := r.URL.String()
 	if len(r.URL.RawQuery) > 0 {
 		url += "&"
@@ -44,45 +65,48 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		*commonData
 		PromURL            string
 		Timeformat         string
-		ThisURL            string
+		FilesURL           string
 		IncidentDetailPath string
-		Alerts             []*msg.AlertMsg
+		Alerts             []alertDetailData
 	}{
 		commonData: common("SOM Alert Details", r),
 		PromURL:    fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 
 		Timeformat:         cfg.TimeFormatString,
-		ThisURL:            url,
 		IncidentDetailPath: IncidentDetailPath,
-		Alerts:             make([]*msg.AlertMsg, aCnt),
+		Alerts:             make([]alertDetailData, aCnt),
 	}
-	for i, f := range files {
-		a, err := s.getAlert(f.Path)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+	data.FilesURL = data.Baseurl + "/" + FilesPath
+
+	for i, alert := range alerts {
+		alertDetail := alertDetailData{
+			AlertModel: alert,
 		}
-		data.Alerts[aCnt-i-1] = a
-	}
-	r.ParseForm()
-	file := r.Form.Get("file")
-	if len(file) > 0 && len(data.Alerts) > 0 {
-		s.hcl.Infof("Serving file: %v", file)
-		parts := strings.Split(file, ".")
-		for _, f := range data.Alerts[0].Files {
-			if f.Name != parts[0] || f.Type.Ext != parts[1] {
-				continue
-			}
-			w.WriteHeader(http.StatusOK)
-			w.Header().Add("Content-Type", f.Type.MimeType)
-			_, err := w.Write(f.Payload)
-			if err != nil {
-				s.hcl.Warnf("Cannot write file %s: %v", file, err)
-			}
-			return
+		alertDetail.ErrStr = alertDetail.Error
+		if errs, err := s.DB().GetErrors(ctx, alert.ID); err == nil {
+			alertDetail.Errors = errs
+		} else {
+			s.hcl.Warnf("Loading errors: %v", err)
 		}
-		return
+		if stati, err := s.DB().GetStati(ctx, alert.ID); err == nil {
+			alertDetail.Stati = stati
+		} else {
+			s.hcl.Warnf("Loading stati: %v", err)
+		}
+		if ctrs, err := s.DB().GetCounters(ctx, alert.ID); err == nil {
+			alertDetail.Counters = ctrs
+		} else {
+			s.hcl.Warnf("Loading counters: %v", err)
+		}
+		if fils, err := s.DB().GetFiles(ctx, alert.ID); err == nil {
+			alertDetail.Files = fils
+		} else {
+			s.hcl.Warnf("Loading counters: %v", err)
+		}
+		data.Alerts[aCnt-i-1] = alertDetail
+		s.hcl.Infof("Region: %v", alert.Region)
 	}
+
 	err = templates.ExecuteTemplate(w, "alert_detail.gohtml", data)
 	if err != nil {
 		s.hcl.Errorf("index Template error %v", err)

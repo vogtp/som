@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"math"
 	"net/http"
-	"sort"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/bridger"
@@ -61,30 +60,24 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		data.DurationStr = "1d"
 	}
 
-	sz := s.data.Status.Szenarios()
-	keys := make([]string, 0, len(sz))
-	for _, s := range sz {
-		keys = append(keys, s.Key())
-	}
-	sort.Strings(keys)
-	for _, k := range keys {
-		stat := s.data.Status.Get(k)
-		avail, found := s.data.Availabilites[k]
+	for _, stat := range s.data.Status.Szenarios() {
+		szName := stat.Key()
+		avail, found := s.data.Availabilites[szName]
 		if !found {
 			avail = stat.Availability()
 		}
 
-		s.hcl.Debugf("Displaying %s in index", k)
+		s.hcl.Debugf("Displaying %s in index", szName)
 		iv := indexValue{
-			Name:            k,
-			PromName:        bridger.PrometheusName(k),
+			Name:            szName,
+			PromName:        bridger.PrometheusName(szName),
 			Status:          "\n" + stat.String(),
 			AvailabilityCur: avail.String(),
 			AvailabilityAvg: stat.Availability().String(),
 			Img:             stat.Level().Img(),
 
 			LastUpdate:   stat.LastUpdate().Format(cfg.TimeFormatString),
-			IncidentList: fmt.Sprintf("%s/%s/%s/", data.Baseurl, incidentListPath, k),
+			IncidentList: fmt.Sprintf("%s/%s/%s/", data.Baseurl, incidentListPath, szName),
 		}
 
 		iv.LastTime = formatStepTime(stat.LastTotal())

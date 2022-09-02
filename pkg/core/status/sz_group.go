@@ -2,6 +2,8 @@ package status
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/vogtp/som/pkg/core/msg"
@@ -40,6 +42,7 @@ func (sg *szGroup) getOrCreateGroup(key string) RegionGroup {
 	}
 	c := &regGroup{
 		Group: &Group{
+			cfg:      sg.cfg,
 			key:      key,
 			children: make([]Grouper, 0),
 		},
@@ -69,6 +72,9 @@ func (sg szGroup) Regions() []RegionGroup {
 	for i, c := range sg.children {
 		rgs[i] = c.(RegionGroup)
 	}
+	sort.Slice(rgs, func(i, j int) bool {
+		return strings.ToLower(rgs[i].Key()) < strings.ToLower(rgs[j].Key())
+	})
 	return rgs
 }
 

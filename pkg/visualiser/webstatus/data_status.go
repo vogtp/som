@@ -7,8 +7,11 @@ import (
 	"io/ioutil"
 	"os"
 	"sync"
+	"time"
 
+	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/status"
 )
 
@@ -34,7 +37,17 @@ func (sz *szenarioData) load() error {
 	if err := sz.readJSONFile(); err != nil {
 		return err
 	}
-	status.Cleanup(sz.Status)
+	sz.Status.SetConfig(&status.Config{
+		UnknownTimeout: viper.GetDuration(cfg.StatusTimeout),
+	})
+	go func() {
+		ticker := time.NewTicker(time.Hour)
+		for {
+			sz.hcl.Info("Cleaning status")
+			status.Cleanup(sz.Status)
+			<-ticker.C
+		}
+	}()
 	return nil
 }
 

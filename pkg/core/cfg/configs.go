@@ -44,6 +44,11 @@ const (
 
 	// AlertVisualiserURL is the URL of the webserver serving details
 	AlertVisualiserURL = "alert.visualiserURL"
+
+	// StatusTimeout is the duration after which a status will be unknow if no event is received
+	StatusTimeout = "status.timeout"
+	// StatusCleanup is the duration after which a status will be removed if no event is received
+	StatusCleanup = "status.cleanup"
 )
 
 func init() {
@@ -62,5 +67,8 @@ func init() {
 	viper.SetDefault(AlertMailSMTPPort, 25)
 	viper.SetDefault(AlertIncidentCorrelationEvents, 6)
 	viper.SetDefault(AlertIncidentCorrelationReopenTime, time.Hour)
+
+	viper.SetDefault(StatusTimeout, 6*time.Hour)
+	viper.SetDefault(StatusCleanup, 7*24*time.Hour)
 
 }

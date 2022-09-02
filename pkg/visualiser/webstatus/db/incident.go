@@ -41,7 +41,7 @@ func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-	model := IncidentModel{
+	model := &IncidentModel{
 		Start:         msg.Start,
 		End:           msg.End,
 		IntLevel:      msg.IntLevel,
@@ -55,7 +55,7 @@ func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-	if err := db.WithContext(ctx).Model(&model).Where("id = ?", model.ID).Update("end", model.End).Error; err != nil {
+	if err := db.WithContext(ctx).Model(model).Where("id = ?", model.ID).Update("end", model.End).Error; err != nil {
 		a.hcl.Warnf("Cannot update incident end times: %v", err)
 	}
 	return reterr
@@ -96,7 +96,7 @@ func (il IncidentSummary) Level() status.Level {
 func (a *Access) IncidentSzenarios(ctx context.Context) []string {
 	db := a.getDb()
 	result := make([]string, 0)
-	db.Model(&IncidentModel{}).Distinct("name").Order("name").WithContext(ctx).Find(&result)
+	db.Model(&IncidentModel{}).Distinct("name").Order("name COLLATE NOCASE").WithContext(ctx).Find(&result)
 	return result
 }
 
