@@ -55,7 +55,7 @@ func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 			err = fmt.Errorf("%v %w", reterr, err)
 		}
 	}
-	if err := db.WithContext(ctx).Model(model).Where("id = ?", model.UUID).Update("end", model.End).Error; err != nil {
+	if err := db.WithContext(ctx).Model(model).Where("id = ?", model.ID).Update("end", model.End).Error; err != nil {
 		a.hcl.Warnf("Cannot update incident end times: %v", err)
 	}
 	return reterr

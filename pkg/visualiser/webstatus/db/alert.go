@@ -79,7 +79,7 @@ func (a *Access) GetAlert(ctx context.Context, id string) ([]AlertModel, error) 
 	result := make([]AlertModel, 0)
 	search := db.Model(&AlertModel{}).Order("time")
 	if len(id) > 0 {
-		search = search.Where("uuid = ?", id)
+		search = search.Where("id = ?", id)
 	}
 	err := search.WithContext(ctx).Find(&result).Error
 	if err != nil {
@@ -92,7 +92,7 @@ func (a *Access) GetAlert(ctx context.Context, id string) ([]AlertModel, error) 
 func (a *Access) GetAlertBySzenario(ctx context.Context, sz string) ([]AlertModel, error) {
 	db := a.getDb()
 	result := make([]AlertModel, 0)
-	search := db.Model(&AlertModel{}).Order("time")
+	search := db.Model(&AlertModel{}).Order("time desc")
 	if len(sz) > 0 && sz != "all" {
 		search = search.Where("name like ?", sz)
 	}

@@ -13,8 +13,11 @@ import (
 
 // SzenarioModel model for szenarios
 type SzenarioModel struct {
-	gorm.Model
-	UUID       uuid.UUID `json:"ID"  gorm:"index;type:uuid"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	ID         uuid.UUID `json:"ID"  gorm:"primarykey;type:uuid"`
 	IncidentID string    `json:"Incident" gorm:"index"`
 	Name       string    `json:"Name" gorm:"index"`
 	Time       time.Time `json:"Time" gorm:"index"`
@@ -130,7 +133,7 @@ func (a *Access) getMap(ctx context.Context, model any, id uuid.UUID) (map[strin
 // SzenarioModelFromMsg wraps a szenario msg into a model
 func (a Access) SzenarioModelFromMsg(msg *msg.SzenarioEvtMsg) SzenarioModel {
 	sm := SzenarioModel{
-		UUID:       msg.ID,
+		ID:         msg.ID,
 		IncidentID: msg.IncidentID,
 		Name:       msg.Name,
 		Time:       msg.Time,

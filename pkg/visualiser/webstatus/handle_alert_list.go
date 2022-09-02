@@ -16,10 +16,7 @@ const (
 )
 
 type alertData struct {
-	//Path       string
-	//Name       string
-	AlertInfo *db.AlertModel
-	//Error      string
+	AlertInfo  db.AlertModel
 	DetailLink string
 }
 
@@ -48,12 +45,10 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	alertDatas := make([]alertData, len(alerts))
 	for i, a := range alerts {
 		alertDatas[i] = alertData{
-			//Path:       a.ID.String(),
-			//Name:       a.Name,
-			AlertInfo: &a,
-			//Error:      a.Error,
-			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.UUID),
+			AlertInfo:  a,
+			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.ID),
 		}
+		s.hcl.Infof("Alerts[%v]: %v %v", i, a.Name, alertDatas[i].AlertInfo.Name)
 	}
 	s.hcl.Infof("Loaded %v alerts", len(alerts))
 	var data = struct {
@@ -65,13 +60,16 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		Szenarios     []string
 		FilterName    string
 	}{
-		commonData:    common(fmt.Sprintf("SOM Alerts: %s", name), r),
+		commonData:    common(fmt.Sprintf("SOM Alerts: %s (%v)", name, len(alerts)), r),
 		FilterName:    name,
 		PromURL:       fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:    cfg.TimeFormatString,
 		AlertListPath: alertListPath,
 		Alerts:        alertDatas,
 		Szenarios:     s.DB().AlertSzenarios(ctx),
+	}
+	for _, a := range data.Alerts {
+		s.hcl.Infof("data Alert: %v", a.AlertInfo.Name)
 	}
 	err = templates.ExecuteTemplate(w, "alert_list.gohtml", data)
 	if err != nil {
