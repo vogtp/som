@@ -3,7 +3,10 @@
 <!-- Embed the header.html template at this location-->
 {{ template "header.gohtml" .}}
 
-<iframe src="{{.Baseurl}}/bus" width="100%" height="600px" style="border:none; display: block; overflow-y: auto; ">
+<pre>
+{{ .MeshInfo }}
+</pre>
+
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.gohtml" .}}
