@@ -33,7 +33,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		Duration    int
 		DurationStr string
 		GraphStyle  string
-		Evt         []indexValue
+		Szenarios   []indexValue
 	}{
 		commonData:  common("SOM Szenarios", r),
 		PromURL:     fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
@@ -89,7 +89,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		avg /= float64(len(times))
 		iv.AvgTime = formatStepTime(avg)
 		iv.IncidentCount = s.getIncidentCount(iv.Name)
-		data.Evt = append(data.Evt, iv)
+		data.Szenarios = append(data.Szenarios, iv)
 	}
 	s.render(w, r, "index.gohtml", data)
 }
