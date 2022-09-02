@@ -43,7 +43,8 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	s.hcl.Debugf("incidents details %s requested", id)
 
 	ctx := r.Context()
-	incidents, err := s.DB().GetIncident(ctx, id)
+	a := s.DB()
+	incidents, err := a.GetIncident(ctx, id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -70,6 +71,8 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Level      status.Level
 		IncidentID string
 		Incidents  []incidentData
+		Alerts     []db.AlertModel
+		AlertLink  string
 	}{
 		commonData: common("SOM Incident", r),
 		IncidentID: id,
@@ -77,8 +80,10 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Level:      status.Unknown,
 		Timeformat: cfg.TimeFormatString,
 		Incidents:  make([]incidentData, aCnt),
+		Alerts:     make([]db.AlertModel, 0),
 	}
 	data.FilesURL = data.Baseurl + "/" + FilesPath
+	data.AlertLink = data.Baseurl + "/" + AlertDetailPath
 	s.hcl.Debugf("found %v incident records", aCnt)
 
 	for i, f := range incidents {
@@ -100,23 +105,30 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 			Status:        prepaireStatus(stat),
 			Files:         make([]msg.FileMsgItem, 0),
 		}
+
+		if alrts, err := a.GetAlertBy(ctx, "incident_id = ?", f.IncidentID); err == nil {
+			data.Alerts = append(data.Alerts, alrts...)
+		} else {
+			s.hcl.Warnf("Loading alerts: %v", err)
+		}
+
 		id.ErrStr = id.Error
-		if errs, err := s.DB().GetErrors(ctx, f.ID); err == nil {
+		if errs, err := a.GetErrors(ctx, f.ID); err == nil {
 			id.Errors = errs
 		} else {
 			s.hcl.Warnf("Loading errors: %v", err)
 		}
-		if stati, err := s.DB().GetStati(ctx, f.ID); err == nil {
+		if stati, err := a.GetStati(ctx, f.ID); err == nil {
 			id.Stati = stati
 		} else {
 			s.hcl.Warnf("Loading stati: %v", err)
 		}
-		if ctrs, err := s.DB().GetCounters(ctx, f.ID); err == nil {
+		if ctrs, err := a.GetCounters(ctx, f.ID); err == nil {
 			id.Counters = ctrs
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
-		if fils, err := s.DB().GetFiles(ctx, f.ID); err == nil {
+		if fils, err := a.GetFiles(ctx, f.ID); err == nil {
 			id.Files = fils
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
