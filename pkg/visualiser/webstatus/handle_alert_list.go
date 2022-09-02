@@ -36,7 +36,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	}
 	s.hcl.Infof("alerts for szenario %s requested", sz)
 	ctx := r.Context()
-	alerts, err := s.DB().GetAlertBySzenario(ctx, sz)
+	alerts, err := s.DB().GetAlertBy(ctx, "name like ?", sz)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
