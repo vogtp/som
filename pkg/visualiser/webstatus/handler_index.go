@@ -91,13 +91,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		iv.IncidentCount = s.getIncidentCount(iv.Name)
 		data.Evt = append(data.Evt, iv)
 	}
-
-	err := templates.ExecuteTemplate(w, "index.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("index Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "index.gohtml", data)
 }
 
 func formatStepTime(t float64) template.HTML {

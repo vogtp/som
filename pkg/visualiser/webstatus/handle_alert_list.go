@@ -71,10 +71,5 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	for _, a := range data.Alerts {
 		s.hcl.Infof("data Alert: %v", a.AlertInfo.Name)
 	}
-	err = templates.ExecuteTemplate(w, "alert_list.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("index Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "alert_list.gohtml", data)
 }

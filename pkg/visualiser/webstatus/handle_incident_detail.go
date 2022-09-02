@@ -124,11 +124,5 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		data.Incidents[aCnt-i-1] = id
 	}
 	data.Title = fmt.Sprintf("SOM Incident: %s", data.Name)
-
-	err = templates.ExecuteTemplate(w, "incident_detail.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("index Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "incident_detail.gohtml", data)
 }

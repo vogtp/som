@@ -106,11 +106,5 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		data.Alerts[aCnt-i-1] = alertDetail
 		s.hcl.Infof("Region: %v", alert.Region)
 	}
-
-	err = templates.ExecuteTemplate(w, "alert_detail.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("index Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "alert_detail.gohtml", data)
 }

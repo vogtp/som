@@ -34,11 +34,5 @@ func (s *WebStatus) handleMeshInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data.MeshInfo = string(body)
-
-	err = templates.ExecuteTemplate(w, "mesh_info.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("Mesh info Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "mesh_info.gohtml", data)
 }

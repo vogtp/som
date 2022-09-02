@@ -28,11 +28,5 @@ func (s *WebStatus) handleDocu(w http.ResponseWriter, r *http.Request) {
 		commonData: common("", r),
 		Docu:       template.HTML(string(output)),
 	}
-
-	err := templates.ExecuteTemplate(w, "docu.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("index Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "docu.gohtml", data)
 }
