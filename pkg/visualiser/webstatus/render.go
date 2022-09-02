@@ -17,6 +17,7 @@ func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName 
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		return
 	}
 
 	if strings.Contains(ah, "application/json") {
