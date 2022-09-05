@@ -7,8 +7,6 @@ build_date = -ldflags "-X  github.com/vogtp/som/pkg/core/cfg.BuildInfo=$(curdate
 
 .PHONY: generate
 generate:
-	rm pkg/visualiser/webstatus/README.md 
-	ln README.md pkg/visualiser/webstatus/README.md 
 	go generate ./...
 
 .PHONY: build-somctl

@@ -1,17 +1,12 @@
 package webstatus
 
 import (
-	_ "embed" // embed needs it
 	"html/template"
 	"net/http"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/parser"
-)
-
-var (
-	//go:embed README.md
-	readme []byte
+	"github.com/vogtp/som"
 )
 
 func (s *WebStatus) handleDocu(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +15,7 @@ func (s *WebStatus) handleDocu(w http.ResponseWriter, r *http.Request) {
 			parser.Titleblock |
 			parser.Mmark,
 	)
-	output := markdown.ToHTML(readme, p, nil)
+	output := markdown.ToHTML(som.README, p, nil)
 	var data = struct {
 		*commonData
 		Docu template.HTML

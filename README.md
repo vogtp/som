@@ -1,4 +1,4 @@
-# Service Oriented Monitoring (SOM)
+# Service Oriented Monitoring (SOM) 
 <!--
 [![GoDoc](https://pkg.go.dev/badge/github.com/vogtp/som?status.svg)](https://pkg.go.dev/github.com/vogtp/som?tab=doc) &nbsp;
 [![Go Report Card](https://goreportcard.com/badge/github.com/vogtp/som)](https://goreportcard.com/report/github.com/vogtp/som) &nbsp;
