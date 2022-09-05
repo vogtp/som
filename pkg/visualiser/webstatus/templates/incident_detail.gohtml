@@ -11,6 +11,34 @@
 </table>
 </div>
 
+
+{{ if gt (len .Alerts) 0 }}
+<h3>Alerts</h3>
+<table>
+<tbody>
+{{ range .Alerts }}
+<tr>
+    <td>
+     <a href="{{ $.AlertLink }}/{{ .ID }}/{{$.Query}}">
+        {{ .Time.Format $.Timeformat }}
+     </a>
+    </td>
+    <td>
+     <a href="{{ $.AlertLink }}/{{ .ID }}/{{$.Query}}">
+        {{ .Name }} 
+     </a>
+    </td>
+    <td>  
+     <a href="{{ $.AlertLink }}/{{ .ID }}/{{$.Query}}">
+        {{ .Error }} 
+     </a>
+    </td>
+</tr>
+{{ end }}
+</tbody>
+</table>
+{{ end}}
+
 <h3>Events</h3>
 
 <table>

@@ -36,7 +36,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	}
 	s.hcl.Infof("alerts for szenario %s requested", sz)
 	ctx := r.Context()
-	alerts, err := s.DB().GetAlertBySzenario(ctx, sz)
+	alerts, err := s.DB().GetAlertBy(ctx, "name like ?", sz)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -71,10 +71,5 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	for _, a := range data.Alerts {
 		s.hcl.Infof("data Alert: %v", a.AlertInfo.Name)
 	}
-	err = templates.ExecuteTemplate(w, "alert_list.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("index Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "alert_list.gohtml", data)
 }

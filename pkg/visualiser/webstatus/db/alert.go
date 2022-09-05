@@ -89,12 +89,12 @@ func (a *Access) GetAlert(ctx context.Context, id string) ([]AlertModel, error) 
 }
 
 // GetAlertBySzenario returns alerts list by szenario name
-func (a *Access) GetAlertBySzenario(ctx context.Context, sz string) ([]AlertModel, error) {
+func (a *Access) GetAlertBy(ctx context.Context, query string, sz string) ([]AlertModel, error) {
 	db := a.getDb()
 	result := make([]AlertModel, 0)
 	search := db.Model(&AlertModel{}).Order("time desc")
 	if len(sz) > 0 && sz != "all" {
-		search = search.Where("name like ?", sz)
+		search = search.Where(query, sz)
 	}
 	err := search.WithContext(ctx).Find(&result).Error
 	if err != nil {

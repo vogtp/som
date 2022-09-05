@@ -74,11 +74,5 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Incidents:        summary,
 		Szenarios:        s.DB().IncidentSzenarios(ctx),
 	}
-
-	err = templates.ExecuteTemplate(w, "incident_list.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("index Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "incident_list.gohtml", data)
 }

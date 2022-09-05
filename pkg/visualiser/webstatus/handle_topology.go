@@ -34,12 +34,7 @@ func (s *WebStatus) handleTopology(w http.ResponseWriter, r *http.Request) {
 		TimeFormat: cfg.TimeFormatString,
 		Status:     prepaireStatus(s.data.Status),
 	}
-	err := templates.ExecuteTemplate(w, "topology.gohtml", data)
-	if err != nil {
-		s.hcl.Errorf("Topology Template error %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	s.render(w, r, "topology.gohtml", data)
 }
 
 func prepaireStatus(stat status.Status) *statusData {

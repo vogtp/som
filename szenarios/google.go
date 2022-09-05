@@ -2,7 +2,6 @@ package szenarios
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
@@ -45,7 +44,6 @@ func (gs GoogleSzenario) Execute(engine szenario.Engine) (err error) {
 		// mainly to ensure loading
 		engine.SetStatus("waitForLoading", "ID result-stats no found")
 	}
-	<-time.After(100 * time.Millisecond)
 	engine.Step("Check", engine.Body(checks...))
 
 	return nil
