@@ -49,9 +49,6 @@ func newAlertPaginateArgs(rv map[string]interface{}) *alertPaginateArgs {
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
-	if v, ok := rv[whereField].(*AlertWhereInput); ok {
-		args.opts = append(args.opts, WithAlertFilter(v.Filter))
-	}
 	return args
 }
 
@@ -95,9 +92,6 @@ func newCounterPaginateArgs(rv map[string]interface{}) *counterPaginateArgs {
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
-	if v, ok := rv[whereField].(*CounterWhereInput); ok {
-		args.opts = append(args.opts, WithCounterFilter(v.Filter))
-	}
 	return args
 }
 
@@ -140,9 +134,6 @@ func newFailurePaginateArgs(rv map[string]interface{}) *failurePaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
-	}
-	if v, ok := rv[whereField].(*FailureWhereInput); ok {
-		args.opts = append(args.opts, WithFailureFilter(v.Filter))
 	}
 	return args
 }
@@ -227,9 +218,6 @@ func newIncidentPaginateArgs(rv map[string]interface{}) *incidentPaginateArgs {
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
 	}
-	if v, ok := rv[whereField].(*IncidentWhereInput); ok {
-		args.opts = append(args.opts, WithIncidentFilter(v.Filter))
-	}
 	return args
 }
 
@@ -272,9 +260,6 @@ func newStatusPaginateArgs(rv map[string]interface{}) *statusPaginateArgs {
 	}
 	if v := rv[beforeField]; v != nil {
 		args.before = v.(*Cursor)
-	}
-	if v, ok := rv[whereField].(*StatusWhereInput); ok {
-		args.opts = append(args.opts, WithStatusFilter(v.Filter))
 	}
 	return args
 }
