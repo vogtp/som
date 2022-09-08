@@ -8,6 +8,38 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
+func (a *Alert) Counters(ctx context.Context) ([]*Counter, error) {
+	result, err := a.NamedCounters(graphql.GetFieldContext(ctx).Field.Alias)
+	if IsNotLoaded(err) {
+		result, err = a.QueryCounters().All(ctx)
+	}
+	return result, err
+}
+
+func (a *Alert) Stati(ctx context.Context) ([]*Status, error) {
+	result, err := a.NamedStati(graphql.GetFieldContext(ctx).Field.Alias)
+	if IsNotLoaded(err) {
+		result, err = a.QueryStati().All(ctx)
+	}
+	return result, err
+}
+
+func (a *Alert) Failures(ctx context.Context) ([]*Failure, error) {
+	result, err := a.NamedFailures(graphql.GetFieldContext(ctx).Field.Alias)
+	if IsNotLoaded(err) {
+		result, err = a.QueryFailures().All(ctx)
+	}
+	return result, err
+}
+
+func (a *Alert) Files(ctx context.Context) ([]*File, error) {
+	result, err := a.NamedFiles(graphql.GetFieldContext(ctx).Field.Alias)
+	if IsNotLoaded(err) {
+		result, err = a.QueryFiles().All(ctx)
+	}
+	return result, err
+}
+
 func (i *Incident) Counters(ctx context.Context) ([]*Counter, error) {
 	result, err := i.NamedCounters(graphql.GetFieldContext(ctx).Field.Alias)
 	if IsNotLoaded(err) {

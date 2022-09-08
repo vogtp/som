@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,20 +12,32 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/predicate"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
 )
 
 // AlertQuery is the builder for querying Alert entities.
 type AlertQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
-	predicates []predicate.Alert
-	modifiers  []func(*sql.Selector)
-	loadTotal  []func(context.Context, []*Alert) error
+	limit             *int
+	offset            *int
+	unique            *bool
+	order             []OrderFunc
+	fields            []string
+	predicates        []predicate.Alert
+	withCounters      *CounterQuery
+	withStati         *StatusQuery
+	withFailures      *FailureQuery
+	withFiles         *FileQuery
+	modifiers         []func(*sql.Selector)
+	loadTotal         []func(context.Context, []*Alert) error
+	withNamedCounters map[string]*CounterQuery
+	withNamedStati    map[string]*StatusQuery
+	withNamedFailures map[string]*FailureQuery
+	withNamedFiles    map[string]*FileQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +72,94 @@ func (aq *AlertQuery) Unique(unique bool) *AlertQuery {
 func (aq *AlertQuery) Order(o ...OrderFunc) *AlertQuery {
 	aq.order = append(aq.order, o...)
 	return aq
+}
+
+// QueryCounters chains the current query on the "Counters" edge.
+func (aq *AlertQuery) QueryCounters() *CounterQuery {
+	query := &CounterQuery{config: aq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, selector),
+			sqlgraph.To(counter.Table, counter.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.CountersTable, alert.CountersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryStati chains the current query on the "Stati" edge.
+func (aq *AlertQuery) QueryStati() *StatusQuery {
+	query := &StatusQuery{config: aq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, selector),
+			sqlgraph.To(status.Table, status.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.StatiTable, alert.StatiColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFailures chains the current query on the "Failures" edge.
+func (aq *AlertQuery) QueryFailures() *FailureQuery {
+	query := &FailureQuery{config: aq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, selector),
+			sqlgraph.To(failure.Table, failure.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.FailuresTable, alert.FailuresColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFiles chains the current query on the "Files" edge.
+func (aq *AlertQuery) QueryFiles() *FileQuery {
+	query := &FileQuery{config: aq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := aq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := aq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, selector),
+			sqlgraph.To(file.Table, file.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.FilesTable, alert.FilesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Alert entity from the query.
@@ -237,16 +338,64 @@ func (aq *AlertQuery) Clone() *AlertQuery {
 		return nil
 	}
 	return &AlertQuery{
-		config:     aq.config,
-		limit:      aq.limit,
-		offset:     aq.offset,
-		order:      append([]OrderFunc{}, aq.order...),
-		predicates: append([]predicate.Alert{}, aq.predicates...),
+		config:       aq.config,
+		limit:        aq.limit,
+		offset:       aq.offset,
+		order:        append([]OrderFunc{}, aq.order...),
+		predicates:   append([]predicate.Alert{}, aq.predicates...),
+		withCounters: aq.withCounters.Clone(),
+		withStati:    aq.withStati.Clone(),
+		withFailures: aq.withFailures.Clone(),
+		withFiles:    aq.withFiles.Clone(),
 		// clone intermediate query.
 		sql:    aq.sql.Clone(),
 		path:   aq.path,
 		unique: aq.unique,
 	}
+}
+
+// WithCounters tells the query-builder to eager-load the nodes that are connected to
+// the "Counters" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithCounters(opts ...func(*CounterQuery)) *AlertQuery {
+	query := &CounterQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withCounters = query
+	return aq
+}
+
+// WithStati tells the query-builder to eager-load the nodes that are connected to
+// the "Stati" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithStati(opts ...func(*StatusQuery)) *AlertQuery {
+	query := &StatusQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withStati = query
+	return aq
+}
+
+// WithFailures tells the query-builder to eager-load the nodes that are connected to
+// the "Failures" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithFailures(opts ...func(*FailureQuery)) *AlertQuery {
+	query := &FailureQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withFailures = query
+	return aq
+}
+
+// WithFiles tells the query-builder to eager-load the nodes that are connected to
+// the "Files" edge. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithFiles(opts ...func(*FileQuery)) *AlertQuery {
+	query := &FileQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	aq.withFiles = query
+	return aq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -315,8 +464,14 @@ func (aq *AlertQuery) prepareQuery(ctx context.Context) error {
 
 func (aq *AlertQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Alert, error) {
 	var (
-		nodes = []*Alert{}
-		_spec = aq.querySpec()
+		nodes       = []*Alert{}
+		_spec       = aq.querySpec()
+		loadedTypes = [4]bool{
+			aq.withCounters != nil,
+			aq.withStati != nil,
+			aq.withFailures != nil,
+			aq.withFiles != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Alert).scanValues(nil, columns)
@@ -324,6 +479,7 @@ func (aq *AlertQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Alert,
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Alert{config: aq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(aq.modifiers) > 0 {
@@ -338,12 +494,193 @@ func (aq *AlertQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Alert,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := aq.withCounters; query != nil {
+		if err := aq.loadCounters(ctx, query, nodes,
+			func(n *Alert) { n.Edges.Counters = []*Counter{} },
+			func(n *Alert, e *Counter) { n.Edges.Counters = append(n.Edges.Counters, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := aq.withStati; query != nil {
+		if err := aq.loadStati(ctx, query, nodes,
+			func(n *Alert) { n.Edges.Stati = []*Status{} },
+			func(n *Alert, e *Status) { n.Edges.Stati = append(n.Edges.Stati, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := aq.withFailures; query != nil {
+		if err := aq.loadFailures(ctx, query, nodes,
+			func(n *Alert) { n.Edges.Failures = []*Failure{} },
+			func(n *Alert, e *Failure) { n.Edges.Failures = append(n.Edges.Failures, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := aq.withFiles; query != nil {
+		if err := aq.loadFiles(ctx, query, nodes,
+			func(n *Alert) { n.Edges.Files = []*File{} },
+			func(n *Alert, e *File) { n.Edges.Files = append(n.Edges.Files, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range aq.withNamedCounters {
+		if err := aq.loadCounters(ctx, query, nodes,
+			func(n *Alert) { n.appendNamedCounters(name) },
+			func(n *Alert, e *Counter) { n.appendNamedCounters(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range aq.withNamedStati {
+		if err := aq.loadStati(ctx, query, nodes,
+			func(n *Alert) { n.appendNamedStati(name) },
+			func(n *Alert, e *Status) { n.appendNamedStati(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range aq.withNamedFailures {
+		if err := aq.loadFailures(ctx, query, nodes,
+			func(n *Alert) { n.appendNamedFailures(name) },
+			func(n *Alert, e *Failure) { n.appendNamedFailures(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range aq.withNamedFiles {
+		if err := aq.loadFiles(ctx, query, nodes,
+			func(n *Alert) { n.appendNamedFiles(name) },
+			func(n *Alert, e *File) { n.appendNamedFiles(name, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for i := range aq.loadTotal {
 		if err := aq.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
+}
+
+func (aq *AlertQuery) loadCounters(ctx context.Context, query *CounterQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Counter)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Alert)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Counter(func(s *sql.Selector) {
+		s.Where(sql.InValues(alert.CountersColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.alert_counters
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "alert_counters" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "alert_counters" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (aq *AlertQuery) loadStati(ctx context.Context, query *StatusQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Status)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Alert)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Status(func(s *sql.Selector) {
+		s.Where(sql.InValues(alert.StatiColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.alert_stati
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "alert_stati" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "alert_stati" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (aq *AlertQuery) loadFailures(ctx context.Context, query *FailureQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Failure)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Alert)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Failure(func(s *sql.Selector) {
+		s.Where(sql.InValues(alert.FailuresColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.alert_failures
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "alert_failures" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "alert_failures" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (aq *AlertQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *File)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Alert)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.File(func(s *sql.Selector) {
+		s.Where(sql.InValues(alert.FilesColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.alert_files
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "alert_files" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "alert_files" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (aq *AlertQuery) sqlCount(ctx context.Context) (int, error) {
@@ -444,6 +781,62 @@ func (aq *AlertQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// WithNamedCounters tells the query-builder to eager-load the nodes that are connected to the "Counters"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithNamedCounters(name string, opts ...func(*CounterQuery)) *AlertQuery {
+	query := &CounterQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	if aq.withNamedCounters == nil {
+		aq.withNamedCounters = make(map[string]*CounterQuery)
+	}
+	aq.withNamedCounters[name] = query
+	return aq
+}
+
+// WithNamedStati tells the query-builder to eager-load the nodes that are connected to the "Stati"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithNamedStati(name string, opts ...func(*StatusQuery)) *AlertQuery {
+	query := &StatusQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	if aq.withNamedStati == nil {
+		aq.withNamedStati = make(map[string]*StatusQuery)
+	}
+	aq.withNamedStati[name] = query
+	return aq
+}
+
+// WithNamedFailures tells the query-builder to eager-load the nodes that are connected to the "Failures"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithNamedFailures(name string, opts ...func(*FailureQuery)) *AlertQuery {
+	query := &FailureQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	if aq.withNamedFailures == nil {
+		aq.withNamedFailures = make(map[string]*FailureQuery)
+	}
+	aq.withNamedFailures[name] = query
+	return aq
+}
+
+// WithNamedFiles tells the query-builder to eager-load the nodes that are connected to the "Files"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (aq *AlertQuery) WithNamedFiles(name string, opts ...func(*FileQuery)) *AlertQuery {
+	query := &FileQuery{config: aq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	if aq.withNamedFiles == nil {
+		aq.withNamedFiles = make(map[string]*FileQuery)
+	}
+	aq.withNamedFiles[name] = query
+	return aq
 }
 
 // AlertGroupBy is the group-by builder for Alert entities.

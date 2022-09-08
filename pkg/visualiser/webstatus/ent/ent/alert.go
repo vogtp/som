@@ -37,6 +37,67 @@ type Alert struct {
 	ProbeHost string `json:"ProbeHost,omitempty"`
 	// Error holds the value of the "Error" field.
 	Error string `json:"Error,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the AlertQuery when eager-loading is set.
+	Edges AlertEdges `json:"edges"`
+}
+
+// AlertEdges holds the relations/edges for other nodes in the graph.
+type AlertEdges struct {
+	// Counters holds the value of the Counters edge.
+	Counters []*Counter `json:"Counters,omitempty"`
+	// Stati holds the value of the Stati edge.
+	Stati []*Status `json:"Stati,omitempty"`
+	// Failures holds the value of the Failures edge.
+	Failures []*Failure `json:"Failures,omitempty"`
+	// Files holds the value of the Files edge.
+	Files []*File `json:"Files,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [4]bool
+	// totalCount holds the count of the edges above.
+	totalCount [4]map[string]int
+
+	namedCounters map[string][]*Counter
+	namedStati    map[string][]*Status
+	namedFailures map[string][]*Failure
+	namedFiles    map[string][]*File
+}
+
+// CountersOrErr returns the Counters value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertEdges) CountersOrErr() ([]*Counter, error) {
+	if e.loadedTypes[0] {
+		return e.Counters, nil
+	}
+	return nil, &NotLoadedError{edge: "Counters"}
+}
+
+// StatiOrErr returns the Stati value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertEdges) StatiOrErr() ([]*Status, error) {
+	if e.loadedTypes[1] {
+		return e.Stati, nil
+	}
+	return nil, &NotLoadedError{edge: "Stati"}
+}
+
+// FailuresOrErr returns the Failures value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertEdges) FailuresOrErr() ([]*Failure, error) {
+	if e.loadedTypes[2] {
+		return e.Failures, nil
+	}
+	return nil, &NotLoadedError{edge: "Failures"}
+}
+
+// FilesOrErr returns the Files value or an error if the edge
+// was not loaded in eager-loading.
+func (e AlertEdges) FilesOrErr() ([]*File, error) {
+	if e.loadedTypes[3] {
+		return e.Files, nil
+	}
+	return nil, &NotLoadedError{edge: "Files"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -138,6 +199,26 @@ func (a *Alert) assignValues(columns []string, values []any) error {
 	return nil
 }
 
+// QueryCounters queries the "Counters" edge of the Alert entity.
+func (a *Alert) QueryCounters() *CounterQuery {
+	return (&AlertClient{config: a.config}).QueryCounters(a)
+}
+
+// QueryStati queries the "Stati" edge of the Alert entity.
+func (a *Alert) QueryStati() *StatusQuery {
+	return (&AlertClient{config: a.config}).QueryStati(a)
+}
+
+// QueryFailures queries the "Failures" edge of the Alert entity.
+func (a *Alert) QueryFailures() *FailureQuery {
+	return (&AlertClient{config: a.config}).QueryFailures(a)
+}
+
+// QueryFiles queries the "Files" edge of the Alert entity.
+func (a *Alert) QueryFiles() *FileQuery {
+	return (&AlertClient{config: a.config}).QueryFiles(a)
+}
+
 // Update returns a builder for updating this Alert.
 // Note that you need to call Alert.Unwrap() before calling this method if this Alert
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -192,6 +273,102 @@ func (a *Alert) String() string {
 	builder.WriteString(a.Error)
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedCounters returns the Counters named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (a *Alert) NamedCounters(name string) ([]*Counter, error) {
+	if a.Edges.namedCounters == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := a.Edges.namedCounters[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (a *Alert) appendNamedCounters(name string, edges ...*Counter) {
+	if a.Edges.namedCounters == nil {
+		a.Edges.namedCounters = make(map[string][]*Counter)
+	}
+	if len(edges) == 0 {
+		a.Edges.namedCounters[name] = []*Counter{}
+	} else {
+		a.Edges.namedCounters[name] = append(a.Edges.namedCounters[name], edges...)
+	}
+}
+
+// NamedStati returns the Stati named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (a *Alert) NamedStati(name string) ([]*Status, error) {
+	if a.Edges.namedStati == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := a.Edges.namedStati[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (a *Alert) appendNamedStati(name string, edges ...*Status) {
+	if a.Edges.namedStati == nil {
+		a.Edges.namedStati = make(map[string][]*Status)
+	}
+	if len(edges) == 0 {
+		a.Edges.namedStati[name] = []*Status{}
+	} else {
+		a.Edges.namedStati[name] = append(a.Edges.namedStati[name], edges...)
+	}
+}
+
+// NamedFailures returns the Failures named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (a *Alert) NamedFailures(name string) ([]*Failure, error) {
+	if a.Edges.namedFailures == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := a.Edges.namedFailures[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (a *Alert) appendNamedFailures(name string, edges ...*Failure) {
+	if a.Edges.namedFailures == nil {
+		a.Edges.namedFailures = make(map[string][]*Failure)
+	}
+	if len(edges) == 0 {
+		a.Edges.namedFailures[name] = []*Failure{}
+	} else {
+		a.Edges.namedFailures[name] = append(a.Edges.namedFailures[name], edges...)
+	}
+}
+
+// NamedFiles returns the Files named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (a *Alert) NamedFiles(name string) ([]*File, error) {
+	if a.Edges.namedFiles == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := a.Edges.namedFiles[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (a *Alert) appendNamedFiles(name string, edges ...*File) {
+	if a.Edges.namedFiles == nil {
+		a.Edges.namedFiles = make(map[string][]*File)
+	}
+	if len(edges) == 0 {
+		a.Edges.namedFiles[name] = []*File{}
+	} else {
+		a.Edges.namedFiles[name] = append(a.Edges.namedFiles[name], edges...)
+	}
 }
 
 // Alerts is a parsable slice of Alert.

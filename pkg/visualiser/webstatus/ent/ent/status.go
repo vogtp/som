@@ -19,6 +19,7 @@ type Status struct {
 	Name string `json:"Name,omitempty"`
 	// Value holds the value of the "Value" field.
 	Value          string `json:"Value,omitempty"`
+	alert_stati    *int
 	incident_stati *int
 }
 
@@ -31,7 +32,9 @@ func (*Status) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case status.FieldName, status.FieldValue:
 			values[i] = new(sql.NullString)
-		case status.ForeignKeys[0]: // incident_stati
+		case status.ForeignKeys[0]: // alert_stati
+			values[i] = new(sql.NullInt64)
+		case status.ForeignKeys[1]: // incident_stati
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Status", columns[i])
@@ -67,6 +70,13 @@ func (s *Status) assignValues(columns []string, values []any) error {
 				s.Value = value.String
 			}
 		case status.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field alert_stati", value)
+			} else if value.Valid {
+				s.alert_stati = new(int)
+				*s.alert_stati = int(value.Int64)
+			}
+		case status.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field incident_stati", value)
 			} else if value.Valid {

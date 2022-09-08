@@ -19,6 +19,7 @@ type Failure struct {
 	Error string `json:"Error,omitempty"`
 	// Idx holds the value of the "Idx" field.
 	Idx               int `json:"Idx,omitempty"`
+	alert_failures    *int
 	incident_failures *int
 }
 
@@ -31,7 +32,9 @@ func (*Failure) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case failure.FieldError:
 			values[i] = new(sql.NullString)
-		case failure.ForeignKeys[0]: // incident_failures
+		case failure.ForeignKeys[0]: // alert_failures
+			values[i] = new(sql.NullInt64)
+		case failure.ForeignKeys[1]: // incident_failures
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Failure", columns[i])
@@ -67,6 +70,13 @@ func (f *Failure) assignValues(columns []string, values []any) error {
 				f.Idx = int(value.Int64)
 			}
 		case failure.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field alert_failures", value)
+			} else if value.Valid {
+				f.alert_failures = new(int)
+				*f.alert_failures = int(value.Int64)
+			}
+		case failure.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field incident_failures", value)
 			} else if value.Valid {

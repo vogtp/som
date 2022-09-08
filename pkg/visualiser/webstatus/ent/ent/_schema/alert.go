@@ -19,5 +19,5 @@ func (Alert) Fields() []ent.Field {
 
 // Edges of the Alert.
 func (Alert) Edges() []ent.Edge {
-	return nil
+	return szEdges
 }

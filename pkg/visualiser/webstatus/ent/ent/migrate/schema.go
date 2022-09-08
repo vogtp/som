@@ -33,6 +33,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "value", Type: field.TypeString},
+		{Name: "alert_counters", Type: field.TypeInt, Nullable: true},
 		{Name: "incident_counters", Type: field.TypeInt, Nullable: true},
 	}
 	// CountersTable holds the schema information for the "counters" table.
@@ -42,8 +43,14 @@ var (
 		PrimaryKey: []*schema.Column{CountersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "counters_incidents_Counters",
+				Symbol:     "counters_alerts_Counters",
 				Columns:    []*schema.Column{CountersColumns[3]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "counters_incidents_Counters",
+				Columns:    []*schema.Column{CountersColumns[4]},
 				RefColumns: []*schema.Column{IncidentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -54,6 +61,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "error", Type: field.TypeString},
 		{Name: "idx", Type: field.TypeInt},
+		{Name: "alert_failures", Type: field.TypeInt, Nullable: true},
 		{Name: "incident_failures", Type: field.TypeInt, Nullable: true},
 	}
 	// FailuresTable holds the schema information for the "failures" table.
@@ -63,8 +71,14 @@ var (
 		PrimaryKey: []*schema.Column{FailuresColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "failures_incidents_Failures",
+				Symbol:     "failures_alerts_Failures",
 				Columns:    []*schema.Column{FailuresColumns[3]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "failures_incidents_Failures",
+				Columns:    []*schema.Column{FailuresColumns[4]},
 				RefColumns: []*schema.Column{IncidentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -79,6 +93,7 @@ var (
 		{Name: "ext", Type: field.TypeString},
 		{Name: "size", Type: field.TypeInt},
 		{Name: "payload", Type: field.TypeBytes},
+		{Name: "alert_files", Type: field.TypeInt, Nullable: true},
 		{Name: "incident_files", Type: field.TypeInt, Nullable: true},
 	}
 	// FilesTable holds the schema information for the "files" table.
@@ -88,8 +103,14 @@ var (
 		PrimaryKey: []*schema.Column{FilesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "files_incidents_Files",
+				Symbol:     "files_alerts_Files",
 				Columns:    []*schema.Column{FilesColumns[7]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "files_incidents_Files",
+				Columns:    []*schema.Column{FilesColumns[8]},
 				RefColumns: []*schema.Column{IncidentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -150,6 +171,7 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "value", Type: field.TypeString},
+		{Name: "alert_stati", Type: field.TypeInt, Nullable: true},
 		{Name: "incident_stati", Type: field.TypeInt, Nullable: true},
 	}
 	// StatusTable holds the schema information for the "status" table.
@@ -159,8 +181,14 @@ var (
 		PrimaryKey: []*schema.Column{StatusColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "status_incidents_Stati",
+				Symbol:     "status_alerts_Stati",
 				Columns:    []*schema.Column{StatusColumns[3]},
+				RefColumns: []*schema.Column{AlertsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "status_incidents_Stati",
+				Columns:    []*schema.Column{StatusColumns[4]},
 				RefColumns: []*schema.Column{IncidentsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -178,8 +206,12 @@ var (
 )
 
 func init() {
-	CountersTable.ForeignKeys[0].RefTable = IncidentsTable
-	FailuresTable.ForeignKeys[0].RefTable = IncidentsTable
-	FilesTable.ForeignKeys[0].RefTable = IncidentsTable
-	StatusTable.ForeignKeys[0].RefTable = IncidentsTable
+	CountersTable.ForeignKeys[0].RefTable = AlertsTable
+	CountersTable.ForeignKeys[1].RefTable = IncidentsTable
+	FailuresTable.ForeignKeys[0].RefTable = AlertsTable
+	FailuresTable.ForeignKeys[1].RefTable = IncidentsTable
+	FilesTable.ForeignKeys[0].RefTable = AlertsTable
+	FilesTable.ForeignKeys[1].RefTable = IncidentsTable
+	StatusTable.ForeignKeys[0].RefTable = AlertsTable
+	StatusTable.ForeignKeys[1].RefTable = IncidentsTable
 }

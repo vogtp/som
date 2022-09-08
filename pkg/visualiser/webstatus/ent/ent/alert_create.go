@@ -13,6 +13,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
 )
 
 // AlertCreate is the builder for creating a Alert entity.
@@ -89,6 +93,66 @@ func (ac *AlertCreate) SetNillableError(s *string) *AlertCreate {
 		ac.SetError(*s)
 	}
 	return ac
+}
+
+// AddCounterIDs adds the "Counters" edge to the Counter entity by IDs.
+func (ac *AlertCreate) AddCounterIDs(ids ...int) *AlertCreate {
+	ac.mutation.AddCounterIDs(ids...)
+	return ac
+}
+
+// AddCounters adds the "Counters" edges to the Counter entity.
+func (ac *AlertCreate) AddCounters(c ...*Counter) *AlertCreate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return ac.AddCounterIDs(ids...)
+}
+
+// AddStatiIDs adds the "Stati" edge to the Status entity by IDs.
+func (ac *AlertCreate) AddStatiIDs(ids ...int) *AlertCreate {
+	ac.mutation.AddStatiIDs(ids...)
+	return ac
+}
+
+// AddStati adds the "Stati" edges to the Status entity.
+func (ac *AlertCreate) AddStati(s ...*Status) *AlertCreate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return ac.AddStatiIDs(ids...)
+}
+
+// AddFailureIDs adds the "Failures" edge to the Failure entity by IDs.
+func (ac *AlertCreate) AddFailureIDs(ids ...int) *AlertCreate {
+	ac.mutation.AddFailureIDs(ids...)
+	return ac
+}
+
+// AddFailures adds the "Failures" edges to the Failure entity.
+func (ac *AlertCreate) AddFailures(f ...*Failure) *AlertCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return ac.AddFailureIDs(ids...)
+}
+
+// AddFileIDs adds the "Files" edge to the File entity by IDs.
+func (ac *AlertCreate) AddFileIDs(ids ...int) *AlertCreate {
+	ac.mutation.AddFileIDs(ids...)
+	return ac
+}
+
+// AddFiles adds the "Files" edges to the File entity.
+func (ac *AlertCreate) AddFiles(f ...*File) *AlertCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return ac.AddFileIDs(ids...)
 }
 
 // Mutation returns the AlertMutation object of the builder.
@@ -301,6 +365,82 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 			Column: alert.FieldError,
 		})
 		_node.Error = value
+	}
+	if nodes := ac.mutation.CountersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.CountersTable,
+			Columns: []string{alert.CountersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: counter.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.StatiIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.StatiTable,
+			Columns: []string{alert.StatiColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: status.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.FailuresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FailuresTable,
+			Columns: []string{alert.FailuresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: failure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := ac.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FilesTable,
+			Columns: []string{alert.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

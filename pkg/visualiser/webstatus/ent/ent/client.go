@@ -245,6 +245,70 @@ func (c *AlertClient) GetX(ctx context.Context, id int) *Alert {
 	return obj
 }
 
+// QueryCounters queries the Counters edge of a Alert.
+func (c *AlertClient) QueryCounters(a *Alert) *CounterQuery {
+	query := &CounterQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(counter.Table, counter.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.CountersTable, alert.CountersColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryStati queries the Stati edge of a Alert.
+func (c *AlertClient) QueryStati(a *Alert) *StatusQuery {
+	query := &StatusQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(status.Table, status.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.StatiTable, alert.StatiColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFailures queries the Failures edge of a Alert.
+func (c *AlertClient) QueryFailures(a *Alert) *FailureQuery {
+	query := &FailureQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(failure.Table, failure.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.FailuresTable, alert.FailuresColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryFiles queries the Files edge of a Alert.
+func (c *AlertClient) QueryFiles(a *Alert) *FileQuery {
+	query := &FileQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := a.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(alert.Table, alert.FieldID, id),
+			sqlgraph.To(file.Table, file.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, alert.FilesTable, alert.FilesColumn),
+		)
+		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *AlertClient) Hooks() []Hook {
 	return c.hooks.Alert

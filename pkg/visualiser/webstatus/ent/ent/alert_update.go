@@ -13,7 +13,11 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/predicate"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
 )
 
 // AlertUpdate is the builder for updating Alert entities.
@@ -110,9 +114,153 @@ func (au *AlertUpdate) ClearError() *AlertUpdate {
 	return au
 }
 
+// AddCounterIDs adds the "Counters" edge to the Counter entity by IDs.
+func (au *AlertUpdate) AddCounterIDs(ids ...int) *AlertUpdate {
+	au.mutation.AddCounterIDs(ids...)
+	return au
+}
+
+// AddCounters adds the "Counters" edges to the Counter entity.
+func (au *AlertUpdate) AddCounters(c ...*Counter) *AlertUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return au.AddCounterIDs(ids...)
+}
+
+// AddStatiIDs adds the "Stati" edge to the Status entity by IDs.
+func (au *AlertUpdate) AddStatiIDs(ids ...int) *AlertUpdate {
+	au.mutation.AddStatiIDs(ids...)
+	return au
+}
+
+// AddStati adds the "Stati" edges to the Status entity.
+func (au *AlertUpdate) AddStati(s ...*Status) *AlertUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return au.AddStatiIDs(ids...)
+}
+
+// AddFailureIDs adds the "Failures" edge to the Failure entity by IDs.
+func (au *AlertUpdate) AddFailureIDs(ids ...int) *AlertUpdate {
+	au.mutation.AddFailureIDs(ids...)
+	return au
+}
+
+// AddFailures adds the "Failures" edges to the Failure entity.
+func (au *AlertUpdate) AddFailures(f ...*Failure) *AlertUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return au.AddFailureIDs(ids...)
+}
+
+// AddFileIDs adds the "Files" edge to the File entity by IDs.
+func (au *AlertUpdate) AddFileIDs(ids ...int) *AlertUpdate {
+	au.mutation.AddFileIDs(ids...)
+	return au
+}
+
+// AddFiles adds the "Files" edges to the File entity.
+func (au *AlertUpdate) AddFiles(f ...*File) *AlertUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return au.AddFileIDs(ids...)
+}
+
 // Mutation returns the AlertMutation object of the builder.
 func (au *AlertUpdate) Mutation() *AlertMutation {
 	return au.mutation
+}
+
+// ClearCounters clears all "Counters" edges to the Counter entity.
+func (au *AlertUpdate) ClearCounters() *AlertUpdate {
+	au.mutation.ClearCounters()
+	return au
+}
+
+// RemoveCounterIDs removes the "Counters" edge to Counter entities by IDs.
+func (au *AlertUpdate) RemoveCounterIDs(ids ...int) *AlertUpdate {
+	au.mutation.RemoveCounterIDs(ids...)
+	return au
+}
+
+// RemoveCounters removes "Counters" edges to Counter entities.
+func (au *AlertUpdate) RemoveCounters(c ...*Counter) *AlertUpdate {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return au.RemoveCounterIDs(ids...)
+}
+
+// ClearStati clears all "Stati" edges to the Status entity.
+func (au *AlertUpdate) ClearStati() *AlertUpdate {
+	au.mutation.ClearStati()
+	return au
+}
+
+// RemoveStatiIDs removes the "Stati" edge to Status entities by IDs.
+func (au *AlertUpdate) RemoveStatiIDs(ids ...int) *AlertUpdate {
+	au.mutation.RemoveStatiIDs(ids...)
+	return au
+}
+
+// RemoveStati removes "Stati" edges to Status entities.
+func (au *AlertUpdate) RemoveStati(s ...*Status) *AlertUpdate {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return au.RemoveStatiIDs(ids...)
+}
+
+// ClearFailures clears all "Failures" edges to the Failure entity.
+func (au *AlertUpdate) ClearFailures() *AlertUpdate {
+	au.mutation.ClearFailures()
+	return au
+}
+
+// RemoveFailureIDs removes the "Failures" edge to Failure entities by IDs.
+func (au *AlertUpdate) RemoveFailureIDs(ids ...int) *AlertUpdate {
+	au.mutation.RemoveFailureIDs(ids...)
+	return au
+}
+
+// RemoveFailures removes "Failures" edges to Failure entities.
+func (au *AlertUpdate) RemoveFailures(f ...*Failure) *AlertUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return au.RemoveFailureIDs(ids...)
+}
+
+// ClearFiles clears all "Files" edges to the File entity.
+func (au *AlertUpdate) ClearFiles() *AlertUpdate {
+	au.mutation.ClearFiles()
+	return au
+}
+
+// RemoveFileIDs removes the "Files" edge to File entities by IDs.
+func (au *AlertUpdate) RemoveFileIDs(ids ...int) *AlertUpdate {
+	au.mutation.RemoveFileIDs(ids...)
+	return au
+}
+
+// RemoveFiles removes "Files" edges to File entities.
+func (au *AlertUpdate) RemoveFiles(f ...*File) *AlertUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return au.RemoveFileIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -270,6 +418,222 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: alert.FieldError,
 		})
 	}
+	if au.mutation.CountersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.CountersTable,
+			Columns: []string{alert.CountersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: counter.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedCountersIDs(); len(nodes) > 0 && !au.mutation.CountersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.CountersTable,
+			Columns: []string{alert.CountersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: counter.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.CountersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.CountersTable,
+			Columns: []string{alert.CountersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: counter.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if au.mutation.StatiCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.StatiTable,
+			Columns: []string{alert.StatiColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: status.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedStatiIDs(); len(nodes) > 0 && !au.mutation.StatiCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.StatiTable,
+			Columns: []string{alert.StatiColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: status.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.StatiIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.StatiTable,
+			Columns: []string{alert.StatiColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: status.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if au.mutation.FailuresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FailuresTable,
+			Columns: []string{alert.FailuresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: failure.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedFailuresIDs(); len(nodes) > 0 && !au.mutation.FailuresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FailuresTable,
+			Columns: []string{alert.FailuresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: failure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.FailuresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FailuresTable,
+			Columns: []string{alert.FailuresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: failure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if au.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FilesTable,
+			Columns: []string{alert.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.RemovedFilesIDs(); len(nodes) > 0 && !au.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FilesTable,
+			Columns: []string{alert.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := au.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FilesTable,
+			Columns: []string{alert.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{alert.Label}
@@ -370,9 +734,153 @@ func (auo *AlertUpdateOne) ClearError() *AlertUpdateOne {
 	return auo
 }
 
+// AddCounterIDs adds the "Counters" edge to the Counter entity by IDs.
+func (auo *AlertUpdateOne) AddCounterIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.AddCounterIDs(ids...)
+	return auo
+}
+
+// AddCounters adds the "Counters" edges to the Counter entity.
+func (auo *AlertUpdateOne) AddCounters(c ...*Counter) *AlertUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return auo.AddCounterIDs(ids...)
+}
+
+// AddStatiIDs adds the "Stati" edge to the Status entity by IDs.
+func (auo *AlertUpdateOne) AddStatiIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.AddStatiIDs(ids...)
+	return auo
+}
+
+// AddStati adds the "Stati" edges to the Status entity.
+func (auo *AlertUpdateOne) AddStati(s ...*Status) *AlertUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return auo.AddStatiIDs(ids...)
+}
+
+// AddFailureIDs adds the "Failures" edge to the Failure entity by IDs.
+func (auo *AlertUpdateOne) AddFailureIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.AddFailureIDs(ids...)
+	return auo
+}
+
+// AddFailures adds the "Failures" edges to the Failure entity.
+func (auo *AlertUpdateOne) AddFailures(f ...*Failure) *AlertUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return auo.AddFailureIDs(ids...)
+}
+
+// AddFileIDs adds the "Files" edge to the File entity by IDs.
+func (auo *AlertUpdateOne) AddFileIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.AddFileIDs(ids...)
+	return auo
+}
+
+// AddFiles adds the "Files" edges to the File entity.
+func (auo *AlertUpdateOne) AddFiles(f ...*File) *AlertUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return auo.AddFileIDs(ids...)
+}
+
 // Mutation returns the AlertMutation object of the builder.
 func (auo *AlertUpdateOne) Mutation() *AlertMutation {
 	return auo.mutation
+}
+
+// ClearCounters clears all "Counters" edges to the Counter entity.
+func (auo *AlertUpdateOne) ClearCounters() *AlertUpdateOne {
+	auo.mutation.ClearCounters()
+	return auo
+}
+
+// RemoveCounterIDs removes the "Counters" edge to Counter entities by IDs.
+func (auo *AlertUpdateOne) RemoveCounterIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.RemoveCounterIDs(ids...)
+	return auo
+}
+
+// RemoveCounters removes "Counters" edges to Counter entities.
+func (auo *AlertUpdateOne) RemoveCounters(c ...*Counter) *AlertUpdateOne {
+	ids := make([]int, len(c))
+	for i := range c {
+		ids[i] = c[i].ID
+	}
+	return auo.RemoveCounterIDs(ids...)
+}
+
+// ClearStati clears all "Stati" edges to the Status entity.
+func (auo *AlertUpdateOne) ClearStati() *AlertUpdateOne {
+	auo.mutation.ClearStati()
+	return auo
+}
+
+// RemoveStatiIDs removes the "Stati" edge to Status entities by IDs.
+func (auo *AlertUpdateOne) RemoveStatiIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.RemoveStatiIDs(ids...)
+	return auo
+}
+
+// RemoveStati removes "Stati" edges to Status entities.
+func (auo *AlertUpdateOne) RemoveStati(s ...*Status) *AlertUpdateOne {
+	ids := make([]int, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
+	}
+	return auo.RemoveStatiIDs(ids...)
+}
+
+// ClearFailures clears all "Failures" edges to the Failure entity.
+func (auo *AlertUpdateOne) ClearFailures() *AlertUpdateOne {
+	auo.mutation.ClearFailures()
+	return auo
+}
+
+// RemoveFailureIDs removes the "Failures" edge to Failure entities by IDs.
+func (auo *AlertUpdateOne) RemoveFailureIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.RemoveFailureIDs(ids...)
+	return auo
+}
+
+// RemoveFailures removes "Failures" edges to Failure entities.
+func (auo *AlertUpdateOne) RemoveFailures(f ...*Failure) *AlertUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return auo.RemoveFailureIDs(ids...)
+}
+
+// ClearFiles clears all "Files" edges to the File entity.
+func (auo *AlertUpdateOne) ClearFiles() *AlertUpdateOne {
+	auo.mutation.ClearFiles()
+	return auo
+}
+
+// RemoveFileIDs removes the "Files" edge to File entities by IDs.
+func (auo *AlertUpdateOne) RemoveFileIDs(ids ...int) *AlertUpdateOne {
+	auo.mutation.RemoveFileIDs(ids...)
+	return auo
+}
+
+// RemoveFiles removes "Files" edges to File entities.
+func (auo *AlertUpdateOne) RemoveFiles(f ...*File) *AlertUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return auo.RemoveFileIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -559,6 +1067,222 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (_node *Alert, err error
 			Type:   field.TypeString,
 			Column: alert.FieldError,
 		})
+	}
+	if auo.mutation.CountersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.CountersTable,
+			Columns: []string{alert.CountersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: counter.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedCountersIDs(); len(nodes) > 0 && !auo.mutation.CountersCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.CountersTable,
+			Columns: []string{alert.CountersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: counter.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.CountersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.CountersTable,
+			Columns: []string{alert.CountersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: counter.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.StatiCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.StatiTable,
+			Columns: []string{alert.StatiColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: status.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedStatiIDs(); len(nodes) > 0 && !auo.mutation.StatiCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.StatiTable,
+			Columns: []string{alert.StatiColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: status.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.StatiIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.StatiTable,
+			Columns: []string{alert.StatiColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: status.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.FailuresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FailuresTable,
+			Columns: []string{alert.FailuresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: failure.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedFailuresIDs(); len(nodes) > 0 && !auo.mutation.FailuresCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FailuresTable,
+			Columns: []string{alert.FailuresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: failure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.FailuresIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FailuresTable,
+			Columns: []string{alert.FailuresColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: failure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if auo.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FilesTable,
+			Columns: []string{alert.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.RemovedFilesIDs(); len(nodes) > 0 && !auo.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FilesTable,
+			Columns: []string{alert.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := auo.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   alert.FilesTable,
+			Columns: []string{alert.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Alert{config: auo.config}
 	_spec.Assign = _node.assignValues

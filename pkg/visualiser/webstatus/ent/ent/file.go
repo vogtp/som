@@ -28,6 +28,7 @@ type File struct {
 	Size int `json:"Size,omitempty"`
 	// Payload holds the value of the "payload" field.
 	Payload        []byte `json:"payload,omitempty"`
+	alert_files    *int
 	incident_files *int
 }
 
@@ -44,7 +45,9 @@ func (*File) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case file.FieldUUID:
 			values[i] = new(uuid.UUID)
-		case file.ForeignKeys[0]: // incident_files
+		case file.ForeignKeys[0]: // alert_files
+			values[i] = new(sql.NullInt64)
+		case file.ForeignKeys[1]: // incident_files
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type File", columns[i])
@@ -104,6 +107,13 @@ func (f *File) assignValues(columns []string, values []any) error {
 				f.Payload = *value
 			}
 		case file.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field alert_files", value)
+			} else if value.Valid {
+				f.alert_files = new(int)
+				*f.alert_files = int(value.Int64)
+			}
+		case file.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field incident_files", value)
 			} else if value.Valid {

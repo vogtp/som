@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/predicate"
 )
@@ -1012,6 +1013,118 @@ func ErrorEqualFold(v string) predicate.Alert {
 func ErrorContainsFold(v string) predicate.Alert {
 	return predicate.Alert(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldError), v))
+	})
+}
+
+// HasCounters applies the HasEdge predicate on the "Counters" edge.
+func HasCounters() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(CountersTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CountersTable, CountersColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasCountersWith applies the HasEdge predicate on the "Counters" edge with a given conditions (other predicates).
+func HasCountersWith(preds ...predicate.Counter) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(CountersInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, CountersTable, CountersColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasStati applies the HasEdge predicate on the "Stati" edge.
+func HasStati() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(StatiTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StatiTable, StatiColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasStatiWith applies the HasEdge predicate on the "Stati" edge with a given conditions (other predicates).
+func HasStatiWith(preds ...predicate.Status) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(StatiInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, StatiTable, StatiColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasFailures applies the HasEdge predicate on the "Failures" edge.
+func HasFailures() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FailuresTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FailuresTable, FailuresColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFailuresWith applies the HasEdge predicate on the "Failures" edge with a given conditions (other predicates).
+func HasFailuresWith(preds ...predicate.Failure) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FailuresInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FailuresTable, FailuresColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasFiles applies the HasEdge predicate on the "Files" edge.
+func HasFiles() predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FilesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFilesWith applies the HasEdge predicate on the "Files" edge with a given conditions (other predicates).
+func HasFilesWith(preds ...predicate.File) predicate.Alert {
+	return predicate.Alert(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FilesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

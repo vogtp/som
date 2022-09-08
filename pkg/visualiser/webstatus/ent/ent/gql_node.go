@@ -56,7 +56,7 @@ func (a *Alert) Node(ctx context.Context) (node *Node, err error) {
 		ID:     a.ID,
 		Type:   "Alert",
 		Fields: make([]*Field, 10),
-		Edges:  make([]*Edge, 0),
+		Edges:  make([]*Edge, 4),
 	}
 	var buf []byte
 	if buf, err = json.Marshal(a.Level); err != nil {
@@ -138,6 +138,46 @@ func (a *Alert) Node(ctx context.Context) (node *Node, err error) {
 		Type:  "string",
 		Name:  "Error",
 		Value: string(buf),
+	}
+	node.Edges[0] = &Edge{
+		Type: "Counter",
+		Name: "Counters",
+	}
+	err = a.QueryCounters().
+		Select(counter.FieldID).
+		Scan(ctx, &node.Edges[0].IDs)
+	if err != nil {
+		return nil, err
+	}
+	node.Edges[1] = &Edge{
+		Type: "Status",
+		Name: "Stati",
+	}
+	err = a.QueryStati().
+		Select(status.FieldID).
+		Scan(ctx, &node.Edges[1].IDs)
+	if err != nil {
+		return nil, err
+	}
+	node.Edges[2] = &Edge{
+		Type: "Failure",
+		Name: "Failures",
+	}
+	err = a.QueryFailures().
+		Select(failure.FieldID).
+		Scan(ctx, &node.Edges[2].IDs)
+	if err != nil {
+		return nil, err
+	}
+	node.Edges[3] = &Edge{
+		Type: "File",
+		Name: "Files",
+	}
+	err = a.QueryFiles().
+		Select(file.FieldID).
+		Scan(ctx, &node.Edges[3].IDs)
+	if err != nil {
+		return nil, err
 	}
 	return node, nil
 }

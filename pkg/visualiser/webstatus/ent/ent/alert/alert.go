@@ -27,8 +27,44 @@ const (
 	FieldProbeHost = "probe_host"
 	// FieldError holds the string denoting the error field in the database.
 	FieldError = "error"
+	// EdgeCounters holds the string denoting the counters edge name in mutations.
+	EdgeCounters = "Counters"
+	// EdgeStati holds the string denoting the stati edge name in mutations.
+	EdgeStati = "Stati"
+	// EdgeFailures holds the string denoting the failures edge name in mutations.
+	EdgeFailures = "Failures"
+	// EdgeFiles holds the string denoting the files edge name in mutations.
+	EdgeFiles = "Files"
 	// Table holds the table name of the alert in the database.
 	Table = "alerts"
+	// CountersTable is the table that holds the Counters relation/edge.
+	CountersTable = "counters"
+	// CountersInverseTable is the table name for the Counter entity.
+	// It exists in this package in order to avoid circular dependency with the "counter" package.
+	CountersInverseTable = "counters"
+	// CountersColumn is the table column denoting the Counters relation/edge.
+	CountersColumn = "alert_counters"
+	// StatiTable is the table that holds the Stati relation/edge.
+	StatiTable = "status"
+	// StatiInverseTable is the table name for the Status entity.
+	// It exists in this package in order to avoid circular dependency with the "status" package.
+	StatiInverseTable = "status"
+	// StatiColumn is the table column denoting the Stati relation/edge.
+	StatiColumn = "alert_stati"
+	// FailuresTable is the table that holds the Failures relation/edge.
+	FailuresTable = "failures"
+	// FailuresInverseTable is the table name for the Failure entity.
+	// It exists in this package in order to avoid circular dependency with the "failure" package.
+	FailuresInverseTable = "failures"
+	// FailuresColumn is the table column denoting the Failures relation/edge.
+	FailuresColumn = "alert_failures"
+	// FilesTable is the table that holds the Files relation/edge.
+	FilesTable = "files"
+	// FilesInverseTable is the table name for the File entity.
+	// It exists in this package in order to avoid circular dependency with the "file" package.
+	FilesInverseTable = "files"
+	// FilesColumn is the table column denoting the Files relation/edge.
+	FilesColumn = "alert_files"
 )
 
 // Columns holds all SQL columns for alert fields.

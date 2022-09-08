@@ -41,24 +41,36 @@ const (
 // AlertMutation represents an operation that mutates the Alert nodes in the graph.
 type AlertMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	_Level        *int
-	add_Level     *int
-	_UUID         *uuid.UUID
-	_IncidentID   *uuid.UUID
-	_Name         *string
-	_Time         *time.Time
-	_Username     *string
-	_Region       *string
-	_ProbeOS      *string
-	_ProbeHost    *string
-	_Error        *string
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Alert, error)
-	predicates    []predicate.Alert
+	op               Op
+	typ              string
+	id               *int
+	_Level           *int
+	add_Level        *int
+	_UUID            *uuid.UUID
+	_IncidentID      *uuid.UUID
+	_Name            *string
+	_Time            *time.Time
+	_Username        *string
+	_Region          *string
+	_ProbeOS         *string
+	_ProbeHost       *string
+	_Error           *string
+	clearedFields    map[string]struct{}
+	_Counters        map[int]struct{}
+	removed_Counters map[int]struct{}
+	cleared_Counters bool
+	_Stati           map[int]struct{}
+	removed_Stati    map[int]struct{}
+	cleared_Stati    bool
+	_Failures        map[int]struct{}
+	removed_Failures map[int]struct{}
+	cleared_Failures bool
+	_Files           map[int]struct{}
+	removed_Files    map[int]struct{}
+	cleared_Files    bool
+	done             bool
+	oldValue         func(context.Context) (*Alert, error)
+	predicates       []predicate.Alert
 }
 
 var _ ent.Mutation = (*AlertMutation)(nil)
@@ -552,6 +564,222 @@ func (m *AlertMutation) ResetError() {
 	delete(m.clearedFields, alert.FieldError)
 }
 
+// AddCounterIDs adds the "Counters" edge to the Counter entity by ids.
+func (m *AlertMutation) AddCounterIDs(ids ...int) {
+	if m._Counters == nil {
+		m._Counters = make(map[int]struct{})
+	}
+	for i := range ids {
+		m._Counters[ids[i]] = struct{}{}
+	}
+}
+
+// ClearCounters clears the "Counters" edge to the Counter entity.
+func (m *AlertMutation) ClearCounters() {
+	m.cleared_Counters = true
+}
+
+// CountersCleared reports if the "Counters" edge to the Counter entity was cleared.
+func (m *AlertMutation) CountersCleared() bool {
+	return m.cleared_Counters
+}
+
+// RemoveCounterIDs removes the "Counters" edge to the Counter entity by IDs.
+func (m *AlertMutation) RemoveCounterIDs(ids ...int) {
+	if m.removed_Counters == nil {
+		m.removed_Counters = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m._Counters, ids[i])
+		m.removed_Counters[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedCounters returns the removed IDs of the "Counters" edge to the Counter entity.
+func (m *AlertMutation) RemovedCountersIDs() (ids []int) {
+	for id := range m.removed_Counters {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// CountersIDs returns the "Counters" edge IDs in the mutation.
+func (m *AlertMutation) CountersIDs() (ids []int) {
+	for id := range m._Counters {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetCounters resets all changes to the "Counters" edge.
+func (m *AlertMutation) ResetCounters() {
+	m._Counters = nil
+	m.cleared_Counters = false
+	m.removed_Counters = nil
+}
+
+// AddStatiIDs adds the "Stati" edge to the Status entity by ids.
+func (m *AlertMutation) AddStatiIDs(ids ...int) {
+	if m._Stati == nil {
+		m._Stati = make(map[int]struct{})
+	}
+	for i := range ids {
+		m._Stati[ids[i]] = struct{}{}
+	}
+}
+
+// ClearStati clears the "Stati" edge to the Status entity.
+func (m *AlertMutation) ClearStati() {
+	m.cleared_Stati = true
+}
+
+// StatiCleared reports if the "Stati" edge to the Status entity was cleared.
+func (m *AlertMutation) StatiCleared() bool {
+	return m.cleared_Stati
+}
+
+// RemoveStatiIDs removes the "Stati" edge to the Status entity by IDs.
+func (m *AlertMutation) RemoveStatiIDs(ids ...int) {
+	if m.removed_Stati == nil {
+		m.removed_Stati = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m._Stati, ids[i])
+		m.removed_Stati[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedStati returns the removed IDs of the "Stati" edge to the Status entity.
+func (m *AlertMutation) RemovedStatiIDs() (ids []int) {
+	for id := range m.removed_Stati {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// StatiIDs returns the "Stati" edge IDs in the mutation.
+func (m *AlertMutation) StatiIDs() (ids []int) {
+	for id := range m._Stati {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetStati resets all changes to the "Stati" edge.
+func (m *AlertMutation) ResetStati() {
+	m._Stati = nil
+	m.cleared_Stati = false
+	m.removed_Stati = nil
+}
+
+// AddFailureIDs adds the "Failures" edge to the Failure entity by ids.
+func (m *AlertMutation) AddFailureIDs(ids ...int) {
+	if m._Failures == nil {
+		m._Failures = make(map[int]struct{})
+	}
+	for i := range ids {
+		m._Failures[ids[i]] = struct{}{}
+	}
+}
+
+// ClearFailures clears the "Failures" edge to the Failure entity.
+func (m *AlertMutation) ClearFailures() {
+	m.cleared_Failures = true
+}
+
+// FailuresCleared reports if the "Failures" edge to the Failure entity was cleared.
+func (m *AlertMutation) FailuresCleared() bool {
+	return m.cleared_Failures
+}
+
+// RemoveFailureIDs removes the "Failures" edge to the Failure entity by IDs.
+func (m *AlertMutation) RemoveFailureIDs(ids ...int) {
+	if m.removed_Failures == nil {
+		m.removed_Failures = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m._Failures, ids[i])
+		m.removed_Failures[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedFailures returns the removed IDs of the "Failures" edge to the Failure entity.
+func (m *AlertMutation) RemovedFailuresIDs() (ids []int) {
+	for id := range m.removed_Failures {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// FailuresIDs returns the "Failures" edge IDs in the mutation.
+func (m *AlertMutation) FailuresIDs() (ids []int) {
+	for id := range m._Failures {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetFailures resets all changes to the "Failures" edge.
+func (m *AlertMutation) ResetFailures() {
+	m._Failures = nil
+	m.cleared_Failures = false
+	m.removed_Failures = nil
+}
+
+// AddFileIDs adds the "Files" edge to the File entity by ids.
+func (m *AlertMutation) AddFileIDs(ids ...int) {
+	if m._Files == nil {
+		m._Files = make(map[int]struct{})
+	}
+	for i := range ids {
+		m._Files[ids[i]] = struct{}{}
+	}
+}
+
+// ClearFiles clears the "Files" edge to the File entity.
+func (m *AlertMutation) ClearFiles() {
+	m.cleared_Files = true
+}
+
+// FilesCleared reports if the "Files" edge to the File entity was cleared.
+func (m *AlertMutation) FilesCleared() bool {
+	return m.cleared_Files
+}
+
+// RemoveFileIDs removes the "Files" edge to the File entity by IDs.
+func (m *AlertMutation) RemoveFileIDs(ids ...int) {
+	if m.removed_Files == nil {
+		m.removed_Files = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m._Files, ids[i])
+		m.removed_Files[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedFiles returns the removed IDs of the "Files" edge to the File entity.
+func (m *AlertMutation) RemovedFilesIDs() (ids []int) {
+	for id := range m.removed_Files {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// FilesIDs returns the "Files" edge IDs in the mutation.
+func (m *AlertMutation) FilesIDs() (ids []int) {
+	for id := range m._Files {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetFiles resets all changes to the "Files" edge.
+func (m *AlertMutation) ResetFiles() {
+	m._Files = nil
+	m.cleared_Files = false
+	m.removed_Files = nil
+}
+
 // Where appends a list predicates to the AlertMutation builder.
 func (m *AlertMutation) Where(ps ...predicate.Alert) {
 	m.predicates = append(m.predicates, ps...)
@@ -847,49 +1075,163 @@ func (m *AlertMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *AlertMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 4)
+	if m._Counters != nil {
+		edges = append(edges, alert.EdgeCounters)
+	}
+	if m._Stati != nil {
+		edges = append(edges, alert.EdgeStati)
+	}
+	if m._Failures != nil {
+		edges = append(edges, alert.EdgeFailures)
+	}
+	if m._Files != nil {
+		edges = append(edges, alert.EdgeFiles)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *AlertMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case alert.EdgeCounters:
+		ids := make([]ent.Value, 0, len(m._Counters))
+		for id := range m._Counters {
+			ids = append(ids, id)
+		}
+		return ids
+	case alert.EdgeStati:
+		ids := make([]ent.Value, 0, len(m._Stati))
+		for id := range m._Stati {
+			ids = append(ids, id)
+		}
+		return ids
+	case alert.EdgeFailures:
+		ids := make([]ent.Value, 0, len(m._Failures))
+		for id := range m._Failures {
+			ids = append(ids, id)
+		}
+		return ids
+	case alert.EdgeFiles:
+		ids := make([]ent.Value, 0, len(m._Files))
+		for id := range m._Files {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *AlertMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 4)
+	if m.removed_Counters != nil {
+		edges = append(edges, alert.EdgeCounters)
+	}
+	if m.removed_Stati != nil {
+		edges = append(edges, alert.EdgeStati)
+	}
+	if m.removed_Failures != nil {
+		edges = append(edges, alert.EdgeFailures)
+	}
+	if m.removed_Files != nil {
+		edges = append(edges, alert.EdgeFiles)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *AlertMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case alert.EdgeCounters:
+		ids := make([]ent.Value, 0, len(m.removed_Counters))
+		for id := range m.removed_Counters {
+			ids = append(ids, id)
+		}
+		return ids
+	case alert.EdgeStati:
+		ids := make([]ent.Value, 0, len(m.removed_Stati))
+		for id := range m.removed_Stati {
+			ids = append(ids, id)
+		}
+		return ids
+	case alert.EdgeFailures:
+		ids := make([]ent.Value, 0, len(m.removed_Failures))
+		for id := range m.removed_Failures {
+			ids = append(ids, id)
+		}
+		return ids
+	case alert.EdgeFiles:
+		ids := make([]ent.Value, 0, len(m.removed_Files))
+		for id := range m.removed_Files {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *AlertMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 4)
+	if m.cleared_Counters {
+		edges = append(edges, alert.EdgeCounters)
+	}
+	if m.cleared_Stati {
+		edges = append(edges, alert.EdgeStati)
+	}
+	if m.cleared_Failures {
+		edges = append(edges, alert.EdgeFailures)
+	}
+	if m.cleared_Files {
+		edges = append(edges, alert.EdgeFiles)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *AlertMutation) EdgeCleared(name string) bool {
+	switch name {
+	case alert.EdgeCounters:
+		return m.cleared_Counters
+	case alert.EdgeStati:
+		return m.cleared_Stati
+	case alert.EdgeFailures:
+		return m.cleared_Failures
+	case alert.EdgeFiles:
+		return m.cleared_Files
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *AlertMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Alert unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *AlertMutation) ResetEdge(name string) error {
+	switch name {
+	case alert.EdgeCounters:
+		m.ResetCounters()
+		return nil
+	case alert.EdgeStati:
+		m.ResetStati()
+		return nil
+	case alert.EdgeFailures:
+		m.ResetFailures()
+		return nil
+	case alert.EdgeFiles:
+		m.ResetFiles()
+		return nil
+	}
 	return fmt.Errorf("unknown Alert edge %s", name)
 }
 

@@ -25,6 +25,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "status"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
+	"alert_stati",
 	"incident_stati",
 }
 

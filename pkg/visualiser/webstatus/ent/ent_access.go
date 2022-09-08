@@ -10,6 +10,7 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/migrate"
 )
@@ -47,9 +48,18 @@ func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 
 	i := a.client.Incident.Create()
 
-	err := a.addSzMethods(ctx, i, msg.SzenarioEvtMsg)
-	if err != nil {
-		a.hcl.Warnf("Saving szenario part of incident: %v", err)
+	i.SetUUID(msg.ID)
+	if incID, err := uuid.Parse(msg.IncidentID); err == nil {
+		i.SetIncidentID(incID)
+	}
+	i.SetName(msg.Name)
+	i.SetTime(msg.Time)
+	i.SetUsername(msg.Username)
+	i.SetRegion(msg.Region)
+	i.SetProbeOS(msg.ProbeOS)
+	i.SetProbeHost(msg.ProbeHost)
+	if msg.Err() != nil {
+		i.SetError(msg.Err().Error())
 	}
 	i.SetStart(msg.Start)
 	i.SetEnd(msg.End)
@@ -77,27 +87,50 @@ func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 		a.hcl.Warnf("Getting files: %v", err)
 	}
 
-	err = i.Exec(ctx)
-	return err
+	return i.Exec(ctx)
 }
 
-func (a *Access) addSzMethods(ctx context.Context, s *ent.IncidentCreate, msg *msg.SzenarioEvtMsg) error {
-	var reterr error
-	s.SetUUID(msg.ID)
+func (a *Access) SaveAlert(ctx context.Context, msg *msg.AlertMsg) error {
+
+	i := a.client.Alert.Create()
+
+	i.SetUUID(msg.ID)
 	if incID, err := uuid.Parse(msg.IncidentID); err == nil {
-		s.SetIncidentID(incID)
+		i.SetIncidentID(incID)
 	}
-	s.SetName(msg.Name)
-	s.SetTime(msg.Time)
-	s.SetUsername(msg.Username)
-	s.SetRegion(msg.Region)
-	s.SetProbeOS(msg.ProbeOS)
-	s.SetProbeHost(msg.ProbeHost)
+	i.SetName(msg.Name)
+	i.SetTime(msg.Time)
+	i.SetUsername(msg.Username)
+	i.SetRegion(msg.Region)
+	i.SetProbeOS(msg.ProbeOS)
+	i.SetProbeHost(msg.ProbeHost)
 	if msg.Err() != nil {
-		s.SetError(msg.Err().Error())
+		i.SetError(msg.Err().Error())
+	}
+	i.SetLevel(int(status.Unknown.FromString(msg.Level)))
+
+	if errs, err := a.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddFailures(errs...)
+	} else {
+		a.hcl.Warnf("Getting errors: %v", err)
+	}
+	if stati, err := a.getStati(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddStati(stati...)
+	} else {
+		a.hcl.Warnf("Getting stari: %v", err)
+	}
+	if cntrs, err := a.getCounter(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddCounters(cntrs...)
+	} else {
+		a.hcl.Warnf("Getting counters: %v", err)
+	}
+	if fils, err := a.getFiles(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddFiles(fils...)
+	} else {
+		a.hcl.Warnf("Getting files: %v", err)
 	}
 
-	return reterr
+	return i.Exec(ctx)
 }
 
 func (a *Access) getErrors(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]*ent.Failure, error) {

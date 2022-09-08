@@ -23,6 +23,58 @@ func (a *AlertQuery) CollectFields(ctx context.Context, satisfies ...string) (*A
 
 func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
+	for _, field := range graphql.CollectFields(op, field.Selections, satisfies) {
+		switch field.Name {
+		case "counters", "Counters":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = &CounterQuery{config: a.config}
+			)
+			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+				return err
+			}
+			a.WithNamedCounters(alias, func(wq *CounterQuery) {
+				*wq = *query
+			})
+		case "stati", "Stati":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = &StatusQuery{config: a.config}
+			)
+			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+				return err
+			}
+			a.WithNamedStati(alias, func(wq *StatusQuery) {
+				*wq = *query
+			})
+		case "failures", "Failures":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = &FailureQuery{config: a.config}
+			)
+			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+				return err
+			}
+			a.WithNamedFailures(alias, func(wq *FailureQuery) {
+				*wq = *query
+			})
+		case "files", "Files":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = &FileQuery{config: a.config}
+			)
+			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+				return err
+			}
+			a.WithNamedFiles(alias, func(wq *FileQuery) {
+				*wq = *query
+			})
+		}
+	}
 	return nil
 }
 

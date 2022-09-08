@@ -19,6 +19,7 @@ type Counter struct {
 	Name string `json:"Name,omitempty"`
 	// Value holds the value of the "Value" field.
 	Value             string `json:"Value,omitempty"`
+	alert_counters    *int
 	incident_counters *int
 }
 
@@ -31,7 +32,9 @@ func (*Counter) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case counter.FieldName, counter.FieldValue:
 			values[i] = new(sql.NullString)
-		case counter.ForeignKeys[0]: // incident_counters
+		case counter.ForeignKeys[0]: // alert_counters
+			values[i] = new(sql.NullInt64)
+		case counter.ForeignKeys[1]: // incident_counters
 			values[i] = new(sql.NullInt64)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Counter", columns[i])
@@ -67,6 +70,13 @@ func (c *Counter) assignValues(columns []string, values []any) error {
 				c.Value = value.String
 			}
 		case counter.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field alert_counters", value)
+			} else if value.Valid {
+				c.alert_counters = new(int)
+				*c.alert_counters = int(value.Int64)
+			}
+		case counter.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field incident_counters", value)
 			} else if value.Valid {

@@ -4,9 +4,15 @@ type Query {
     Incidents(
         Szenario: String = ""
         Timestamp: Time
-        Start: Time
-        End: Time
+        After: Time
+        Before: Time
         ): [Incident!]
+
+    Alerts(
+        Szenario: String = ""
+        After: Time
+        Before: Time
+        ): [Alert!]
 }
 
 type Incident {
@@ -15,6 +21,24 @@ type Incident {
     Start: Time
     End: Time
     State: String
+    UUID: String
+    IncidentID: String
+    Name: String
+    Username: String
+    Region: String
+    ProbeOS: String
+    ProbeHost: String
+    Error: String
+    Counters: [Counter!]
+    Stati: [Status!]
+    Failures: [Failure!]
+    Files: [File!]
+}
+
+
+type Alert {
+    id: ID!
+    Level: String
     UUID: String
     IncidentID: String
     Name: String
