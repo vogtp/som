@@ -88,7 +88,7 @@ func (a *Access) GetAlert(ctx context.Context, id string) ([]AlertModel, error) 
 	return result, err
 }
 
-// GetAlertBySzenario returns alerts list by szenario name
+// GetAlertBy returns alerts list by szenario name
 func (a *Access) GetAlertBy(ctx context.Context, query string, sz string) ([]AlertModel, error) {
 	db := a.getDb()
 	result := make([]AlertModel, 0)

@@ -13,6 +13,7 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent"
 )
 
 var (
@@ -119,6 +120,11 @@ func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 func (s *WebStatus) DB() *db.Access {
 	if s.db == nil {
 		s.db = &db.Access{}
+		entAccess, err := ent.New()
+		if err != nil {
+			panic(err)
+		}
+		s.db.EntAccess = entAccess
 	}
 
 	return s.db

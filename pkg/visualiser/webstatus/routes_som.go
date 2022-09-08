@@ -4,7 +4,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/graphql"
 )
 
 func (s *WebStatus) routes() {
@@ -23,6 +26,11 @@ func (s *WebStatus) routes() {
 	w.HandleFunc(AlertDetailPath, s.handleAlertDetail)
 	w.HandleFunc(incidentListPath, s.handleIncidentList)
 	w.HandleFunc(IncidentDetailPath, s.handleIncidentDetail)
+
+	w.Handle("/gql", playground.Handler("SQM", w.BasePath()+"/api"))
+
+	srv := handler.NewDefaultServer(graphql.NewSchema(s.DB().EntAccess.Client()))
+	w.Handle("/api", srv)
 
 	// legacy
 	// w.HandleFunc("/chart/", s.handleChart)

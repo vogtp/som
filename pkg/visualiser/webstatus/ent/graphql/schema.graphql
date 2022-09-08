@@ -1,0 +1,49 @@
+scalar Time
+
+type Query {
+    Incidents(
+        Szenario: String = ""
+        Timestamp: Time
+        Start: Time
+        End: Time
+        ): [Incident!]
+}
+
+type Incident {
+    id: ID!
+    Level: String
+    Start: Time
+    End: Time
+    State: String
+    UUID: String
+    IncidentID: String
+    Name: String
+    Username: String
+    Region: String
+    ProbeOS: String
+    ProbeHost: String
+    Error: String
+    Counters: [Counter!]
+    Stati: [Status!]
+    Failures: [Failure!]
+}
+
+type Counter {
+    id: ID!
+    Name: String
+    Value: String
+}
+
+type Status {
+    id: ID!
+    Name: String
+    Value: String
+
+}
+
+type Failure {
+    id: ID!
+    Error: String
+    Idx: Int
+
+}
