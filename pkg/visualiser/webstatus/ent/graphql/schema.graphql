@@ -17,35 +17,38 @@ type Query {
 
 type Incident {
     id: ID!
-    Level: String
-    Start: Time
+    Level: String!
+    Start: Time!
     End: Time
-    State: String
-    UUID: String
-    IncidentID: String
-    Name: String
-    Username: String
-    Region: String
-    ProbeOS: String
-    ProbeHost: String
+    State: String!
+    UUID: String!
+    IncidentID: String!
+    Name: String!
+    Username: String!
+    Region: String!
+    ProbeOS: String!
+    ProbeHost: String!
     Error: String
     Counters: [Counter!]
     Stati: [Status!]
     Failures: [Failure!]
     Files: [File!]
+    Alerts: [Alert!]
 }
 
 
 type Alert {
     id: ID!
-    Level: String
-    UUID: String
-    IncidentID: String
-    Name: String
-    Username: String
-    Region: String
-    ProbeOS: String
-    ProbeHost: String
+    Level: String!
+    UUID: String!
+    Time: Time!
+    IncidentID: String!
+    IncidentEntries: [Incident!]
+    Name: String!
+    Username: String!
+    Region: String!
+    ProbeOS: String!
+    ProbeHost: String!
     Error: String
     Counters: [Counter!]
     Stati: [Status!]
@@ -55,29 +58,29 @@ type Alert {
 
 type Counter {
     id: ID!
-    Name: String
-    Value: String
+    Name: String!
+    Value: String!
 }
 
 type Status {
     id: ID!
-    Name: String
-    Value: String
+    Name: String!
+    Value: String!
 
 }
 
 type Failure {
     id: ID!
-    Error: String
-    Idx: Int
+    Error: String!
+    Idx: Int!
 }
 
 type File {
     id: ID!
-    UUID: String
-    Name: String
-    Type: String
-    Ext: String
-    Size: Int
-    Payload: String
+    UUID: String!
+    Name: String!
+    Type: String!
+    Ext: String!
+    Size: Int!
+    Payload: String!
 }

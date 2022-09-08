@@ -49,20 +49,22 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Alert struct {
-		Counters   func(childComplexity int) int
-		Error      func(childComplexity int) int
-		Failures   func(childComplexity int) int
-		Files      func(childComplexity int) int
-		ID         func(childComplexity int) int
-		IncidentID func(childComplexity int) int
-		Level      func(childComplexity int) int
-		Name       func(childComplexity int) int
-		ProbeHost  func(childComplexity int) int
-		ProbeOS    func(childComplexity int) int
-		Region     func(childComplexity int) int
-		Stati      func(childComplexity int) int
-		UUID       func(childComplexity int) int
-		Username   func(childComplexity int) int
+		Counters        func(childComplexity int) int
+		Error           func(childComplexity int) int
+		Failures        func(childComplexity int) int
+		Files           func(childComplexity int) int
+		ID              func(childComplexity int) int
+		IncidentEntries func(childComplexity int) int
+		IncidentID      func(childComplexity int) int
+		Level           func(childComplexity int) int
+		Name            func(childComplexity int) int
+		ProbeHost       func(childComplexity int) int
+		ProbeOS         func(childComplexity int) int
+		Region          func(childComplexity int) int
+		Stati           func(childComplexity int) int
+		Time            func(childComplexity int) int
+		UUID            func(childComplexity int) int
+		Username        func(childComplexity int) int
 	}
 
 	Counter struct {
@@ -88,6 +90,7 @@ type ComplexityRoot struct {
 	}
 
 	Incident struct {
+		Alerts     func(childComplexity int) int
 		Counters   func(childComplexity int) int
 		End        func(childComplexity int) int
 		Error      func(childComplexity int) int
@@ -120,21 +123,25 @@ type ComplexityRoot struct {
 }
 
 type AlertResolver interface {
-	Level(ctx context.Context, obj *ent.Alert) (*string, error)
-	UUID(ctx context.Context, obj *ent.Alert) (*string, error)
-	IncidentID(ctx context.Context, obj *ent.Alert) (*string, error)
+	Level(ctx context.Context, obj *ent.Alert) (string, error)
+	UUID(ctx context.Context, obj *ent.Alert) (string, error)
+
+	IncidentID(ctx context.Context, obj *ent.Alert) (string, error)
+	IncidentEntries(ctx context.Context, obj *ent.Alert) ([]*ent.Incident, error)
 }
 type FileResolver interface {
-	UUID(ctx context.Context, obj *ent.File) (*string, error)
+	UUID(ctx context.Context, obj *ent.File) (string, error)
 
-	Payload(ctx context.Context, obj *ent.File) (*string, error)
+	Payload(ctx context.Context, obj *ent.File) (string, error)
 }
 type IncidentResolver interface {
-	Level(ctx context.Context, obj *ent.Incident) (*string, error)
+	Level(ctx context.Context, obj *ent.Incident) (string, error)
 
-	State(ctx context.Context, obj *ent.Incident) (*string, error)
-	UUID(ctx context.Context, obj *ent.Incident) (*string, error)
-	IncidentID(ctx context.Context, obj *ent.Incident) (*string, error)
+	State(ctx context.Context, obj *ent.Incident) (string, error)
+	UUID(ctx context.Context, obj *ent.Incident) (string, error)
+	IncidentID(ctx context.Context, obj *ent.Incident) (string, error)
+
+	Alerts(ctx context.Context, obj *ent.Incident) ([]*ent.Alert, error)
 }
 type QueryResolver interface {
 	Incidents(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*ent.Incident, error)
@@ -191,6 +198,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Alert.ID(childComplexity), true
 
+	case "Alert.IncidentEntries":
+		if e.complexity.Alert.IncidentEntries == nil {
+			break
+		}
+
+		return e.complexity.Alert.IncidentEntries(childComplexity), true
+
 	case "Alert.IncidentID":
 		if e.complexity.Alert.IncidentID == nil {
 			break
@@ -239,6 +253,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Alert.Stati(childComplexity), true
+
+	case "Alert.Time":
+		if e.complexity.Alert.Time == nil {
+			break
+		}
+
+		return e.complexity.Alert.Time(childComplexity), true
 
 	case "Alert.UUID":
 		if e.complexity.Alert.UUID == nil {
@@ -344,6 +365,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.File.UUID(childComplexity), true
+
+	case "Incident.Alerts":
+		if e.complexity.Incident.Alerts == nil {
+			break
+		}
+
+		return e.complexity.Incident.Alerts(childComplexity), true
 
 	case "Incident.Counters":
 		if e.complexity.Incident.Counters == nil {
@@ -773,11 +801,14 @@ func (ec *executionContext) _Alert_Level(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_Level(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -814,11 +845,14 @@ func (ec *executionContext) _Alert_UUID(ctx context.Context, field graphql.Colle
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_UUID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -829,6 +863,50 @@ func (ec *executionContext) fieldContext_Alert_UUID(ctx context.Context, field g
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Alert_Time(ctx context.Context, field graphql.CollectedField, obj *ent.Alert) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Alert_Time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Time, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Alert_Time(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Alert",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -855,11 +933,14 @@ func (ec *executionContext) _Alert_IncidentID(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_IncidentID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -870,6 +951,85 @@ func (ec *executionContext) fieldContext_Alert_IncidentID(ctx context.Context, f
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Alert_IncidentEntries(ctx context.Context, field graphql.CollectedField, obj *ent.Alert) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Alert_IncidentEntries(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Alert().IncidentEntries(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.Incident)
+	fc.Result = res
+	return ec.marshalOIncident2ᚕᚖgithubᚗcomᚋvogtpᚋsomᚋpkgᚋvisualiserᚋwebstatusᚋentᚋentᚐIncidentᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Alert_IncidentEntries(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Alert",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Incident_id(ctx, field)
+			case "Level":
+				return ec.fieldContext_Incident_Level(ctx, field)
+			case "Start":
+				return ec.fieldContext_Incident_Start(ctx, field)
+			case "End":
+				return ec.fieldContext_Incident_End(ctx, field)
+			case "State":
+				return ec.fieldContext_Incident_State(ctx, field)
+			case "UUID":
+				return ec.fieldContext_Incident_UUID(ctx, field)
+			case "IncidentID":
+				return ec.fieldContext_Incident_IncidentID(ctx, field)
+			case "Name":
+				return ec.fieldContext_Incident_Name(ctx, field)
+			case "Username":
+				return ec.fieldContext_Incident_Username(ctx, field)
+			case "Region":
+				return ec.fieldContext_Incident_Region(ctx, field)
+			case "ProbeOS":
+				return ec.fieldContext_Incident_ProbeOS(ctx, field)
+			case "ProbeHost":
+				return ec.fieldContext_Incident_ProbeHost(ctx, field)
+			case "Error":
+				return ec.fieldContext_Incident_Error(ctx, field)
+			case "Counters":
+				return ec.fieldContext_Incident_Counters(ctx, field)
+			case "Stati":
+				return ec.fieldContext_Incident_Stati(ctx, field)
+			case "Failures":
+				return ec.fieldContext_Incident_Failures(ctx, field)
+			case "Files":
+				return ec.fieldContext_Incident_Files(ctx, field)
+			case "Alerts":
+				return ec.fieldContext_Incident_Alerts(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Incident", field.Name)
 		},
 	}
 	return fc, nil
@@ -896,11 +1056,14 @@ func (ec *executionContext) _Alert_Name(ctx context.Context, field graphql.Colle
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -937,11 +1100,14 @@ func (ec *executionContext) _Alert_Username(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_Username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -978,11 +1144,14 @@ func (ec *executionContext) _Alert_Region(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_Region(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1019,11 +1188,14 @@ func (ec *executionContext) _Alert_ProbeOS(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_ProbeOS(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1060,11 +1232,14 @@ func (ec *executionContext) _Alert_ProbeHost(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Alert_ProbeHost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1390,11 +1565,14 @@ func (ec *executionContext) _Counter_Name(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Counter_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1431,11 +1609,14 @@ func (ec *executionContext) _Counter_Value(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Counter_Value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1516,11 +1697,14 @@ func (ec *executionContext) _Failure_Error(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Failure_Error(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1557,11 +1741,14 @@ func (ec *executionContext) _Failure_Idx(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalOInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Failure_Idx(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1642,11 +1829,14 @@ func (ec *executionContext) _File_UUID(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_UUID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1683,11 +1873,14 @@ func (ec *executionContext) _File_Name(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1724,11 +1917,14 @@ func (ec *executionContext) _File_Type(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_Type(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1765,11 +1961,14 @@ func (ec *executionContext) _File_Ext(ctx context.Context, field graphql.Collect
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_Ext(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1806,11 +2005,14 @@ func (ec *executionContext) _File_Size(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalOInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_Size(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1847,11 +2049,14 @@ func (ec *executionContext) _File_Payload(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_File_Payload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1932,11 +2137,14 @@ func (ec *executionContext) _Incident_Level(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_Level(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1973,11 +2181,14 @@ func (ec *executionContext) _Incident_Start(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalOTime2timeᚐTime(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_Start(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2055,11 +2266,14 @@ func (ec *executionContext) _Incident_State(ctx context.Context, field graphql.C
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_State(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2096,11 +2310,14 @@ func (ec *executionContext) _Incident_UUID(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_UUID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2137,11 +2354,14 @@ func (ec *executionContext) _Incident_IncidentID(ctx context.Context, field grap
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_IncidentID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2178,11 +2398,14 @@ func (ec *executionContext) _Incident_Name(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2219,11 +2442,14 @@ func (ec *executionContext) _Incident_Username(ctx context.Context, field graphq
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_Username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2260,11 +2486,14 @@ func (ec *executionContext) _Incident_Region(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_Region(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2301,11 +2530,14 @@ func (ec *executionContext) _Incident_ProbeOS(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_ProbeOS(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2342,11 +2574,14 @@ func (ec *executionContext) _Incident_ProbeHost(ctx context.Context, field graph
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Incident_ProbeHost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2607,6 +2842,81 @@ func (ec *executionContext) fieldContext_Incident_Files(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _Incident_Alerts(ctx context.Context, field graphql.CollectedField, obj *ent.Incident) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Incident_Alerts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Incident().Alerts(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*ent.Alert)
+	fc.Result = res
+	return ec.marshalOAlert2ᚕᚖgithubᚗcomᚋvogtpᚋsomᚋpkgᚋvisualiserᚋwebstatusᚋentᚋentᚐAlertᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Incident_Alerts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Incident",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Alert_id(ctx, field)
+			case "Level":
+				return ec.fieldContext_Alert_Level(ctx, field)
+			case "UUID":
+				return ec.fieldContext_Alert_UUID(ctx, field)
+			case "Time":
+				return ec.fieldContext_Alert_Time(ctx, field)
+			case "IncidentID":
+				return ec.fieldContext_Alert_IncidentID(ctx, field)
+			case "IncidentEntries":
+				return ec.fieldContext_Alert_IncidentEntries(ctx, field)
+			case "Name":
+				return ec.fieldContext_Alert_Name(ctx, field)
+			case "Username":
+				return ec.fieldContext_Alert_Username(ctx, field)
+			case "Region":
+				return ec.fieldContext_Alert_Region(ctx, field)
+			case "ProbeOS":
+				return ec.fieldContext_Alert_ProbeOS(ctx, field)
+			case "ProbeHost":
+				return ec.fieldContext_Alert_ProbeHost(ctx, field)
+			case "Error":
+				return ec.fieldContext_Alert_Error(ctx, field)
+			case "Counters":
+				return ec.fieldContext_Alert_Counters(ctx, field)
+			case "Stati":
+				return ec.fieldContext_Alert_Stati(ctx, field)
+			case "Failures":
+				return ec.fieldContext_Alert_Failures(ctx, field)
+			case "Files":
+				return ec.fieldContext_Alert_Files(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Alert", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_Incidents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_Incidents(ctx, field)
 	if err != nil {
@@ -2677,6 +2987,8 @@ func (ec *executionContext) fieldContext_Query_Incidents(ctx context.Context, fi
 				return ec.fieldContext_Incident_Failures(ctx, field)
 			case "Files":
 				return ec.fieldContext_Incident_Files(ctx, field)
+			case "Alerts":
+				return ec.fieldContext_Incident_Alerts(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Incident", field.Name)
 		},
@@ -2737,8 +3049,12 @@ func (ec *executionContext) fieldContext_Query_Alerts(ctx context.Context, field
 				return ec.fieldContext_Alert_Level(ctx, field)
 			case "UUID":
 				return ec.fieldContext_Alert_UUID(ctx, field)
+			case "Time":
+				return ec.fieldContext_Alert_Time(ctx, field)
 			case "IncidentID":
 				return ec.fieldContext_Alert_IncidentID(ctx, field)
+			case "IncidentEntries":
+				return ec.fieldContext_Alert_IncidentEntries(ctx, field)
 			case "Name":
 				return ec.fieldContext_Alert_Name(ctx, field)
 			case "Username":
@@ -2971,11 +3287,14 @@ func (ec *executionContext) _Status_Name(ctx context.Context, field graphql.Coll
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Status_Name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3012,11 +3331,14 @@ func (ec *executionContext) _Status_Value(ctx context.Context, field graphql.Col
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Status_Value(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4840,6 +5162,9 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Alert_Level(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -4857,6 +5182,9 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Alert_UUID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -4864,6 +5192,13 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 				return innerFunc(ctx)
 
 			})
+		case "Time":
+
+			out.Values[i] = ec._Alert_Time(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "IncidentID":
 			field := field
 
@@ -4874,6 +5209,26 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Alert_IncidentID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "IncidentEntries":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Alert_IncidentEntries(ctx, field, obj)
 				return res
 			}
 
@@ -4885,22 +5240,37 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 
 			out.Values[i] = ec._Alert_Name(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Username":
 
 			out.Values[i] = ec._Alert_Username(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Region":
 
 			out.Values[i] = ec._Alert_Region(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "ProbeOS":
 
 			out.Values[i] = ec._Alert_ProbeOS(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "ProbeHost":
 
 			out.Values[i] = ec._Alert_ProbeHost(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Error":
 
 			out.Values[i] = ec._Alert_Error(ctx, field, obj)
@@ -5005,10 +5375,16 @@ func (ec *executionContext) _Counter(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Counter_Name(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "Value":
 
 			out.Values[i] = ec._Counter_Value(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5041,10 +5417,16 @@ func (ec *executionContext) _Failure(ctx context.Context, sel ast.SelectionSet, 
 
 			out.Values[i] = ec._Failure_Error(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "Idx":
 
 			out.Values[i] = ec._Failure_Idx(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5083,6 +5465,9 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._File_UUID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5094,18 +5479,30 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Values[i] = ec._File_Name(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Type":
 
 			out.Values[i] = ec._File_Type(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Ext":
 
 			out.Values[i] = ec._File_Ext(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Size":
 
 			out.Values[i] = ec._File_Size(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Payload":
 			field := field
 
@@ -5116,6 +5513,9 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 					}
 				}()
 				res = ec._File_Payload(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5161,6 +5561,9 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Incident_Level(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5172,6 +5575,9 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 
 			out.Values[i] = ec._Incident_Start(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "End":
 
 			out.Values[i] = ec._Incident_End(ctx, field, obj)
@@ -5186,6 +5592,9 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Incident_State(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5203,6 +5612,9 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Incident_UUID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5220,6 +5632,9 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Incident_IncidentID(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -5231,22 +5646,37 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 
 			out.Values[i] = ec._Incident_Name(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Username":
 
 			out.Values[i] = ec._Incident_Username(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Region":
 
 			out.Values[i] = ec._Incident_Region(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "ProbeOS":
 
 			out.Values[i] = ec._Incident_ProbeOS(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "ProbeHost":
 
 			out.Values[i] = ec._Incident_ProbeHost(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
 		case "Error":
 
 			out.Values[i] = ec._Incident_Error(ctx, field, obj)
@@ -5312,6 +5742,23 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 					}
 				}()
 				res = ec._Incident_Files(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "Alerts":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Incident_Alerts(ctx, field, obj)
 				return res
 			}
 
@@ -5433,10 +5880,16 @@ func (ec *executionContext) _Status(ctx context.Context, sel ast.SelectionSet, o
 
 			out.Values[i] = ec._Status_Name(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "Value":
 
 			out.Values[i] = ec._Status_Value(ctx, field, obj)
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5846,6 +6299,21 @@ func (ec *executionContext) marshalNIncident2ᚖgithubᚗcomᚋvogtpᚋsomᚋpkg
 	return ec._Incident(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNStatus2ᚖgithubᚗcomᚋvogtpᚋsomᚋpkgᚋvisualiserᚋwebstatusᚋentᚋentᚐStatus(ctx context.Context, sel ast.SelectionSet, v *ent.Status) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5863,6 +6331,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -6383,16 +6866,6 @@ func (ec *executionContext) marshalOIncident2ᚕᚖgithubᚗcomᚋvogtpᚋsomᚋ
 	}
 
 	return ret
-}
-
-func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
-	return res
 }
 
 func (ec *executionContext) marshalOStatus2ᚕᚖgithubᚗcomᚋvogtpᚋsomᚋpkgᚋvisualiserᚋwebstatusᚋentᚋentᚐStatusᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.Status) graphql.Marshaler {

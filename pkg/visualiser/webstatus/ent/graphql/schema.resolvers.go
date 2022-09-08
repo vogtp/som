@@ -5,66 +5,78 @@ package graphql
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 )
 
 // Level is the resolver for the Level field.
-func (r *alertResolver) Level(ctx context.Context, obj *ent.Alert) (*string, error) {
-	s := fmt.Sprintf("%v", obj.Level)
-	return &s, nil
+func (r *alertResolver) Level(ctx context.Context, obj *ent.Alert) (string, error) {
+	return fmt.Sprintf("%v", obj.Level), nil
 }
 
 // UUID is the resolver for the UUID field.
-func (r *alertResolver) UUID(ctx context.Context, obj *ent.Alert) (*string, error) {
-	s := obj.UUID.String()
-	return &s, nil
+func (r *alertResolver) UUID(ctx context.Context, obj *ent.Alert) (string, error) {
+	return obj.UUID.String(), nil
 }
 
 // IncidentID is the resolver for the IncidentID field.
-func (r *alertResolver) IncidentID(ctx context.Context, obj *ent.Alert) (*string, error) {
-	s := obj.IncidentID.String()
-	return &s, nil
+func (r *alertResolver) IncidentID(ctx context.Context, obj *ent.Alert) (string, error) {
+	return obj.IncidentID.String(), nil
+}
+
+// IncidentEntries is the resolver for the IncidentEntries field.
+func (r *alertResolver) IncidentEntries(ctx context.Context, obj *ent.Alert) ([]*ent.Incident, error) {
+	return r.client.Incident.Query().Where(incident.IncidentID(obj.IncidentID)).All(ctx)
 }
 
 // UUID is the resolver for the UUID field.
-func (r *fileResolver) UUID(ctx context.Context, obj *ent.File) (*string, error) {
-	s := obj.UUID.String()
-	return &s, nil
+func (r *fileResolver) UUID(ctx context.Context, obj *ent.File) (string, error) {
+	return obj.UUID.String(), nil
 }
 
 // Payload is the resolver for the Payload field.
-func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (*string, error) {
+func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (string, error) {
 	s := string(obj.Payload)
-	return &s, nil
+	// FIXME encode b64
+	return s, nil
 }
 
 // Level is the resolver for the Level field.
-func (r *incidentResolver) Level(ctx context.Context, obj *ent.Incident) (*string, error) {
-	s := fmt.Sprintf("%v", obj.Level)
-	return &s, nil
+func (r *incidentResolver) Level(ctx context.Context, obj *ent.Incident) (string, error) {
+	return fmt.Sprintf("%v", obj.Level), nil
 }
 
 // State is the resolver for the State field.
-func (r *incidentResolver) State(ctx context.Context, obj *ent.Incident) (*string, error) {
-	panic(fmt.Errorf("not implemented: State - State"))
+func (r *incidentResolver) State(ctx context.Context, obj *ent.Incident) (string, error) {
+	s := status.New()
+	err := json.Unmarshal(obj.State, &s)
+	if err != nil {
+
+		hcl.Warnf("Cannot unmarsh state of incident: %v", err)
+	}
+	return s.String(), nil
 }
 
 // UUID is the resolver for the UUID field.
-func (r *incidentResolver) UUID(ctx context.Context, obj *ent.Incident) (*string, error) {
-	s := (obj.UUID.String())
-	return &s, nil
+func (r *incidentResolver) UUID(ctx context.Context, obj *ent.Incident) (string, error) {
+	return obj.UUID.String(), nil
 }
 
 // IncidentID is the resolver for the IncidentID field.
-func (r *incidentResolver) IncidentID(ctx context.Context, obj *ent.Incident) (*string, error) {
-	s := obj.IncidentID.String()
-	return &s, nil
+func (r *incidentResolver) IncidentID(ctx context.Context, obj *ent.Incident) (string, error) {
+	return obj.IncidentID.String(), nil
+}
+
+// Alerts is the resolver for the Alerts field.
+func (r *incidentResolver) Alerts(ctx context.Context, obj *ent.Incident) ([]*ent.Alert, error) {
+	return r.client.Alert.Query().Where(alert.IncidentIDEQ(obj.IncidentID)).All(ctx)
 }
 
 // Incidents is the resolver for the Incidents field.
