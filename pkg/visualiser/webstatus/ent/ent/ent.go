@@ -13,6 +13,7 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
 )
@@ -38,6 +39,7 @@ func columnChecker(table string) func(string) error {
 		alert.Table:    alert.ValidColumn,
 		counter.Table:  counter.ValidColumn,
 		failure.Table:  failure.ValidColumn,
+		file.Table:     file.ValidColumn,
 		incident.Table: incident.ValidColumn,
 		status.Table:   status.ValidColumn,
 	}

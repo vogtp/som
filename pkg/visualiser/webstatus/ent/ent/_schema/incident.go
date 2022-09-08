@@ -14,7 +14,7 @@ type Incident struct {
 // Fields of the Incident.
 func (Incident) Fields() []ent.Field {
 	return append([]ent.Field{
-		field.Int("Level").Optional(), // FIXME should not be optional
+		field.Int("Level"),
 		field.Time("Start"),
 		field.Time("End"),
 		field.Bytes("State"),

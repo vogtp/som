@@ -13,6 +13,18 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 )
 
+// UUID is the resolver for the UUID field.
+func (r *fileResolver) UUID(ctx context.Context, obj *ent.File) (*string, error) {
+	s := obj.UUID.String()
+	return &s, nil
+}
+
+// Payload is the resolver for the Payload field.
+func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (*string, error) {
+	s := string(obj.Payload)
+	return &s, nil
+}
+
 // Level is the resolver for the Level field.
 func (r *incidentResolver) Level(ctx context.Context, obj *ent.Incident) (*string, error) {
 	s := fmt.Sprintf("%v", obj.Level)
@@ -57,11 +69,15 @@ func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timesta
 	return q.All(ctx)
 }
 
+// File returns FileResolver implementation.
+func (r *Resolver) File() FileResolver { return &fileResolver{r} }
+
 // Incident returns IncidentResolver implementation.
 func (r *Resolver) Incident() IncidentResolver { return &incidentResolver{r} }
 
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
+type fileResolver struct{ *Resolver }
 type incidentResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

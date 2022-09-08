@@ -139,6 +139,49 @@ func newFailurePaginateArgs(rv map[string]interface{}) *failurePaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
+func (f *FileQuery) CollectFields(ctx context.Context, satisfies ...string) (*FileQuery, error) {
+	fc := graphql.GetFieldContext(ctx)
+	if fc == nil {
+		return f, nil
+	}
+	if err := f.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+		return nil, err
+	}
+	return f, nil
+}
+
+func (f *FileQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
+	path = append([]string(nil), path...)
+	return nil
+}
+
+type filePaginateArgs struct {
+	first, last   *int
+	after, before *Cursor
+	opts          []FilePaginateOption
+}
+
+func newFilePaginateArgs(rv map[string]interface{}) *filePaginateArgs {
+	args := &filePaginateArgs{}
+	if rv == nil {
+		return args
+	}
+	if v := rv[firstField]; v != nil {
+		args.first = v.(*int)
+	}
+	if v := rv[lastField]; v != nil {
+		args.last = v.(*int)
+	}
+	if v := rv[afterField]; v != nil {
+		args.after = v.(*Cursor)
+	}
+	if v := rv[beforeField]; v != nil {
+		args.before = v.(*Cursor)
+	}
+	return args
+}
+
+// CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
 func (i *IncidentQuery) CollectFields(ctx context.Context, satisfies ...string) (*IncidentQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
@@ -188,6 +231,18 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 				return err
 			}
 			i.WithNamedFailures(alias, func(wq *FailureQuery) {
+				*wq = *query
+			})
+		case "files", "Files":
+			var (
+				alias = field.Alias
+				path  = append(path, alias)
+				query = &FileQuery{config: i.config}
+			)
+			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+				return err
+			}
+			i.WithNamedFiles(alias, func(wq *FileQuery) {
 				*wq = *query
 			})
 		}

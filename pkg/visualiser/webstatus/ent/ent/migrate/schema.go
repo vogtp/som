@@ -70,10 +70,35 @@ var (
 			},
 		},
 	}
+	// FilesColumns holds the columns for the "files" table.
+	FilesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID},
+		{Name: "name", Type: field.TypeString},
+		{Name: "type", Type: field.TypeString},
+		{Name: "ext", Type: field.TypeString},
+		{Name: "size", Type: field.TypeInt},
+		{Name: "payload", Type: field.TypeBytes},
+		{Name: "incident_files", Type: field.TypeInt, Nullable: true},
+	}
+	// FilesTable holds the schema information for the "files" table.
+	FilesTable = &schema.Table{
+		Name:       "files",
+		Columns:    FilesColumns,
+		PrimaryKey: []*schema.Column{FilesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "files_incidents_Files",
+				Columns:    []*schema.Column{FilesColumns[7]},
+				RefColumns: []*schema.Column{IncidentsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// IncidentsColumns holds the columns for the "incidents" table.
 	IncidentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "level", Type: field.TypeInt, Nullable: true},
+		{Name: "level", Type: field.TypeInt},
 		{Name: "start", Type: field.TypeTime},
 		{Name: "end", Type: field.TypeTime},
 		{Name: "state", Type: field.TypeBytes},
@@ -104,7 +129,7 @@ var (
 				Columns: []*schema.Column{IncidentsColumns[3]},
 			},
 			{
-				Name:    "uuid",
+				Name:    "incident_uuid",
 				Unique:  true,
 				Columns: []*schema.Column{IncidentsColumns[5]},
 			},
@@ -146,6 +171,7 @@ var (
 		AlertsTable,
 		CountersTable,
 		FailuresTable,
+		FilesTable,
 		IncidentsTable,
 		StatusTable,
 	}
@@ -154,5 +180,6 @@ var (
 func init() {
 	CountersTable.ForeignKeys[0].RefTable = IncidentsTable
 	FailuresTable.ForeignKeys[0].RefTable = IncidentsTable
+	FilesTable.ForeignKeys[0].RefTable = IncidentsTable
 	StatusTable.ForeignKeys[0].RefTable = IncidentsTable
 }

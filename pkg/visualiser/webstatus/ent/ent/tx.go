@@ -18,6 +18,8 @@ type Tx struct {
 	Counter *CounterClient
 	// Failure is the client for interacting with the Failure builders.
 	Failure *FailureClient
+	// File is the client for interacting with the File builders.
+	File *FileClient
 	// Incident is the client for interacting with the Incident builders.
 	Incident *IncidentClient
 	// Status is the client for interacting with the Status builders.
@@ -160,6 +162,7 @@ func (tx *Tx) init() {
 	tx.Alert = NewAlertClient(tx.config)
 	tx.Counter = NewCounterClient(tx.config)
 	tx.Failure = NewFailureClient(tx.config)
+	tx.File = NewFileClient(tx.config)
 	tx.Incident = NewIncidentClient(tx.config)
 	tx.Status = NewStatusClient(tx.config)
 }

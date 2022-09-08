@@ -237,20 +237,6 @@ func LevelLTE(v int) predicate.Incident {
 	})
 }
 
-// LevelIsNil applies the IsNil predicate on the "Level" field.
-func LevelIsNil() predicate.Incident {
-	return predicate.Incident(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldLevel)))
-	})
-}
-
-// LevelNotNil applies the NotNil predicate on the "Level" field.
-func LevelNotNil() predicate.Incident {
-	return predicate.Incident(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldLevel)))
-	})
-}
-
 // StartEQ applies the EQ predicate on the "Start" field.
 func StartEQ(v time.Time) predicate.Incident {
 	return predicate.Incident(func(s *sql.Selector) {
@@ -1318,6 +1304,34 @@ func HasFailuresWith(preds ...predicate.Failure) predicate.Incident {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(FailuresInverseTable, FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, FailuresTable, FailuresColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasFiles applies the HasEdge predicate on the "Files" edge.
+func HasFiles() predicate.Incident {
+	return predicate.Incident(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FilesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFilesWith applies the HasEdge predicate on the "Files" edge with a given conditions (other predicates).
+func HasFilesWith(preds ...predicate.File) predicate.Incident {
+	return predicate.Incident(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FilesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

@@ -27,6 +27,7 @@ type hooks struct {
 	Alert    []ent.Hook
 	Counter  []ent.Hook
 	Failure  []ent.Hook
+	File     []ent.Hook
 	Incident []ent.Hook
 	Status   []ent.Hook
 }

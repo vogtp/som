@@ -31,3 +31,11 @@ func (i *Incident) Failures(ctx context.Context) ([]*Failure, error) {
 	}
 	return result, err
 }
+
+func (i *Incident) Files(ctx context.Context) ([]*File, error) {
+	result, err := i.NamedFiles(graphql.GetFieldContext(ctx).Field.Alias)
+	if IsNotLoaded(err) {
+		result, err = i.QueryFiles().All(ctx)
+	}
+	return result, err
+}

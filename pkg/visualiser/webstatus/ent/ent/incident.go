@@ -56,15 +56,18 @@ type IncidentEdges struct {
 	Stati []*Status `json:"Stati,omitempty"`
 	// Failures holds the value of the Failures edge.
 	Failures []*Failure `json:"Failures,omitempty"`
+	// Files holds the value of the Files edge.
+	Files []*File `json:"Files,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [4]bool
 	// totalCount holds the count of the edges above.
-	totalCount [3]map[string]int
+	totalCount [4]map[string]int
 
 	namedCounters map[string][]*Counter
 	namedStati    map[string][]*Status
 	namedFailures map[string][]*Failure
+	namedFiles    map[string][]*File
 }
 
 // CountersOrErr returns the Counters value or an error if the edge
@@ -92,6 +95,15 @@ func (e IncidentEdges) FailuresOrErr() ([]*Failure, error) {
 		return e.Failures, nil
 	}
 	return nil, &NotLoadedError{edge: "Failures"}
+}
+
+// FilesOrErr returns the Files value or an error if the edge
+// was not loaded in eager-loading.
+func (e IncidentEdges) FilesOrErr() ([]*File, error) {
+	if e.loadedTypes[3] {
+		return e.Files, nil
+	}
+	return nil, &NotLoadedError{edge: "Files"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -228,6 +240,11 @@ func (i *Incident) QueryFailures() *FailureQuery {
 	return (&IncidentClient{config: i.config}).QueryFailures(i)
 }
 
+// QueryFiles queries the "Files" edge of the Incident entity.
+func (i *Incident) QueryFiles() *FileQuery {
+	return (&IncidentClient{config: i.config}).QueryFiles(i)
+}
+
 // Update returns a builder for updating this Incident.
 // Note that you need to call Incident.Unwrap() before calling this method if this Incident
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -362,6 +379,30 @@ func (i *Incident) appendNamedFailures(name string, edges ...*Failure) {
 		i.Edges.namedFailures[name] = []*Failure{}
 	} else {
 		i.Edges.namedFailures[name] = append(i.Edges.namedFailures[name], edges...)
+	}
+}
+
+// NamedFiles returns the Files named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (i *Incident) NamedFiles(name string) ([]*File, error) {
+	if i.Edges.namedFiles == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := i.Edges.namedFiles[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (i *Incident) appendNamedFiles(name string, edges ...*File) {
+	if i.Edges.namedFiles == nil {
+		i.Edges.namedFiles = make(map[string][]*File)
+	}
+	if len(edges) == 0 {
+		i.Edges.namedFiles[name] = []*File{}
+	} else {
+		i.Edges.namedFiles[name] = append(i.Edges.namedFiles[name], edges...)
 	}
 }
 

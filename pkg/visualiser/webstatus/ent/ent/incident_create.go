@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
 )
@@ -29,14 +30,6 @@ type IncidentCreate struct {
 // SetLevel sets the "Level" field.
 func (ic *IncidentCreate) SetLevel(i int) *IncidentCreate {
 	ic.mutation.SetLevel(i)
-	return ic
-}
-
-// SetNillableLevel sets the "Level" field if the given value is not nil.
-func (ic *IncidentCreate) SetNillableLevel(i *int) *IncidentCreate {
-	if i != nil {
-		ic.SetLevel(*i)
-	}
 	return ic
 }
 
@@ -165,6 +158,21 @@ func (ic *IncidentCreate) AddFailures(f ...*Failure) *IncidentCreate {
 	return ic.AddFailureIDs(ids...)
 }
 
+// AddFileIDs adds the "Files" edge to the File entity by IDs.
+func (ic *IncidentCreate) AddFileIDs(ids ...int) *IncidentCreate {
+	ic.mutation.AddFileIDs(ids...)
+	return ic
+}
+
+// AddFiles adds the "Files" edges to the File entity.
+func (ic *IncidentCreate) AddFiles(f ...*File) *IncidentCreate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return ic.AddFileIDs(ids...)
+}
+
 // Mutation returns the IncidentMutation object of the builder.
 func (ic *IncidentCreate) Mutation() *IncidentMutation {
 	return ic.mutation
@@ -241,6 +249,9 @@ func (ic *IncidentCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ic *IncidentCreate) check() error {
+	if _, ok := ic.mutation.Level(); !ok {
+		return &ValidationError{Name: "Level", err: errors.New(`ent: missing required field "Incident.Level"`)}
+	}
 	if _, ok := ic.mutation.Start(); !ok {
 		return &ValidationError{Name: "Start", err: errors.New(`ent: missing required field "Incident.Start"`)}
 	}
@@ -463,6 +474,25 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := ic.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   incident.FilesTable,
+			Columns: []string{incident.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -530,12 +560,6 @@ func (u *IncidentUpsert) UpdateLevel() *IncidentUpsert {
 // AddLevel adds v to the "Level" field.
 func (u *IncidentUpsert) AddLevel(v int) *IncidentUpsert {
 	u.Add(incident.FieldLevel, v)
-	return u
-}
-
-// ClearLevel clears the value of the "Level" field.
-func (u *IncidentUpsert) ClearLevel() *IncidentUpsert {
-	u.SetNull(incident.FieldLevel)
 	return u
 }
 
@@ -747,13 +771,6 @@ func (u *IncidentUpsertOne) AddLevel(v int) *IncidentUpsertOne {
 func (u *IncidentUpsertOne) UpdateLevel() *IncidentUpsertOne {
 	return u.Update(func(s *IncidentUpsert) {
 		s.UpdateLevel()
-	})
-}
-
-// ClearLevel clears the value of the "Level" field.
-func (u *IncidentUpsertOne) ClearLevel() *IncidentUpsertOne {
-	return u.Update(func(s *IncidentUpsert) {
-		s.ClearLevel()
 	})
 }
 
@@ -1149,13 +1166,6 @@ func (u *IncidentUpsertBulk) AddLevel(v int) *IncidentUpsertBulk {
 func (u *IncidentUpsertBulk) UpdateLevel() *IncidentUpsertBulk {
 	return u.Update(func(s *IncidentUpsert) {
 		s.UpdateLevel()
-	})
-}
-
-// ClearLevel clears the value of the "Level" field.
-func (u *IncidentUpsertBulk) ClearLevel() *IncidentUpsertBulk {
-	return u.Update(func(s *IncidentUpsert) {
-		s.ClearLevel()
 	})
 }
 

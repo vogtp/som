@@ -3,7 +3,6 @@ package ent
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect"
 	"github.com/google/uuid"
@@ -72,24 +71,14 @@ func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
 	} else {
 		a.hcl.Warnf("Getting counters: %v", err)
 	}
+	if fils, err := a.getFiles(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddFiles(fils...)
+	} else {
+		a.hcl.Warnf("Getting files: %v", err)
+	}
 
 	err = i.Exec(ctx)
 	return err
-}
-
-type creator interface {
-}
-
-type Szenario interface {
-	SetUUID(uuid.UUID) creator
-	SetIncidentID(uuid.UUID) creator
-	SetName(string) creator
-	SetTime(time.Time) creator
-	SetUsername(string) creator
-	SetRegion(string) creator
-	SetProbeOS(string) creator
-	SetProbeHost(string) creator
-	SetError(string) creator
 }
 
 func (a *Access) addSzMethods(ctx context.Context, s *ent.IncidentCreate, msg *msg.SzenarioEvtMsg) error {
@@ -166,4 +155,27 @@ func (a *Access) getCounter(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]*en
 		i++
 	}
 	return cntr, reterr
+}
+
+func (a *Access) getFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]*ent.File, error) {
+	var reterr error
+	fils := make([]*ent.File, len(msg.Files))
+	for i, f := range msg.Files {
+		f.CalculateID()
+		t, err := a.client.File.Create().
+			SetUUID(f.ID).SetName(f.Name).SetType(f.Type.MimeType).SetExt(f.Type.Ext).
+			SetPayload(f.Payload).SetSize(f.Size).
+			Save(ctx)
+
+		if err != nil {
+			if reterr == nil {
+				reterr = err
+			} else {
+				err = fmt.Errorf("%v %w", reterr, err)
+			}
+		}
+		fils[i] = t
+		i++
+	}
+	return fils, reterr
 }

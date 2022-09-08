@@ -24,9 +24,10 @@ var (
 		edge.To("Counters", Counter.Type),
 		edge.To("Stati", Status.Type),
 		edge.To("Failures", Failure.Type),
+		edge.To("Files", File.Type),
 	}
 	szIndexes = []ent.Index{
-		index.Fields("UUID").Unique().StorageKey("uuid"),
+		index.Fields("UUID").Unique(),
 		index.Fields("IncidentID"),
 		index.Fields("Name"),
 	}

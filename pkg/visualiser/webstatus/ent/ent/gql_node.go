@@ -18,6 +18,7 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
 	"golang.org/x/sync/semaphore"
@@ -195,12 +196,71 @@ func (f *Failure) Node(ctx context.Context) (node *Node, err error) {
 	return node, nil
 }
 
+func (f *File) Node(ctx context.Context) (node *Node, err error) {
+	node = &Node{
+		ID:     f.ID,
+		Type:   "File",
+		Fields: make([]*Field, 6),
+		Edges:  make([]*Edge, 0),
+	}
+	var buf []byte
+	if buf, err = json.Marshal(f.UUID); err != nil {
+		return nil, err
+	}
+	node.Fields[0] = &Field{
+		Type:  "uuid.UUID",
+		Name:  "UUID",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(f.Name); err != nil {
+		return nil, err
+	}
+	node.Fields[1] = &Field{
+		Type:  "string",
+		Name:  "Name",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(f.Type); err != nil {
+		return nil, err
+	}
+	node.Fields[2] = &Field{
+		Type:  "string",
+		Name:  "Type",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(f.Ext); err != nil {
+		return nil, err
+	}
+	node.Fields[3] = &Field{
+		Type:  "string",
+		Name:  "Ext",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(f.Size); err != nil {
+		return nil, err
+	}
+	node.Fields[4] = &Field{
+		Type:  "int",
+		Name:  "Size",
+		Value: string(buf),
+	}
+	if buf, err = json.Marshal(f.Payload); err != nil {
+		return nil, err
+	}
+	node.Fields[5] = &Field{
+		Type:  "[]byte",
+		Name:  "payload",
+		Value: string(buf),
+	}
+	return node, nil
+}
+
 func (i *Incident) Node(ctx context.Context) (node *Node, err error) {
 	node = &Node{
 		ID:     i.ID,
 		Type:   "Incident",
 		Fields: make([]*Field, 13),
-		Edges:  make([]*Edge, 3),
+		Edges:  make([]*Edge, 4),
 	}
 	var buf []byte
 	if buf, err = json.Marshal(i.Level); err != nil {
@@ -337,6 +397,16 @@ func (i *Incident) Node(ctx context.Context) (node *Node, err error) {
 	if err != nil {
 		return nil, err
 	}
+	node.Edges[3] = &Edge{
+		Type: "File",
+		Name: "Files",
+	}
+	err = i.QueryFiles().
+		Select(file.FieldID).
+		Scan(ctx, &node.Edges[3].IDs)
+	if err != nil {
+		return nil, err
+	}
 	return node, nil
 }
 
@@ -461,6 +531,18 @@ func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error)
 		query := c.Failure.Query().
 			Where(failure.ID(id))
 		query, err := query.CollectFields(ctx, "Failure")
+		if err != nil {
+			return nil, err
+		}
+		n, err := query.Only(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return n, nil
+	case file.Table:
+		query := c.File.Query().
+			Where(file.ID(id))
+		query, err := query.CollectFields(ctx, "File")
 		if err != nil {
 			return nil, err
 		}
@@ -602,6 +684,22 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 		query := c.Failure.Query().
 			Where(failure.IDIn(ids...))
 		query, err := query.CollectFields(ctx, "Failure")
+		if err != nil {
+			return nil, err
+		}
+		nodes, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, node := range nodes {
+			for _, noder := range idmap[node.ID] {
+				*noder = node
+			}
+		}
+	case file.Table:
+		query := c.File.Query().
+			Where(file.IDIn(ids...))
+		query, err := query.CollectFields(ctx, "File")
 		if err != nil {
 			return nil, err
 		}

@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/predicate"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
@@ -30,11 +31,13 @@ type IncidentQuery struct {
 	withCounters      *CounterQuery
 	withStati         *StatusQuery
 	withFailures      *FailureQuery
+	withFiles         *FileQuery
 	modifiers         []func(*sql.Selector)
 	loadTotal         []func(context.Context, []*Incident) error
 	withNamedCounters map[string]*CounterQuery
 	withNamedStati    map[string]*StatusQuery
 	withNamedFailures map[string]*FailureQuery
+	withNamedFiles    map[string]*FileQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -130,6 +133,28 @@ func (iq *IncidentQuery) QueryFailures() *FailureQuery {
 			sqlgraph.From(incident.Table, incident.FieldID, selector),
 			sqlgraph.To(failure.Table, failure.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.FailuresTable, incident.FailuresColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryFiles chains the current query on the "Files" edge.
+func (iq *IncidentQuery) QueryFiles() *FileQuery {
+	query := &FileQuery{config: iq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := iq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := iq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(incident.Table, incident.FieldID, selector),
+			sqlgraph.To(file.Table, file.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, incident.FilesTable, incident.FilesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
 		return fromU, nil
@@ -321,6 +346,7 @@ func (iq *IncidentQuery) Clone() *IncidentQuery {
 		withCounters: iq.withCounters.Clone(),
 		withStati:    iq.withStati.Clone(),
 		withFailures: iq.withFailures.Clone(),
+		withFiles:    iq.withFiles.Clone(),
 		// clone intermediate query.
 		sql:    iq.sql.Clone(),
 		path:   iq.path,
@@ -358,6 +384,17 @@ func (iq *IncidentQuery) WithFailures(opts ...func(*FailureQuery)) *IncidentQuer
 		opt(query)
 	}
 	iq.withFailures = query
+	return iq
+}
+
+// WithFiles tells the query-builder to eager-load the nodes that are connected to
+// the "Files" edge. The optional arguments are used to configure the query builder of the edge.
+func (iq *IncidentQuery) WithFiles(opts ...func(*FileQuery)) *IncidentQuery {
+	query := &FileQuery{config: iq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	iq.withFiles = query
 	return iq
 }
 
@@ -429,10 +466,11 @@ func (iq *IncidentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Inc
 	var (
 		nodes       = []*Incident{}
 		_spec       = iq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			iq.withCounters != nil,
 			iq.withStati != nil,
 			iq.withFailures != nil,
+			iq.withFiles != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -477,6 +515,13 @@ func (iq *IncidentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Inc
 			return nil, err
 		}
 	}
+	if query := iq.withFiles; query != nil {
+		if err := iq.loadFiles(ctx, query, nodes,
+			func(n *Incident) { n.Edges.Files = []*File{} },
+			func(n *Incident, e *File) { n.Edges.Files = append(n.Edges.Files, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range iq.withNamedCounters {
 		if err := iq.loadCounters(ctx, query, nodes,
 			func(n *Incident) { n.appendNamedCounters(name) },
@@ -495,6 +540,13 @@ func (iq *IncidentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Inc
 		if err := iq.loadFailures(ctx, query, nodes,
 			func(n *Incident) { n.appendNamedFailures(name) },
 			func(n *Incident, e *Failure) { n.appendNamedFailures(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range iq.withNamedFiles {
+		if err := iq.loadFiles(ctx, query, nodes,
+			func(n *Incident) { n.appendNamedFiles(name) },
+			func(n *Incident, e *File) { n.appendNamedFiles(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -594,6 +646,37 @@ func (iq *IncidentQuery) loadFailures(ctx context.Context, query *FailureQuery, 
 		node, ok := nodeids[*fk]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "incident_failures" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (iq *IncidentQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *File)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*Incident)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.File(func(s *sql.Selector) {
+		s.Where(sql.InValues(incident.FilesColumn, fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.incident_files
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "incident_files" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "incident_files" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -739,6 +822,20 @@ func (iq *IncidentQuery) WithNamedFailures(name string, opts ...func(*FailureQue
 		iq.withNamedFailures = make(map[string]*FailureQuery)
 	}
 	iq.withNamedFailures[name] = query
+	return iq
+}
+
+// WithNamedFiles tells the query-builder to eager-load the nodes that are connected to the "Files"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (iq *IncidentQuery) WithNamedFiles(name string, opts ...func(*FileQuery)) *IncidentQuery {
+	query := &FileQuery{config: iq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	if iq.withNamedFiles == nil {
+		iq.withNamedFiles = make(map[string]*FileQuery)
+	}
+	iq.withNamedFiles[name] = query
 	return iq
 }
 

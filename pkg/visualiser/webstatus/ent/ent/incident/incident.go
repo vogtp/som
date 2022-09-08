@@ -39,6 +39,8 @@ const (
 	EdgeStati = "Stati"
 	// EdgeFailures holds the string denoting the failures edge name in mutations.
 	EdgeFailures = "Failures"
+	// EdgeFiles holds the string denoting the files edge name in mutations.
+	EdgeFiles = "Files"
 	// Table holds the table name of the incident in the database.
 	Table = "incidents"
 	// CountersTable is the table that holds the Counters relation/edge.
@@ -62,6 +64,13 @@ const (
 	FailuresInverseTable = "failures"
 	// FailuresColumn is the table column denoting the Failures relation/edge.
 	FailuresColumn = "incident_failures"
+	// FilesTable is the table that holds the Files relation/edge.
+	FilesTable = "files"
+	// FilesInverseTable is the table name for the File entity.
+	// It exists in this package in order to avoid circular dependency with the "file" package.
+	FilesInverseTable = "files"
+	// FilesColumn is the table column denoting the Files relation/edge.
+	FilesColumn = "incident_files"
 )
 
 // Columns holds all SQL columns for incident fields.

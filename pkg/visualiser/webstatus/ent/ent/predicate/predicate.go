@@ -15,6 +15,9 @@ type Counter func(*sql.Selector)
 // Failure is the predicate function for failure builders.
 type Failure func(*sql.Selector)
 
+// File is the predicate function for file builders.
+type File func(*sql.Selector)
+
 // Incident is the predicate function for incident builders.
 type Incident func(*sql.Selector)
 

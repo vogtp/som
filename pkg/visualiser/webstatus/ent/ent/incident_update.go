@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/predicate"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
@@ -39,23 +40,9 @@ func (iu *IncidentUpdate) SetLevel(i int) *IncidentUpdate {
 	return iu
 }
 
-// SetNillableLevel sets the "Level" field if the given value is not nil.
-func (iu *IncidentUpdate) SetNillableLevel(i *int) *IncidentUpdate {
-	if i != nil {
-		iu.SetLevel(*i)
-	}
-	return iu
-}
-
 // AddLevel adds i to the "Level" field.
 func (iu *IncidentUpdate) AddLevel(i int) *IncidentUpdate {
 	iu.mutation.AddLevel(i)
-	return iu
-}
-
-// ClearLevel clears the value of the "Level" field.
-func (iu *IncidentUpdate) ClearLevel() *IncidentUpdate {
-	iu.mutation.ClearLevel()
 	return iu
 }
 
@@ -190,6 +177,21 @@ func (iu *IncidentUpdate) AddFailures(f ...*Failure) *IncidentUpdate {
 	return iu.AddFailureIDs(ids...)
 }
 
+// AddFileIDs adds the "Files" edge to the File entity by IDs.
+func (iu *IncidentUpdate) AddFileIDs(ids ...int) *IncidentUpdate {
+	iu.mutation.AddFileIDs(ids...)
+	return iu
+}
+
+// AddFiles adds the "Files" edges to the File entity.
+func (iu *IncidentUpdate) AddFiles(f ...*File) *IncidentUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return iu.AddFileIDs(ids...)
+}
+
 // Mutation returns the IncidentMutation object of the builder.
 func (iu *IncidentUpdate) Mutation() *IncidentMutation {
 	return iu.mutation
@@ -256,6 +258,27 @@ func (iu *IncidentUpdate) RemoveFailures(f ...*Failure) *IncidentUpdate {
 		ids[i] = f[i].ID
 	}
 	return iu.RemoveFailureIDs(ids...)
+}
+
+// ClearFiles clears all "Files" edges to the File entity.
+func (iu *IncidentUpdate) ClearFiles() *IncidentUpdate {
+	iu.mutation.ClearFiles()
+	return iu
+}
+
+// RemoveFileIDs removes the "Files" edge to File entities by IDs.
+func (iu *IncidentUpdate) RemoveFileIDs(ids ...int) *IncidentUpdate {
+	iu.mutation.RemoveFileIDs(ids...)
+	return iu
+}
+
+// RemoveFiles removes "Files" edges to File entities.
+func (iu *IncidentUpdate) RemoveFiles(f ...*File) *IncidentUpdate {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return iu.RemoveFileIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -341,12 +364,6 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
-			Column: incident.FieldLevel,
-		})
-	}
-	if iu.mutation.LevelCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
 			Column: incident.FieldLevel,
 		})
 	}
@@ -602,6 +619,60 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if iu.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   incident.FilesTable,
+			Columns: []string{incident.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iu.mutation.RemovedFilesIDs(); len(nodes) > 0 && !iu.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   incident.FilesTable,
+			Columns: []string{incident.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iu.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   incident.FilesTable,
+			Columns: []string{incident.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, iu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{incident.Label}
@@ -628,23 +699,9 @@ func (iuo *IncidentUpdateOne) SetLevel(i int) *IncidentUpdateOne {
 	return iuo
 }
 
-// SetNillableLevel sets the "Level" field if the given value is not nil.
-func (iuo *IncidentUpdateOne) SetNillableLevel(i *int) *IncidentUpdateOne {
-	if i != nil {
-		iuo.SetLevel(*i)
-	}
-	return iuo
-}
-
 // AddLevel adds i to the "Level" field.
 func (iuo *IncidentUpdateOne) AddLevel(i int) *IncidentUpdateOne {
 	iuo.mutation.AddLevel(i)
-	return iuo
-}
-
-// ClearLevel clears the value of the "Level" field.
-func (iuo *IncidentUpdateOne) ClearLevel() *IncidentUpdateOne {
-	iuo.mutation.ClearLevel()
 	return iuo
 }
 
@@ -779,6 +836,21 @@ func (iuo *IncidentUpdateOne) AddFailures(f ...*Failure) *IncidentUpdateOne {
 	return iuo.AddFailureIDs(ids...)
 }
 
+// AddFileIDs adds the "Files" edge to the File entity by IDs.
+func (iuo *IncidentUpdateOne) AddFileIDs(ids ...int) *IncidentUpdateOne {
+	iuo.mutation.AddFileIDs(ids...)
+	return iuo
+}
+
+// AddFiles adds the "Files" edges to the File entity.
+func (iuo *IncidentUpdateOne) AddFiles(f ...*File) *IncidentUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return iuo.AddFileIDs(ids...)
+}
+
 // Mutation returns the IncidentMutation object of the builder.
 func (iuo *IncidentUpdateOne) Mutation() *IncidentMutation {
 	return iuo.mutation
@@ -845,6 +917,27 @@ func (iuo *IncidentUpdateOne) RemoveFailures(f ...*Failure) *IncidentUpdateOne {
 		ids[i] = f[i].ID
 	}
 	return iuo.RemoveFailureIDs(ids...)
+}
+
+// ClearFiles clears all "Files" edges to the File entity.
+func (iuo *IncidentUpdateOne) ClearFiles() *IncidentUpdateOne {
+	iuo.mutation.ClearFiles()
+	return iuo
+}
+
+// RemoveFileIDs removes the "Files" edge to File entities by IDs.
+func (iuo *IncidentUpdateOne) RemoveFileIDs(ids ...int) *IncidentUpdateOne {
+	iuo.mutation.RemoveFileIDs(ids...)
+	return iuo
+}
+
+// RemoveFiles removes "Files" edges to File entities.
+func (iuo *IncidentUpdateOne) RemoveFiles(f ...*File) *IncidentUpdateOne {
+	ids := make([]int, len(f))
+	for i := range f {
+		ids[i] = f[i].ID
+	}
+	return iuo.RemoveFileIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -960,12 +1053,6 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
 			Value:  value,
-			Column: incident.FieldLevel,
-		})
-	}
-	if iuo.mutation.LevelCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
 			Column: incident.FieldLevel,
 		})
 	}
@@ -1213,6 +1300,60 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeInt,
 					Column: failure.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if iuo.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   incident.FilesTable,
+			Columns: []string{incident.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iuo.mutation.RemovedFilesIDs(); len(nodes) > 0 && !iuo.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   incident.FilesTable,
+			Columns: []string{incident.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := iuo.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   incident.FilesTable,
+			Columns: []string{incident.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: file.FieldID,
 				},
 			},
 		}

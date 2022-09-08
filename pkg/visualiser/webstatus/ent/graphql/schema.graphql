@@ -26,6 +26,7 @@ type Incident {
     Counters: [Counter!]
     Stati: [Status!]
     Failures: [Failure!]
+    Files: [File!]
 }
 
 type Counter {
@@ -45,5 +46,14 @@ type Failure {
     id: ID!
     Error: String
     Idx: Int
+}
 
+type File {
+    id: ID!
+    UUID: String
+    Name: String
+    Type: String
+    Ext: String
+    Size: Int
+    Payload: String
 }

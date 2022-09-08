@@ -13,6 +13,7 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/predicate"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/status"
@@ -32,6 +33,7 @@ const (
 	TypeAlert    = "Alert"
 	TypeCounter  = "Counter"
 	TypeFailure  = "Failure"
+	TypeFile     = "File"
 	TypeIncident = "Incident"
 	TypeStatus   = "Status"
 )
@@ -1657,6 +1659,623 @@ func (m *FailureMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Failure edge %s", name)
 }
 
+// FileMutation represents an operation that mutates the File nodes in the graph.
+type FileMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *int
+	_UUID         *uuid.UUID
+	_Name         *string
+	_Type         *string
+	_Ext          *string
+	_Size         *int
+	add_Size      *int
+	payload       *[]byte
+	clearedFields map[string]struct{}
+	done          bool
+	oldValue      func(context.Context) (*File, error)
+	predicates    []predicate.File
+}
+
+var _ ent.Mutation = (*FileMutation)(nil)
+
+// fileOption allows management of the mutation configuration using functional options.
+type fileOption func(*FileMutation)
+
+// newFileMutation creates new mutation for the File entity.
+func newFileMutation(c config, op Op, opts ...fileOption) *FileMutation {
+	m := &FileMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeFile,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withFileID sets the ID field of the mutation.
+func withFileID(id int) fileOption {
+	return func(m *FileMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *File
+		)
+		m.oldValue = func(ctx context.Context) (*File, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().File.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withFile sets the old File of the mutation.
+func withFile(node *File) fileOption {
+	return func(m *FileMutation) {
+		m.oldValue = func(context.Context) (*File, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m FileMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m FileMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *FileMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *FileMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().File.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUUID sets the "UUID" field.
+func (m *FileMutation) SetUUID(u uuid.UUID) {
+	m._UUID = &u
+}
+
+// UUID returns the value of the "UUID" field in the mutation.
+func (m *FileMutation) UUID() (r uuid.UUID, exists bool) {
+	v := m._UUID
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUUID returns the old "UUID" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
+	}
+	return oldValue.UUID, nil
+}
+
+// ResetUUID resets all changes to the "UUID" field.
+func (m *FileMutation) ResetUUID() {
+	m._UUID = nil
+}
+
+// SetName sets the "Name" field.
+func (m *FileMutation) SetName(s string) {
+	m._Name = &s
+}
+
+// Name returns the value of the "Name" field in the mutation.
+func (m *FileMutation) Name() (r string, exists bool) {
+	v := m._Name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "Name" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "Name" field.
+func (m *FileMutation) ResetName() {
+	m._Name = nil
+}
+
+// SetType sets the "Type" field.
+func (m *FileMutation) SetType(s string) {
+	m._Type = &s
+}
+
+// GetType returns the value of the "Type" field in the mutation.
+func (m *FileMutation) GetType() (r string, exists bool) {
+	v := m._Type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "Type" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "Type" field.
+func (m *FileMutation) ResetType() {
+	m._Type = nil
+}
+
+// SetExt sets the "Ext" field.
+func (m *FileMutation) SetExt(s string) {
+	m._Ext = &s
+}
+
+// Ext returns the value of the "Ext" field in the mutation.
+func (m *FileMutation) Ext() (r string, exists bool) {
+	v := m._Ext
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldExt returns the old "Ext" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldExt(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldExt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldExt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldExt: %w", err)
+	}
+	return oldValue.Ext, nil
+}
+
+// ResetExt resets all changes to the "Ext" field.
+func (m *FileMutation) ResetExt() {
+	m._Ext = nil
+}
+
+// SetSize sets the "Size" field.
+func (m *FileMutation) SetSize(i int) {
+	m._Size = &i
+	m.add_Size = nil
+}
+
+// Size returns the value of the "Size" field in the mutation.
+func (m *FileMutation) Size() (r int, exists bool) {
+	v := m._Size
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSize returns the old "Size" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldSize(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSize is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSize requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSize: %w", err)
+	}
+	return oldValue.Size, nil
+}
+
+// AddSize adds i to the "Size" field.
+func (m *FileMutation) AddSize(i int) {
+	if m.add_Size != nil {
+		*m.add_Size += i
+	} else {
+		m.add_Size = &i
+	}
+}
+
+// AddedSize returns the value that was added to the "Size" field in this mutation.
+func (m *FileMutation) AddedSize() (r int, exists bool) {
+	v := m.add_Size
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSize resets all changes to the "Size" field.
+func (m *FileMutation) ResetSize() {
+	m._Size = nil
+	m.add_Size = nil
+}
+
+// SetPayload sets the "payload" field.
+func (m *FileMutation) SetPayload(b []byte) {
+	m.payload = &b
+}
+
+// Payload returns the value of the "payload" field in the mutation.
+func (m *FileMutation) Payload() (r []byte, exists bool) {
+	v := m.payload
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPayload returns the old "payload" field's value of the File entity.
+// If the File object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *FileMutation) OldPayload(ctx context.Context) (v []byte, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPayload is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPayload requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPayload: %w", err)
+	}
+	return oldValue.Payload, nil
+}
+
+// ResetPayload resets all changes to the "payload" field.
+func (m *FileMutation) ResetPayload() {
+	m.payload = nil
+}
+
+// Where appends a list predicates to the FileMutation builder.
+func (m *FileMutation) Where(ps ...predicate.File) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *FileMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (File).
+func (m *FileMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *FileMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m._UUID != nil {
+		fields = append(fields, file.FieldUUID)
+	}
+	if m._Name != nil {
+		fields = append(fields, file.FieldName)
+	}
+	if m._Type != nil {
+		fields = append(fields, file.FieldType)
+	}
+	if m._Ext != nil {
+		fields = append(fields, file.FieldExt)
+	}
+	if m._Size != nil {
+		fields = append(fields, file.FieldSize)
+	}
+	if m.payload != nil {
+		fields = append(fields, file.FieldPayload)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *FileMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case file.FieldUUID:
+		return m.UUID()
+	case file.FieldName:
+		return m.Name()
+	case file.FieldType:
+		return m.GetType()
+	case file.FieldExt:
+		return m.Ext()
+	case file.FieldSize:
+		return m.Size()
+	case file.FieldPayload:
+		return m.Payload()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *FileMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case file.FieldUUID:
+		return m.OldUUID(ctx)
+	case file.FieldName:
+		return m.OldName(ctx)
+	case file.FieldType:
+		return m.OldType(ctx)
+	case file.FieldExt:
+		return m.OldExt(ctx)
+	case file.FieldSize:
+		return m.OldSize(ctx)
+	case file.FieldPayload:
+		return m.OldPayload(ctx)
+	}
+	return nil, fmt.Errorf("unknown File field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *FileMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case file.FieldUUID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUUID(v)
+		return nil
+	case file.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case file.FieldType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
+		return nil
+	case file.FieldExt:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetExt(v)
+		return nil
+	case file.FieldSize:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSize(v)
+		return nil
+	case file.FieldPayload:
+		v, ok := value.([]byte)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPayload(v)
+		return nil
+	}
+	return fmt.Errorf("unknown File field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *FileMutation) AddedFields() []string {
+	var fields []string
+	if m.add_Size != nil {
+		fields = append(fields, file.FieldSize)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *FileMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case file.FieldSize:
+		return m.AddedSize()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *FileMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case file.FieldSize:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSize(v)
+		return nil
+	}
+	return fmt.Errorf("unknown File numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *FileMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *FileMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *FileMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown File nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *FileMutation) ResetField(name string) error {
+	switch name {
+	case file.FieldUUID:
+		m.ResetUUID()
+		return nil
+	case file.FieldName:
+		m.ResetName()
+		return nil
+	case file.FieldType:
+		m.ResetType()
+		return nil
+	case file.FieldExt:
+		m.ResetExt()
+		return nil
+	case file.FieldSize:
+		m.ResetSize()
+		return nil
+	case file.FieldPayload:
+		m.ResetPayload()
+		return nil
+	}
+	return fmt.Errorf("unknown File field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *FileMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *FileMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *FileMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *FileMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *FileMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *FileMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *FileMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown File unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *FileMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown File edge %s", name)
+}
+
 // IncidentMutation represents an operation that mutates the Incident nodes in the graph.
 type IncidentMutation struct {
 	config
@@ -1687,6 +2306,9 @@ type IncidentMutation struct {
 	_Failures        map[int]struct{}
 	removed_Failures map[int]struct{}
 	cleared_Failures bool
+	_Files           map[int]struct{}
+	removed_Files    map[int]struct{}
+	cleared_Files    bool
 	done             bool
 	oldValue         func(context.Context) (*Incident, error)
 	predicates       []predicate.Incident
@@ -1840,24 +2462,10 @@ func (m *IncidentMutation) AddedLevel() (r int, exists bool) {
 	return *v, true
 }
 
-// ClearLevel clears the value of the "Level" field.
-func (m *IncidentMutation) ClearLevel() {
-	m._Level = nil
-	m.add_Level = nil
-	m.clearedFields[incident.FieldLevel] = struct{}{}
-}
-
-// LevelCleared returns if the "Level" field was cleared in this mutation.
-func (m *IncidentMutation) LevelCleared() bool {
-	_, ok := m.clearedFields[incident.FieldLevel]
-	return ok
-}
-
 // ResetLevel resets all changes to the "Level" field.
 func (m *IncidentMutation) ResetLevel() {
 	m._Level = nil
 	m.add_Level = nil
-	delete(m.clearedFields, incident.FieldLevel)
 }
 
 // SetStart sets the "Start" field.
@@ -2467,6 +3075,60 @@ func (m *IncidentMutation) ResetFailures() {
 	m.removed_Failures = nil
 }
 
+// AddFileIDs adds the "Files" edge to the File entity by ids.
+func (m *IncidentMutation) AddFileIDs(ids ...int) {
+	if m._Files == nil {
+		m._Files = make(map[int]struct{})
+	}
+	for i := range ids {
+		m._Files[ids[i]] = struct{}{}
+	}
+}
+
+// ClearFiles clears the "Files" edge to the File entity.
+func (m *IncidentMutation) ClearFiles() {
+	m.cleared_Files = true
+}
+
+// FilesCleared reports if the "Files" edge to the File entity was cleared.
+func (m *IncidentMutation) FilesCleared() bool {
+	return m.cleared_Files
+}
+
+// RemoveFileIDs removes the "Files" edge to the File entity by IDs.
+func (m *IncidentMutation) RemoveFileIDs(ids ...int) {
+	if m.removed_Files == nil {
+		m.removed_Files = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m._Files, ids[i])
+		m.removed_Files[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedFiles returns the removed IDs of the "Files" edge to the File entity.
+func (m *IncidentMutation) RemovedFilesIDs() (ids []int) {
+	for id := range m.removed_Files {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// FilesIDs returns the "Files" edge IDs in the mutation.
+func (m *IncidentMutation) FilesIDs() (ids []int) {
+	for id := range m._Files {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetFiles resets all changes to the "Files" edge.
+func (m *IncidentMutation) ResetFiles() {
+	m._Files = nil
+	m.cleared_Files = false
+	m.removed_Files = nil
+}
+
 // Where appends a list predicates to the IncidentMutation builder.
 func (m *IncidentMutation) Where(ps ...predicate.Incident) {
 	m.predicates = append(m.predicates, ps...)
@@ -2740,9 +3402,6 @@ func (m *IncidentMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *IncidentMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(incident.FieldLevel) {
-		fields = append(fields, incident.FieldLevel)
-	}
 	if m.FieldCleared(incident.FieldError) {
 		fields = append(fields, incident.FieldError)
 	}
@@ -2760,9 +3419,6 @@ func (m *IncidentMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *IncidentMutation) ClearField(name string) error {
 	switch name {
-	case incident.FieldLevel:
-		m.ClearLevel()
-		return nil
 	case incident.FieldError:
 		m.ClearError()
 		return nil
@@ -2819,7 +3475,7 @@ func (m *IncidentMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *IncidentMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m._Counters != nil {
 		edges = append(edges, incident.EdgeCounters)
 	}
@@ -2828,6 +3484,9 @@ func (m *IncidentMutation) AddedEdges() []string {
 	}
 	if m._Failures != nil {
 		edges = append(edges, incident.EdgeFailures)
+	}
+	if m._Files != nil {
+		edges = append(edges, incident.EdgeFiles)
 	}
 	return edges
 }
@@ -2854,13 +3513,19 @@ func (m *IncidentMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case incident.EdgeFiles:
+		ids := make([]ent.Value, 0, len(m._Files))
+		for id := range m._Files {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *IncidentMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removed_Counters != nil {
 		edges = append(edges, incident.EdgeCounters)
 	}
@@ -2869,6 +3534,9 @@ func (m *IncidentMutation) RemovedEdges() []string {
 	}
 	if m.removed_Failures != nil {
 		edges = append(edges, incident.EdgeFailures)
+	}
+	if m.removed_Files != nil {
+		edges = append(edges, incident.EdgeFiles)
 	}
 	return edges
 }
@@ -2895,13 +3563,19 @@ func (m *IncidentMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case incident.EdgeFiles:
+		ids := make([]ent.Value, 0, len(m.removed_Files))
+		for id := range m.removed_Files {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *IncidentMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.cleared_Counters {
 		edges = append(edges, incident.EdgeCounters)
 	}
@@ -2910,6 +3584,9 @@ func (m *IncidentMutation) ClearedEdges() []string {
 	}
 	if m.cleared_Failures {
 		edges = append(edges, incident.EdgeFailures)
+	}
+	if m.cleared_Files {
+		edges = append(edges, incident.EdgeFiles)
 	}
 	return edges
 }
@@ -2924,6 +3601,8 @@ func (m *IncidentMutation) EdgeCleared(name string) bool {
 		return m.cleared_Stati
 	case incident.EdgeFailures:
 		return m.cleared_Failures
+	case incident.EdgeFiles:
+		return m.cleared_Files
 	}
 	return false
 }
@@ -2948,6 +3627,9 @@ func (m *IncidentMutation) ResetEdge(name string) error {
 		return nil
 	case incident.EdgeFailures:
 		m.ResetFailures()
+		return nil
+	case incident.EdgeFiles:
+		m.ResetFiles()
 		return nil
 	}
 	return fmt.Errorf("unknown Incident edge %s", name)
