@@ -12,12 +12,19 @@ type Alert struct {
 
 // Fields of the Alert.
 func (Alert) Fields() []ent.Field {
-	return append([]ent.Field{
+	return []ent.Field{
 		field.Int("Level"),
-	}, szFields...)
+	}
 }
 
 // Edges of the Alert.
 func (Alert) Edges() []ent.Edge {
-	return szEdges
+	return nil
+}
+
+// Mixin of the Alert.
+func (Alert) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		SzenarioMixin{},
+	}
 }

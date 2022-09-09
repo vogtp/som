@@ -11,28 +11,36 @@ type Incident struct {
 	ent.Schema
 }
 
+// Mixin of the Incident.
+func (Incident) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		SzenarioMixin{},
+	}
+}
+
 // Fields of the Incident.
 func (Incident) Fields() []ent.Field {
-	return append([]ent.Field{
+	return []ent.Field{
 		field.Int("Level"),
 		field.Time("Start"),
 		field.Time("End"),
 		field.Bytes("State"),
-	}, szFields...)
+	}
 }
 
 // Edges of the Incident.
 func (Incident) Edges() []ent.Edge {
-	return szEdges
+	return nil
 }
 
+// Indexes of the Incident.
 func (Incident) Indexes() []ent.Index {
-	return append([]ent.Index{
+	return []ent.Index{
 		// non-unique index.
 		index.Fields("Start"),
 		index.Fields("End"),
 		// unique index.
 		// index.Fields("first_name", "last_name").
 		//     Unique(),
-	}, szIndexes...)
+	}
 }
