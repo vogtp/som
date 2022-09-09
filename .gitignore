@@ -26,3 +26,5 @@ som.yml
 ignore_*
 
 go.work*
+pkg/visualiser/webstatus/database/ent/
+pkg/visualiser/webstatus/database/graphql/generated.go

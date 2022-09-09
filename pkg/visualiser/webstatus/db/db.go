@@ -8,7 +8,7 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ const dbName = "som.sqlite"
 type Access struct {
 	hcl       hcl.Logger
 	db        *gorm.DB
-	EntAccess *ent.Access
+	EntAccess *database.Access
 }
 
 func (a *Access) getDb() *gorm.DB {

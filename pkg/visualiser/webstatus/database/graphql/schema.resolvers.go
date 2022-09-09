@@ -11,9 +11,9 @@ import (
 
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/status"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/alert"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/incident"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/incident"
 )
 
 // Level is the resolver for the Level field.

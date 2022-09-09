@@ -1,4 +1,4 @@
-package ent
+package database
 
 import (
 	"context"
@@ -11,8 +11,8 @@ import (
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent/migrate"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/migrate"
 )
 
 type Access struct {

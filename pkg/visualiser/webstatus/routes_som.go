@@ -7,7 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/vogtp/som/pkg/core"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/graphql"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/graphql"
 )
 
 func (s *WebStatus) routes() {

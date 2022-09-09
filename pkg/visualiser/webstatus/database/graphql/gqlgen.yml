@@ -13,7 +13,7 @@ resolver:
 # autobind tells gqlgen to search for any type names in the GraphQL schema in the
 # provided Go package. If they match it will use them, otherwise it will generate new ones.
 autobind:
-  - github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent
+  - github.com/vogtp/som/pkg/visualiser/webstatus/database/ent
 
 # This section declares type mapping between the GraphQL and Go type systems.
 models:

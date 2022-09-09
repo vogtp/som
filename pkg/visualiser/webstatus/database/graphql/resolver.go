@@ -2,7 +2,7 @@ package graphql
 
 import (
 	"github.com/99designs/gqlgen/graphql"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
 )
 
 // This file will not be regenerated automatically.
