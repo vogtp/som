@@ -1,7 +1,17 @@
 scalar Time
 
-type Query {
+enum Level {
+    Unknown
+	OK
+	Issues
+	Warning
+	Down
+}
 
+type Query {
+"""
+Queries the Incidents (or better its summaries)
+"""
     Incidents(
         Szenario: String = ""
         Timestamp: Time
@@ -10,6 +20,9 @@ type Query {
         ): [IncidentSummary!]
 
 
+"""
+Queries single incident update (or create close) records
+"""
     IncidentEntries(
         Szenario: String = ""
         Timestamp: Time
@@ -17,6 +30,9 @@ type Query {
         Before: Time
         ): [Incident!]
 
+"""
+Alerts that were generated (but not nessesairaly escalated)
+"""
     Alerts(
         Szenario: String = ""
         After: Time
@@ -24,24 +40,29 @@ type Query {
         ): [Alert!]
 }
 
-
+"""
+Summary of an incident
+"""
 type IncidentSummary {
-    Level: String!
+    Level: Level!
     Start: Time!
     End: Time
     IncidentID: String!
     Name: String!
     Total: Int!
-    Alerts: [Alert!]
+    Alerts(Level: Level): [Alert!]
 }
 
 type Incident {
     id: ID!
-    Level: String!
+    Level: Level!
     Start: Time!
     End: Time
     State: String!
     UUID: String!
+    """
+    Reference ID for the incident
+    """
     IncidentID: String!
     Name: String!
     Username: String!
@@ -57,12 +78,22 @@ type Incident {
 }
 
 
+
+"""
+Alerts that were generated (but not nessesairaly escalated)
+"""
 type Alert {
     id: ID!
-    Level: String!
+    Level: Level!
     UUID: String!
     Time: Time!
+    """
+    Reference ID for the incident
+    """
     IncidentID: String!
+    """
+    Query its incidents
+    """
     Incidents: [IncidentSummary!]
     IncidentEntries: [Incident!]
     Name: String!

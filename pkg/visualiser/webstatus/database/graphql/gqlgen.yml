@@ -27,12 +27,12 @@ models:
   IncidentSummary:
     model:
       - github.com/vogtp/som/pkg/visualiser/webstatus/database.IncidentSummary
-    # Status:
-    #   model:
-    #     - github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent.Status
-    # Counter:
-    #   model:
-    #     - github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent.Counter
-    # Errors:
-    #   model:
-    #     - github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent.Errors
+  Level:
+    model:
+      - github.com/vogtp/som/pkg/core/status.Level
+  # Counter:
+  #   model:
+  #     - github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent.Counter
+  # Errors:
+  #   model:
+  #     - github.com/vogtp/som/pkg/visualiser/webstatus/ent/ent.Errors

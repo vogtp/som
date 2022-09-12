@@ -17,8 +17,8 @@ import (
 )
 
 // Level is the resolver for the Level field.
-func (r *alertResolver) Level(ctx context.Context, obj *ent.Alert) (string, error) {
-	return status.Level(obj.Level).String(), nil
+func (r *alertResolver) Level(ctx context.Context, obj *ent.Alert) (status.Level, error) {
+	return status.Level(obj.Level), nil
 }
 
 // UUID is the resolver for the UUID field.
@@ -56,8 +56,8 @@ func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (string, erro
 }
 
 // Level is the resolver for the Level field.
-func (r *incidentResolver) Level(ctx context.Context, obj *ent.Incident) (string, error) {
-	return status.Level(obj.Level).String(), nil
+func (r *incidentResolver) Level(ctx context.Context, obj *ent.Incident) (status.Level, error) {
+	return status.Level(obj.Level), nil
 }
 
 // State is the resolver for the State field.
@@ -87,8 +87,8 @@ func (r *incidentResolver) Alerts(ctx context.Context, obj *ent.Incident) ([]*en
 }
 
 // Level is the resolver for the Level field.
-func (r *incidentSummaryResolver) Level(ctx context.Context, obj *database.IncidentSummary) (string, error) {
-	return status.Level(obj.IntLevel).String(), nil
+func (r *incidentSummaryResolver) Level(ctx context.Context, obj *database.IncidentSummary) (status.Level, error) {
+	return status.Level(obj.IntLevel), nil
 }
 
 // Start is the resolver for the Start field.
@@ -109,10 +109,16 @@ func (r *incidentSummaryResolver) IncidentID(ctx context.Context, obj *database.
 }
 
 // Alerts is the resolver for the Alerts field.
-func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *database.IncidentSummary) ([]*ent.Alert, error) {
+func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *database.IncidentSummary, level *status.Level) ([]*ent.Alert, error) {
 	q := r.client.Alert.Query().
 		Order(ent.Desc(alert.FieldTime)).
 		Where(alert.IncidentIDEQ(obj.IncidentID))
+	if level != nil {
+		lvl := *level
+		if lvl > status.Unknown {
+			q.Where(alert.LevelGTE(int(lvl)))
+		}
+	}
 	return q.All(ctx)
 }
 
