@@ -27,10 +27,10 @@ func (s *WebStatus) routes() {
 	w.HandleFunc(incidentListPath, s.handleIncidentList)
 	w.HandleFunc(IncidentDetailPath, s.handleIncidentDetail)
 
-	w.Handle("/gql", playground.Handler("SQM", w.BasePath()+"/api"))
+	w.Handle("/graphiql/", playground.Handler("SQM", w.BasePath()+"/graphql/"))
 
 	srv := handler.NewDefaultServer(graphql.NewSchema(s.Ent()))
-	w.Handle("/api", srv)
+	w.Handle("/graphql/", srv)
 
 	// legacy
 	// w.HandleFunc("/chart/", s.handleChart)
