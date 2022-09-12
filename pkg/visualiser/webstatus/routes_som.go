@@ -29,7 +29,7 @@ func (s *WebStatus) routes() {
 
 	w.Handle("/gql", playground.Handler("SQM", w.BasePath()+"/api"))
 
-	srv := handler.NewDefaultServer(graphql.NewSchema(s.DB().EntAccess.Client()))
+	srv := handler.NewDefaultServer(graphql.NewSchema(s.Ent()))
 	w.Handle("/api", srv)
 
 	// legacy

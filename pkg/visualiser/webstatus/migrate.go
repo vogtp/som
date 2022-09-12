@@ -11,8 +11,10 @@ import (
 // MigrateIncidents TODO remove
 func (s *WebStatus) MigrateIncidents() {
 	a := s.DB()
+	ent := s.Ent()
+	defer ent.Close()
 	//ctx := context.Background()
-	_, err := s.getIncidentDetailFiles(a, s.getIncidentRoot(), "")
+	_, err := s.getIncidentDetailFiles(a, ent, s.getIncidentRoot(), "")
 	if err != nil {
 		panic(err)
 	}
@@ -31,7 +33,9 @@ func (s *WebStatus) MigrateIncidents() {
 // MigrateAlerts TODO remove
 func (s *WebStatus) MigrateAlerts() {
 	a := s.DB()
-	_, err := s.getAlertFiles(a, s.getAlertRoot(), "")
+	ent := s.Ent()
+	defer ent.Close()
+	_, err := s.getAlertFiles(a, ent, s.getAlertRoot(), "")
 	if err != nil {
 		panic(err)
 	}

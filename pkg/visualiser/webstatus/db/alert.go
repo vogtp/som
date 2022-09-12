@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
 )
@@ -12,9 +11,7 @@ import (
 // SaveAlert saves a alert to DB
 func (a *Access) SaveAlert(ctx context.Context, msg *msg.AlertMsg) error {
 	db := a.getDb()
-	if err := a.EntAccess.SaveAlert(ctx, msg); err != nil {
-		hcl.Warnf("Saving ent incident: %v", err)
-	}
+
 	var reterr error
 	if err := a.SaveCounters(ctx, msg.SzenarioEvtMsg); err != nil {
 		if reterr == nil {

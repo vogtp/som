@@ -5,16 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
 )
 
 // SaveIncident saves a incident to DB
 func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
-	if err := a.EntAccess.SaveIncident(ctx, msg); err != nil {
-		hcl.Warnf("Saving ent incident: %v", err)
-	}
 	db := a.getDb()
 	var reterr error
 	if err := a.SaveCounters(ctx, msg.SzenarioEvtMsg); err != nil {

@@ -1,7 +1,16 @@
 scalar Time
 
 type Query {
+
     Incidents(
+        Szenario: String = ""
+        Timestamp: Time
+        After: Time
+        Before: Time
+        ): [IncidentSummary!]
+
+
+    IncidentEntries(
         Szenario: String = ""
         Timestamp: Time
         After: Time
@@ -13,6 +22,17 @@ type Query {
         After: Time
         Before: Time
         ): [Alert!]
+}
+
+
+type IncidentSummary {
+    Level: String!
+    Start: Time!
+    End: Time
+    IncidentID: String!
+    Name: String!
+    Total: Int!
+    Alerts: [Alert!]
 }
 
 type Incident {
@@ -43,6 +63,7 @@ type Alert {
     UUID: String!
     Time: Time!
     IncidentID: String!
+    Incidents: [IncidentSummary!]
     IncidentEntries: [Incident!]
     Name: String!
     Username: String!

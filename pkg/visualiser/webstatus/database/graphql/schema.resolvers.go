@@ -6,11 +6,11 @@ package graphql
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/status"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/incident"
@@ -18,7 +18,7 @@ import (
 
 // Level is the resolver for the Level field.
 func (r *alertResolver) Level(ctx context.Context, obj *ent.Alert) (string, error) {
-	return fmt.Sprintf("%v", obj.Level), nil
+	return status.Level(obj.Level).String(), nil
 }
 
 // UUID is the resolver for the UUID field.
@@ -29,6 +29,13 @@ func (r *alertResolver) UUID(ctx context.Context, obj *ent.Alert) (string, error
 // IncidentID is the resolver for the IncidentID field.
 func (r *alertResolver) IncidentID(ctx context.Context, obj *ent.Alert) (string, error) {
 	return obj.IncidentID.String(), nil
+}
+
+// Incidents is the resolver for the Incidents field.
+func (r *alertResolver) Incidents(ctx context.Context, obj *ent.Alert) ([]*database.IncidentSummary, error) {
+	q := r.access.IncidentSummary.Query()
+	q.Where(incident.IncidentIDEQ(obj.IncidentID))
+	return q.All(ctx)
 }
 
 // IncidentEntries is the resolver for the IncidentEntries field.
@@ -50,7 +57,7 @@ func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (string, erro
 
 // Level is the resolver for the Level field.
 func (r *incidentResolver) Level(ctx context.Context, obj *ent.Incident) (string, error) {
-	return fmt.Sprintf("%v", obj.Level), nil
+	return status.Level(obj.Level).String(), nil
 }
 
 // State is the resolver for the State field.
@@ -79,8 +86,58 @@ func (r *incidentResolver) Alerts(ctx context.Context, obj *ent.Incident) ([]*en
 	return r.client.Alert.Query().Where(alert.IncidentIDEQ(obj.IncidentID)).All(ctx)
 }
 
+// Level is the resolver for the Level field.
+func (r *incidentSummaryResolver) Level(ctx context.Context, obj *database.IncidentSummary) (string, error) {
+	return status.Level(obj.IntLevel).String(), nil
+}
+
+// Start is the resolver for the Start field.
+func (r *incidentSummaryResolver) Start(ctx context.Context, obj *database.IncidentSummary) (*time.Time, error) {
+	t := obj.Start.Time()
+	return &t, nil
+}
+
+// End is the resolver for the End field.
+func (r *incidentSummaryResolver) End(ctx context.Context, obj *database.IncidentSummary) (*time.Time, error) {
+	t := obj.End.Time()
+	return &t, nil
+}
+
+// IncidentID is the resolver for the IncidentID field.
+func (r *incidentSummaryResolver) IncidentID(ctx context.Context, obj *database.IncidentSummary) (string, error) {
+	return obj.IncidentID.String(), nil
+}
+
+// Alerts is the resolver for the Alerts field.
+func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *database.IncidentSummary) ([]*ent.Alert, error) {
+	q := r.client.Alert.Query().
+		Order(ent.Desc(alert.FieldTime)).
+		Where(alert.IncidentIDEQ(obj.IncidentID))
+	return q.All(ctx)
+}
+
 // Incidents is the resolver for the Incidents field.
-func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*ent.Incident, error) {
+func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*database.IncidentSummary, error) {
+	q := r.access.IncidentSummary.Query()
+	q.Order(ent.Desc(incident.FieldEnd))
+	if len(*szenario) > 0 {
+		q.Where(incident.NameContains(*szenario))
+	}
+	if after != nil && !after.IsZero() {
+		q.Where(incident.StartGTE(*after))
+	}
+	if before != nil && !before.IsZero() {
+		hcl.Infof("Query end: %v", before)
+		q.Where(incident.And(incident.EndNEQ(time.Time{}), incident.EndLTE(*before)))
+	}
+	if timestamp != nil && !timestamp.IsZero() {
+		q.Where(incident.And(incident.StartLTE(*timestamp), incident.EndGTE(*timestamp)))
+	}
+	return q.All(ctx)
+}
+
+// IncidentEntries is the resolver for the IncidentEntries field.
+func (r *queryResolver) IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*ent.Incident, error) {
 	q := r.client.Incident.Query().Order(ent.Desc(incident.FieldEnd))
 	if len(*szenario) > 0 {
 		q.Where(incident.NameContains(*szenario))
@@ -122,10 +179,14 @@ func (r *Resolver) File() FileResolver { return &fileResolver{r} }
 // Incident returns IncidentResolver implementation.
 func (r *Resolver) Incident() IncidentResolver { return &incidentResolver{r} }
 
+// IncidentSummary returns IncidentSummaryResolver implementation.
+func (r *Resolver) IncidentSummary() IncidentSummaryResolver { return &incidentSummaryResolver{r} }
+
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type alertResolver struct{ *Resolver }
 type fileResolver struct{ *Resolver }
 type incidentResolver struct{ *Resolver }
+type incidentSummaryResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

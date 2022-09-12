@@ -35,6 +35,7 @@ type WebStatus struct {
 	muICache         sync.Mutex
 	incidentCache    map[string]string
 	db               *db.Access
+	dbAccess         *database.Access
 }
 
 // New registers a WebStatus on the event bus
@@ -120,12 +121,19 @@ func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 func (s *WebStatus) DB() *db.Access {
 	if s.db == nil {
 		s.db = &db.Access{}
+	}
+	return s.db
+}
+
+// Ent returns the db.Access
+func (s *WebStatus) Ent() *database.Access {
+	if s.dbAccess == nil {
 		entAccess, err := database.New()
 		if err != nil {
-			panic(err)
+			s.hcl.Errorf("Cannot connect to DB: %v", err)
 		}
-		s.db.EntAccess = entAccess
+		s.dbAccess = entAccess
 	}
 
-	return s.db
+	return s.dbAccess
 }
