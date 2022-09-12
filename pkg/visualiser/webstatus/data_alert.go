@@ -150,7 +150,7 @@ func (s *WebStatus) getAlertFiles(a *db.Access, ent *database.Client, root strin
 			panic(err)
 		}
 		ctx := context.Background()
-		if err := ent.SaveAlert(ctx, alert); err != nil {
+		if err := ent.Alert.Save(ctx, alert); err != nil {
 			hcl.Warnf("Saving ent incident: %v", err)
 		}
 		if err := a.SaveAlert(ctx, alert); err != nil {

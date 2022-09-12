@@ -19,6 +19,11 @@ type Client struct {
 
 	// IncidentSummary is the query for incident summaries
 	IncidentSummary *IncidentSummaryQuery
+
+	// Incident wraps and enhances the ent IncidentClient
+	Incident *IncidentClient
+	// Alert wraps and enhances the ent AlertClient
+	Alert *AlertClient
 }
 
 // New creates an ent access
@@ -36,7 +41,15 @@ func New() (*Client, error) {
 		Client: entClient,
 		hcl:    core.Get().HCL().Named("ent"),
 	}
-	client.IncidentSummary = &IncidentSummaryQuery{access: client}
+	client.IncidentSummary = &IncidentSummaryQuery{client: client}
+	client.Incident = &IncidentClient{
+		IncidentClient: entClient.Incident,
+		client:         client,
+	}
+	client.Alert = &AlertClient{
+		AlertClient: entClient.Alert,
+		client:      client,
+	}
 
 	return client, nil
 }

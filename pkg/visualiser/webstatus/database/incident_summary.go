@@ -22,13 +22,13 @@ type IncidentSummary struct {
 
 // IncidentSummaryQuery allows quering incidents
 type IncidentSummaryQuery struct {
-	access *Client
+	client *Client
 	*ent.IncidentQuery
 }
 
 // Query returns a list of incidents
 func (isq *IncidentSummaryQuery) Query() *IncidentSummaryQuery {
-	q := isq.access.Incident.Query()
+	q := isq.client.Incident.Query()
 	isq.IncidentQuery = q
 	return isq
 }

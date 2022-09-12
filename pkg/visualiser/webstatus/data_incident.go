@@ -249,7 +249,7 @@ func (s *WebStatus) getIncidentDetailFiles(a *db.Access, ent *database.Client, r
 			hcl.Errorf("Save incident: %v", err)
 		}
 
-		if err := ent.SaveIncident(ctx, ai.IncidentMsg); err != nil {
+		if err := ent.Incident.Save(ctx, ai.IncidentMsg); err != nil {
 			hcl.Warnf("Saving ent incident: %v", err)
 		}
 		//details := root[len(s.getIncidentRoot())+1:]
