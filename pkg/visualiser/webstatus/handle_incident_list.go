@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/spf13/viper"
-	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
@@ -33,16 +32,17 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	s.hcl.Debugf("incidents for szenario %s requested", sz)
 
 	ctx := r.Context()
+	s.Ent().IncidentSummary.Query().All(ctx)
 	summary, err := s.DB().GetIncidentSummary(ctx, sz)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	baseurl := core.Get().WebServer().BasePath()
-	for i, s := range summary {
-		summary[i].DetailLink = fmt.Sprintf("%s/%s/%s/", baseurl, IncidentDetailPath, s.IncidentID)
-	}
+	// baseurl := core.Get().WebServer().BasePath()
+	// for i, s := range summary {
+	// 	summary[i].DetailLink = fmt.Sprintf("%s/%s/%s/", baseurl, IncidentDetailPath, s.IncidentID)
+	// }
 
 	sort.Slice(summary, func(i, j int) bool {
 		if summary[i].End.IsZero() && summary[j].End.IsZero() {
@@ -59,20 +59,22 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 
 	var data = struct {
 		*commonData
-		PromURL          string
-		Timeformat       string
-		IncidentListPath string
-		Incidents        []db.IncidentSummary
-		Szenarios        []string
-		FilterName       string
+		PromURL            string
+		Timeformat         string
+		IncidentListPath   string
+		IncidentDetailPath string
+		Incidents          []db.IncidentSummary
+		Szenarios          []string
+		FilterName         string
 	}{
-		commonData:       common(fmt.Sprintf("SOM Incidents: %s (%v)", name, len(summary)), r),
-		FilterName:       name,
-		PromURL:          fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
-		Timeformat:       cfg.TimeFormatString,
-		IncidentListPath: incidentListPath,
-		Incidents:        summary,
-		Szenarios:        s.DB().IncidentSzenarios(ctx),
+		commonData:         common(fmt.Sprintf("SOM Incidents: %s (%v)", name, len(summary)), r),
+		FilterName:         name,
+		PromURL:            fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
+		Timeformat:         cfg.TimeFormatString,
+		IncidentListPath:   incidentListPath,
+		IncidentDetailPath: IncidentDetailPath,
+		Incidents:          summary,
+		Szenarios:          s.DB().IncidentSzenarios(ctx),
 	}
 	s.render(w, r, "incident_list.gohtml", data)
 }

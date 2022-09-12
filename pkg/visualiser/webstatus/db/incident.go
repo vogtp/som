@@ -84,7 +84,7 @@ type IncidentSummary struct {
 	Total      int
 	IntLevel   int
 	Error      string
-	DetailLink string
+	// DetailLink string
 }
 
 // Level convinience method that calls status Level
