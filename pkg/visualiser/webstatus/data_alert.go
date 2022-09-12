@@ -119,7 +119,7 @@ func (s *WebStatus) getAlertInfo(file string) (ai *alertInfo, err error) {
 	return ai, nil
 }
 
-func (s *WebStatus) getAlertFiles(a *db.Access, ent *database.Access, root string, filter string) (fileList []alertFile, err error) {
+func (s *WebStatus) getAlertFiles(a *db.Access, ent *database.Client, root string, filter string) (fileList []alertFile, err error) {
 	files, err := ioutil.ReadDir(root)
 	doFilter := len(filter) > 0
 	if err != nil {

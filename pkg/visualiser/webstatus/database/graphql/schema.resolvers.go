@@ -33,7 +33,7 @@ func (r *alertResolver) IncidentID(ctx context.Context, obj *ent.Alert) (string,
 
 // Incidents is the resolver for the Incidents field.
 func (r *alertResolver) Incidents(ctx context.Context, obj *ent.Alert) ([]*database.IncidentSummary, error) {
-	q := r.access.IncidentSummary.Query()
+	q := r.client.IncidentSummary.Query()
 	q.Where(incident.IncidentIDEQ(obj.IncidentID))
 	return q.All(ctx)
 }
@@ -118,7 +118,7 @@ func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *database.Inci
 
 // Incidents is the resolver for the Incidents field.
 func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*database.IncidentSummary, error) {
-	q := r.access.IncidentSummary.Query()
+	q := r.client.IncidentSummary.Query()
 	q.Order(ent.Desc(incident.FieldEnd))
 	if len(*szenario) > 0 {
 		q.Where(incident.NameContains(*szenario))

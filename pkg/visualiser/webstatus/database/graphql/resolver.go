@@ -3,7 +3,6 @@ package graphql
 import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
 )
 
 // This file will not be regenerated automatically.
@@ -12,16 +11,14 @@ import (
 
 // Resolver gives access to the DB
 type Resolver struct {
-	access *database.Access
-	client *ent.Client
+	client *database.Client
 }
 
 // NewSchema creates a graphql executable schema.
-func NewSchema(a *database.Access) graphql.ExecutableSchema {
+func NewSchema(client *database.Client) graphql.ExecutableSchema {
 	return NewExecutableSchema(Config{
 		Resolvers: &Resolver{
-			access: a,
-			client: a.Client(),
+			client: client,
 		},
 	})
 }

@@ -35,7 +35,7 @@ type WebStatus struct {
 	muICache         sync.Mutex
 	incidentCache    map[string]string
 	db               *db.Access
-	dbAccess         *database.Access
+	dbAccess         *database.Client
 }
 
 // New registers a WebStatus on the event bus
@@ -126,7 +126,7 @@ func (s *WebStatus) DB() *db.Access {
 }
 
 // Ent returns the db.Access
-func (s *WebStatus) Ent() *database.Access {
+func (s *WebStatus) Ent() *database.Client {
 	if s.dbAccess == nil {
 		entAccess, err := database.New()
 		if err != nil {

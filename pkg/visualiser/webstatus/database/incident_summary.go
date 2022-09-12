@@ -20,18 +20,20 @@ type IncidentSummary struct {
 	Error      string        `json:"error"`
 }
 
+// IncidentSummaryQuery allows quering incidents
 type IncidentSummaryQuery struct {
-	a *Access
+	access *Client
 	*ent.IncidentQuery
 }
 
 // Query returns a list of incidents
 func (isq *IncidentSummaryQuery) Query() *IncidentSummaryQuery {
-	q := isq.a.client.Incident.Query()
+	q := isq.access.Incident.Query()
 	isq.IncidentQuery = q
 	return isq
 }
 
+// All returns all incudent summaries
 func (isq *IncidentSummaryQuery) All(ctx context.Context) ([]*IncidentSummary, error) {
 	g := isq.IncidentQuery.Select(incident.FieldIncidentID, incident.FieldName).
 		GroupBy(incident.FieldIncidentID, incident.FieldName).

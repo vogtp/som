@@ -213,7 +213,7 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 	return filtered
 }
 
-func (s *WebStatus) getIncidentDetailFiles(a *db.Access, ent *database.Access, root string, filter string) (fileList []incidentFile, err error) {
+func (s *WebStatus) getIncidentDetailFiles(a *db.Access, ent *database.Client, root string, filter string) (fileList []incidentFile, err error) {
 	// FIXME filter will not work
 	// fileList, err = s.readIncidentCache(root)
 	// if err == nil {
