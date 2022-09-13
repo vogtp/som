@@ -12,9 +12,9 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/alert"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/incident"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/file"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
 )
 
 const (

@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 )
 
 const (

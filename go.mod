@@ -9,7 +9,6 @@ require (
 	github.com/atc0005/go-teams-notify/v2 v2.6.1
 	github.com/chromedp/cdproto v0.0.0-20220908234607-11c39c58d330
 	github.com/chromedp/chromedp v0.8.5
-	github.com/glebarez/sqlite v1.4.6
 	github.com/go-test/deep v1.0.8
 	github.com/gomarkdown/markdown v0.0.0-20220905174103-7b278df48cfb
 	github.com/google/uuid v1.3.0
@@ -35,7 +34,6 @@ require (
 	github.com/xhit/go-str2duration/v2 v2.0.0
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gorm.io/gorm v1.23.8
 )
 
 require (
@@ -48,7 +46,6 @@ require (
 	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
-	github.com/glebarez/go-sqlite v1.18.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
@@ -62,8 +59,6 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.14.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -78,7 +73,6 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
-	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/schollz/peerdiscovery v1.6.12 // indirect
 	github.com/sethvargo/go-envconfig v0.8.2 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
@@ -101,8 +95,4 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	modernc.org/libc v1.18.0 // indirect
-	modernc.org/mathutil v1.5.0 // indirect
-	modernc.org/memory v1.3.0 // indirect
-	modernc.org/sqlite v1.18.1 // indirect
 )

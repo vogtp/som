@@ -13,7 +13,7 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -118,7 +118,7 @@ func (s *WebStatus) getAlertInfo(file string) (ai *alertInfo, err error) {
 	return ai, nil
 }
 
-func (s *WebStatus) getAlertFiles(ent *database.Client, root string, filter string) (fileList []alertFile, err error) {
+func (s *WebStatus) getAlertFiles(ent *db.Client, root string, filter string) (fileList []alertFile, err error) {
 	files, err := ioutil.ReadDir(root)
 	doFilter := len(filter) > 0
 	if err != nil {

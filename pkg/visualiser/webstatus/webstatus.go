@@ -11,7 +11,7 @@ import (
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 var (
@@ -32,7 +32,7 @@ type WebStatus struct {
 	alertCache       map[string]string
 	muICache         sync.Mutex
 	incidentCache    map[string]string
-	dbAccess         *database.Client
+	dbAccess         *db.Client
 }
 
 // New registers a WebStatus on the event bus
@@ -112,9 +112,9 @@ func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 }
 
 // Ent returns the db.Access
-func (s *WebStatus) Ent() *database.Client {
+func (s *WebStatus) Ent() *db.Client {
 	if s.dbAccess == nil {
-		entAccess, err := database.New()
+		entAccess, err := db.New()
 		if err != nil {
 			s.hcl.Errorf("Cannot connect to DB: %v", err)
 		}

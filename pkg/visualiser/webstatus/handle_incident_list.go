@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/incident"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
 const (
@@ -76,7 +76,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Timeformat         string
 		IncidentListPath   string
 		IncidentDetailPath string
-		Incidents          []*database.IncidentSummary
+		Incidents          []*db.IncidentSummary
 		Szenarios          []string
 		FilterName         string
 	}{

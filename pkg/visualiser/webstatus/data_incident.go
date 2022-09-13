@@ -17,7 +17,7 @@ import (
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -212,7 +212,7 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 	return filtered
 }
 
-func (s *WebStatus) getIncidentDetailFiles(ent *database.Client, root string, filter string) (fileList []incidentFile, err error) {
+func (s *WebStatus) getIncidentDetailFiles(ent *db.Client, root string, filter string) (fileList []incidentFile, err error) {
 	// FIXME filter will not work
 	// fileList, err = s.readIncidentCache(root)
 	// if err == nil {
