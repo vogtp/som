@@ -34,7 +34,7 @@ func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error 
 	}
 	i.SetStart(msg.Start)
 	i.SetEnd(msg.End)
-	i.SetLevel(msg.IntLevel)
+	i.SetIntLevel(msg.IntLevel)
 	i.SetState(msg.ByteState)
 
 	if errs, err := ic.client.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {

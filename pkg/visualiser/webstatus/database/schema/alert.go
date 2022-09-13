@@ -2,7 +2,6 @@ package schema
 
 import (
 	"entgo.io/ent"
-	"entgo.io/ent/schema/field"
 )
 
 // Alert holds the schema definition for the Alert entity.
@@ -12,9 +11,7 @@ type Alert struct {
 
 // Fields of the Alert.
 func (Alert) Fields() []ent.Field {
-	return []ent.Field{
-		field.Int("Level"),
-	}
+	return []ent.Field{}
 }
 
 // Edges of the Alert.

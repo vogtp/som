@@ -8,7 +8,8 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/incident"
 )
 
 const (
@@ -32,16 +33,20 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	s.hcl.Debugf("incidents for szenario %s requested", sz)
 
 	ctx := r.Context()
-	s.Ent().IncidentSummary.Query().All(ctx)
-	summary, err := s.DB().GetIncidentSummary(ctx, sz)
+	q := s.Ent().IncidentSummary.Query()
+	if len(sz) > 0 {
+		q.Where(incident.Name(sz))
+	}
+
+	summary, err := q.All(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// baseurl := core.Get().WebServer().BasePath()
+	// incidentSummeries := make([]database.IncidentSummary, len(summary))
 	// for i, s := range summary {
-	// 	summary[i].DetailLink = fmt.Sprintf("%s/%s/%s/", baseurl, IncidentDetailPath, s.IncidentID)
+	// 	incidentSummeries[i] = *s
 	// }
 
 	sort.Slice(summary, func(i, j int) bool {
@@ -63,7 +68,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Timeformat         string
 		IncidentListPath   string
 		IncidentDetailPath string
-		Incidents          []db.IncidentSummary
+		Incidents          []*database.IncidentSummary
 		Szenarios          []string
 		FilterName         string
 	}{

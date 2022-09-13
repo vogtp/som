@@ -33,7 +33,7 @@ func (ac *AlertClient) Save(ctx context.Context, msg *msg.AlertMsg) error {
 	if msg.Err() != nil {
 		i.SetError(msg.Err().Error())
 	}
-	i.SetLevel(int(status.Unknown.FromString(msg.Level)))
+	i.SetIntLevel(int(status.Unknown.FromString(msg.Level)))
 
 	if errs, err := ac.client.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFailures(errs...)

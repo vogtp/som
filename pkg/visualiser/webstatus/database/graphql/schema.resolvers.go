@@ -16,11 +16,6 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/incident"
 )
 
-// Level is the resolver for the Level field.
-func (r *alertResolver) Level(ctx context.Context, obj *ent.Alert) (status.Level, error) {
-	return status.Level(obj.Level), nil
-}
-
 // UUID is the resolver for the UUID field.
 func (r *alertResolver) UUID(ctx context.Context, obj *ent.Alert) (string, error) {
 	return obj.UUID.String(), nil
@@ -55,11 +50,6 @@ func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (string, erro
 	return s, nil
 }
 
-// Level is the resolver for the Level field.
-func (r *incidentResolver) Level(ctx context.Context, obj *ent.Incident) (status.Level, error) {
-	return status.Level(obj.Level), nil
-}
-
 // State is the resolver for the State field.
 func (r *incidentResolver) State(ctx context.Context, obj *ent.Incident) (string, error) {
 	s := status.New()
@@ -84,11 +74,6 @@ func (r *incidentResolver) IncidentID(ctx context.Context, obj *ent.Incident) (s
 // Alerts is the resolver for the Alerts field.
 func (r *incidentResolver) Alerts(ctx context.Context, obj *ent.Incident) ([]*ent.Alert, error) {
 	return r.client.Alert.Query().Where(alert.IncidentIDEQ(obj.IncidentID)).All(ctx)
-}
-
-// Level is the resolver for the Level field.
-func (r *incidentSummaryResolver) Level(ctx context.Context, obj *database.IncidentSummary) (status.Level, error) {
-	return status.Level(obj.IntLevel), nil
 }
 
 // Start is the resolver for the Start field.
@@ -116,7 +101,7 @@ func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *database.Inci
 	if level != nil {
 		lvl := *level
 		if lvl > status.Unknown {
-			q.Where(alert.LevelGTE(int(lvl)))
+			q.Where(alert.IntLevelGTE(int(lvl)))
 		}
 	}
 	return q.All(ctx)

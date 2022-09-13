@@ -21,7 +21,6 @@ func (Incident) Mixin() []ent.Mixin {
 // Fields of the Incident.
 func (Incident) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int("Level"),
 		field.Time("Start"),
 		field.Time("End"),
 		field.Bytes("State"),

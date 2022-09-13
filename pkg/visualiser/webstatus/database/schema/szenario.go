@@ -22,6 +22,7 @@ func (SzenarioMixin) Fields() []ent.Field {
 		field.UUID("IncidentID", uuid.UUID{}),
 		field.String("Name"),
 		field.Time("Time"),
+		field.Int("IntLevel").StorageKey("level"),
 		field.String("Username"),
 		field.String("Region"),
 		field.String("ProbeOS"),
