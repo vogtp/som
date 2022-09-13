@@ -44,11 +44,6 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// incidentSummeries := make([]database.IncidentSummary, len(summary))
-	// for i, s := range summary {
-	// 	incidentSummeries[i] = *s
-	// }
-
 	sort.Slice(summary, func(i, j int) bool {
 		if summary[i].End.IsZero() && summary[j].End.IsZero() {
 			return summary[i].Start.After(summary[j].Start)

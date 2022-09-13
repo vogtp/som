@@ -1,6 +1,6 @@
 # schema tells gqlgen where the GraphQL schema is located.
 schema:
-  - schema.graphql
+  - *.graphql
 
 # resolver reports where the resolver implementations go.
 resolver:

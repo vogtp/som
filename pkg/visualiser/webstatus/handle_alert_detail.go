@@ -1,6 +1,8 @@
 package webstatus
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -92,6 +94,10 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	data.FilesURL = data.Baseurl + "/" + FilesPath
 
 	for i, alert := range alerts {
+		if errors.Is(ctx.Err(), context.Canceled) {
+			s.hcl.Infof("Incident alert context canceld: %v", ctx.Err())
+			return
+		}
 		alertDetail := alertDetailData{
 			Alert:    alert,
 			Stati:    make(map[string]string),

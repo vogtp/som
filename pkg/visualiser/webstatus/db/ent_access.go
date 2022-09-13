@@ -28,7 +28,7 @@ type Client struct {
 
 // New creates an ent access
 func New() (*Client, error) {
-	entClient, err := ent.Open(dialect.SQLite, "file:data/somEnt.sqlite?&cache=shared&_fk=1")
+	entClient, err := ent.Open(dialect.SQLite, "file:data/som.sqlite?&cache=shared&_fk=1")
 	if err != nil {
 		return nil, fmt.Errorf("failed opening connection to sqlite: %v", err)
 	}

@@ -1,7 +1,9 @@
 package webstatus
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -14,6 +16,7 @@ import (
 	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
@@ -101,6 +104,10 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	s.hcl.Debugf("found %v incident records", aCnt)
 
 	for i, f := range incidents {
+		if errors.Is(ctx.Err(), context.Canceled) {
+			s.hcl.Infof("Incident detail context canceld: %v", ctx.Err())
+			return
+		}
 		data.Name = f.Name
 		data.Start = f.Start
 		data.End = f.End
@@ -147,7 +154,13 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
-		if fils, err := f.QueryFiles().All(ctx); err == nil {
+		if fils, err := f.QueryFiles().Select(
+			file.FieldUUID,
+			file.FieldName,
+			file.FieldType,
+			file.FieldExt,
+			file.FieldSize,
+		).All(ctx); err == nil {
 			id.Files = make([]msg.FileMsgItem, len(fils))
 			for i, f := range fils {
 				id.Files[i] = f.MsgItem()

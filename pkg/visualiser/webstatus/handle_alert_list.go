@@ -82,8 +82,5 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		Alerts:        alertDatas,
 		Szenarios:     szenarios,
 	}
-	for _, a := range data.Alerts {
-		s.hcl.Infof("data Alert: %v", a.AlertInfo.Name)
-	}
 	s.render(w, r, "alert_list.gohtml", data)
 }

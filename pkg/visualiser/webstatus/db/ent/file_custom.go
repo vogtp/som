@@ -14,7 +14,7 @@ func (f File) MsgItem() msg.FileMsgItem {
 			MimeType: f.Type,
 			Ext:      f.Ext,
 		},
-		Size:    f.Size,
-		Payload: f.Payload,
+		Size: f.Size,
+		//Payload: f.Payload,
 	}
 }

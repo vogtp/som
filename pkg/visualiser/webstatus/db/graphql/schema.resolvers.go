@@ -111,7 +111,7 @@ func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *db.IncidentSu
 func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*db.IncidentSummary, error) {
 	q := r.client.IncidentSummary.Query()
 	q.Order(ent.Desc(incident.FieldEnd))
-	if len(*incidentID) > 0 {
+	if incidentID != nil && len(*incidentID) > 0 {
 		id, err := uuid.Parse(*incidentID)
 		if err != nil {
 			return nil, fmt.Errorf("%s is not a UUID: %w", *incidentID, err)
@@ -136,7 +136,7 @@ func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timesta
 // IncidentEntries is the resolver for the IncidentEntries field.
 func (r *queryResolver) IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*ent.Incident, error) {
 	q := r.client.Incident.Query().Order(ent.Desc(incident.FieldEnd))
-	if len(*incidentID) > 0 {
+	if incidentID != nil && len(*incidentID) > 0 {
 		id, err := uuid.Parse(*incidentID)
 		if err != nil {
 			return nil, fmt.Errorf("%s is not a UUID: %w", *incidentID, err)
