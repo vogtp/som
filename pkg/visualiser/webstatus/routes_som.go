@@ -26,6 +26,7 @@ func (s *WebStatus) routes() {
 	w.HandleFunc(AlertDetailPath, s.handleAlertDetail)
 	w.HandleFunc(incidentListPath, s.handleIncidentList)
 	w.HandleFunc(IncidentDetailPath, s.handleIncidentDetail)
+	w.HandleFunc("/api/", s.handleGraphiQL)
 
 	w.Handle("/graphiql/", playground.Handler("SQM", w.BasePath()+"/graphql/"))
 
