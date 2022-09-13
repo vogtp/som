@@ -1,8 +1,9 @@
-package graphql
+package resolver
 
 import (
-	"github.com/99designs/gqlgen/graphql"
+	gqlgen "github.com/99designs/gqlgen/graphql"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
 )
 
 // This file will not be regenerated automatically.
@@ -15,8 +16,8 @@ type Resolver struct {
 }
 
 // NewSchema creates a graphql executable schema.
-func NewSchema(client *db.Client) graphql.ExecutableSchema {
-	return NewExecutableSchema(Config{
+func NewSchema(client *db.Client) gqlgen.ExecutableSchema {
+	return graphql.NewExecutableSchema(graphql.Config{
 		Resolvers: &Resolver{
 			client: client,
 		},

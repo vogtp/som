@@ -1,4 +1,4 @@
-package graphql
+package resolver
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
+	graphql1 "github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
 )
 
 // UUID is the resolver for the UUID field.
@@ -21,7 +22,7 @@ func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (string, erro
 	return s, nil
 }
 
-// File returns FileResolver implementation.
-func (r *Resolver) File() FileResolver { return &fileResolver{r} }
+// File returns graphql1.FileResolver implementation.
+func (r *Resolver) File() graphql1.FileResolver { return &fileResolver{r} }
 
 type fileResolver struct{ *Resolver }

@@ -7,7 +7,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/vogtp/som/pkg/core"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql/resolver"
 )
 
 func (s *WebStatus) routes() {
@@ -29,7 +29,7 @@ func (s *WebStatus) routes() {
 
 	w.Handle("/graphiql/", playground.Handler("SQM", w.BasePath()+"/graphql/"))
 
-	srv := handler.NewDefaultServer(graphql.NewSchema(s.Ent()))
+	srv := handler.NewDefaultServer(resolver.NewSchema(s.Ent()))
 	w.Handle("/graphql/", srv)
 
 	// legacy

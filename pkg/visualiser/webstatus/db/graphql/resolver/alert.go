@@ -1,4 +1,4 @@
-package graphql
+package resolver
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -9,6 +9,7 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
+	graphql1 "github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
 )
 
 // UUID is the resolver for the UUID field.
@@ -33,7 +34,7 @@ func (r *alertResolver) IncidentEntries(ctx context.Context, obj *ent.Alert) ([]
 	return r.client.Incident.Query().Where(incident.IncidentID(obj.IncidentID)).All(ctx)
 }
 
-// Alert returns AlertResolver implementation.
-func (r *Resolver) Alert() AlertResolver { return &alertResolver{r} }
+// Alert returns graphql1.AlertResolver implementation.
+func (r *Resolver) Alert() graphql1.AlertResolver { return &alertResolver{r} }
 
 type alertResolver struct{ *Resolver }
