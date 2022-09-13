@@ -6,11 +6,11 @@ type Incident {
     Start: Time!
     End: Time
     State: String!
-    UUID: String!
+    UUID: UUID!
     """
     Reference ID for the incident
     """
-    IncidentID: String!
+    IncidentID: UUID!
     Name: String!
     Username: String!
     Region: String!

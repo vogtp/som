@@ -24,16 +24,6 @@ func (r *incidentResolver) State(ctx context.Context, obj *ent.Incident) (string
 	return s.String(), nil
 }
 
-// UUID is the resolver for the UUID field.
-func (r *incidentResolver) UUID(ctx context.Context, obj *ent.Incident) (string, error) {
-	return obj.UUID.String(), nil
-}
-
-// IncidentID is the resolver for the IncidentID field.
-func (r *incidentResolver) IncidentID(ctx context.Context, obj *ent.Incident) (string, error) {
-	return obj.IncidentID.String(), nil
-}
-
 // Alerts is the resolver for the Alerts field.
 func (r *incidentResolver) Alerts(ctx context.Context, obj *ent.Incident) ([]*ent.Alert, error) {
 	return r.client.Alert.Query().Where(alert.IncidentIDEQ(obj.IncidentID)).All(ctx)

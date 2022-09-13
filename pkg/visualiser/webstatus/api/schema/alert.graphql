@@ -6,12 +6,12 @@ Alerts that were generated (but not nessesairaly escalated)
 type Alert {
     id: ID!
     Level: Level!
-    UUID: String!
+    UUID: UUID!
     Time: Time!
     """
     Reference ID for the incident
     """
-    IncidentID: String!
+    IncidentID: UUID!
     """
     Query its incidents
     """

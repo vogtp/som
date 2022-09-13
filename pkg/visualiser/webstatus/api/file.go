@@ -10,11 +10,6 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 )
 
-// UUID is the resolver for the UUID field.
-func (r *fileResolver) UUID(ctx context.Context, obj *ent.File) (string, error) {
-	return obj.UUID.String(), nil
-}
-
 // Payload is the resolver for the Payload field.
 func (r *fileResolver) Payload(ctx context.Context, obj *ent.File) (string, error) {
 	s := string(obj.Payload)

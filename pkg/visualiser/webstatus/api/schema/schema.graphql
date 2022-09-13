@@ -1,6 +1,7 @@
 # general stuff not needing any specal resolvers
 
 scalar Time
+scalar UUID
 
 enum Level {
     Unknown

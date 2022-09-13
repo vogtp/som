@@ -24,6 +24,9 @@ models:
     model:
       - github.com/99designs/gqlgen/graphql.IntID
       - github.com/99designs/gqlgen/graphql.ID
+  UUID:
+    model:
+      - github.com/vogtp/som/pkg/visualiser/webstatus/api/types.UUID
   IncidentSummary:
     model:
       - github.com/vogtp/som/pkg/visualiser/webstatus/db.IncidentSummary

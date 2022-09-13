@@ -12,16 +12,6 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
-// UUID is the resolver for the UUID field.
-func (r *alertResolver) UUID(ctx context.Context, obj *ent.Alert) (string, error) {
-	return obj.UUID.String(), nil
-}
-
-// IncidentID is the resolver for the IncidentID field.
-func (r *alertResolver) IncidentID(ctx context.Context, obj *ent.Alert) (string, error) {
-	return obj.IncidentID.String(), nil
-}
-
 // Incidents is the resolver for the Incidents field.
 func (r *alertResolver) Incidents(ctx context.Context, obj *ent.Alert) ([]*db.IncidentSummary, error) {
 	q := r.client.IncidentSummary.Query()

@@ -1,7 +1,7 @@
 
 type File {
     id: ID!
-    UUID: String!
+    UUID: UUID!
     Name: String!
     Type: String!
     Ext: String!

@@ -5,7 +5,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,15 +16,11 @@ import (
 )
 
 // Incidents is the resolver for the Incidents field.
-func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*db.IncidentSummary, error) {
+func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *uuid.UUID, after *time.Time, before *time.Time) ([]*db.IncidentSummary, error) {
 	q := r.client.IncidentSummary.Query()
 	q.Order(ent.Desc(incident.FieldEnd))
-	if incidentID != nil && len(*incidentID) > 0 {
-		id, err := uuid.Parse(*incidentID)
-		if err != nil {
-			return nil, fmt.Errorf("%s is not a UUID: %w", *incidentID, err)
-		}
-		q.Where(incident.IncidentIDEQ(id))
+	if incidentID != nil && *incidentID != uuid.Nil {
+		q.Where(incident.IncidentIDEQ(*incidentID))
 	}
 	if len(*szenario) > 0 {
 		q.Where(incident.NameContains(*szenario))
@@ -43,14 +38,10 @@ func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timesta
 }
 
 // IncidentEntries is the resolver for the IncidentEntries field.
-func (r *queryResolver) IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*ent.Incident, error) {
+func (r *queryResolver) IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *uuid.UUID, after *time.Time, before *time.Time) ([]*ent.Incident, error) {
 	q := r.client.Incident.Query().Order(ent.Desc(incident.FieldEnd))
-	if incidentID != nil && len(*incidentID) > 0 {
-		id, err := uuid.Parse(*incidentID)
-		if err != nil {
-			return nil, fmt.Errorf("%s is not a UUID: %w", *incidentID, err)
-		}
-		q.Where(incident.IncidentIDEQ(id))
+	if incidentID != nil && *incidentID != uuid.Nil {
+		q.Where(incident.IncidentIDEQ(*incidentID))
 	}
 	if len(*szenario) > 0 {
 		q.Where(incident.NameContains(*szenario))

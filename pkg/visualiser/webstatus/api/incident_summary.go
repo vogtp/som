@@ -12,6 +12,7 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
 // Start is the resolver for the Start field.
@@ -26,9 +27,9 @@ func (r *incidentSummaryResolver) End(ctx context.Context, obj *db.IncidentSumma
 	return &t, nil
 }
 
-// IncidentID is the resolver for the IncidentID field.
-func (r *incidentSummaryResolver) IncidentID(ctx context.Context, obj *db.IncidentSummary) (string, error) {
-	return obj.IncidentID.String(), nil
+// IncidentEntries is the resolver for the IncidentEntries field.
+func (r *incidentSummaryResolver) IncidentEntries(ctx context.Context, obj *db.IncidentSummary) ([]*ent.Incident, error) {
+	return r.client.Incident.Query().Where(incident.IncidentID(obj.IncidentID)).All(ctx)
 }
 
 // Alerts is the resolver for the Alerts field.
