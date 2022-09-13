@@ -5,10 +5,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/alert"
 )
 
 const (
@@ -17,8 +19,8 @@ const (
 )
 
 type alertDetailData struct {
-	db.AlertModel
-	Errors   []db.ErrorModel
+	*ent.Alert
+	Errors   []*ent.Failure
 	Counters map[string]string
 	Stati    map[string]string
 	Files    []msg.FileMsgItem
@@ -39,7 +41,18 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 
 	s.hcl.Infof("alerts details %s requested", id)
 	ctx := r.Context()
-	alerts, err := s.DB().GetAlert(ctx, id)
+	q := s.Ent().Alert.Query()
+	if len(id) > 0 {
+		uid, err := uuid.Parse(id)
+		if err != nil {
+			e := fmt.Errorf("cannot parse %s as uuid: %w", id, err)
+			s.hcl.Error(e.Error())
+			http.Error(w, e.Error(), http.StatusInternalServerError)
+			return
+		}
+		q.Where(alert.UUID(uid))
+	}
+	alerts, err := q.All(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -80,26 +93,35 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 
 	for i, alert := range alerts {
 		alertDetail := alertDetailData{
-			AlertModel: alert,
+			Alert:    alert,
+			Stati:    make(map[string]string),
+			Counters: make(map[string]string),
 		}
 		alertDetail.ErrStr = alertDetail.Error
-		if errs, err := s.DB().GetErrors(ctx, alert.ID); err == nil {
+		if errs, err := alert.QueryFailures().All(ctx); err == nil {
 			alertDetail.Errors = errs
 		} else {
 			s.hcl.Warnf("Loading errors: %v", err)
 		}
-		if stati, err := s.DB().GetStati(ctx, alert.ID); err == nil {
-			alertDetail.Stati = stati
+		if stati, err := alert.QueryStati().All(ctx); err == nil {
+			for _, s := range stati {
+				alertDetail.Stati[s.Name] = s.Value
+			}
 		} else {
 			s.hcl.Warnf("Loading stati: %v", err)
 		}
-		if ctrs, err := s.DB().GetCounters(ctx, alert.ID); err == nil {
-			alertDetail.Counters = ctrs
+		if ctrs, err := alert.QueryCounters().All(ctx); err == nil {
+			for _, c := range ctrs {
+				alertDetail.Counters[c.Name] = c.Value
+			}
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
-		if fils, err := s.DB().GetFiles(ctx, alert.ID); err == nil {
-			alertDetail.Files = fils
+		if fils, err := alert.QueryFiles().All(ctx); err == nil {
+			alertDetail.Files = make([]msg.FileMsgItem, len(fils))
+			for i, f := range fils {
+				alertDetail.Files[i] = f.MsgItem()
+			}
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
