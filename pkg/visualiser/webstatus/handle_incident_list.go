@@ -62,6 +62,14 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		return summary[i].Start.After(summary[j].Start)
 	})
 
+	szenarios, err := s.Ent().Incident.Szenarios(ctx)
+	if err != nil {
+		s.hcl.Warnf("Cannot get list of szenarios: %v", err)
+		if szenarios == nil {
+			szenarios = make([]string, 0)
+		}
+	}
+
 	var data = struct {
 		*commonData
 		PromURL            string
@@ -79,7 +87,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		IncidentListPath:   incidentListPath,
 		IncidentDetailPath: IncidentDetailPath,
 		Incidents:          summary,
-		Szenarios:          s.DB().IncidentSzenarios(ctx),
+		Szenarios:          szenarios,
 	}
 	s.render(w, r, "incident_list.gohtml", data)
 }

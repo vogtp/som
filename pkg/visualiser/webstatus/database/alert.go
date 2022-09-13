@@ -7,12 +7,18 @@ import (
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/alert"
 )
 
 // AlertClient is a wrapper enhaning the ent client
 type AlertClient struct {
 	*ent.AlertClient
 	client *Client
+}
+
+// Szenarios returns a list of szenario names
+func (ac *AlertClient) Szenarios(ctx context.Context) ([]string, error) {
+	return ac.client.Alert.Query().Select(alert.FieldName).GroupBy(alert.FieldName).Strings(ctx)
 }
 
 // Save an alert msg to ent

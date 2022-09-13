@@ -1,7 +1,6 @@
 package webstatus
 
 import (
-	"context"
 	"embed"
 	"html/template"
 	"strings"
@@ -13,7 +12,6 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 var (
@@ -34,7 +32,6 @@ type WebStatus struct {
 	alertCache       map[string]string
 	muICache         sync.Mutex
 	incidentCache    map[string]string
-	db               *db.Access
 	dbAccess         *database.Client
 }
 
@@ -112,17 +109,6 @@ func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 	if err := s.saveIncident(i); err != nil {
 		s.hcl.Warnf("Cannot save incident: %v", err)
 	}
-	if err := s.DB().SaveIncident(context.Background(), i); err != nil {
-		s.hcl.Warnf("Cannot save incident to DB: %v", err)
-	}
-}
-
-// DB returns the db.Access
-func (s *WebStatus) DB() *db.Access {
-	if s.db == nil {
-		s.db = &db.Access{}
-	}
-	return s.db
 }
 
 // Ent returns the db.Access

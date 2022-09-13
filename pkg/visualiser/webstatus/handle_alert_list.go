@@ -39,7 +39,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	q := s.Ent().Alert.Query()
 	if len(sz) > 0 {
-		s.hcl.Infof("where: %s",sz)
+		s.hcl.Infof("where: %s", sz)
 		q.Where(alert.NameEqualFold(sz))
 	}
 	alerts, err := q.All(ctx)
@@ -47,7 +47,6 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.hcl.Infof("Found %d alerts",len(alerts))
 	baseurl := core.Get().WebServer().BasePath()
 	alertDatas := make([]alertData, len(alerts))
 	for i, a := range alerts {
@@ -58,6 +57,14 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		s.hcl.Infof("Alerts[%v]: %v %v", i, a.Name, alertDatas[i].AlertInfo.Name)
 	}
 	s.hcl.Infof("Loaded %v alerts", len(alerts))
+
+	szenarios, err := s.Ent().Alert.Szenarios(ctx)
+	if err != nil {
+		s.hcl.Warnf("Cannot get list of szenarios: %v", err)
+		if szenarios == nil {
+			szenarios = make([]string, 0)
+		}
+	}
 	var data = struct {
 		*commonData
 		PromURL       string
@@ -73,7 +80,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		Timeformat:    cfg.TimeFormatString,
 		AlertListPath: alertListPath,
 		Alerts:        alertDatas,
-		Szenarios:     s.DB().AlertSzenarios(ctx),
+		Szenarios:     szenarios,
 	}
 	for _, a := range data.Alerts {
 		s.hcl.Infof("data Alert: %v", a.AlertInfo.Name)

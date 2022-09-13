@@ -18,7 +18,6 @@ import (
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -213,7 +212,7 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 	return filtered
 }
 
-func (s *WebStatus) getIncidentDetailFiles(a *db.Access, ent *database.Client, root string, filter string) (fileList []incidentFile, err error) {
+func (s *WebStatus) getIncidentDetailFiles(ent *database.Client, root string, filter string) (fileList []incidentFile, err error) {
 	// FIXME filter will not work
 	// fileList, err = s.readIncidentCache(root)
 	// if err == nil {
@@ -229,7 +228,7 @@ func (s *WebStatus) getIncidentDetailFiles(a *db.Access, ent *database.Client, r
 	for _, f := range files {
 		path := fmt.Sprintf("%s/%s", root, f.Name())
 		if f.IsDir() {
-			subFiles, err := s.getIncidentDetailFiles(a, ent, path, filter)
+			subFiles, err := s.getIncidentDetailFiles(ent, path, filter)
 			if err != nil {
 				return nil, err
 			}
@@ -245,9 +244,6 @@ func (s *WebStatus) getIncidentDetailFiles(a *db.Access, ent *database.Client, r
 			continue
 		}
 		ctx := context.Background()
-		if err := a.SaveIncident(ctx, ai.IncidentMsg); err != nil {
-			hcl.Errorf("Save incident: %v", err)
-		}
 
 		if err := ent.Incident.Save(ctx, ai.IncidentMsg); err != nil {
 			hcl.Warnf("Saving ent incident: %v", err)

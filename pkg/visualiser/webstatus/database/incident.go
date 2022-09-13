@@ -6,12 +6,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/incident"
 )
 
 // IncidentClient is a wrapper enhaning the ent client
 type IncidentClient struct {
 	*ent.IncidentClient
 	client *Client
+}
+
+// Szenarios returns a list of szenario names
+func (ic *IncidentClient) Szenarios(ctx context.Context) ([]string, error) {
+	return ic.client.Incident.Query().Select(incident.FieldName).GroupBy(incident.FieldName).Strings(ctx)
 }
 
 // Save save an incident msg to ent

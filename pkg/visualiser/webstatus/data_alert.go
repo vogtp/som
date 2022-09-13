@@ -14,7 +14,6 @@ import (
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -119,7 +118,7 @@ func (s *WebStatus) getAlertInfo(file string) (ai *alertInfo, err error) {
 	return ai, nil
 }
 
-func (s *WebStatus) getAlertFiles(a *db.Access, ent *database.Client, root string, filter string) (fileList []alertFile, err error) {
+func (s *WebStatus) getAlertFiles(ent *database.Client, root string, filter string) (fileList []alertFile, err error) {
 	files, err := ioutil.ReadDir(root)
 	doFilter := len(filter) > 0
 	if err != nil {
@@ -129,7 +128,7 @@ func (s *WebStatus) getAlertFiles(a *db.Access, ent *database.Client, root strin
 	for _, f := range files {
 		path := fmt.Sprintf("%s/%s", root, f.Name())
 		if f.IsDir() {
-			subFiles, err := s.getAlertFiles(a, ent, path, filter)
+			subFiles, err := s.getAlertFiles(ent, path, filter)
 			if err != nil {
 				return nil, err
 			}
@@ -152,11 +151,7 @@ func (s *WebStatus) getAlertFiles(a *db.Access, ent *database.Client, root strin
 		ctx := context.Background()
 		if err := ent.Alert.Save(ctx, alert); err != nil {
 			hcl.Warnf("Saving ent alert: %v", err)
-//			panic(err)
-		}
-		if err := a.SaveAlert(ctx, alert); err != nil {
-			hcl.Errorf("Cannot save alert %s: %v", alert.ID.String(), err)
-
+			//			panic(err)
 		}
 		// fileList = append([]alertFile{
 		// 	{
