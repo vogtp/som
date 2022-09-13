@@ -1,0 +1,10 @@
+
+type File {
+    id: ID!
+    UUID: String!
+    Name: String!
+    Type: String!
+    Ext: String!
+    Size: Int!
+    Payload: String!
+}

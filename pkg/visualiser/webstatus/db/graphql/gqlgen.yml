@@ -1,12 +1,12 @@
 # schema tells gqlgen where the GraphQL schema is located.
 schema:
-  - *.graphql
+  - "*.graphql"
 
 # resolver reports where the resolver implementations go.
 resolver:
   layout: follow-schema
   dir: .
-  #filename_template: "{name}.resolvers.go"
+  filename_template: "resolvers.{name}.go"
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.

@@ -1,0 +1,26 @@
+
+
+type Incident {
+    id: ID!
+    Level: Level!
+    Start: Time!
+    End: Time
+    State: String!
+    UUID: String!
+    """
+    Reference ID for the incident
+    """
+    IncidentID: String!
+    Name: String!
+    Username: String!
+    Region: String!
+    ProbeOS: String!
+    ProbeHost: String!
+    Error: String
+    Counters: [Counter!]
+    Stati: [Status!]
+    Failures: [Failure!]
+    Files: [File!]
+    Alerts: [Alert!]
+}
+

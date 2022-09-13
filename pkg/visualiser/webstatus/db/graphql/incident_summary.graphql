@@ -1,0 +1,14 @@
+
+
+"""
+Summary of an incident
+"""
+type IncidentSummary {
+    Level: Level!
+    Start: Time!
+    End: Time
+    IncidentID: String!
+    Name: String!
+    Total: Int!
+    Alerts(Level: Level): [Alert!]
+}
