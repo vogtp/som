@@ -6,9 +6,10 @@ package graphql
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
-	"github.com/vogtp/go-hcl"
+	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
@@ -55,8 +56,7 @@ func (r *incidentResolver) State(ctx context.Context, obj *ent.Incident) (string
 	s := status.New()
 	err := json.Unmarshal(obj.State, &s)
 	if err != nil {
-
-		hcl.Warnf("Cannot unmarsh state of incident: %v", err)
+		return "", fmt.Errorf("Cannot unmarshal state: %w", err)
 	}
 	return s.String(), nil
 }
@@ -108,9 +108,16 @@ func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *database.Inci
 }
 
 // Incidents is the resolver for the Incidents field.
-func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*database.IncidentSummary, error) {
+func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*database.IncidentSummary, error) {
 	q := r.client.IncidentSummary.Query()
 	q.Order(ent.Desc(incident.FieldEnd))
+	if len(*incidentID) > 0 {
+		id, err := uuid.Parse(*incidentID)
+		if err != nil {
+			return nil, fmt.Errorf("%s is not a UUID: %w", *incidentID, err)
+		}
+		q.Where(incident.IncidentIDEQ(id))
+	}
 	if len(*szenario) > 0 {
 		q.Where(incident.NameContains(*szenario))
 	}
@@ -118,7 +125,6 @@ func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timesta
 		q.Where(incident.StartGTE(*after))
 	}
 	if before != nil && !before.IsZero() {
-		hcl.Infof("Query end: %v", before)
 		q.Where(incident.And(incident.EndNEQ(time.Time{}), incident.EndLTE(*before)))
 	}
 	if timestamp != nil && !timestamp.IsZero() {
@@ -128,8 +134,15 @@ func (r *queryResolver) Incidents(ctx context.Context, szenario *string, timesta
 }
 
 // IncidentEntries is the resolver for the IncidentEntries field.
-func (r *queryResolver) IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*ent.Incident, error) {
+func (r *queryResolver) IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*ent.Incident, error) {
 	q := r.client.Incident.Query().Order(ent.Desc(incident.FieldEnd))
+	if len(*incidentID) > 0 {
+		id, err := uuid.Parse(*incidentID)
+		if err != nil {
+			return nil, fmt.Errorf("%s is not a UUID: %w", *incidentID, err)
+		}
+		q.Where(incident.IncidentIDEQ(id))
+	}
 	if len(*szenario) > 0 {
 		q.Where(incident.NameContains(*szenario))
 	}
@@ -137,7 +150,6 @@ func (r *queryResolver) IncidentEntries(ctx context.Context, szenario *string, t
 		q.Where(incident.StartGTE(*after))
 	}
 	if before != nil && !before.IsZero() {
-		hcl.Infof("Query end: %v", before)
 		q.Where(incident.And(incident.EndNEQ(time.Time{}), incident.EndLTE(*before)))
 	}
 	if timestamp != nil && !timestamp.IsZero() {

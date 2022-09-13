@@ -126,8 +126,8 @@ type ComplexityRoot struct {
 
 	Query struct {
 		Alerts          func(childComplexity int, szenario *string, after *time.Time, before *time.Time) int
-		IncidentEntries func(childComplexity int, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) int
-		Incidents       func(childComplexity int, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) int
+		IncidentEntries func(childComplexity int, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) int
+		Incidents       func(childComplexity int, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) int
 	}
 
 	Status struct {
@@ -164,8 +164,8 @@ type IncidentSummaryResolver interface {
 	Alerts(ctx context.Context, obj *database.IncidentSummary, level *status.Level) ([]*ent.Alert, error)
 }
 type QueryResolver interface {
-	Incidents(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*database.IncidentSummary, error)
-	IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, after *time.Time, before *time.Time) ([]*ent.Incident, error)
+	Incidents(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*database.IncidentSummary, error)
+	IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *string, after *time.Time, before *time.Time) ([]*ent.Incident, error)
 	Alerts(ctx context.Context, szenario *string, after *time.Time, before *time.Time) ([]*ent.Alert, error)
 }
 
@@ -596,7 +596,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.IncidentEntries(childComplexity, args["Szenario"].(*string), args["Timestamp"].(*time.Time), args["After"].(*time.Time), args["Before"].(*time.Time)), true
+		return e.complexity.Query.IncidentEntries(childComplexity, args["Szenario"].(*string), args["Timestamp"].(*time.Time), args["IncidentID"].(*string), args["After"].(*time.Time), args["Before"].(*time.Time)), true
 
 	case "Query.Incidents":
 		if e.complexity.Query.Incidents == nil {
@@ -608,7 +608,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Incidents(childComplexity, args["Szenario"].(*string), args["Timestamp"].(*time.Time), args["After"].(*time.Time), args["Before"].(*time.Time)), true
+		return e.complexity.Query.Incidents(childComplexity, args["Szenario"].(*string), args["Timestamp"].(*time.Time), args["IncidentID"].(*string), args["After"].(*time.Time), args["Before"].(*time.Time)), true
 
 	case "Status.id":
 		if e.complexity.Status.ID == nil {
@@ -771,24 +771,33 @@ func (ec *executionContext) field_Query_IncidentEntries_args(ctx context.Context
 		}
 	}
 	args["Timestamp"] = arg1
-	var arg2 *time.Time
-	if tmp, ok := rawArgs["After"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("After"))
-		arg2, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+	var arg2 *string
+	if tmp, ok := rawArgs["IncidentID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IncidentID"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["After"] = arg2
+	args["IncidentID"] = arg2
 	var arg3 *time.Time
-	if tmp, ok := rawArgs["Before"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Before"))
+	if tmp, ok := rawArgs["After"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("After"))
 		arg3, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["Before"] = arg3
+	args["After"] = arg3
+	var arg4 *time.Time
+	if tmp, ok := rawArgs["Before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Before"))
+		arg4, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Before"] = arg4
 	return args, nil
 }
 
@@ -813,24 +822,33 @@ func (ec *executionContext) field_Query_Incidents_args(ctx context.Context, rawA
 		}
 	}
 	args["Timestamp"] = arg1
-	var arg2 *time.Time
-	if tmp, ok := rawArgs["After"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("After"))
-		arg2, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+	var arg2 *string
+	if tmp, ok := rawArgs["IncidentID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("IncidentID"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["After"] = arg2
+	args["IncidentID"] = arg2
 	var arg3 *time.Time
-	if tmp, ok := rawArgs["Before"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Before"))
+	if tmp, ok := rawArgs["After"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("After"))
 		arg3, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["Before"] = arg3
+	args["After"] = arg3
+	var arg4 *time.Time
+	if tmp, ok := rawArgs["Before"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Before"))
+		arg4, err = ec.unmarshalOTime2ᚖtimeᚐTime(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Before"] = arg4
 	return args, nil
 }
 
@@ -3490,7 +3508,7 @@ func (ec *executionContext) _Query_Incidents(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Incidents(rctx, fc.Args["Szenario"].(*string), fc.Args["Timestamp"].(*time.Time), fc.Args["After"].(*time.Time), fc.Args["Before"].(*time.Time))
+		return ec.resolvers.Query().Incidents(rctx, fc.Args["Szenario"].(*string), fc.Args["Timestamp"].(*time.Time), fc.Args["IncidentID"].(*string), fc.Args["After"].(*time.Time), fc.Args["Before"].(*time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3558,7 +3576,7 @@ func (ec *executionContext) _Query_IncidentEntries(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().IncidentEntries(rctx, fc.Args["Szenario"].(*string), fc.Args["Timestamp"].(*time.Time), fc.Args["After"].(*time.Time), fc.Args["Before"].(*time.Time))
+		return ec.resolvers.Query().IncidentEntries(rctx, fc.Args["Szenario"].(*string), fc.Args["Timestamp"].(*time.Time), fc.Args["IncidentID"].(*string), fc.Args["After"].(*time.Time), fc.Args["Before"].(*time.Time))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

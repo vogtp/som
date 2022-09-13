@@ -10,28 +10,30 @@ enum Level {
 
 type Query {
 """
-Queries the Incidents (or better its summaries)
+Query the Incidents (or better its summaries)
 """
     Incidents(
         Szenario: String = ""
         Timestamp: Time
+        IncidentID: String
         After: Time
         Before: Time
         ): [IncidentSummary!]
 
 
 """
-Queries single incident update (or create close) records
+Query single incident update (or create close) records
 """
     IncidentEntries(
         Szenario: String = ""
         Timestamp: Time
+        IncidentID: String
         After: Time
         Before: Time
         ): [Incident!]
 
 """
-Alerts that were generated (but not nessesairaly escalated)
+Query alerts that were generated (but not nessesairaly escalated)
 """
     Alerts(
         Szenario: String = ""
