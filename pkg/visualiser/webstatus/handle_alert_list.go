@@ -8,7 +8,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/database/ent/alert"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 )
 
 type alertData struct {
-	AlertInfo  db.AlertModel
+	AlertInfo  *ent.Alert
 	DetailLink string
 }
 
@@ -34,19 +35,25 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	if len(name) < 1 {
 		name = "All Szenarios"
 	}
-	s.hcl.Infof("alerts for szenario %s requested", sz)
+	s.hcl.Infof("alerts for szenario %q requested", sz)
 	ctx := r.Context()
-	alerts, err := s.DB().GetAlertBy(ctx, "name like ?", sz)
+	q := s.Ent().Alert.Query()
+	if len(sz) > 0 {
+		s.hcl.Infof("where: %s",sz)
+		q.Where(alert.NameEqualFold(sz))
+	}
+	alerts, err := q.All(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	s.hcl.Infof("Found %d alerts",len(alerts))
 	baseurl := core.Get().WebServer().BasePath()
 	alertDatas := make([]alertData, len(alerts))
 	for i, a := range alerts {
 		alertDatas[i] = alertData{
 			AlertInfo:  a,
-			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.ID),
+			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.UUID.String()),
 		}
 		s.hcl.Infof("Alerts[%v]: %v %v", i, a.Name, alertDatas[i].AlertInfo.Name)
 	}
