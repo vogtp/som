@@ -1,4 +1,4 @@
-package resolver
+package api
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/api/gqlgen"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
-	graphql1 "github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
 )
 
 // Incidents is the resolver for the Incidents field.
@@ -82,7 +82,7 @@ func (r *queryResolver) Alerts(ctx context.Context, szenario *string, after *tim
 	return q.All(ctx)
 }
 
-// Query returns graphql1.QueryResolver implementation.
-func (r *Resolver) Query() graphql1.QueryResolver { return &queryResolver{r} }
+// Query returns gqlgen.QueryResolver implementation.
+func (r *Resolver) Query() gqlgen.QueryResolver { return &queryResolver{r} }
 
 type queryResolver struct{ *Resolver }

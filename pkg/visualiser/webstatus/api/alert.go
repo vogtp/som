@@ -1,4 +1,4 @@
-package resolver
+package api
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -6,10 +6,10 @@ package resolver
 import (
 	"context"
 
+	"github.com/vogtp/som/pkg/visualiser/webstatus/api/gqlgen"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
-	graphql1 "github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
 )
 
 // UUID is the resolver for the UUID field.
@@ -34,7 +34,7 @@ func (r *alertResolver) IncidentEntries(ctx context.Context, obj *ent.Alert) ([]
 	return r.client.Incident.Query().Where(incident.IncidentID(obj.IncidentID)).All(ctx)
 }
 
-// Alert returns graphql1.AlertResolver implementation.
-func (r *Resolver) Alert() graphql1.AlertResolver { return &alertResolver{r} }
+// Alert returns gqlgen.AlertResolver implementation.
+func (r *Resolver) Alert() gqlgen.AlertResolver { return &alertResolver{r} }
 
 type alertResolver struct{ *Resolver }

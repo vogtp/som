@@ -1,4 +1,4 @@
-package resolver
+package api
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/vogtp/som/pkg/core/status"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/api/gqlgen"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
-	graphql1 "github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
 )
 
 // Start is the resolver for the Start field.
@@ -45,8 +45,8 @@ func (r *incidentSummaryResolver) Alerts(ctx context.Context, obj *db.IncidentSu
 	return q.All(ctx)
 }
 
-// IncidentSummary returns graphql1.IncidentSummaryResolver implementation.
-func (r *Resolver) IncidentSummary() graphql1.IncidentSummaryResolver {
+// IncidentSummary returns gqlgen.IncidentSummaryResolver implementation.
+func (r *Resolver) IncidentSummary() gqlgen.IncidentSummaryResolver {
 	return &incidentSummaryResolver{r}
 }
 

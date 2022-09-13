@@ -1,4 +1,4 @@
-package resolver
+package api
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -9,9 +9,9 @@ import (
 	"fmt"
 
 	"github.com/vogtp/som/pkg/core/status"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/api/gqlgen"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
-	graphql1 "github.com/vogtp/som/pkg/visualiser/webstatus/db/graphql"
 )
 
 // State is the resolver for the State field.
@@ -39,7 +39,7 @@ func (r *incidentResolver) Alerts(ctx context.Context, obj *ent.Incident) ([]*en
 	return r.client.Alert.Query().Where(alert.IncidentIDEQ(obj.IncidentID)).All(ctx)
 }
 
-// Incident returns graphql1.IncidentResolver implementation.
-func (r *Resolver) Incident() graphql1.IncidentResolver { return &incidentResolver{r} }
+// Incident returns gqlgen.IncidentResolver implementation.
+func (r *Resolver) Incident() gqlgen.IncidentResolver { return &incidentResolver{r} }
 
 type incidentResolver struct{ *Resolver }
