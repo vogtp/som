@@ -12,7 +12,7 @@ import (
 func (s *WebStatus) MigrateIncidents() {
 	a := s.DB()
 	ent := s.Ent()
-	defer ent.Close()
+	//defer ent.Close()
 	//ctx := context.Background()
 	_, err := s.getIncidentDetailFiles(a, ent, s.getIncidentRoot(), "")
 	if err != nil {
@@ -34,7 +34,7 @@ func (s *WebStatus) MigrateIncidents() {
 func (s *WebStatus) MigrateAlerts() {
 	a := s.DB()
 	ent := s.Ent()
-	defer ent.Close()
+	//defer ent.Close()
 	_, err := s.getAlertFiles(a, ent, s.getAlertRoot(), "")
 	if err != nil {
 		panic(err)
