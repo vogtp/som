@@ -1,17 +1,23 @@
 package webstatus
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
-	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
 const (
@@ -20,9 +26,9 @@ const (
 )
 
 type incidentData struct {
-	db.IncidentModel
+	*ent.Incident
 	Status   status.Status
-	Errors   []db.ErrorModel
+	Errors   []*ent.Failure
 	Counters map[string]string
 	Stati    map[string]string
 	Files    []msg.FileMsgItem
@@ -43,8 +49,19 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	s.hcl.Debugf("incidents details %s requested", id)
 
 	ctx := r.Context()
-	a := s.DB()
-	incidents, err := a.GetIncident(ctx, id)
+	client := s.Ent()
+	q := client.Incident.Query()
+	if len(id) > 0 {
+		uid, err := uuid.Parse(id)
+		if err != nil {
+			e := fmt.Errorf("cannot parse %s as uuid: %w", id, err)
+			s.hcl.Error(e.Error())
+			http.Error(w, e.Error(), http.StatusInternalServerError)
+			return
+		}
+		q.Where(incident.IncidentID(uid))
+	}
+	incidents, err := q.All(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -53,7 +70,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	if aCnt < 1 {
 		err = templates.ExecuteTemplate(w, "empty.gohtml", common("SOM No such Incident", r))
 		if err != nil {
-			s.hcl.Errorf("index Template error %v", err)
+			s.hcl.Errorf("incident details Template error %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -71,7 +88,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Level      status.Level
 		IncidentID string
 		Incidents  []incidentData
-		Alerts     []db.AlertModel
+		Alerts     []*ent.Alert
 		AlertLink  string
 	}{
 		commonData: common("SOM Incident", r),
@@ -80,13 +97,17 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Level:      status.Unknown,
 		Timeformat: cfg.TimeFormatString,
 		Incidents:  make([]incidentData, aCnt),
-		Alerts:     make([]db.AlertModel, 0),
+		Alerts:     make([]*ent.Alert, 0),
 	}
 	data.FilesURL = data.Baseurl + "/" + FilesPath
 	data.AlertLink = data.Baseurl + "/" + AlertDetailPath
 	s.hcl.Debugf("found %v incident records", aCnt)
 
 	for i, f := range incidents {
+		if errors.Is(ctx.Err(), context.Canceled) {
+			s.hcl.Infof("Incident detail context canceld: %v", ctx.Err())
+			return
+		}
 		data.Name = f.Name
 		data.Start = f.Start
 		data.End = f.End
@@ -95,41 +116,55 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 			data.Level = f.Level()
 		}
 		stat := status.New()
-		err = json.Unmarshal(f.ByteState, stat)
+		err = json.Unmarshal(f.State, stat)
 		if err != nil {
 			s.hcl.Warnf("Cannot unmarsh state of incident: %v", err)
 		}
 
 		id := incidentData{
-			IncidentModel: f,
-			Status:        prepaireStatus(stat),
-			Files:         make([]msg.FileMsgItem, 0),
+			Incident: f,
+			Status:   prepaireStatus(stat),
+			Stati:    make(map[string]string),
+			Counters: make(map[string]string),
 		}
 
-		if alrts, err := a.GetAlertBy(ctx, "incident_id = ?", f.IncidentID); err == nil {
+		if alrts, err := client.Alert.Query().Where(alert.IncidentIDEQ(f.IncidentID)).All(ctx); err == nil {
 			data.Alerts = append(data.Alerts, alrts...)
 		} else {
 			s.hcl.Warnf("Loading alerts: %v", err)
 		}
 
 		id.ErrStr = id.Error
-		if errs, err := a.GetErrors(ctx, f.ID); err == nil {
+		if errs, err := f.QueryFailures().All(ctx); err == nil {
 			id.Errors = errs
 		} else {
 			s.hcl.Warnf("Loading errors: %v", err)
 		}
-		if stati, err := a.GetStati(ctx, f.ID); err == nil {
-			id.Stati = stati
+		if stati, err := f.QueryStati().All(ctx); err == nil {
+			for _, s := range stati {
+				id.Stati[s.Name] = s.Value
+			}
 		} else {
 			s.hcl.Warnf("Loading stati: %v", err)
 		}
-		if ctrs, err := a.GetCounters(ctx, f.ID); err == nil {
-			id.Counters = ctrs
+		if ctrs, err := f.QueryCounters().All(ctx); err == nil {
+			for _, c := range ctrs {
+				id.Counters[c.Name] = c.Value
+			}
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}
-		if fils, err := a.GetFiles(ctx, f.ID); err == nil {
-			id.Files = fils
+		if fils, err := f.QueryFiles().Select(
+			file.FieldUUID,
+			file.FieldName,
+			file.FieldType,
+			file.FieldExt,
+			file.FieldSize,
+		).All(ctx); err == nil {
+			id.Files = make([]msg.FileMsgItem, len(fils))
+			for i, f := range fils {
+				id.Files[i] = f.MsgItem()
+			}
 		} else {
 			s.hcl.Warnf("Loading counters: %v", err)
 		}

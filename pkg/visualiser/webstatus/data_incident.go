@@ -212,7 +212,7 @@ func filterIncidents(fileList []incidentFile, filter string) []incidentFile {
 	return filtered
 }
 
-func (s *WebStatus) getIncidentDetailFiles(a *db.Access, root string, filter string) (fileList []incidentFile, err error) {
+func (s *WebStatus) getIncidentDetailFiles(ent *db.Client, root string, filter string) (fileList []incidentFile, err error) {
 	// FIXME filter will not work
 	// fileList, err = s.readIncidentCache(root)
 	// if err == nil {
@@ -228,7 +228,7 @@ func (s *WebStatus) getIncidentDetailFiles(a *db.Access, root string, filter str
 	for _, f := range files {
 		path := fmt.Sprintf("%s/%s", root, f.Name())
 		if f.IsDir() {
-			subFiles, err := s.getIncidentDetailFiles(a, path, filter)
+			subFiles, err := s.getIncidentDetailFiles(ent, path, filter)
 			if err != nil {
 				return nil, err
 			}
@@ -243,8 +243,11 @@ func (s *WebStatus) getIncidentDetailFiles(a *db.Access, root string, filter str
 			s.hcl.Warnf("cannot parse incidentinfo from filename %s: %v", f.Name(), err)
 			continue
 		}
-		if err := a.SaveIncident(context.Background(), ai.IncidentMsg); err != nil {
-			hcl.Errorf("Save incident: %v", err)
+		ctx := context.Background()
+
+		if err := ent.Incident.Save(ctx, ai.IncidentMsg); err != nil {
+			hcl.Warnf("Saving ent incident: %v", err)
+			// panic(err)
 		}
 		//details := root[len(s.getIncidentRoot())+1:]
 		// fileList = append([]incidentFile{

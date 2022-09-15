@@ -1,0 +1,15 @@
+
+
+"""
+Summary of an incident
+"""
+type IncidentSummary {
+    Level: Level!
+    Start: Time!
+    End: Time
+    IncidentID: UUID!
+    IncidentEntries: [Incident!]
+    Name: String!
+    Total: Int!
+    Alerts(Level: Level): [Alert!]
+}

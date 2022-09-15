@@ -1,0 +1,30 @@
+
+
+"""
+Alerts that were generated (but not nessesairaly escalated)
+"""
+type Alert {
+    id: ID!
+    Level: Level!
+    UUID: UUID!
+    Time: Time!
+    """
+    Reference ID for the incident
+    """
+    IncidentID: UUID!
+    """
+    Query its incidents
+    """
+    Incidents: [IncidentSummary!]
+    IncidentEntries: [Incident!]
+    Name: String!
+    Username: String!
+    Region: String!
+    ProbeOS: String!
+    ProbeHost: String!
+    Error: String
+    Counters: [Counter!]
+    Stati: [Status!]
+    Failures: [Failure!]
+    Files: [File!]
+}

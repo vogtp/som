@@ -118,7 +118,7 @@ func (s *WebStatus) getAlertInfo(file string) (ai *alertInfo, err error) {
 	return ai, nil
 }
 
-func (s *WebStatus) getAlertFiles(a *db.Access, root string, filter string) (fileList []alertFile, err error) {
+func (s *WebStatus) getAlertFiles(ent *db.Client, root string, filter string) (fileList []alertFile, err error) {
 	files, err := ioutil.ReadDir(root)
 	doFilter := len(filter) > 0
 	if err != nil {
@@ -128,7 +128,7 @@ func (s *WebStatus) getAlertFiles(a *db.Access, root string, filter string) (fil
 	for _, f := range files {
 		path := fmt.Sprintf("%s/%s", root, f.Name())
 		if f.IsDir() {
-			subFiles, err := s.getAlertFiles(a, path, filter)
+			subFiles, err := s.getAlertFiles(ent, path, filter)
 			if err != nil {
 				return nil, err
 			}
@@ -148,9 +148,10 @@ func (s *WebStatus) getAlertFiles(a *db.Access, root string, filter string) (fil
 		if err != nil {
 			panic(err)
 		}
-		if err := a.SaveAlert(context.Background(), alert); err != nil {
-			hcl.Errorf("Cannot save alert %s: %v", alert.ID.String(), err)
-
+		ctx := context.Background()
+		if err := ent.Alert.Save(ctx, alert); err != nil {
+			hcl.Warnf("Saving ent alert: %v", err)
+			//			panic(err)
 		}
 		// fileList = append([]alertFile{
 		// 	{

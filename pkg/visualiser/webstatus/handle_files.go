@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
 )
 
 const (
@@ -32,16 +33,16 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 	}
 	s.hcl.Debugf("file %s requested", idStr)
 
-	file, err := s.DB().GetFile(r.Context(), id)
+	file, err := s.Ent().File.Query().Where(file.UUIDEQ(id)).First(r.Context())
 	if err != nil {
 		s.hcl.Warnf("No such file %s: %v", idStr, err)
 		http.Error(w, "No such file", http.StatusBadRequest)
 		return
 	}
-	s.hcl.Debugf("Serving file: %s.%s", file.Name, file.Type.Ext)
+	s.hcl.Debugf("Serving file: %s.%s", file.Name, file.Ext)
 
 	w.WriteHeader(http.StatusOK)
-	w.Header().Add("Content-Type", file.Type.MimeType)
+	w.Header().Add("Content-Type", file.Type)
 	_, err = w.Write(file.Payload)
 	if err != nil {
 		s.hcl.Warnf("Cannot write file %s: %v", file, err)

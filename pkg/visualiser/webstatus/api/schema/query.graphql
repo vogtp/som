@@ -1,0 +1,34 @@
+
+type Query {
+"""
+Query the Incidents (or better its summaries)
+"""
+    Incidents(
+        Szenario: String = ""
+        Timestamp: Time
+        IncidentID: UUID
+        After: Time
+        Before: Time
+        ): [IncidentSummary!]
+
+
+"""
+Query single incident update (or create close) records
+"""
+    IncidentEntries(
+        Szenario: String = ""
+        Timestamp: Time
+        IncidentID: UUID
+        After: Time
+        Before: Time
+        ): [Incident!]
+
+"""
+Query alerts that were generated (but not nessesairaly escalated)
+"""
+    Alerts(
+        Szenario: String = ""
+        After: Time
+        Before: Time
+        ): [Alert!]
+}

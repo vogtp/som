@@ -2,128 +2,67 @@ package db
 
 import (
 	"context"
-	"fmt"
-	"time"
 
+	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/core/status"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
-// SaveIncident saves a incident to DB
-func (a *Access) SaveIncident(ctx context.Context, msg *msg.IncidentMsg) error {
-	db := a.getDb()
-	var reterr error
-	if err := a.SaveCounters(ctx, msg.SzenarioEvtMsg); err != nil {
-		if reterr == nil {
-			reterr = err
-		} else {
-			err = fmt.Errorf("%v %w", reterr, err)
-		}
-	}
-	if err := a.SaveStati(ctx, msg.SzenarioEvtMsg); err != nil {
-		if reterr == nil {
-			reterr = err
-		} else {
-			err = fmt.Errorf("%v %w", reterr, err)
-		}
-	}
-	if err := a.SaveErrors(ctx, msg.SzenarioEvtMsg); err != nil {
-		if reterr == nil {
-			reterr = err
-		} else {
-			err = fmt.Errorf("%v %w", reterr, err)
-		}
-	}
-	if err := a.SaveFiles(ctx, msg.SzenarioEvtMsg); err != nil {
-		if reterr == nil {
-			reterr = err
-		} else {
-			err = fmt.Errorf("%v %w", reterr, err)
-		}
-	}
-	model := &IncidentModel{
-		Start:         msg.Start,
-		End:           msg.End,
-		IntLevel:      msg.IntLevel,
-		ByteState:     msg.ByteState,
-		SzenarioModel: a.SzenarioModelFromMsg(msg.SzenarioEvtMsg),
-	}
-	if err := db.WithContext(ctx).Save(model).Error; err != nil {
-		if reterr == nil {
-			reterr = err
-		} else {
-			err = fmt.Errorf("%v %w", reterr, err)
-		}
-	}
-	if err := db.WithContext(ctx).Model(model).Where("id = ?", model.ID).Update("end", model.End).Error; err != nil {
-		a.hcl.Warnf("Cannot update incident end times: %v", err)
-	}
-	return reterr
+// IncidentClient is a wrapper enhaning the ent client
+type IncidentClient struct {
+	*ent.IncidentClient
+	client *Client
 }
 
-// IncidentModel the DB model of a incident (use msg?)
-type IncidentModel struct {
-	SzenarioModel
-	Start     time.Time `gorm:"index"`
-	End       time.Time `gorm:"index"`
-	IntLevel  int       `json:"Level" gorm:"column:Level"`
-	ByteState []byte    `json:"State" gorm:"column:State"`
+// Szenarios returns a list of szenario names
+func (ic *IncidentClient) Szenarios(ctx context.Context) ([]string, error) {
+	return ic.client.Incident.Query().Select(incident.FieldName).GroupBy(incident.FieldName).Strings(ctx)
 }
 
-// Level convinience method that calls status Level
-func (im IncidentModel) Level() status.Level {
-	return status.Level(im.IntLevel)
-}
+// Save save an incident msg to ent
+func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error {
 
-// IncidentSummary db model for the incident list
-type IncidentSummary struct {
-	IncidentID string
-	Name       string
-	Start      MinMaxTime
-	End        MinMaxTime
-	Total      int
-	IntLevel   int
-	Error      string
-	DetailLink string
-}
+	i := ic.IncidentClient.Create()
 
-// Level convinience method that calls status Level
-func (il IncidentSummary) Level() status.Level {
-	return status.Level(il.IntLevel)
-}
-
-// IncidentSzenarios lists all szenarios that have incidents
-func (a *Access) IncidentSzenarios(ctx context.Context) []string {
-	db := a.getDb()
-	result := make([]string, 0)
-	db.Model(&IncidentModel{}).Distinct("name").Order("name COLLATE NOCASE").WithContext(ctx).Find(&result)
-	return result
-}
-
-// GetIncident returns a incident list by id (uuid)
-func (a *Access) GetIncident(ctx context.Context, id string) ([]IncidentModel, error) {
-	db := a.getDb()
-	result := make([]IncidentModel, 0)
-	search := db.Model(&IncidentModel{}).Order("time")
-	if len(id) > 0 {
-		search = search.Where("incident_id = ?", id)
+	i.SetUUID(msg.ID)
+	if incID, err := uuid.Parse(msg.IncidentID); err == nil {
+		i.SetIncidentID(incID)
 	}
-	err := search.WithContext(ctx).Find(&result).Error
-	if err != nil {
-		return nil, fmt.Errorf("cannot load incident: %w", err)
+	i.SetName(msg.Name)
+	i.SetTime(msg.Time)
+	i.SetUsername(msg.Username)
+	i.SetRegion(msg.Region)
+	i.SetProbeOS(msg.ProbeOS)
+	i.SetProbeHost(msg.ProbeHost)
+	if msg.Err() != nil {
+		i.SetError(msg.Err().Error())
 	}
-	return result, err
-}
+	i.SetStart(msg.Start)
+	i.SetEnd(msg.End)
+	i.SetIntLevel(msg.IntLevel)
+	i.SetState(msg.ByteState)
 
-// GetIncidentSummary returns a incident summary list by szeanrio name
-func (a *Access) GetIncidentSummary(ctx context.Context, szName string) ([]IncidentSummary, error) {
-	db := a.getDb()
-	result := make([]IncidentSummary, 0)
-	search := db.Model(&IncidentModel{}).Select("incident_id, name, count(*) as Total, MAX(Level) as IntLevel, MAX(end) as End, MIN(start) as Start, MAX(Error) as Error")
-	search = search.Group("incident_id").Order("Start desc")
-	if len(szName) > 1 && szName != "all" {
-		search = search.Where("name like ?", szName)
+	if errs, err := ic.client.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddFailures(errs...)
+	} else {
+		ic.client.hcl.Warnf("Getting errors: %v", err)
 	}
-	err := search.WithContext(ctx).Find(&result).Error
-	return result, err
+	if stati, err := ic.client.getStati(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddStati(stati...)
+	} else {
+		ic.client.hcl.Warnf("Getting stari: %v", err)
+	}
+	if cntrs, err := ic.client.getCounter(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddCounters(cntrs...)
+	} else {
+		ic.client.hcl.Warnf("Getting counters: %v", err)
+	}
+	if fils, err := ic.client.getFiles(ctx, msg.SzenarioEvtMsg); err == nil {
+		i.AddFiles(fils...)
+	} else {
+		ic.client.hcl.Warnf("Getting files: %v", err)
+	}
+
+	return i.Exec(ctx)
 }

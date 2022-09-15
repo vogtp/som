@@ -34,32 +34,32 @@
 {{ range .Incidents }}
 <tr>
     <td> 
-     <a href="{{ .DetailLink }}{{$.Query}}">
+     <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
       <img class="level" title="{{.Level}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
      </a>
     </td>
     <td> 
-     <a href="{{ .DetailLink }}{{$.Query}}">
+     <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Start }}
      </a>
     </td>
     <td>
         {{ if not .End.IsZero }}
-        <a href="{{ .DetailLink }}{{$.Query}}">
+        <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
          {{ .End }}
         </a>
         {{ end }}
     </td>
-    <td> <a href="{{ .DetailLink }}{{$.Query}}">
+    <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Name }}
      </a> 
     </td>
-    <td> <a href="{{ .DetailLink }}{{$.Query}}">
+    <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Total }} 
      </a>
     </td>
     <td> 
-     <a href="{{ .DetailLink }}{{$.Query}}">
+     <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Error }}  
      </a>
     </td>

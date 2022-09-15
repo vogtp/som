@@ -1,18 +1,15 @@
 package webstatus
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/google/uuid"
-	"github.com/vogtp/som/pkg/core/cfg"
 )
 
 // MigrateIncidents TODO remove
 func (s *WebStatus) MigrateIncidents() {
-	a := s.DB()
+	ent := s.Ent()
+	//defer ent.Close()
 	//ctx := context.Background()
-	_, err := s.getIncidentDetailFiles(a, s.getIncidentRoot(), "")
+	_, err := s.getIncidentDetailFiles(ent, s.getIncidentRoot(), "")
 	if err != nil {
 		panic(err)
 	}
@@ -30,8 +27,9 @@ func (s *WebStatus) MigrateIncidents() {
 
 // MigrateAlerts TODO remove
 func (s *WebStatus) MigrateAlerts() {
-	a := s.DB()
-	_, err := s.getAlertFiles(a, s.getAlertRoot(), "")
+	ent := s.Ent()
+	//defer ent.Close()
+	_, err := s.getAlertFiles(ent, s.getAlertRoot(), "")
 	if err != nil {
 		panic(err)
 	}
@@ -53,56 +51,56 @@ func (s *WebStatus) MigrateAlerts() {
 
 // Alerts TODO remove
 func (s *WebStatus) Alerts() {
-	a := s.DB()
+	// a := s.DB()
 
-	alerts, err := a.GetAlert(context.Background(), "")
-	if err != nil {
-		panic(err)
-	}
-	for _, r := range alerts {
-		fmt.Printf("%s %-20s %10v %v \n", r.Time.Format(cfg.TimeFormatString), r.Name, r.Level(), r.Error)
-	}
-	fmt.Printf("Total alerts: %v\n", len(alerts))
+	// alerts, err := a.GetAlert(context.Background(), "")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for _, r := range alerts {
+	// 	fmt.Printf("%s %-20s %10v %v \n", r.Time.Format(cfg.TimeFormatString), r.Name, r.Level(), r.Error)
+	// }
+	// fmt.Printf("Total alerts: %v\n", len(alerts))
 }
 
 // Incidents TODO remove
 func (s *WebStatus) Incidents() {
-	a := s.DB()
+	// a := s.DB()
 
-	incidents, err := a.GetIncident(context.Background(), "")
-	if err != nil {
-		panic(err)
-	}
-	for _, r := range incidents {
-		fmt.Printf("%s %-20s %10v %v %v %v\n", r.IncidentID, r.Name, r.Level(), r.Start, r.End, r.Error)
-	}
-	fmt.Printf("Total incidents: %v\n", len(incidents))
+	// incidents, err := a.GetIncident(context.Background(), "")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for _, r := range incidents {
+	// 	fmt.Printf("%s %-20s %10v %v %v %v\n", r.IncidentID, r.Name, r.Level(), r.Start, r.End, r.Error)
+	// }
+	// fmt.Printf("Total incidents: %v\n", len(incidents))
 }
 
 // Files TODO remove
 func (s *WebStatus) Files(pid uuid.UUID) {
-	a := s.DB()
+	// a := s.DB()
 
-	files, err := a.GetFiles(context.Background(), pid)
-	if err != nil {
-		panic(err)
-	}
-	for _, f := range files {
-		fmt.Printf("%s %-20s %10v %v \n", f.Name, f.Type.Ext, f.Size, f.Type.MimeType)
-	}
-	fmt.Printf("Total files: %v\n", len(files))
+	// files, err := a.GetFiles(context.Background(), pid)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for _, f := range files {
+	// 	fmt.Printf("%s %-20s %10v %v \n", f.Name, f.Type.Ext, f.Size, f.Type.MimeType)
+	// }
+	// fmt.Printf("Total files: %v\n", len(files))
 }
 
 // IncidentsSummary TODO remove
 func (s *WebStatus) IncidentsSummary() {
-	a := s.DB()
+	// a := s.DB()
 
-	summary, err := a.GetIncidentSummary(context.Background(), "")
-	if err != nil {
-		panic(err)
-	}
-	for _, r := range summary {
-		fmt.Printf("%s %-20s %10v %v %v %v\n", r.IncidentID, r.Name, r.Level(), r.Start, r.End, r.Error)
-	}
-	fmt.Printf("Total summaries: %v\n", len(summary))
+	// summary, err := a.GetIncidentSummary(context.Background(), "")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// for _, r := range summary {
+	// 	fmt.Printf("%s %-20s %10v %v %v %v\n", r.IncidentID, r.Name, r.Level(), r.Start, r.End, r.Error)
+	// }
+	// fmt.Printf("Total summaries: %v\n", len(summary))
 }

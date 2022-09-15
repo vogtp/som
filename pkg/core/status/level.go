@@ -2,7 +2,12 @@
 
 package status
 
-import "strings"
+import (
+	"fmt"
+	"io"
+	"strconv"
+	"strings"
+)
 
 // Level is the serverity level of a state
 type Level int
@@ -47,4 +52,20 @@ func (Level) FromString(lvl string) Level {
 		}
 	}
 	return Unknown
+}
+
+// UnmarshalGQL for graphql
+func (e *Level) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Unknown.FromString(str)
+	return nil
+}
+
+// MarshalGQL for graphql
+func (e Level) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

@@ -3,237 +3,87 @@ package db
 import (
 	"context"
 	"fmt"
-	"time"
 
-	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/core/msg"
-	"github.com/vogtp/som/pkg/stater/alertmgr"
-	"gorm.io/gorm"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 )
 
-// SzenarioModel model for szenarios
-type SzenarioModel struct {
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-
-	ID         uuid.UUID `json:"ID"  gorm:"primarykey;type:uuid"`
-	IncidentID string    `json:"Incident" gorm:"index"`
-	Name       string    `json:"Name" gorm:"index"`
-	Time       time.Time `json:"Time" gorm:"index"`
-	Username   string    `json:"Username"`
-	Region     string    `json:"Region"`
-
-	// FIXME handle:
-	// Files     []msg.FileMsgItem `json:"Files" gorm:"foreignKey:MsgID;references:ID"`
-	ProbeOS   string `json:"OS"`
-	ProbeHost string `json:"Host"`
-	Error     string
-}
-
-type statiModel struct {
-	gorm.Model
-	ParentID uuid.UUID `gorm:"index;type:uuid"`
-	Name     string
-	Value    string
-}
-
-type counterModel struct {
-	gorm.Model
-	ParentID uuid.UUID `gorm:"index;type:uuid"`
-	Name     string
-	Value    string
-}
-
-// ErrorModel model for errors
-type ErrorModel struct {
-	gorm.Model
-	ParentID uuid.UUID `gorm:"index;type:uuid"`
-	Idx      int
-	Error    string
-}
-
-type parentChildRelation struct {
-	ParentID uuid.UUID `gorm:"primaryKey;type:uuid"`
-	ChildID  uuid.UUID `gorm:"primaryKey;type:uuid"`
-}
-
-// GetErrors returns a list of error models by parent id (uuid)
-func (a *Access) GetErrors(ctx context.Context, id uuid.UUID) ([]ErrorModel, error) {
-	db := a.getDb()
-	result := make([]ErrorModel, 0)
-	search := db.Model(&ErrorModel{}).Order("idx")
-	if len(id) > 0 {
-		search = search.Where("parent_id = ?", id)
-	}
-	err := search.WithContext(ctx).Find(&result).Error
-	if err != nil {
-		return nil, fmt.Errorf("cannot load errors: %w", err)
-	}
-	return result, err
-}
-
-// GetFile returns a file
-func (a *Access) GetFile(ctx context.Context, id uuid.UUID) (*msg.FileMsgItem, error) {
-	db := a.getDb()
-	var result *msg.FileMsgItem
-	search := db.Model(&msg.FileMsgItem{}).Where("id = ?", id)
-	err := search.WithContext(ctx).First(&result).Error
-	if err != nil {
-		return nil, fmt.Errorf("cannot load errors: %w", err)
-	}
-	return result, err
-}
-
-// GetFiles returns a list of files by parent id (uuid)
-func (a *Access) GetFiles(ctx context.Context, parent uuid.UUID) ([]msg.FileMsgItem, error) {
-	db := a.getDb()
-	result := make([]msg.FileMsgItem, 0)
-	search := db.Model(&msg.FileMsgItem{}).Order("name")
-
-	if len(parent) > 0 {
-		subQuery := db.Select("child_id").Model(parentChildRelation{}).Where("parent_id = ?", parent)
-		search = search.Where("id IN (?)", subQuery)
-	}
-	err := search.WithContext(ctx).Find(&result).Error
-	if err != nil {
-		return nil, fmt.Errorf("cannot load errors: %w", err)
-	}
-	return result, err
-}
-
-// GetCounters returns a map of counters by parent id (uuid)
-func (a *Access) GetCounters(ctx context.Context, id uuid.UUID) (map[string]string, error) {
-	return a.getMap(ctx, &counterModel{}, id)
-}
-
-// GetStati returns a map of stati by parent id (uuid)
-func (a *Access) GetStati(ctx context.Context, id uuid.UUID) (map[string]string, error) {
-	return a.getMap(ctx, &statiModel{}, id)
-}
-
-func (a *Access) getMap(ctx context.Context, model any, id uuid.UUID) (map[string]string, error) {
-	db := a.getDb()
-	result := make(map[string]string)
-	list := make([]statiModel, 0)
-	search := db.Model(model).Order("name")
-	if len(id) > 0 {
-		search = search.Where("parent_id = ?", id)
-	}
-	err := search.WithContext(ctx).Find(&list).Error
-	if err != nil {
-		return nil, fmt.Errorf("cannot load stati: %w", err)
-	}
-	for _, s := range list {
-		result[s.Name] = s.Value
-	}
-	return result, err
-}
-
-// SzenarioModelFromMsg wraps a szenario msg into a model
-func (a Access) SzenarioModelFromMsg(msg *msg.SzenarioEvtMsg) SzenarioModel {
-	sm := SzenarioModel{
-		ID:         msg.ID,
-		IncidentID: msg.IncidentID,
-		Name:       msg.Name,
-		Time:       msg.Time,
-		Username:   msg.Username,
-		Region:     msg.Region,
-		ProbeOS:    msg.ProbeOS,
-		ProbeHost:  msg.ProbeHost,
-	}
-	if msg.Err() != nil {
-		sm.Error = msg.Err().Error()
-	}
-	return sm
-}
-
-// SaveErrors saves all errors of a szenarion message
-func (a *Access) SaveErrors(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
-	db := a.getDb()
+func (client *Client) getErrors(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]*ent.Failure, error) {
 	var reterr error
-	for i, e := range msg.Errors {
-		if err := db.WithContext(ctx).Save(&ErrorModel{
-			ParentID: msg.ID,
-			Idx:      i,
-			Error:    e,
-		}).Error; err != nil {
+	i := 0
+	errs := make([]*ent.Failure, len(msg.Errors))
+	for idx, e := range msg.Errs() {
+		t, err := client.Failure.Create().SetIdx(idx).SetError(e).Save(ctx)
+		if err != nil {
 			if reterr == nil {
 				reterr = err
 			} else {
 				err = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
+		errs[i] = t
+		i++
 	}
-	return reterr
+	return errs, reterr
 }
 
-// SaveStati saves all stati of a szenarion message
-func (a *Access) SaveStati(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
-	db := a.getDb()
+func (client *Client) getStati(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]*ent.Status, error) {
 	var reterr error
+	i := 0
+	stati := make([]*ent.Status, len(msg.Stati))
 	for k, v := range msg.Stati {
-		if k == alertmgr.KeyTopology {
-			continue
-		}
-		if err := db.WithContext(ctx).Save(&statiModel{
-			ParentID: msg.ID,
-			Name:     k,
-			Value:    v,
-		}).Error; err != nil {
+		t, err := client.Status.Create().SetName(k).SetValue(v).Save(ctx)
+		if err != nil {
 			if reterr == nil {
 				reterr = err
 			} else {
 				err = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
+		stati[i] = t
+		i++
 	}
-	return reterr
+	return stati, reterr
 }
 
-// SaveCounters saves all counters of a szenarion message
-func (a *Access) SaveCounters(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
-	db := a.getDb()
+func (client *Client) getCounter(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]*ent.Counter, error) {
 	var reterr error
+	i := 0
+	cntr := make([]*ent.Counter, len(msg.Counters))
 	for k, v := range msg.Counters {
-		if err := db.WithContext(ctx).Save(&counterModel{
-			ParentID: msg.ID,
-			Name:     k,
-			Value:    fmt.Sprintf("%v", v),
-		}).Error; err != nil {
+		t, err := client.Counter.Create().SetName(k).SetValue(fmt.Sprintf("%v", v)).Save(ctx)
+		if err != nil {
 			if reterr == nil {
 				reterr = err
 			} else {
 				err = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
+		cntr[i] = t
+		i++
 	}
-	return reterr
+	return cntr, reterr
 }
 
-// SaveFiles saves all files of a szenarion message
-func (a *Access) SaveFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) error {
-	db := a.getDb()
+func (client *Client) getFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]*ent.File, error) {
 	var reterr error
-	pcr := &parentChildRelation{ParentID: msg.ID}
-	for _, f := range msg.Files {
+	fils := make([]*ent.File, len(msg.Files))
+	for i, f := range msg.Files {
 		f.CalculateID()
-		if err := db.WithContext(ctx).Save(&f).Error; err != nil {
-			if reterr == nil {
-				reterr = err
-			} else {
-				err = fmt.Errorf("%v %w", reterr, err)
-			}
-			continue
-		}
-		pcr.ChildID = f.ID
-		if err := db.WithContext(ctx).Save(&pcr).Error; err != nil {
+		t, err := client.File.Create().
+			SetUUID(f.ID).SetName(f.Name).SetType(f.Type.MimeType).SetExt(f.Type.Ext).
+			SetPayload(f.Payload).SetSize(f.Size).
+			Save(ctx)
+
+		if err != nil {
 			if reterr == nil {
 				reterr = err
 			} else {
 				err = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
+		fils[i] = t
+		i++
 	}
-	return reterr
+	return fils, reterr
 }

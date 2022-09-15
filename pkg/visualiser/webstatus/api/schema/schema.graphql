@@ -1,0 +1,32 @@
+# general stuff not needing any specal resolvers
+
+scalar Time
+scalar UUID
+
+enum Level {
+    Unknown
+	OK
+	Issues
+	Warning
+	Down
+}
+
+
+type Counter {
+    id: ID!
+    Name: String!
+    Value: String!
+}
+
+type Status {
+    id: ID!
+    Name: String!
+    Value: String!
+
+}
+
+type Failure {
+    id: ID!
+    Error: String!
+    Idx: Int!
+}

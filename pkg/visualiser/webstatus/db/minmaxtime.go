@@ -58,3 +58,8 @@ func (mmt MinMaxTime) Before(t MinMaxTime) bool {
 func (mmt MinMaxTime) After(t MinMaxTime) bool {
 	return mmt.t.After(t.t)
 }
+
+// Time returns the underlying time
+func (mmt MinMaxTime) Time() time.Time {
+	return mmt.t
+}
