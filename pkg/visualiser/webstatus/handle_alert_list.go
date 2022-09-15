@@ -27,10 +27,10 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	idx := strings.Index(r.URL.Path, alertListPath)
 	if idx > 0 {
 		name = r.URL.Path[idx+len(alertListPath):]
-		sz = strings.ToLower(name)
-		if strings.HasSuffix(sz, "/") {
-			sz = sz[:len(sz)-1]
+		for strings.HasSuffix(name, "/") {
+			sz = name[:len(name)-1]
 		}
+		sz = strings.ToLower(name)
 	}
 	if len(name) < 1 {
 		name = "All Szenarios"
