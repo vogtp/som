@@ -1,6 +1,7 @@
 package webstatus
 
 import (
+	"context"
 	"embed"
 	"html/template"
 	"strings"
@@ -92,13 +93,13 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 		s.data.Availabilites[e.Name] = (avail + sz.Availability()) / 2
 		s.hcl.Debugf("%s availability (%v + %v)/2 = %v", e.Name, avail, sz.Availability(), s.data.Availabilites[e.Name])
 	}
-
-	//  do we need local timeseries?
-	// s.handleTimeseries(e)
 }
 
 func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
 	s.hcl.Debugf("Webstatus got %s alert", a.Name)
+	if err := s.Ent().Alert.Save(context.Background(), a); err != nil {
+		s.hcl.Warnf("Cannot save alert to DB: %v", err)
+	}
 	if err := s.saveAlert(a); err != nil {
 		s.hcl.Warnf("Cannot save alert: %v", err)
 	}
@@ -106,6 +107,9 @@ func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
 
 func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 	s.hcl.Infof("Webstatus got  %s %s (%s - %s) ", i.Type.String(), i.Name, i.Start.Format(cfg.TimeFormatString), i.End.Format(cfg.TimeFormatString))
+	if err := s.Ent().Incident.Save(context.Background(), i); err != nil {
+		s.hcl.Warnf("Cannot save incident to DB: %v", err)
+	}
 	if err := s.saveIncident(i); err != nil {
 		s.hcl.Warnf("Cannot save incident: %v", err)
 	}
