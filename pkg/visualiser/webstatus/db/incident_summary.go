@@ -11,13 +11,13 @@ import (
 
 // IncidentSummary is the summary of different incidents entries
 type IncidentSummary struct {
-	IncidentID uuid.UUID     `json:"incident_id"`
-	Name       string        `json:"name"`
-	Total      int           `json:"total"`
-	IntLevel   int           `json:"level"`
+	IncidentID uuid.UUID  `json:"incident_id"`
+	Name       string     `json:"name"`
+	Total      int        `json:"total"`
+	IntLevel   int        `json:"level"`
 	Start      MinMaxTime `json:"start"`
 	End        MinMaxTime `json:"end"`
-	Error      string        `json:"error"`
+	Error      string     `json:"error"`
 }
 
 // IncidentSummaryQuery allows quering incidents
@@ -46,6 +46,10 @@ func (isq *IncidentSummaryQuery) All(ctx context.Context) ([]*IncidentSummary, e
 		)
 	var summary []*IncidentSummary
 	err := g.Scan(ctx, &summary)
+	// last event is the OK so remove it
+	for i, s := range summary {
+		summary[i].Total = s.Total - 1
+	}
 	return summary, err
 }
 
