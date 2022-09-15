@@ -35,7 +35,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	q := s.Ent().IncidentSummary.Query()
 	if len(sz) > 0 {
-		q.Where(incident.Name(sz))
+		q.Where(incident.NameEqualFold(sz))
 	}
 
 	summary, err := q.All(ctx)
