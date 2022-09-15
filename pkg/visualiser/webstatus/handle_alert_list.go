@@ -28,7 +28,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	if idx > 0 {
 		name = r.URL.Path[idx+len(alertListPath):]
 		for strings.HasSuffix(name, "/") {
-			sz = name[:len(name)-1]
+			name = name[:len(name)-1]
 		}
 		sz = strings.ToLower(name)
 	}
@@ -54,7 +54,6 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 			AlertInfo:  a,
 			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.UUID.String()),
 		}
-		s.hcl.Infof("Alerts[%v]: %v %v", i, a.Name, alertDatas[i].AlertInfo.Name)
 	}
 	s.hcl.Infof("Loaded %v alerts", len(alerts))
 

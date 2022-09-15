@@ -38,8 +38,12 @@ func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error 
 	if msg.Err() != nil {
 		i.SetError(msg.Err().Error())
 	}
-	i.SetStart(msg.Start)
-	i.SetEnd(msg.End)
+	if !msg.Start.IsZero() {
+		i.SetStart(msg.Start)
+	}
+	if !msg.End.IsZero() {
+		i.SetEnd(msg.End)
+	}
 	i.SetIntLevel(msg.IntLevel)
 	i.SetState(msg.ByteState)
 

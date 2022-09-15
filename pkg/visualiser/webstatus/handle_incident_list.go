@@ -23,7 +23,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	if idx > 0 {
 		name = r.URL.Path[idx+len(incidentListPath):]
 		for strings.HasSuffix(name, "/") {
-			sz = name[:len(name)-1]
+			name = name[:len(name)-1]
 		}
 		sz = strings.ToLower(name)
 	}
@@ -40,6 +40,8 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 
 	summary, err := q.All(ctx)
 	if err != nil {
+		err = fmt.Errorf("Cannot load incidents from DB:\n %v", err)
+		s.hcl.Errorf("Incident list: %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
