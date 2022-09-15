@@ -12,6 +12,12 @@
     }
 </style>
 
+<script>
+if (localStorage.getItem('graphiql:theme') === null){
+    localStorage.setItem('graphiql:theme', 'dark');
+}
+</script>
+
 <iframe src="{{.Baseurl}}/graphiql/" scrolling="no" frameborder="0"></iframe>
 
 <!--Embed the footer.html template at this location-->
