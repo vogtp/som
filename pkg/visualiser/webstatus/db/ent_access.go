@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"entgo.io/ent/dialect"
-	_ "github.com/mattn/go-sqlite3" // needed to acces sqlite
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/migrate"
+	_ "github.com/xiaoqidun/entps" // needed to acces sqlite
 )
 
 // Client gives access to the DB and wraps ent

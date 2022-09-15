@@ -16,7 +16,6 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/iancoleman/strcase v0.2.0
-	github.com/mattn/go-sqlite3 v1.14.15
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/prometheus/client_golang v1.13.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
@@ -32,6 +31,7 @@ require (
 	github.com/vogtp/go-grav-mesh v0.0.0-20220819125732-e4af3605ea22
 	github.com/vogtp/go-hcl v0.3.0
 	github.com/xhit/go-str2duration/v2 v2.0.0
+	github.com/xiaoqidun/entps v0.0.0-20220911121523-5cee03528151
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
@@ -60,6 +60,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.14.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -73,6 +74,7 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/schollz/peerdiscovery v1.6.12 // indirect
 	github.com/sethvargo/go-envconfig v0.8.2 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
@@ -95,4 +97,14 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	lukechampine.com/uint128 v1.1.1 // indirect
+	modernc.org/cc/v3 v3.37.0 // indirect
+	modernc.org/ccgo/v3 v3.16.9 // indirect
+	modernc.org/libc v1.18.0 // indirect
+	modernc.org/mathutil v1.5.0 // indirect
+	modernc.org/memory v1.3.0 // indirect
+	modernc.org/opt v0.1.1 // indirect
+	modernc.org/sqlite v1.18.2 // indirect
+	modernc.org/strutil v1.1.3 // indirect
+	modernc.org/token v1.0.1 // indirect
 )
