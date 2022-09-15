@@ -45,6 +45,20 @@ func (iu *IncidentUpdate) SetIncidentID(u uuid.UUID) *IncidentUpdate {
 	return iu
 }
 
+// SetNillableIncidentID sets the "IncidentID" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableIncidentID(u *uuid.UUID) *IncidentUpdate {
+	if u != nil {
+		iu.SetIncidentID(*u)
+	}
+	return iu
+}
+
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (iu *IncidentUpdate) ClearIncidentID() *IncidentUpdate {
+	iu.mutation.ClearIncidentID()
+	return iu
+}
+
 // SetName sets the "Name" field.
 func (iu *IncidentUpdate) SetName(s string) *IncidentUpdate {
 	iu.mutation.SetName(s)
@@ -364,6 +378,12 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUUID,
 			Value:  value,
+			Column: incident.FieldIncidentID,
+		})
+	}
+	if iu.mutation.IncidentIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
 			Column: incident.FieldIncidentID,
 		})
 	}
@@ -701,6 +721,20 @@ func (iuo *IncidentUpdateOne) SetUUID(u uuid.UUID) *IncidentUpdateOne {
 // SetIncidentID sets the "IncidentID" field.
 func (iuo *IncidentUpdateOne) SetIncidentID(u uuid.UUID) *IncidentUpdateOne {
 	iuo.mutation.SetIncidentID(u)
+	return iuo
+}
+
+// SetNillableIncidentID sets the "IncidentID" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableIncidentID(u *uuid.UUID) *IncidentUpdateOne {
+	if u != nil {
+		iuo.SetIncidentID(*u)
+	}
+	return iuo
+}
+
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (iuo *IncidentUpdateOne) ClearIncidentID() *IncidentUpdateOne {
+	iuo.mutation.ClearIncidentID()
 	return iuo
 }
 
@@ -1053,6 +1087,12 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUUID,
 			Value:  value,
+			Column: incident.FieldIncidentID,
+		})
+	}
+	if iuo.mutation.IncidentIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
 			Column: incident.FieldIncidentID,
 		})
 	}

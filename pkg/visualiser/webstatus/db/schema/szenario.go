@@ -19,7 +19,7 @@ type SzenarioMixin struct {
 func (SzenarioMixin) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("UUID", uuid.UUID{}).Unique(),
-		field.UUID("IncidentID", uuid.UUID{}),
+		field.UUID("IncidentID", uuid.UUID{}).Optional(), // FIXME remove optional
 		field.String("Name"),
 		field.Time("Time"),
 		field.Int("IntLevel").StorageKey("level"),

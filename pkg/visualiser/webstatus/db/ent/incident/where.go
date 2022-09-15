@@ -301,6 +301,20 @@ func IncidentIDLTE(v uuid.UUID) predicate.Incident {
 	})
 }
 
+// IncidentIDIsNil applies the IsNil predicate on the "IncidentID" field.
+func IncidentIDIsNil() predicate.Incident {
+	return predicate.Incident(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldIncidentID)))
+	})
+}
+
+// IncidentIDNotNil applies the NotNil predicate on the "IncidentID" field.
+func IncidentIDNotNil() predicate.Incident {
+	return predicate.Incident(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldIncidentID)))
+	})
+}
+
 // NameEQ applies the EQ predicate on the "Name" field.
 func NameEQ(v string) predicate.Incident {
 	return predicate.Incident(func(s *sql.Selector) {

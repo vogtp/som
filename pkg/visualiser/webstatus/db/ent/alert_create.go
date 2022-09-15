@@ -39,6 +39,14 @@ func (ac *AlertCreate) SetIncidentID(u uuid.UUID) *AlertCreate {
 	return ac
 }
 
+// SetNillableIncidentID sets the "IncidentID" field if the given value is not nil.
+func (ac *AlertCreate) SetNillableIncidentID(u *uuid.UUID) *AlertCreate {
+	if u != nil {
+		ac.SetIncidentID(*u)
+	}
+	return ac
+}
+
 // SetName sets the "Name" field.
 func (ac *AlertCreate) SetName(s string) *AlertCreate {
 	ac.mutation.SetName(s)
@@ -233,9 +241,6 @@ func (ac *AlertCreate) ExecX(ctx context.Context) {
 func (ac *AlertCreate) check() error {
 	if _, ok := ac.mutation.UUID(); !ok {
 		return &ValidationError{Name: "UUID", err: errors.New(`ent: missing required field "Alert.UUID"`)}
-	}
-	if _, ok := ac.mutation.IncidentID(); !ok {
-		return &ValidationError{Name: "IncidentID", err: errors.New(`ent: missing required field "Alert.IncidentID"`)}
 	}
 	if _, ok := ac.mutation.Name(); !ok {
 		return &ValidationError{Name: "Name", err: errors.New(`ent: missing required field "Alert.Name"`)}
@@ -518,6 +523,12 @@ func (u *AlertUpsert) UpdateIncidentID() *AlertUpsert {
 	return u
 }
 
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (u *AlertUpsert) ClearIncidentID() *AlertUpsert {
+	u.SetNull(alert.FieldIncidentID)
+	return u
+}
+
 // SetName sets the "Name" field.
 func (u *AlertUpsert) SetName(v string) *AlertUpsert {
 	u.Set(alert.FieldName, v)
@@ -691,6 +702,13 @@ func (u *AlertUpsertOne) SetIncidentID(v uuid.UUID) *AlertUpsertOne {
 func (u *AlertUpsertOne) UpdateIncidentID() *AlertUpsertOne {
 	return u.Update(func(s *AlertUpsert) {
 		s.UpdateIncidentID()
+	})
+}
+
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (u *AlertUpsertOne) ClearIncidentID() *AlertUpsertOne {
+	return u.Update(func(s *AlertUpsert) {
+		s.ClearIncidentID()
 	})
 }
 
@@ -1044,6 +1062,13 @@ func (u *AlertUpsertBulk) SetIncidentID(v uuid.UUID) *AlertUpsertBulk {
 func (u *AlertUpsertBulk) UpdateIncidentID() *AlertUpsertBulk {
 	return u.Update(func(s *AlertUpsert) {
 		s.UpdateIncidentID()
+	})
+}
+
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (u *AlertUpsertBulk) ClearIncidentID() *AlertUpsertBulk {
+	return u.Update(func(s *AlertUpsert) {
+		s.ClearIncidentID()
 	})
 }
 

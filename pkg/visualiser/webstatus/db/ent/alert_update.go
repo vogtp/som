@@ -45,6 +45,20 @@ func (au *AlertUpdate) SetIncidentID(u uuid.UUID) *AlertUpdate {
 	return au
 }
 
+// SetNillableIncidentID sets the "IncidentID" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableIncidentID(u *uuid.UUID) *AlertUpdate {
+	if u != nil {
+		au.SetIncidentID(*u)
+	}
+	return au
+}
+
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (au *AlertUpdate) ClearIncidentID() *AlertUpdate {
+	au.mutation.ClearIncidentID()
+	return au
+}
+
 // SetName sets the "Name" field.
 func (au *AlertUpdate) SetName(s string) *AlertUpdate {
 	au.mutation.SetName(s)
@@ -346,6 +360,12 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUUID,
 			Value:  value,
+			Column: alert.FieldIncidentID,
+		})
+	}
+	if au.mutation.IncidentIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
 			Column: alert.FieldIncidentID,
 		})
 	}
@@ -662,6 +682,20 @@ func (auo *AlertUpdateOne) SetUUID(u uuid.UUID) *AlertUpdateOne {
 // SetIncidentID sets the "IncidentID" field.
 func (auo *AlertUpdateOne) SetIncidentID(u uuid.UUID) *AlertUpdateOne {
 	auo.mutation.SetIncidentID(u)
+	return auo
+}
+
+// SetNillableIncidentID sets the "IncidentID" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableIncidentID(u *uuid.UUID) *AlertUpdateOne {
+	if u != nil {
+		auo.SetIncidentID(*u)
+	}
+	return auo
+}
+
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (auo *AlertUpdateOne) ClearIncidentID() *AlertUpdateOne {
+	auo.mutation.ClearIncidentID()
 	return auo
 }
 
@@ -996,6 +1030,12 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (_node *Alert, err error
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUUID,
 			Value:  value,
+			Column: alert.FieldIncidentID,
+		})
+	}
+	if auo.mutation.IncidentIDCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeUUID,
 			Column: alert.FieldIncidentID,
 		})
 	}

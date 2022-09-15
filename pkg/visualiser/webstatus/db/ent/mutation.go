@@ -238,9 +238,22 @@ func (m *AlertMutation) OldIncidentID(ctx context.Context) (v uuid.UUID, err err
 	return oldValue.IncidentID, nil
 }
 
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (m *AlertMutation) ClearIncidentID() {
+	m._IncidentID = nil
+	m.clearedFields[alert.FieldIncidentID] = struct{}{}
+}
+
+// IncidentIDCleared returns if the "IncidentID" field was cleared in this mutation.
+func (m *AlertMutation) IncidentIDCleared() bool {
+	_, ok := m.clearedFields[alert.FieldIncidentID]
+	return ok
+}
+
 // ResetIncidentID resets all changes to the "IncidentID" field.
 func (m *AlertMutation) ResetIncidentID() {
 	m._IncidentID = nil
+	delete(m.clearedFields, alert.FieldIncidentID)
 }
 
 // SetName sets the "Name" field.
@@ -1011,6 +1024,9 @@ func (m *AlertMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *AlertMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(alert.FieldIncidentID) {
+		fields = append(fields, alert.FieldIncidentID)
+	}
 	if m.FieldCleared(alert.FieldError) {
 		fields = append(fields, alert.FieldError)
 	}
@@ -1028,6 +1044,9 @@ func (m *AlertMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *AlertMutation) ClearField(name string) error {
 	switch name {
+	case alert.FieldIncidentID:
+		m.ClearIncidentID()
+		return nil
 	case alert.FieldError:
 		m.ClearError()
 		return nil
@@ -2821,9 +2840,22 @@ func (m *IncidentMutation) OldIncidentID(ctx context.Context) (v uuid.UUID, err 
 	return oldValue.IncidentID, nil
 }
 
+// ClearIncidentID clears the value of the "IncidentID" field.
+func (m *IncidentMutation) ClearIncidentID() {
+	m._IncidentID = nil
+	m.clearedFields[incident.FieldIncidentID] = struct{}{}
+}
+
+// IncidentIDCleared returns if the "IncidentID" field was cleared in this mutation.
+func (m *IncidentMutation) IncidentIDCleared() bool {
+	_, ok := m.clearedFields[incident.FieldIncidentID]
+	return ok
+}
+
 // ResetIncidentID resets all changes to the "IncidentID" field.
 func (m *IncidentMutation) ResetIncidentID() {
 	m._IncidentID = nil
+	delete(m.clearedFields, incident.FieldIncidentID)
 }
 
 // SetName sets the "Name" field.
@@ -3744,6 +3776,9 @@ func (m *IncidentMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *IncidentMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(incident.FieldIncidentID) {
+		fields = append(fields, incident.FieldIncidentID)
+	}
 	if m.FieldCleared(incident.FieldError) {
 		fields = append(fields, incident.FieldError)
 	}
@@ -3761,6 +3796,9 @@ func (m *IncidentMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *IncidentMutation) ClearField(name string) error {
 	switch name {
+	case incident.FieldIncidentID:
+		m.ClearIncidentID()
+		return nil
 	case incident.FieldError:
 		m.ClearError()
 		return nil

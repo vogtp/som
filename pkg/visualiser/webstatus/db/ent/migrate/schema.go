@@ -12,7 +12,7 @@ var (
 	AlertsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
-		{Name: "incident_id", Type: field.TypeUUID},
+		{Name: "incident_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "time", Type: field.TypeTime},
 		{Name: "level", Type: field.TypeInt},
@@ -137,7 +137,7 @@ var (
 	IncidentsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
-		{Name: "incident_id", Type: field.TypeUUID},
+		{Name: "incident_id", Type: field.TypeUUID, Nullable: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "time", Type: field.TypeTime},
 		{Name: "level", Type: field.TypeInt},
