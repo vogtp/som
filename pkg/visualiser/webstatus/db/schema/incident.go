@@ -22,7 +22,7 @@ func (Incident) Mixin() []ent.Mixin {
 func (Incident) Fields() []ent.Field {
 	return []ent.Field{
 		field.Time("Start"),
-		field.Time("End"),
+		field.Time("End").Optional(),
 		field.Bytes("State"),
 	}
 }

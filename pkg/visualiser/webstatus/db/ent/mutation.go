@@ -3246,9 +3246,22 @@ func (m *IncidentMutation) OldEnd(ctx context.Context) (v time.Time, err error) 
 	return oldValue.End, nil
 }
 
+// ClearEnd clears the value of the "End" field.
+func (m *IncidentMutation) ClearEnd() {
+	m._End = nil
+	m.clearedFields[incident.FieldEnd] = struct{}{}
+}
+
+// EndCleared returns if the "End" field was cleared in this mutation.
+func (m *IncidentMutation) EndCleared() bool {
+	_, ok := m.clearedFields[incident.FieldEnd]
+	return ok
+}
+
 // ResetEnd resets all changes to the "End" field.
 func (m *IncidentMutation) ResetEnd() {
 	m._End = nil
+	delete(m.clearedFields, incident.FieldEnd)
 }
 
 // SetState sets the "State" field.
@@ -3782,6 +3795,9 @@ func (m *IncidentMutation) ClearedFields() []string {
 	if m.FieldCleared(incident.FieldError) {
 		fields = append(fields, incident.FieldError)
 	}
+	if m.FieldCleared(incident.FieldEnd) {
+		fields = append(fields, incident.FieldEnd)
+	}
 	return fields
 }
 
@@ -3801,6 +3817,9 @@ func (m *IncidentMutation) ClearField(name string) error {
 		return nil
 	case incident.FieldError:
 		m.ClearError()
+		return nil
+	case incident.FieldEnd:
+		m.ClearEnd()
 		return nil
 	}
 	return fmt.Errorf("unknown Incident nullable field %s", name)

@@ -115,6 +115,14 @@ func (ic *IncidentCreate) SetEnd(t time.Time) *IncidentCreate {
 	return ic
 }
 
+// SetNillableEnd sets the "End" field if the given value is not nil.
+func (ic *IncidentCreate) SetNillableEnd(t *time.Time) *IncidentCreate {
+	if t != nil {
+		ic.SetEnd(*t)
+	}
+	return ic
+}
+
 // SetState sets the "State" field.
 func (ic *IncidentCreate) SetState(b []byte) *IncidentCreate {
 	ic.mutation.SetState(b)
@@ -283,9 +291,6 @@ func (ic *IncidentCreate) check() error {
 	}
 	if _, ok := ic.mutation.Start(); !ok {
 		return &ValidationError{Name: "Start", err: errors.New(`ent: missing required field "Incident.Start"`)}
-	}
-	if _, ok := ic.mutation.End(); !ok {
-		return &ValidationError{Name: "End", err: errors.New(`ent: missing required field "Incident.End"`)}
 	}
 	if _, ok := ic.mutation.State(); !ok {
 		return &ValidationError{Name: "State", err: errors.New(`ent: missing required field "Incident.State"`)}
@@ -712,6 +717,12 @@ func (u *IncidentUpsert) UpdateEnd() *IncidentUpsert {
 	return u
 }
 
+// ClearEnd clears the value of the "End" field.
+func (u *IncidentUpsert) ClearEnd() *IncidentUpsert {
+	u.SetNull(incident.FieldEnd)
+	return u
+}
+
 // SetState sets the "State" field.
 func (u *IncidentUpsert) SetState(v []byte) *IncidentUpsert {
 	u.Set(incident.FieldState, v)
@@ -950,6 +961,13 @@ func (u *IncidentUpsertOne) SetEnd(v time.Time) *IncidentUpsertOne {
 func (u *IncidentUpsertOne) UpdateEnd() *IncidentUpsertOne {
 	return u.Update(func(s *IncidentUpsert) {
 		s.UpdateEnd()
+	})
+}
+
+// ClearEnd clears the value of the "End" field.
+func (u *IncidentUpsertOne) ClearEnd() *IncidentUpsertOne {
+	return u.Update(func(s *IncidentUpsert) {
+		s.ClearEnd()
 	})
 }
 
@@ -1352,6 +1370,13 @@ func (u *IncidentUpsertBulk) SetEnd(v time.Time) *IncidentUpsertBulk {
 func (u *IncidentUpsertBulk) UpdateEnd() *IncidentUpsertBulk {
 	return u.Update(func(s *IncidentUpsert) {
 		s.UpdateEnd()
+	})
+}
+
+// ClearEnd clears the value of the "End" field.
+func (u *IncidentUpsertBulk) ClearEnd() *IncidentUpsertBulk {
+	return u.Update(func(s *IncidentUpsert) {
+		s.ClearEnd()
 	})
 }
 

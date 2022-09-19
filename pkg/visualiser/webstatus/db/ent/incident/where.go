@@ -1179,6 +1179,20 @@ func EndLTE(v time.Time) predicate.Incident {
 	})
 }
 
+// EndIsNil applies the IsNil predicate on the "End" field.
+func EndIsNil() predicate.Incident {
+	return predicate.Incident(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldEnd)))
+	})
+}
+
+// EndNotNil applies the NotNil predicate on the "End" field.
+func EndNotNil() predicate.Incident {
+	return predicate.Incident(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldEnd)))
+	})
+}
+
 // StateEQ applies the EQ predicate on the "State" field.
 func StateEQ(v []byte) predicate.Incident {
 	return predicate.Incident(func(s *sql.Selector) {

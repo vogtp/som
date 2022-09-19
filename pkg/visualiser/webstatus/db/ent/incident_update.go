@@ -140,6 +140,20 @@ func (iu *IncidentUpdate) SetEnd(t time.Time) *IncidentUpdate {
 	return iu
 }
 
+// SetNillableEnd sets the "End" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableEnd(t *time.Time) *IncidentUpdate {
+	if t != nil {
+		iu.SetEnd(*t)
+	}
+	return iu
+}
+
+// ClearEnd clears the value of the "End" field.
+func (iu *IncidentUpdate) ClearEnd() *IncidentUpdate {
+	iu.mutation.ClearEnd()
+	return iu
+}
+
 // SetState sets the "State" field.
 func (iu *IncidentUpdate) SetState(b []byte) *IncidentUpdate {
 	iu.mutation.SetState(b)
@@ -467,6 +481,12 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
+			Column: incident.FieldEnd,
+		})
+	}
+	if iu.mutation.EndCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
 			Column: incident.FieldEnd,
 		})
 	}
@@ -816,6 +836,20 @@ func (iuo *IncidentUpdateOne) SetStart(t time.Time) *IncidentUpdateOne {
 // SetEnd sets the "End" field.
 func (iuo *IncidentUpdateOne) SetEnd(t time.Time) *IncidentUpdateOne {
 	iuo.mutation.SetEnd(t)
+	return iuo
+}
+
+// SetNillableEnd sets the "End" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableEnd(t *time.Time) *IncidentUpdateOne {
+	if t != nil {
+		iuo.SetEnd(*t)
+	}
+	return iuo
+}
+
+// ClearEnd clears the value of the "End" field.
+func (iuo *IncidentUpdateOne) ClearEnd() *IncidentUpdateOne {
+	iuo.mutation.ClearEnd()
 	return iuo
 }
 
@@ -1176,6 +1210,12 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
+			Column: incident.FieldEnd,
+		})
+	}
+	if iuo.mutation.EndCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
 			Column: incident.FieldEnd,
 		})
 	}

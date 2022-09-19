@@ -147,7 +147,7 @@ var (
 		{Name: "probe_host", Type: field.TypeString},
 		{Name: "error", Type: field.TypeString, Nullable: true},
 		{Name: "start", Type: field.TypeTime},
-		{Name: "end", Type: field.TypeTime},
+		{Name: "end", Type: field.TypeTime, Nullable: true},
 		{Name: "state", Type: field.TypeBytes},
 	}
 	// IncidentsTable holds the schema information for the "incidents" table.
