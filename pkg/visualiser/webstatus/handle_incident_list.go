@@ -31,14 +31,24 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		name = "All Szenarios"
 	}
 	s.hcl.Debugf("incidents for szenario %s requested", sz)
-
+	common := common("SOM Incidents", r)
 	ctx := r.Context()
 	q := s.Ent().IncidentSummary.Query()
-	// this works but the summaries are wrong
-	//	q.Where(incident.And(incident.TimeGTE(start), incident.TimeLTE(end)))
 	if len(sz) > 0 {
 		q.Where(incident.NameEqualFold(sz))
 	}
+
+	// q.Where(
+	// 	incident.Not(
+	// 		incident.Or(
+	// 			incident.StartGT(common.End),
+	// 			incident.And(
+	// 				incident.EndNotNil(),
+	// 				incident.EndLT(common.Start),
+	// 			),
+	// 		),
+	// 	),
+	// )
 
 	summary, err := q.All(ctx)
 	if err != nil {
@@ -56,6 +66,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	common.Title = fmt.Sprintf("SOM Incidents: %s (%v)", name, len(summary))
 	var data = struct {
 		*commonData
 		PromURL            string
@@ -66,7 +77,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Szenarios          []string
 		FilterName         string
 	}{
-		commonData:         common(fmt.Sprintf("SOM Incidents: %s (%v)", name, len(summary)), r),
+		commonData:         common,
 		FilterName:         name,
 		PromURL:            fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:         cfg.TimeFormatString,
