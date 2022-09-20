@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -15,6 +17,16 @@ import (
 const (
 	incidentListPath = "/incident/list/"
 )
+
+func parseTime(t time.Time, str string) time.Time {
+	if len(str) > 0 {
+		i, err := strconv.Atoi(str)
+		if err == nil {
+			return time.Unix(int64(i), 0)
+		}
+	}
+	return t
+}
 
 func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	sz := ""
@@ -32,8 +44,17 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	}
 	s.hcl.Debugf("incidents for szenario %s requested", sz)
 
+	start := time.Now().Add(-30 * 24 * time.Hour)
+	end := time.Now()
+
+	r.ParseForm()
+	start = parseTime(start, r.Form.Get("start"))
+	end = parseTime(end, r.Form.Get("end"))
+
 	ctx := r.Context()
 	q := s.Ent().IncidentSummary.Query()
+	// this works but the summaries are wrong
+	//	q.Where(incident.And(incident.TimeGTE(start), incident.TimeLTE(end)))
 	if len(sz) > 0 {
 		q.Where(incident.NameEqualFold(sz))
 	}
@@ -45,7 +66,15 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	filtered := make([]*db.IncidentSummary, 0)
+	for _, s := range summary {
+		if s.Start.Time().After(end) ||
+			s.End.Time().Before(start) {
+			continue
+		}
+		filtered = append(filtered, s)
+	}
+	summary = filtered
 	sort.Slice(summary, func(i, j int) bool {
 		if summary[i].End.IsZero() && summary[j].End.IsZero() {
 			return summary[i].Start.After(summary[j].Start)
@@ -76,6 +105,8 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Incidents          []*db.IncidentSummary
 		Szenarios          []string
 		FilterName         string
+		Start              time.Time
+		End                time.Time
 	}{
 		commonData:         common(fmt.Sprintf("SOM Incidents: %s (%v)", name, len(summary)), r),
 		FilterName:         name,
@@ -85,6 +116,8 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		IncidentDetailPath: IncidentDetailPath,
 		Incidents:          summary,
 		Szenarios:          szenarios,
+		Start:              start,
+		End:                end,
 	}
 	s.render(w, r, "incident_list.gohtml", data)
 }
