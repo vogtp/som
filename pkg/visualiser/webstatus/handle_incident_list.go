@@ -87,10 +87,10 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	}
 	filtered := make([]*db.IncidentSummary, 0)
 	for _, s := range summary {
-		if s.Start.Time().After(data.End) {
+		if s.Start.Time().After(data.DatePicker.End) {
 			continue
 		}
-		if !s.End.IsZero() && s.End.Time().Before(data.Start) {
+		if !s.End.IsZero() && s.End.Time().Before(data.DatePicker.Start) {
 			continue
 		}
 

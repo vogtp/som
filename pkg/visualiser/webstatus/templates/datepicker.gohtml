@@ -1,5 +1,5 @@
 <!-- datepicker.html -->
-
+<!-- http://www.daterangepicker.com/ -->
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="{{.Baseurl}}/static/js/daterangepicker.js"></script>
@@ -9,31 +9,49 @@
 <input type="text" name="daterange" class="btn" style="width: 20rem" />
 
 <script>
+startTime = new Date( {{ .Start.UnixMilli }} )
+endTime = new Date( {{ .End.UnixMilli }} )
 $('input[name="daterange"]').daterangepicker({
     "showDropdowns": true,
     "timePicker24Hour": true,
     "timePicker": true,
     "autoApply": true,
-    "autoUpdateInput": true,
+    "autoUpdateInput": false,
     "alwaysShowCalendars": true,
     ranges: {
-        'Today': [moment().startOf('day'), moment().endOf("day")],
-        'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-        'Last 30 Days': [moment().subtract(30, 'days'), moment()],
-        'This Month': [moment().startOf('month'), moment().endOf('month')],
-        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        '{{ .Today }}': [moment().startOf('day'), moment().endOf("day")],
+        '{{ .Yesterday }}': [moment().startOf('day').subtract(1, 'days'), moment().endOf("day").subtract(1, 'days')],
+        '{{ .Last7d }}': [moment().subtract(7, 'days'), moment()],
+        '{{ .Last30d }}': [moment().subtract(30, 'days'), moment()],
+        '{{ .ThisMonth }}': [moment().startOf('month'), moment().endOf('month')],
+        '{{ .LastMonth }}': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
     },
     "locale": {
         "format": "DD.MM.YYYY HH:mm",
+        "customRangeLabel": "{{ .Custom }}",
     },
-    startDate: new Date( {{ .Start.UnixMilli }} ),
-    endDate: new Date( {{ .End.UnixMilli }} ),
+    startDate: startTime,
+    endDate: endTime,
 }, function(start, end, label) {
-   url = new URL(window.location.href)
-   url.searchParams.set('start',  start.unix());
-   url.searchParams.set('end',  end.unix());
-   window.location.href = url
+    url = new URL(window.location.href)
+    url.searchParams.set({{ .TimespanParam }}, label);
+    url.searchParams.set({{ .StartParam }},  start.unix());
+    url.searchParams.set({{ .EndParam }},  end.unix());
+
+   timePickerLabel(start, end, label)
+   
+  window.location.href = url
+   
 });
+
+timePickerLabel(startTime, endTime, {{ .Timespan }})
+
+function timePickerLabel(start, end, label){
+    if (label !== {{ .Custom }}) {
+        $('input[name="daterange"]').val(label)
+    }else{
+        $('input[name="daterange"]').val(moment(start).format("DD.MM.YYYY HH:mm") + ' - ' + moment(end).format("DD.MM.YYYY HH:mm"));
+    }
+}
 </script>
 

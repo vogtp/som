@@ -45,8 +45,8 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	}
 	q.Where(
 		alert.And(
-			alert.TimeGTE(common.Start),
-			alert.TimeLTE(common.End),
+			alert.TimeGTE(common.DatePicker.Start),
+			alert.TimeLTE(common.DatePicker.End),
 		),
 	)
 	alerts, err := q.All(ctx)
