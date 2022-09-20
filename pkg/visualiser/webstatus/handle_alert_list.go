@@ -38,7 +38,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	s.hcl.Infof("alerts for szenario %q requested", sz)
 	common := common("SOM Alerts", r)
 	ctx := r.Context()
-	q := s.Ent().Alert.Query()
+	q := s.Ent().Alert.Query().Order(ent.Desc(alert.FieldTime))
 	if len(sz) > 0 {
 		s.hcl.Infof("where: %s", sz)
 		q.Where(alert.NameEqualFold(sz))
