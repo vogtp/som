@@ -6,9 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
-	"github.com/vogtp/som/pkg/core/cfg"
 )
 
 const (
@@ -79,7 +77,7 @@ func (dp *datepicker) processTimespan(r *http.Request) {
 	}
 	dp.Start = start
 	dp.End = end
-	hcl.Infof("Timespan (%s): %s - %s", dp.Timespan, start.Format(cfg.TimeFormatString), end.Format(cfg.TimeFormatString))
+	//hcl.Infof("Timespan (%s): %s - %s", dp.Timespan, start.Format(cfg.TimeFormatString), end.Format(cfg.TimeFormatString))
 }
 
 func decodedFormGet(r *http.Request, key string) string {
