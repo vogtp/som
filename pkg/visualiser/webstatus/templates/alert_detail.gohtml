@@ -14,6 +14,7 @@ th, td {
 
 
 <tr> <td class="list"> Name:  </td><td class="list">{{ .Name }} </td></tr>
+<tr> <td class="list"> Level:  </td><td class="list">{{ .Level }} </td></tr>
 <tr> <td class="list"> Time:  </td><td class="list">{{ .Time.Format $.Timeformat }} </td></tr>
 <tr> <td class="list"> Incident: </td><td class="list"> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{ .IncidentID }}/{{$.Query}}"> {{ .IncidentID }}</a> </td></tr>
 <tr> <td class="list"> User: </td><td class="list"> {{ .Username }} </td></tr>

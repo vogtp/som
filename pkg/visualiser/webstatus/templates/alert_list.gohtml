@@ -25,6 +25,7 @@
 <tr style="text-align: center">
     <th>Time</th>
     <th>Szenario</th>
+    <th>Level</th>
     <th>Error</th>
 </tr>
 </thead>
@@ -39,6 +40,11 @@
     <td>
      <a href="{{ .DetailLink }}{{$.Query}}">
         {{ .AlertInfo.Name }} 
+     </a>
+    </td>
+    <td>
+     <a href="{{ .DetailLink }}{{$.Query}}">
+        {{ .AlertInfo.Level }} 
      </a>
     </td>
     <td>  
