@@ -36,12 +36,19 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		name = "All Szenarios"
 	}
 	s.hcl.Infof("alerts for szenario %q requested", sz)
+	common := common("SOM Alerts", r)
 	ctx := r.Context()
 	q := s.Ent().Alert.Query()
 	if len(sz) > 0 {
 		s.hcl.Infof("where: %s", sz)
 		q.Where(alert.NameEqualFold(sz))
 	}
+	q.Where(
+		alert.And(
+			alert.TimeGTE(common.Start),
+			alert.TimeLTE(common.End),
+		),
+	)
 	alerts, err := q.All(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -64,6 +71,8 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 			szenarios = make([]string, 0)
 		}
 	}
+
+	common.Title = fmt.Sprintf("SOM Alerts: %s (%v)", name, len(alerts))
 	var data = struct {
 		*commonData
 		PromURL       string
@@ -73,7 +82,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		Szenarios     []string
 		FilterName    string
 	}{
-		commonData:    common(fmt.Sprintf("SOM Alerts: %s (%v)", name, len(alerts)), r),
+		commonData:    common,
 		FilterName:    name,
 		PromURL:       fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:    cfg.TimeFormatString,
