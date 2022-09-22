@@ -43,6 +43,10 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		GraphStyle:  "avail",
 	}
 	s.hcl.Tracef("PromURL: %v", data.PromURL)
+	r.ParseForm()
+	if r.Form.Has("graphStyle") {
+		data.GraphStyle = r.Form.Get("graphStyle")
+	}
 
 	utc := data.DatePicker.End.Hour() - data.DatePicker.End.UTC().Hour()
 	data.End = int(data.DatePicker.End.Unix()) + utc*int(time.Hour.Seconds())
