@@ -5,11 +5,11 @@ import (
 	"html/template"
 	"math"
 	"net/http"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/bridger"
 	"github.com/vogtp/som/pkg/core/cfg"
-	str2duration "github.com/xhit/go-str2duration/v2"
 )
 
 type indexValue struct {
@@ -30,6 +30,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 	var data = struct {
 		*commonData
 		PromURL     string
+		End         int
 		Duration    int
 		DurationStr string
 		GraphStyle  string
@@ -42,23 +43,10 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		GraphStyle:  "avail",
 	}
 	s.hcl.Tracef("PromURL: %v", data.PromURL)
-	r.ParseForm()
-	if r.Form.Has("graphStyle") {
-		data.GraphStyle = r.Form.Get("graphStyle")
-	}
-	if r.Form.Has("duration") {
-		data.DurationStr = r.Form.Get("duration")
-		if d, err := str2duration.ParseDuration(data.DurationStr); err == nil {
-			data.Duration = int(d.Seconds())
-		} else {
-			s.hcl.Warnf("Cannot parse %s as duration: %v", data.DurationStr, err)
-		}
-	}
 
-	if data.Duration < 60*60 {
-		data.Duration = 24 * 60 * 60
-		data.DurationStr = "1d"
-	}
+	utc := data.DatePicker.End.Hour() - data.DatePicker.End.UTC().Hour()
+	data.End = int(data.DatePicker.End.Unix()) + utc*int(time.Hour.Seconds())
+	data.Duration = int(data.DatePicker.End.Unix() - data.DatePicker.Start.Unix())
 
 	for _, stat := range s.data.Status.Szenarios() {
 		szName := stat.Key()
