@@ -28,6 +28,7 @@
     <th>Start</th>
     <th>End</th>
     <th>Szenario</th>
+    <th>Alerts</th>
     <th>Events</th>
     <th>Error</th>
 </tr>
@@ -56,6 +57,10 @@
     <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Name }}
      </a> 
+    </td>
+    <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+        {{ .AlertCount }} 
+     </a>
     </td>
     <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Total }} 

@@ -9,12 +9,18 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
 const (
 	incidentListPath = "/incident/list/"
 )
+
+type incidentWeb struct {
+	*db.IncidentSummary
+	AlertCount int
+}
 
 func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	sz := ""
@@ -73,7 +79,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Timeformat         string
 		IncidentListPath   string
 		IncidentDetailPath string
-		Incidents          []*db.IncidentSummary
+		Incidents          []incidentWeb
 		Szenarios          []string
 		FilterName         string
 	}{
@@ -85,31 +91,39 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		IncidentDetailPath: IncidentDetailPath,
 		Szenarios:          szenarios,
 	}
-	filtered := make([]*db.IncidentSummary, 0)
-	for _, s := range summary {
-		if s.Start.Time().After(data.DatePicker.End) {
+	filtered := make([]incidentWeb, 0)
+	for _, sum := range summary {
+		if sum.Start.Time().After(data.DatePicker.End) {
 			continue
 		}
-		if !s.End.IsZero() && s.End.Time().Before(data.DatePicker.Start) {
+		if !sum.End.IsZero() && sum.End.Time().Before(data.DatePicker.Start) {
 			continue
 		}
-
-		filtered = append(filtered, s)
+		sumWeb := incidentWeb{
+			IncidentSummary: sum,
+			AlertCount:      0,
+		}
+		if cnt, err := s.dbAccess.Alert.Query().Where(alert.IncidentIDEQ(sum.IncidentID)).Count(ctx); err == nil {
+			sumWeb.AlertCount = cnt
+		} else {
+			s.hcl.Warnf("Cannot get alert count: %v", err)
+		}
+		filtered = append(filtered, sumWeb)
 	}
-	summary = filtered
-	sort.Slice(summary, func(i, j int) bool {
-		if summary[i].End.IsZero() && summary[j].End.IsZero() {
-			return summary[i].Start.After(summary[j].Start)
+
+	sort.Slice(filtered, func(i, j int) bool {
+		if filtered[i].End.IsZero() && filtered[j].End.IsZero() {
+			return filtered[i].Start.After(filtered[j].Start)
 		}
-		if summary[i].End.IsZero() {
+		if filtered[i].End.IsZero() {
 			return true
 		}
-		if summary[j].End.IsZero() {
+		if filtered[j].End.IsZero() {
 			return false
 		}
-		return summary[i].Start.After(summary[j].Start)
+		return filtered[i].Start.After(filtered[j].Start)
 	})
-	data.Incidents = summary
+	data.Incidents = filtered
 
 	s.render(w, r, "incident_list.gohtml", data)
 }
