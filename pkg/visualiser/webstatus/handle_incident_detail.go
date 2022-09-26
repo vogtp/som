@@ -104,7 +104,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	}
 	var pages []Page
 	if totalIncidents > pageSize {
-		page := 0
+		page := 1
 		r.ParseForm()
 		if str := r.Form.Get("page"); len(str) > 0 {
 			if p, err := strconv.Atoi(str); err == nil {
