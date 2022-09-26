@@ -15,6 +15,7 @@ const (
 
 type commonData struct {
 	Title      string
+	TitleImage string
 	Baseurl    string
 	Version    string
 	Query      string
@@ -28,6 +29,7 @@ func common(t string, r *http.Request) *commonData {
 	if len(r.URL.RawQuery) > 0 {
 		q = fmt.Sprintf("?%s", r.URL.RawQuery)
 	}
+	
 	cd := &commonData{
 		Title:   t,
 		Baseurl: core.Get().WebServer().BasePath(),

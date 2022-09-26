@@ -74,8 +74,11 @@ function showIfDebug(el) {
   <div class="container" style="margin-top: 3.3rem;">
      
    <div class="page-header"> 
-
+   
     {{ if .Title }}
-    <h2> {{.Title}} </h2>
+    <h2>
+       {{ if .TitleImage }}<img style="with: 4rem" src="{{.TitleImage}}" />{{ end }}
+       {{.Title}} 
+    </h2>
     {{end}}
    </div>

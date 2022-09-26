@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
+	"math"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -23,6 +26,7 @@ import (
 const (
 	// IncidentDetailPath is the path of the incitedent details
 	IncidentDetailPath = "/incident/detail/"
+	pageSize           = 10
 )
 
 type incidentData struct {
@@ -35,7 +39,20 @@ type incidentData struct {
 	ErrStr   string
 }
 
+type Page struct {
+	ID    template.HTML
+	State string
+	URL   string
+}
+
+var start time.Time
+
+func (s WebStatus) logTime(format string, v ...any) {
+	s.hcl.Infof(format+" (%v)", append(v, time.Since(start))...)
+}
+
 func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request) {
+	start = time.Now()
 	id := ""
 	idx := strings.Index(r.URL.Path, IncidentDetailPath)
 	if idx < 1 {
@@ -51,22 +68,31 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	ctx := r.Context()
 	client := s.Ent()
 	q := client.Incident.Query()
+	var incidentID uuid.UUID
 	if len(id) > 0 {
-		uid, err := uuid.Parse(id)
+		var err error
+		incidentID, err = uuid.Parse(id)
 		if err != nil {
 			e := fmt.Errorf("cannot parse %s as uuid: %w", id, err)
 			s.hcl.Error(e.Error())
 			http.Error(w, e.Error(), http.StatusInternalServerError)
 			return
 		}
-		q.Where(incident.IncidentID(uid))
+		q.Where(incident.IncidentID(incidentID))
 	}
 	incidents, err := q.All(ctx)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	aCnt := len(incidents)
+	incidentSummary, err := client.IncidentSummary.Query().Where(incident.IncidentIDEQ(incidentID)).First(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	totalIncidents := len(incidents)
+	aCnt := totalIncidents
+	s.logTime("incident count: %v", totalIncidents)
 	if aCnt < 1 {
 		err = templates.ExecuteTemplate(w, "empty.gohtml", common("SOM No such Incident", r))
 		if err != nil {
@@ -75,6 +101,79 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		return
+	}
+	var pages []Page
+	if totalIncidents > pageSize {
+		page := 0
+		r.ParseForm()
+		if str := r.Form.Get("page"); len(str) > 0 {
+			if p, err := strconv.Atoi(str); err == nil {
+				page = p
+			} else {
+				s.hcl.Warnf("Cannot parse page %q", p)
+			}
+		}
+		offset := (page - 1) * pageSize
+		s.logTime("Paging offset %v len %v total %v", offset, pageSize, totalIncidents)
+		incidents, err = q.Offset(offset).Limit(pageSize).All(ctx)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		aCnt = len(incidents)
+		pgCnt := int(math.Ceil(float64(totalIncidents / pageSize)))
+		url := r.URL
+
+		r.Form.Set("page", fmt.Sprintf("%d", page-1))
+		r.URL.RawQuery = r.Form.Encode()
+		p := Page{
+			ID:  template.HTML("&laquo;"),
+			URL: url.String(),
+		}
+		if page < 2 {
+			p.State = "disabled"
+		}
+		pages = append(pages, p)
+		for i := 1; i <= pgCnt; i++ {
+			id := fmt.Sprintf("%v", i)
+			r.Form.Set("page", id)
+			r.URL.RawQuery = r.Form.Encode()
+			p := Page{
+				ID:  template.HTML(id),
+				URL: url.String(),
+			}
+			if i == page {
+				p.State = "active"
+			}
+			pages = append(pages, p)
+		}
+		if len(pages) > 18 {
+			dots := Page{ID: "...", State: "disabled"}
+			start := 9
+			end := len(pages) - 9
+			mid := []Page{dots}
+			if !(page < start || page > end) {
+				start -= 3
+				end += 3
+				mid = append(mid, pages[page-3:page+3]...)
+				mid = append(mid, dots)
+			}
+			backP := pages[end:]
+			pages = append(pages[:start], mid...)
+			pages = append(pages, backP...)
+		}
+		r.Form.Set("page", fmt.Sprintf("%d", page+1))
+		r.URL.RawQuery = r.Form.Encode()
+		p = Page{
+			ID:  template.HTML("&raquo;"),
+			URL: url.String(),
+		}
+		if page >= pgCnt {
+			p.State = "disabled"
+		}
+		pages = append(pages, p)
+		r.Form.Del("page")
+		r.URL.RawQuery = r.Form.Encode()
 	}
 
 	var data = struct {
@@ -90,27 +189,29 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Incidents  []incidentData
 		Alerts     []*ent.Alert
 		AlertLink  string
+		Pages      []Page
 	}{
 		commonData: common("SOM Incident", r),
 		IncidentID: id,
+		Name:       incidentSummary.Name,
+		Start:      incidentSummary.Start.Time(),
+		End:        incidentSummary.End.Time(),
+		Level:      incidentSummary.Level(),
 		PromURL:    fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
-		Level:      status.Unknown,
 		Timeformat: cfg.TimeFormatString,
 		Incidents:  make([]incidentData, aCnt),
 		Alerts:     make([]*ent.Alert, 0),
+		Pages:      pages,
 	}
+	data.TitleImage = fmt.Sprintf("%s/static/status/%s.png", data.Baseurl, data.Level.Img())
 	data.FilesURL = data.Baseurl + "/" + FilesPath
 	data.AlertLink = data.Baseurl + "/" + AlertDetailPath
-	s.hcl.Debugf("found %v incident records", aCnt)
 
 	for i, f := range incidents {
 		if errors.Is(ctx.Err(), context.Canceled) {
 			s.hcl.Infof("Incident detail context canceld: %v", ctx.Err())
 			return
 		}
-		data.Name = f.Name
-		data.Start = f.Start
-		data.End = f.End
 
 		if f.Level() > data.Level {
 			data.Level = f.Level()
@@ -126,12 +227,6 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 			Status:   prepaireStatus(stat),
 			Stati:    make(map[string]string),
 			Counters: make(map[string]string),
-		}
-
-		if alrts, err := client.Alert.Query().Where(alert.IncidentIDEQ(f.IncidentID)).All(ctx); err == nil {
-			data.Alerts = append(data.Alerts, alrts...)
-		} else {
-			s.hcl.Warnf("Loading alerts: %v", err)
 		}
 
 		id.ErrStr = id.Error
@@ -170,6 +265,13 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		}
 		data.Incidents[aCnt-i-1] = id
 	}
+
+	if alrts, err := client.Alert.Query().Where(alert.IncidentIDEQ(incidentID)).All(ctx); err == nil {
+		data.Alerts = alrts
+	} else {
+		s.hcl.Warnf("Loading alerts: %v", err)
+	}
+
 	data.Title = fmt.Sprintf("SOM Incident: %s", data.Name)
 	s.render(w, r, "incident_detail.gohtml", data)
 }

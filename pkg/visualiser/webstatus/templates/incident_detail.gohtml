@@ -3,11 +3,13 @@
 <!-- Embed the header.html template at this location-->
 {{ template "header.gohtml" .}}
 <div class="lead font-weight-bold">
+   
 <table>
-<tr><td>Start:</td><td> {{ .Start.Format $.Timeformat }}</td></tr>
-{{ if not .End.IsZero }} 
-<tr><td>End:</td><td> {{ .End.Format $.Timeformat }} </td></tr>
-{{ end }}
+   <tr><td>Level:</td><td> {{ .Level }} </td></tr>
+   <tr><td>Start:</td><td> {{ .Start.Format $.Timeformat }}</td></tr>
+   {{ if not .End.IsZero }} 
+   <tr><td>End:</td><td> {{ .End.Format $.Timeformat }} </td></tr>
+   {{ end }}
 </table>
 </div>
 
@@ -54,6 +56,27 @@
 </tr>
 {{ end }}
 </table>
+
+<div>
+  <ul class="pagination">
+   <!--
+    <li class="page-item disabled">
+      <a class="page-link" href="#">&laquo;</a>
+    </li>
+    <li class="page-item active">
+      <a class="page-link" href="#">1</a>
+    </li>
+    <li class="page-item">
+      <a class="page-link" href="#">2</a>
+    </li>
+    -->
+    {{ range .Pages}}
+    <li class="page-item">
+      <a class="page-link {{.State}}" href="{{.URL}}">{{.ID}}</a>
+    </li>
+    {{end}}
+  </ul>
+</div>
 
 <h3>Details</h3>
 {{ range .Incidents }}
