@@ -21,17 +21,17 @@
 {{ range .Alerts }}
 <tr>
     <td>
-     <a href="{{ $.AlertLink }}/{{ .ID }}/{{$.Query}}">
+     <a href="{{ $.AlertLink }}/{{ .UUID }}/{{$.Query}}">
         {{ .Time.Format $.Timeformat }}
      </a>
     </td>
     <td>
-     <a href="{{ $.AlertLink }}/{{ .ID }}/{{$.Query}}">
+     <a href="{{ $.AlertLink }}/{{ .UUID }}/{{$.Query}}">
         {{ .Name }} 
      </a>
     </td>
     <td>  
-     <a href="{{ $.AlertLink }}/{{ .ID }}/{{$.Query}}">
+     <a href="{{ $.AlertLink }}/{{ .UUID }}/{{$.Query}}">
         {{ .Error }} 
      </a>
     </td>
