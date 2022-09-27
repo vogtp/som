@@ -1,6 +1,8 @@
 package szenarios
 
 import (
+	"fmt"
+
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
@@ -30,11 +32,14 @@ func (s *OwaSzenario) Execute(engine szenario.Engine) (err error) {
 		)
 	}()
 
-	loadedID := `#O365_MainLink_NavMenu`
-	if engine.Headless() {
-		loadedID = `#EndOfLifeMessageDiv`
+	loadedID := `#O365_MainLink_NavMenu,#EndOfLifeMessageDiv`
+	
+	engine.Step("Wait for loading", chromedp.WaitReady(loadedID+",.errorHeader", chromedp.ByID))
+
+	if !engine.IsPresent(loadedID, chromedp.ByID) {
+		engine.AddErr(fmt.Errorf("Error page loaded"))
+		return
 	}
-	engine.Step("Wait for loading", chromedp.WaitReady(loadedID, chromedp.ByID))
 
 	engine.Step("check loaded", engine.Body(engine.Contains("Sent Items"), engine.Contains("Inbox"), engine.Bigger(1000)))
 
