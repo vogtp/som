@@ -9,11 +9,17 @@ import (
 	"github.com/howeyc/gopass"
 )
 
-// Read a value from the teminal or the args
-func Read(name string, args []string, idx int) string {
-	if idx < len(args) && len(args[idx]) > 0 {
+// ReadOrArgs a value from the teminal or the args
+func ReadOrArgs(name string, args []string, idx int) string {
+	if args != nil && idx > -1 &&
+		idx < len(args) && len(args[idx]) > 0 {
 		return args[idx]
 	}
+	return Read(name)
+}
+
+// Read a value from the teminal
+func Read(name string) string {
 	r := bufio.NewReader(os.Stdin)
 	fmt.Printf("%s: ", name)
 	val, err := r.ReadString('\n')

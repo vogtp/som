@@ -51,12 +51,12 @@ var userAdd = &cobra.Command{
 	Short: "Add a SOM user",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		name := term.Read("username", args, 0)
-		email := term.Read("email", args, 1)
+		name := term.ReadOrArgs("username", args, 0)
+		email := term.ReadOrArgs("email", args, 1)
 		ty := ""
 		szConfig := core.Get().SzenaioConfig()
 		for len(ty) < 1 {
-			ty = term.Read("type", args, 2)
+			ty = term.ReadOrArgs("type", args, 2)
 			ty = strings.TrimSpace(ty)
 			if szConfig != nil && len(szConfig.GetUserTypes()) > 1 {
 				ut := szConfig.GetUserType(ty)
