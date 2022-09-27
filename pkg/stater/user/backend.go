@@ -30,7 +30,7 @@ type store struct {
 func IntialiseStore() {
 	backend.setup()
 	backend.start()
-	hcl.Warn("Userstore backend started (key length: %v)", len(core.Keystore.Key()))
+	hcl.Warnf("Userstore backend started (key length: %v)", len(core.Keystore.Key()))
 }
 
 // createBackend creates a new UserStore
@@ -52,7 +52,7 @@ func (us *store) setup() {
 func (us *store) start() {
 	us.handlerPod = core.Get().Bus().Connect()
 	us.handlerPod.On(func(m grav.Message) error {
-		us.hcl.Debugf("user backend got message: %s %v ID: %v", m.Type(), string(m.Data()), m.UUID())
+		us.hcl.Tracef("user backend got message: %s %s ID: %v", m.Type(), string(m.Data()), m.UUID())
 		switch m.Type() {
 		case msgtype.UserRequest:
 			return us.getUser(m)
