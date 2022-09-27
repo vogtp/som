@@ -125,7 +125,9 @@ func (a *Alerter) handle(msg *msg.AlertMsg) {
 				a.hcl.Warnf("not alerting %s alerting is disabled", msg.Name)
 				continue
 			}
-			a.engines[d.kind].Send(msg, &r, &d)
+			if err := a.engines[d.kind].Send(msg, &r, &d); err != nil {
+				a.hcl.Errorf("Cannot send %s message to %q : %v", d.kind, d.name, err)
+			}
 		}
 	}
 }
