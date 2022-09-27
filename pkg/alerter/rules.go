@@ -79,7 +79,7 @@ func (a *Alerter) isValidRule(r *Rule) error {
 		r.destinations = append(r.destinations, *dst)
 	}
 	if len(r.destinations) < 1 {
-		return errors.New("a rule without destinations does not make sens")
+		return fmt.Errorf("a rule %s without destinations does not make sense", r.name)
 	}
 	a.hcl.Infof("Added rule %s", r.name)
 	return nil
