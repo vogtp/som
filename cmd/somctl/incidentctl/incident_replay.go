@@ -58,7 +58,7 @@ var incidentReplay = &cobra.Command{
 		if len(incidents) < 1 {
 			return fmt.Errorf("No such incident found")
 		}
-		fmt.Printf("\nReplaying %d events\nName: %s\nStart: %s\nYou will need to copy alertmgr.json to get sensible results!\n", len(incidents), incidents[0].Name, incidents[0].Start.Format(cfg.TimeFormatString))
+		fmt.Printf("\nReplaying %d events\nName: %s\nStart: %s\nYou will need to copy alertmgr.json from stater to get sensible results!\n", len(incidents), incidents[0].Name, incidents[0].Start.Format(cfg.TimeFormatString))
 		ans := term.Read("Replay? (y|n)")
 		if ans != "y" {
 			return fmt.Errorf("You answered %s, stopping", ans)
