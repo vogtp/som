@@ -5,10 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"html/template"
-	"math"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -37,12 +34,6 @@ type incidentData struct {
 	Stati    map[string]string
 	Files    []msg.FileMsgItem
 	ErrStr   string
-}
-
-type Page struct {
-	ID    template.HTML
-	State string
-	URL   string
 }
 
 var start time.Time
@@ -80,96 +71,27 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		}
 		q.Where(incident.IncidentID(incidentID))
 	}
-	incidents, err := q.All(ctx)
-	if err != nil {
-		s.Error(w, r, "Database error incidents", err, http.StatusInternalServerError)
-		return
-	}
+	
 	incidentSummary, err := client.IncidentSummary.Query().Where(incident.IncidentIDEQ(incidentID)).First(ctx)
 	if err != nil {
 		s.Error(w, r, "Database error incident summaries", err, http.StatusInternalServerError)
 		return
 	}
-	totalIncidents := len(incidents)
+	totalIncidents := incidentSummary.Total
 	aCnt := totalIncidents
 	s.logTime("incident count: %v", totalIncidents)
 	if aCnt < 1 {
 		s.Error(w, r, "No such incident", err, http.StatusInternalServerError)
 		return
 	}
-	var pages []Page
-	if totalIncidents > pageSize {
-		page := 1
-		r.ParseForm()
-		if str := r.Form.Get("page"); len(str) > 0 {
-			if p, err := strconv.Atoi(str); err == nil {
-				page = p
-			} else {
-				s.hcl.Warnf("Cannot parse page %q", p)
-			}
-		}
-		offset := (page - 1) * pageSize
-		s.logTime("Paging offset %v len %v total %v", offset, pageSize, totalIncidents)
-		incidents, err = q.Offset(offset).Limit(pageSize).All(ctx)
-		if err != nil {
-			s.Error(w, r, "Database error incidents page", err, http.StatusInternalServerError)
-			return
-		}
-		aCnt = len(incidents)
-		pgCnt := int(math.Ceil(float64(totalIncidents / pageSize)))
-		url := r.URL
 
-		r.Form.Set("page", fmt.Sprintf("%d", page-1))
-		r.URL.RawQuery = r.Form.Encode()
-		p := Page{
-			ID:  template.HTML("&laquo;"),
-			URL: url.String(),
-		}
-		if page < 2 {
-			p.State = "disabled"
-		}
-		pages = append(pages, p)
-		for i := 1; i <= pgCnt; i++ {
-			id := fmt.Sprintf("%v", i)
-			r.Form.Set("page", id)
-			r.URL.RawQuery = r.Form.Encode()
-			p := Page{
-				ID:  template.HTML(id),
-				URL: url.String(),
-			}
-			if i == page {
-				p.State = "active"
-			}
-			pages = append(pages, p)
-		}
-		if len(pages) > 18 {
-			dots := Page{ID: "...", State: "disabled"}
-			start := 9
-			end := len(pages) - 9
-			mid := []Page{dots}
-			if !(page < start || page > end) {
-				start -= 3
-				end += 3
-				mid = append(mid, pages[page-3:page+3]...)
-				mid = append(mid, dots)
-			}
-			backP := pages[end:]
-			pages = append(pages[:start], mid...)
-			pages = append(pages, backP...)
-		}
-		r.Form.Set("page", fmt.Sprintf("%d", page+1))
-		r.URL.RawQuery = r.Form.Encode()
-		p = Page{
-			ID:  template.HTML("&raquo;"),
-			URL: url.String(),
-		}
-		if page >= pgCnt {
-			p.State = "disabled"
-		}
-		pages = append(pages, p)
-		r.Form.Del("page")
-		r.URL.RawQuery = r.Form.Encode()
+	pages, offset := s.getPages(r, totalIncidents)
+	incidents, err := q.Offset(offset).Limit(pageSize).All(ctx)
+	if err != nil {
+		s.Error(w, r, "Database error incidents page", err, http.StatusInternalServerError)
+		return
 	}
+	aCnt = len(incidents)
 
 	var data = struct {
 		*commonData
@@ -184,7 +106,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Incidents  []incidentData
 		Alerts     []*ent.Alert
 		AlertLink  string
-		Pages      []Page
+		Pages      []pageInfo
 	}{
 		commonData: common("SOM Incident", r),
 		IncidentID: id,
