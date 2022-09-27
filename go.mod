@@ -18,6 +18,7 @@ require (
 	github.com/iancoleman/strcase v0.2.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/prometheus/client_golang v1.13.0
+	github.com/schollz/progressbar/v3 v3.11.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/slack-go/slack v0.11.3
 	github.com/spf13/cast v1.5.0
@@ -64,7 +65,9 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
@@ -74,6 +77,7 @@ require (
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20220927061507-ef77025ab5aa // indirect
+	github.com/rivo/uniseg v0.4.2 // indirect
 	github.com/schollz/peerdiscovery v1.6.12 // indirect
 	github.com/sethvargo/go-envconfig v0.8.2 // indirect
 	github.com/spf13/afero v1.9.2 // indirect

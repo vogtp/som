@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -68,7 +69,9 @@ var incidentReplay = &cobra.Command{
 
 		ticker := time.NewTicker(replayDelay)
 		defer fmt.Println("")
+		bar := progressbar.Default(int64(len(incidents)), "Replay")
 		for _, inci := range incidents {
+			bar.Add(1)
 			m, err := getMsg(cmd.Context(), inci)
 			if err != nil {
 				return fmt.Errorf("cannot build msg from model: %v", err)
@@ -76,7 +79,6 @@ var incidentReplay = &cobra.Command{
 			szBus.Send(m)
 			select {
 			case <-ticker.C:
-				fmt.Print(".")
 			case <-cmd.Context().Done():
 				fmt.Println("Canceled")
 				return cmd.Context().Err()
