@@ -54,12 +54,12 @@ func (ug usrGroup) StringInt(i int) string {
 			stat := e.Level().String()
 			if e.evt.Err() != nil {
 				stat = e.evt.Err().Error()
-			} else {
-				t := getEvtTot(e.evt)
-				if t > 0 {
-					stat = fmt.Sprintf("%5.2fs %s", t, stat)
-				}
 			}
+			t := getEvtTot(e.evt)
+			if t > 0 {
+				stat = fmt.Sprintf("%5.2fs %s", t, stat)
+			}
+
 			str = fmt.Sprintf("%s\n%s%s%s: %s", str, it, it, e.evt.Time.Format(cfg.TimeFormatString), stat)
 		} else {
 			str = fmt.Sprintf("%s\n%s%s%s: %s", str, it, it, c.Level(), c.Key())
