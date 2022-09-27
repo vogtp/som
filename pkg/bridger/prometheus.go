@@ -1,6 +1,7 @@
 package bridger
 
 import (
+	"errors"
 	"strings"
 	"sync"
 
@@ -10,10 +11,11 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
 const (
-	downValue = -5.
+	downValue = 0
 )
 
 // RegisterPrometheus registers NetCrunch Messages on the eventbus
@@ -57,10 +59,6 @@ func (p *prometheusBackend) start() {
 }
 
 func (p *prometheusBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
-	if e.Err() != nil { // TODO handle only timeouts
-		// do not save response times with errors
-		return
-	}
 	p.setGauge(e)
 	p.setGaugeVec(e)
 	// histogram is not useful here
@@ -93,7 +91,7 @@ func (p *prometheusBackend) setGaugeVec(e *msg.SzenarioEvtMsg) {
 				p.hcl.Warnf("GaugeVec %s is nil", n)
 				continue
 			}
-			if e.Err() != nil {
+			if errors.Is(e.Err(), szenario.TimeoutError{}) {
 				f = downValue
 			}
 			m.Set(f)
@@ -125,7 +123,7 @@ func (p *prometheusBackend) setGauge(e *msg.SzenarioEvtMsg) {
 	for n, c := range e.Counters {
 		if f, ok := c.(float64); ok {
 			ph := psz.getGauge(e.Name, n)
-			if e.Err() != nil {
+			if errors.Is(e.Err(), szenario.TimeoutError{}) {
 				f = downValue
 			}
 			ph.Set(f)
@@ -186,7 +184,7 @@ func (p *prometheusBackend) setHistogramVec(e *msg.SzenarioEvtMsg) {
 				p.hcl.Warnf("GaugeVec %s is nil", n)
 				continue
 			}
-			if e.Err() != nil {
+			if errors.Is(e.Err(), szenario.TimeoutError{}) {
 				f = downValue
 			}
 			m.Observe(f)
