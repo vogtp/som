@@ -137,7 +137,7 @@
 <td class="list">
 {{ range  .Files }}
 {{ if eq .Type.MimeType "text/html"}}
-<a href="{{$.FilesURL}}/{{.ID}}">{{ .Name }}.{{ .Type.Ext}} </a>
+<a href="{{$.FilesURL}}/{{.ID}}" target="_blank">{{ .Name }}.{{ .Type.Ext}} </a>
 {{ end }}
 {{ end }}
 </td>
