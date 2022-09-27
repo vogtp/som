@@ -14,7 +14,6 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
-	"github.com/vogtp/som/pkg/core/mime"
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
@@ -81,21 +80,21 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	}
 	img := ""
 	//fullImage := fmt.Sprintf("<img src='%s/%s?file=%%s.%%s' />", viper.GetString(cfg.AlertDetailURL), e.ID)
-	for _, f := range e.Files {
-		name := fmt.Sprintf("%s.%s", f.Name, f.Type.Ext)
-		teams.hcl.Debugf("Adding attachment %s", name)
-		if f.Type == mime.Png {
-			imgTag, err := teams.getImage(f.Payload)
-			if err != nil {
-				teams.hcl.Warnf("cannot add image %s: %v", name, err)
-				continue
-			}
-			//teams.hcl.Infof("%s",fmt.Sprintf(fullImage, f.Name, f.Type.Ext))
-			//img = fmt.Sprintf("%s\n%s<br />\n", img, fmt.Sprintf(fullImage, f.Name, f.Type.Ext))
-			img = fmt.Sprintf("%s\n%s<br />\n", img, imgTag)
-			break
-		}
-	}
+	// for _, f := range e.Files {
+	// 	name := fmt.Sprintf("%s.%s", f.Name, f.Type.Ext)
+	// 	teams.hcl.Debugf("Adding attachment %s", name)
+	// 	if f.Type == mime.Png {
+	// 		imgTag, err := teams.getImage(f.Payload)
+	// 		if err != nil {
+	// 			teams.hcl.Warnf("cannot add image %s: %v", name, err)
+	// 			continue
+	// 		}
+	// 		//teams.hcl.Infof("%s",fmt.Sprintf(fullImage, f.Name, f.Type.Ext))
+	// 		//img = fmt.Sprintf("%s\n%s<br />\n", img, fmt.Sprintf(fullImage, f.Name, f.Type.Ext))
+	// 		img = fmt.Sprintf("%s\n%s<br />\n", img, imgTag)
+	// 		break
+	// 	}
+	// }
 	text, err := getHTML(e)
 	if err != nil {
 		teams.hcl.Errorf("index Template error %v", err)
@@ -126,6 +125,7 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	}
 
 	return mstClient.SendWithRetry(context.TODO(), webhookURL, msgCard, 3, 5)
+	//return mstClient.Send(webhookURL, msgCard)
 }
 
 func (teams *Teams) getImage(img []byte) (string, error) {
@@ -134,7 +134,7 @@ func (teams *Teams) getImage(img []byte) (string, error) {
 		return "", fmt.Errorf("cannot decode image: %w", err)
 	}
 
-	newImage := resize.Resize(150, 0, image, resize.Lanczos3)
+	newImage := resize.Resize(100, 0, image, resize.Lanczos3)
 
 	buf := new(bytes.Buffer)
 	enc := png.Encoder{CompressionLevel: png.BestCompression}
