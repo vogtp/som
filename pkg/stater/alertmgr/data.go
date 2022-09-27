@@ -52,7 +52,7 @@ func (am *AlertMgr) wirteJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot write file %s: %w", jsonDBFile, err)
 	}
-	am.hcl.Debugf("Saved %v alertmgr datasets to %s", len(am.basicStates), jsonDBFile)
+	am.hcl.Tracef("Saved %v alertmgr datasets to %s", len(am.basicStates), jsonDBFile)
 	return nil
 }
 
