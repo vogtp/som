@@ -44,18 +44,6 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		q.Where(incident.NameEqualFold(sz))
 	}
 
-	// q.Where(
-	// 	incident.Not(
-	// 		incident.Or(
-	// 			incident.StartGT(common.End),
-	// 			incident.And(
-	// 				incident.EndNotNil(),
-	// 				incident.EndLT(common.Start),
-	// 			),
-	// 		),
-	// 	),
-	// )
-
 	summary, err := q.All(ctx)
 	if err != nil {
 		err = fmt.Errorf("Cannot load incidents from DB:\n %v", err)

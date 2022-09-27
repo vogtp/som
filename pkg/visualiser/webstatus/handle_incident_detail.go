@@ -35,14 +35,7 @@ type incidentData struct {
 	ErrStr   string
 }
 
-var start time.Time
-
-func (s WebStatus) logTime(format string, v ...any) {
-	s.hcl.Infof(format+" (%v)", append(v, time.Since(start))...)
-}
-
 func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request) {
-	start = time.Now()
 	id := ""
 	idx := strings.Index(r.URL.Path, IncidentDetailPath)
 	if idx < 1 {
@@ -70,16 +63,14 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		}
 		q.Where(incident.IncidentID(incidentID))
 	}
-	
+
 	incidentSummary, err := client.IncidentSummary.Query().Where(incident.IncidentIDEQ(incidentID)).First(ctx)
 	if err != nil {
 		s.Error(w, r, "Database error incident summaries", err, http.StatusInternalServerError)
 		return
 	}
 	totalIncidents := incidentSummary.Total
-	aCnt := totalIncidents
-	s.logTime("incident count: %v", totalIncidents)
-	if aCnt < 1 {
+	if totalIncidents < 1 {
 		s.Error(w, r, "No such incident", err, http.StatusInternalServerError)
 		return
 	}
@@ -90,7 +81,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		s.Error(w, r, "Database error incidents page", err, http.StatusInternalServerError)
 		return
 	}
-	aCnt = len(incidents)
+	aCnt := len(incidents)
 
 	var data = struct {
 		*commonData

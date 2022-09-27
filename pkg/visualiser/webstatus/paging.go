@@ -29,7 +29,7 @@ func (s *WebStatus) getPages(r *http.Request, total int) ([]pageInfo, int) {
 		}
 	}
 	offset := (page - 1) * pageSize
-	s.logTime("Paging offset %v len %v total %v", offset, pageSize, total)
+	s.hcl.Debugf("Paging offset %v len %v total %v", offset, pageSize, total)
 
 	pgCnt := int(math.Ceil(float64(total / pageSize)))
 	url := r.URL
