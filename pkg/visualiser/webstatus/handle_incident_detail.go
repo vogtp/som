@@ -23,7 +23,6 @@ import (
 const (
 	// IncidentDetailPath is the path of the incitedent details
 	IncidentDetailPath = "/incident/detail/"
-	pageSize           = 10
 )
 
 type incidentData struct {

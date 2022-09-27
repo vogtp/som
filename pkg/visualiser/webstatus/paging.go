@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+const pageSize = 10
+
 type pageInfo struct {
 	ID    template.HTML
 	State string
