@@ -27,6 +27,7 @@
     <th>Status</th>
     <th>Start</th>
     <th>End</th>
+    <th>Duration</th>
     <th>Szenario</th>
     <th>Alerts</th>
     <th>Events</th>
@@ -51,6 +52,13 @@
         {{ if not .End.IsZero }}
         <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
          {{ .End }}
+        </a>
+        {{ end }}
+    </td>
+    <td>
+        {{ if not .End.IsZero }}
+        <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+         {{ .End.Since .Start }}
         </a>
         {{ end }}
     </td>
