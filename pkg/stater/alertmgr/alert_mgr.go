@@ -94,58 +94,52 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 	am.mu.Lock()
 	defer am.mu.Unlock()
 	am.status.AddEvent(e)
-	szStatus := am.status.Get(e.Name)
-	if szStatus == nil {
+	szStatusGroup := am.status.Get(e.Name)
+	if szStatusGroup == nil {
 		panic("szenario status cannot be nil")
 	}
-	lvl := szStatus.Level()
-	s, found := am.basicStates[e.Name]
+	lvl := szStatusGroup.Level()
+	szState, found := am.basicStates[e.Name]
 	if found {
-		e.IncidentID = s.GetIncidentID()
+		e.IncidentID = szState.GetIncidentID()
 	}
 	if lvl == status.OK {
 		if found {
-			diff := e.Time.Sub(s.End)
-			am.hcl.Infof("Close incident: %s Start %v End %v Diff %v", e.Name, s.Start, s.End, diff)
+			diff := e.Time.Sub(szState.End)
+			am.hcl.Infof("Close incident: %s Start %v End %v Diff %v", e.Name, szState.Start, szState.End, diff)
 			if diff > am.reopenTime {
-				am.hcl.Infof("Clear old incident of %s: %+v", e.Name, s)
+				am.hcl.Infof("Clear old incident of %s: %+v", e.Name, szState)
 				delete(am.basicStates, e.Name)
 			}
-			s.End = e.Time
+			szState.End = e.Time
 			i := msg.NewIncidentMsg(msg.CloseIncident, e)
-			i.Start = s.Start
-			i.IntLevel = int(szStatus.Level())
+			i.Start = szState.Start
+			i.IntLevel = int(szStatusGroup.Level())
 			i.ByteState = am.status.JSONBySzenario(e.Name)
 			core.Get().Bus().Incident.Send(i)
 		}
 		return nil
 	}
-	if s == nil {
+	if szState == nil {
 		am.basicStates[e.Name] = newBasicState(am, e)
 		i := msg.NewIncidentMsg(msg.OpenIncident, e)
-		i.IntLevel = int(szStatus.Level())
+		i.IntLevel = int(szStatusGroup.Level())
 		i.ByteState = am.status.JSONBySzenario(e.Name)
 		core.Get().Bus().Incident.Send(i)
 		am.hcl.Debugf("Not alerting: first alert of %s: %v", e.Name, e.Err())
 		return nil
 	}
-	s.End = time.Time{}
+	szState.End = time.Time{}
 	if e.Err() != nil {
 		i := msg.NewIncidentMsg(msg.UpdateIncident, e)
-		i.Start = s.Start
-		i.IntLevel = int(szStatus.Level())
+		i.Start = szState.Start
+		i.IntLevel = int(lvl)
 		i.ByteState = am.status.JSONBySzenario(e.Name)
 		core.Get().Bus().Incident.Send(i)
 	}
 	if lvl < am.alertLevel {
-		am.hcl.Infof("Szenario %s alert level %v NOT alerting: %s", e.Name, lvl, szStatus.StringInt(2))
+		am.hcl.Infof("Szenario %s alert level %v NOT alerting: %s", e.Name, lvl, szStatusGroup.StringInt(2))
 		return nil
 	}
-	a := s.GetAlert(e)
-	if a == nil {
-		return nil
-	}
-	a.Level = szStatus.Level().String()
-	a.SetStatus(KeyTopology, szStatus.String())
-	return a
+	return szState.GetAlert(e, szStatusGroup)
 }

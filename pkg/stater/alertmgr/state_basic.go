@@ -9,6 +9,7 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/core/status"
 )
 
 type basicState struct {
@@ -18,6 +19,7 @@ type basicState struct {
 	err        error
 	Start      time.Time
 	End        time.Time
+	Level      status.Level
 	LastUpdate time.Time
 	IncidentID string
 }
@@ -42,8 +44,9 @@ func (s *basicState) GetIncidentID() string {
 	return s.IncidentID
 }
 
-// GetAlert returns the alert to be generated and updates bookkeeping
-func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
+// GetAlert returns the alert to be generated or nil if none is needed
+// and updates bookkeeping
+func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.SzenarioGroup) *msg.AlertMsg {
 	oldErr := s.err
 	s.err = e.Err()
 	if oldErr == nil || e.Err() == nil {
@@ -51,7 +54,10 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		s.hcl.Debugf("Not alerting not a constant error: %v was %v", e.Err(), oldErr)
 		return nil
 	}
-	if s.Alerted > 0 && s.LastUpdate.After(e.Time.Add(-1*s.am.alertIntervall)) {
+	lvl := statusGroup.Level()
+	if s.Alerted > 0 &&
+		s.Level >= lvl &&
+		s.LastUpdate.After(e.Time.Add(-1*s.am.alertIntervall)) {
 		// alread alerted
 		s.hcl.Debugf("Not alerting: %v -- last alert was %v (%s ago, not alerting more often than %v)", e.Err(), s.LastUpdate, e.Time.Sub(s.LastUpdate), s.am.alertIntervall)
 		return nil
@@ -66,7 +72,11 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		s.hcl.Infof("Not alerting %v alert is too young %v must be older than %v", e.Name, time.Since(e.Time), viper.GetDuration(cfg.AlertDelay))
 		return nil
 	}
+	s.Level = lvl
 	s.LastUpdate = e.Time
 	s.Alerted++
-	return msg.NewAlert(e)
+	a := msg.NewAlert(e)
+	a.SetStatus(KeyTopology, statusGroup.String())
+	a.Level = lvl.String()
+	return a
 }
