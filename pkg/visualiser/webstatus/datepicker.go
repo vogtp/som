@@ -18,6 +18,8 @@ const (
 	yesterdayLabel = "Yesterday"
 	last7dLabel    = "Last 7 Days"
 	last30dLabel   = "Last 30 Days"
+	last90dLabel   = "Last 90 Days"
+	last365dLabel  = "Last 365 Days"
 	thisMonthLabel = "This Month"
 	lastMonthLabel = "Last Month"
 	customLabel    = "Custom Range"
@@ -56,6 +58,14 @@ func (dp *datepicker) processTimespan(r *http.Request) {
 	case last30dLabel:
 		end = time.Now()
 		start = end.Add(-30 * 24 * time.Hour)
+		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
+	case last90dLabel:
+		end = time.Now()
+		start = end.Add(-90 * 24 * time.Hour)
+		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
+	case last365dLabel:
+		end = time.Now()
+		start = end.Add(-365 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case thisMonthLabel:
 		now := time.Now()
@@ -106,6 +116,8 @@ func (datepicker) Today() string     { return todayLabel }
 func (datepicker) Yesterday() string { return yesterdayLabel }
 func (datepicker) Last7d() string    { return last7dLabel }
 func (datepicker) Last30d() string   { return last30dLabel }
+func (datepicker) Last90d() string   { return last90dLabel }
+func (datepicker) Last365d() string  { return last365dLabel }
 func (datepicker) ThisMonth() string { return thisMonthLabel }
 func (datepicker) LastMonth() string { return lastMonthLabel }
 func (datepicker) Custom() string    { return customLabel }
