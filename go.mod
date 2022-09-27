@@ -30,7 +30,6 @@ require (
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/vogtp/go-grav-mesh v0.0.0-20220819125732-e4af3605ea22
 	github.com/vogtp/go-hcl v0.3.0
-	github.com/xhit/go-str2duration/v2 v2.0.0
 	github.com/xiaoqidun/entps v0.0.0-20220911121523-5cee03528151
 	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
