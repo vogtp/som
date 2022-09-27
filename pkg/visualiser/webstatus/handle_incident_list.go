@@ -60,7 +60,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		err = fmt.Errorf("Cannot load incidents from DB:\n %v", err)
 		s.hcl.Errorf("Incident list: %v", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Error(w, r, "Database error incident list", err, http.StatusInternalServerError)
 		return
 	}
 

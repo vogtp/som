@@ -33,7 +33,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	id := ""
 	idx := strings.Index(r.URL.Path, AlertDetailPath)
 	if idx < 1 {
-		http.Error(w, "No alert ID given", http.StatusBadRequest)
+		s.Error(w, r, "No alert ID given", nil, http.StatusBadRequest)
 		return
 	}
 	id = strings.ToLower(r.URL.Path[idx+len(AlertDetailPath):])
@@ -47,27 +47,21 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	if len(id) > 0 {
 		uid, err := uuid.Parse(id)
 		if err != nil {
-			e := fmt.Errorf("cannot parse %s as uuid: %w", id, err)
-			s.hcl.Error(e.Error())
-			http.Error(w, e.Error(), http.StatusInternalServerError)
+			s.hcl.Error("cannot parse %s as uuid: %w", id, err)
+			s.Error(w, r, "Cannot parse UUID", err, http.StatusBadRequest)
 			return
 		}
 		q.Where(alert.UUID(uid))
 	}
 	alerts, err := q.All(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Error(w, r, "Database error alerts", err, http.StatusInternalServerError)
 		return
 	}
 
 	aCnt := len(alerts)
 	if aCnt < 1 {
-		err = templates.ExecuteTemplate(w, "empty.gohtml", common("SOM No such Alert", r))
-		if err != nil {
-			s.hcl.Errorf("index Template error %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		s.Error(w, r, "No such alert", err, http.StatusInternalServerError)
 		return
 	}
 	url := r.URL.String()

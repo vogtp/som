@@ -1,0 +1,14 @@
+<!-- error.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+
+<div class="alert alert-dismissible alert-danger">
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <strong>{{ .Msg }}</strong> <br>
+  {{ .Error }} <br>
+  Reference: <a href="{{.URL}}" class="alert-link">{{.URL}}</a> 
+</div>
+
+<!-- Embed the footer.html template at this location -->
+{{ template "footer.gohtml" .}}

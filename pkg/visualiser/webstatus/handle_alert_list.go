@@ -51,7 +51,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	)
 	alerts, err := q.All(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Error(w, r, "No such alert list", err, http.StatusInternalServerError)
 		return
 	}
 	baseurl := core.Get().WebServer().BasePath()

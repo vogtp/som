@@ -56,7 +56,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	id := ""
 	idx := strings.Index(r.URL.Path, IncidentDetailPath)
 	if idx < 1 {
-		http.Error(w, "No incident ID given", http.StatusBadRequest)
+		s.Error(w, r, "No incident ID given", nil, http.StatusBadRequest)
 		return
 	}
 	id = strings.ToLower(r.URL.Path[idx+len(IncidentDetailPath):])
@@ -75,31 +75,26 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		if err != nil {
 			e := fmt.Errorf("cannot parse %s as uuid: %w", id, err)
 			s.hcl.Error(e.Error())
-			http.Error(w, e.Error(), http.StatusInternalServerError)
+			s.Error(w, r, "Cannot parse UUID", e, http.StatusBadRequest)
 			return
 		}
 		q.Where(incident.IncidentID(incidentID))
 	}
 	incidents, err := q.All(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Error(w, r, "Database error incidents", err, http.StatusInternalServerError)
 		return
 	}
 	incidentSummary, err := client.IncidentSummary.Query().Where(incident.IncidentIDEQ(incidentID)).First(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		s.Error(w, r, "Database error incident summaries", err, http.StatusInternalServerError)
 		return
 	}
 	totalIncidents := len(incidents)
 	aCnt := totalIncidents
 	s.logTime("incident count: %v", totalIncidents)
 	if aCnt < 1 {
-		err = templates.ExecuteTemplate(w, "empty.gohtml", common("SOM No such Incident", r))
-		if err != nil {
-			s.hcl.Errorf("incident details Template error %v", err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		s.Error(w, r, "No such incident", err, http.StatusInternalServerError)
 		return
 	}
 	var pages []Page
@@ -117,7 +112,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		s.logTime("Paging offset %v len %v total %v", offset, pageSize, totalIncidents)
 		incidents, err = q.Offset(offset).Limit(pageSize).All(ctx)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			s.Error(w, r, "Database error incidents page", err, http.StatusInternalServerError)
 			return
 		}
 		aCnt = len(incidents)
