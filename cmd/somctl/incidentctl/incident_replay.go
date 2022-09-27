@@ -58,13 +58,15 @@ var incidentReplay = &cobra.Command{
 		if len(incidents) < 1 {
 			return fmt.Errorf("No such incident found")
 		}
-		fmt.Printf("\nReplaying %d events\nName: %s\nStart: %s\nYou will need to copy alertmgr.json from stater to get sensible results!\n", len(incidents), incidents[0].Name, incidents[0].Start.Format(cfg.TimeFormatString))
+		replayDelay := viper.GetDuration(flagReplayDelay)
+		estDuration := time.Duration(len(incidents)) * replayDelay
+		fmt.Printf("\nReplaying %d events\nName: %s\nStart: %s\nEstimated time: %v (delay: %v)\nYou will need to copy alertmgr.json from stater to get sensible results!\n", len(incidents), incidents[0].Name, incidents[0].Start.Format(cfg.TimeFormatString), estDuration, replayDelay)
 		ans := term.Read("Replay? (y|n)")
 		if ans != "y" {
 			return fmt.Errorf("You answered %s, stopping", ans)
 		}
 
-		ticker := time.NewTicker(viper.GetDuration(flagReplayDelay))
+		ticker := time.NewTicker(replayDelay)
 		defer fmt.Println("")
 		for _, inci := range incidents {
 			m, err := getMsg(cmd.Context(), inci)
