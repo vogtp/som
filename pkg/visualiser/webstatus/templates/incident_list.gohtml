@@ -21,6 +21,8 @@
 
 {{ template "datepicker.gohtml" .DatePicker }}
 
+
+{{ if gt (len .Incidents) 0 }}
 <table>
 <thead>
 <tr style="text-align: center">
@@ -83,7 +85,13 @@
 {{ end }}
 </tbody>
 </table>
-
+{{ else }}
+    <div class="alert alert-dismissible alert-primary" style="margin: 3rem;">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <strong>No Incidents found!</strong>
+        <div>Try using an other timerange or filter</div>
+    </div>
+{{ end }}
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.gohtml" .}}
