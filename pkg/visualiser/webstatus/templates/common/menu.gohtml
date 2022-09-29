@@ -30,7 +30,9 @@
         
       
         <li class="nav-item dropdown d-flex  my-2 my-sm-0">
-          <a onclick="setDebug()" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Settings</a>
+          <a onclick="setDebug()" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+            More
+          </a>
           <div class="dropdown-menu">
             <!--
             <a class="dropdown-item" href="#">Action</a>
@@ -40,9 +42,10 @@
             -->
             <a class="dropdown-item" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
             <a class="dropdown-item" id="graphiql"  href="{{.Baseurl}}/api/{{.Query}}"> GraphQL API </a>
+            <div class="dropdown-divider" id="debug_divider"></div>
             <div class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="debug" checked="false" onchange="updateDebug(this)">
-              <label class="form-check-label" for="debug">Debug</label>
+              <label class="form-check-label" style="padding-right: 3rem;" for="debug">Advanced</label>
+              <input class="form-check-input form-switch" style="padding-left: 1rem;" type="checkbox" id="debug" checked="false" onchange="updateDebug(this)">
             </div>
           </div>
         </li>
@@ -57,6 +60,7 @@
 <script>
   showIfDebug("mesh_info")
   showIfDebug("graphiql")
+  showIfDebug("debug_divider")
 
   function updateDebug(selectObject) {
     url = new URL(window.location.href)
