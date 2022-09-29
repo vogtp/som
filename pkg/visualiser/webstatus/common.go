@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 )
@@ -20,6 +21,7 @@ type commonData struct {
 	Version    string
 	Query      string
 	AutoReload int
+	Theme      string
 	DatePicker datepicker
 }
 
@@ -29,12 +31,18 @@ func common(t string, r *http.Request) *commonData {
 	if len(r.URL.RawQuery) > 0 {
 		q = fmt.Sprintf("?%s", r.URL.RawQuery)
 	}
-	
 	cd := &commonData{
 		Title:   t,
 		Baseurl: core.Get().WebServer().BasePath(),
 		Version: cfg.Version,
 		Query:   q,
+		Theme:   "flatly",
+	}
+	if theme, err := r.Cookie("theme"); err == nil && theme.Value == "dark" {
+		hcl.Warnf("Theme: %v", theme.Value)
+		cd.Theme ="darkly"
+	}else{
+		hcl.Warnf("Theme err: %v", err)
 	}
 	cd.DatePicker.init(r)
 	if r.Form.Has(autoUpdate) {
