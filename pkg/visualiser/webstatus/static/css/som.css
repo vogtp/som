@@ -1,0 +1,26 @@
+th,
+td {
+    padding: 2px;
+    padding-right: 10px;
+}
+
+th {
+    text-align: left;
+}
+
+td.list {
+    vertical-align: top
+}
+
+img.level {
+    width: 25px
+}
+
+.form-select {
+    display: inline;
+    width: auto;
+}
+
+.navbar {
+    --bs-navbar-padding-y: 0.3rem;
+}

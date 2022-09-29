@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 )
@@ -36,14 +35,12 @@ func common(t string, r *http.Request) *commonData {
 		Baseurl: core.Get().WebServer().BasePath(),
 		Version: cfg.Version,
 		Query:   q,
-		Theme:   "flatly",
+		Theme:   "light",
 	}
 	if theme, err := r.Cookie("theme"); err == nil && theme.Value == "dark" {
-		hcl.Warnf("Theme: %v", theme.Value)
-		cd.Theme ="darkly"
-	}else{
-		hcl.Warnf("Theme err: %v", err)
+		cd.Theme = theme.Value
 	}
+
 	cd.DatePicker.init(r)
 	if r.Form.Has(autoUpdate) {
 		if i, err := strconv.Atoi(r.Form.Get(autoUpdate)); err == nil {

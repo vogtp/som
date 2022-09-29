@@ -14,7 +14,7 @@
     <link rel="shortcut icon" type="image/png" href="{{.Baseurl}}/static/favicon.png">  
 
     <!-- Darkly from https://bootswatch.com/darkly/ -->
-    <link href="{{.Baseurl}}/static/css/{{ .Theme }}.min.css" type="text/css" rel="stylesheet"/>
+    <link href="{{.Baseurl}}/static/css/{{ .Theme }}.css" type="text/css" rel="stylesheet"/>
     
 
     <script
@@ -65,37 +65,16 @@
           head.appendChild(link);
         }
         function darkTheme() {
-          addCss("{{.Baseurl}}/static/css/darkly.min.css")
+        //  addCss("{{.Baseurl}}/static/css/darkly.min.css")
+          addCss("{{.Baseurl}}/static/css/dark.css")
         }
         function lightTheme() {
-          addCss("{{.Baseurl}}/static/css/flatly.min.css")
+          //addCss("{{.Baseurl}}/static/css/flatly.min.css")
+          addCss("{{.Baseurl}}/static/css/light.css")
         }
     </script>
 
   </head>
-  <style>
-    th, td {
-      padding: 2px;
-      padding-right: 10px;
-    }
-    th {
-      text-align: left;
-    }
-    td.list {
-      vertical-align: top
-    }
-    img.level {
-      width: 25px
-    }
-
-    .form-select {
-      display: inline;
-      width: auto;
-    }
-    .navbar{
-    --bs-navbar-padding-y: 0.3rem;
-    }
-  </style>
 
 <script>
 function showIfDebug(el) {
