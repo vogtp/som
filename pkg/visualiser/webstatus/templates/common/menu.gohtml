@@ -43,8 +43,8 @@
             <a class="dropdown-item" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
             <a class="dropdown-item" id="graphiql"  href="{{.Baseurl}}/api/{{.Query}}"> GraphQL API </a>
             <div class="dropdown-divider" id="debug_divider"></div>
-            <div class="form-check form-switch">
-              <label class="form-check-label" style="padding-right: 3rem;" for="debug">Advanced</label>
+            <div class="form-check form-switch" style="margin-left: 15px; display: block;">
+              <label class="form-check-label" for="debug">Advanced</label>
               <input class="form-check-input form-switch" style="padding-left: 1rem;" type="checkbox" id="debug" checked="false" onchange="updateDebug(this)">
             </div>
           </div>
