@@ -59,7 +59,7 @@ func (p *prometheusBackend) start() {
 }
 
 func (p *prometheusBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
-	p.setGauge(e)
+	//	p.setGauge(e)
 	p.setGaugeVec(e)
 	// histogram is not useful here
 	// p.setHistogramVec(e)
