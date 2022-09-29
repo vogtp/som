@@ -20,6 +20,7 @@ type Grouper interface {
 	Key() string
 	Level() Level
 	Availability() Availability
+	GetCounter(string) float64
 	Add(Grouper)
 	SetConfig(*Config)
 	json.Marshaler
@@ -78,6 +79,22 @@ func (g Group) Availability() Availability {
 		a += c.Availability()
 	}
 	a /= Availability(len(g.children))
+	return a
+}
+
+// GetCounter returns the avg of a counter
+func (g Group) GetCounter(counter string) float64 {
+	a := 0.0
+	cnt := 0.0
+	for _, c := range g.children {
+		val := c.GetCounter(counter)
+		if val < 0.0 {
+			continue
+		}
+		cnt++
+		a += val
+	}
+	a /= cnt
 	return a
 }
 

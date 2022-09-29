@@ -72,6 +72,19 @@ func (w evtWrapper) Availability() Availability {
 	return ret
 }
 
+// GetCounter returns the avg of a counter
+func (w evtWrapper) GetCounter(counter string) float64 {
+	c, ok := w.evt.Counters[counter]
+	if !ok {
+		return -1
+	}
+	f, ok := c.(float64)
+	if !ok {
+		return -1
+	}
+	return f
+}
+
 // Add panics (not supported for events)
 // use AddEvent
 func (evtWrapper) Add(Grouper) {
