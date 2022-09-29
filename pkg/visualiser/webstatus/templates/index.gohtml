@@ -36,7 +36,7 @@ option {
         {{ template "datepicker.gohtml" .DatePicker }}
     
         Graph Style:
-        <select name="graphStyle" class="form-select btn" id="graphStyle" onchange="updateGraphStyle(this)">
+        <select name="graphStyle" class="btn btn-secondary" id="graphStyle" onchange="updateGraphStyle(this)">
             <option selected disabled hidden>Choose</option>
             <option value="summary"  {{ if eq .GraphStyle "summary" }}selected{{end}} >Summary</option>
             <option value="avail"    {{ if eq .GraphStyle "avail" }}selected{{end}} >Availability</option>
