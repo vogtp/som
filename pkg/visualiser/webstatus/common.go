@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
 const (
@@ -51,4 +53,8 @@ func common(t string, r *http.Request) *commonData {
 		}
 	}
 	return cd
+}
+
+func (commonData) Since(t db.MinMaxTime) time.Duration {
+	return time.Since(t.Time()).Truncate(time.Second)
 }

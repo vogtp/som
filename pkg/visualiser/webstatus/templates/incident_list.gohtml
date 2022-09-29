@@ -62,6 +62,8 @@
         <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
          {{ .End.Since .Start }}
         </a>
+        {{else}}
+          {{ $.Since .Start }}
         {{ end }}
     </td>
     <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
