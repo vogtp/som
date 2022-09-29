@@ -19,7 +19,8 @@ $('input[name="daterange"]').daterangepicker({
     "autoUpdateInput": false,
     "alwaysShowCalendars": true,
     ranges: {
-        '{{ .Today }}': [moment().startOf('day'), moment().endOf("day")],
+        '{{ .Last24h }}': [moment().subtract(24, 'hours'), moment()],
+        // '{{ .Today }}': [moment().startOf('day'), moment().endOf("day")],
         '{{ .Yesterday }}': [moment().startOf('day').subtract(1, 'days'), moment().endOf("day").subtract(1, 'days')],
         '{{ .Last7d }}': [moment().subtract(7, 'days'), moment()],
         '{{ .Last30d }}': [moment().subtract(30, 'days'), moment()],

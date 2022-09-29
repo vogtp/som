@@ -16,6 +16,7 @@ const (
 
 	todayLabel     = "Today"
 	yesterdayLabel = "Yesterday"
+	last24hLabel   = "Last 24 Hours"
 	last7dLabel    = "Last 7 Days"
 	last30dLabel   = "Last 30 Days"
 	last90dLabel   = "Last 90 Days"
@@ -38,42 +39,50 @@ func (dp *datepicker) init(r *http.Request) {
 	dp.processTimespan(r)
 }
 
+func (dp datepicker) nowUtc() time.Time {
+	return time.Now().UTC()
+}
+
 func (dp *datepicker) processTimespan(r *http.Request) {
-	start := time.Now().Add(-30 * 24 * time.Hour)
-	end := time.Now()
+	start := dp.nowUtc().Add(-30 * 24 * time.Hour)
+	end := dp.nowUtc()
 	switch dp.Timespan {
+	case last24hLabel:
+		end = dp.nowUtc()
+		start = end.Add(-24 * time.Hour)
+		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case todayLabel:
-		t := time.Now()
+		t := dp.nowUtc()
 		start = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 		end = start.Add(24 * time.Hour).Add(-1 * time.Nanosecond)
 	case yesterdayLabel:
-		t := time.Now()
+		t := dp.nowUtc()
 		end = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 		start = end.Add(-24 * time.Hour)
 		end = end.Add(-1 * time.Nanosecond)
 	case last7dLabel:
-		end = time.Now()
+		end = dp.nowUtc()
 		start = end.Add(-7 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case last30dLabel:
-		end = time.Now()
+		end = dp.nowUtc()
 		start = end.Add(-30 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case last90dLabel:
-		end = time.Now()
+		end = dp.nowUtc()
 		start = end.Add(-90 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case last365dLabel:
-		end = time.Now()
+		end = dp.nowUtc()
 		start = end.Add(-365 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case thisMonthLabel:
-		now := time.Now()
+		now := dp.nowUtc()
 		currentYear, currentMonth, _ := now.Date()
 		start = time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, now.Location())
 		end = start.AddDate(0, 1, -1).Add(24 * time.Hour).Add(-1 * time.Nanosecond)
 	case lastMonthLabel:
-		now := time.Now()
+		now := dp.nowUtc()
 		currentYear, currentMonth, _ := now.Date()
 		start = time.Date(currentYear, currentMonth-1, 1, 0, 0, 0, 0, now.Location())
 		end = start.AddDate(0, 1, -1).Add(24 * time.Hour).Add(-1 * time.Nanosecond)
@@ -112,6 +121,7 @@ func (datepicker) StartParam() string    { return startParam }
 func (datepicker) EndParam() string      { return endParam }
 func (datepicker) TimespanParam() string { return timespanParam }
 
+func (datepicker) Last24h() string   { return last24hLabel }
 func (datepicker) Today() string     { return todayLabel }
 func (datepicker) Yesterday() string { return yesterdayLabel }
 func (datepicker) Last7d() string    { return last7dLabel }
