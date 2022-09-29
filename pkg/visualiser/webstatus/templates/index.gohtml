@@ -64,7 +64,7 @@ option {
        {{ .AvgTime }}
     </td>
     <td> 
-        <iframe src="{{ $.PromURL }}/consoles/som_{{$.GraphStyle}}.html?szenario={{ .PromName }}&duration={{ $.Duration }}&width=600&height=100&end={{ $.End }}" width="610" height="110" scrolling="no" frameborder="0"></iframe>
+        <iframe class="promGraph" name="{{.PromName}}" width="610" height="110" scrolling="no" frameborder="0"></iframe>
     </td>
 </tr>
 {{ end }}
@@ -93,12 +93,25 @@ option {
 <script>
 function updateGraphStyle(selectObject) {
   var graphStyle = selectObject.value;  
-  url = new URL(window.location.href)
-  if (url.searchParams.get('graphStyle') != graphStyle) { 
-    url.searchParams.set('graphStyle', graphStyle);
-    window.location.href = url
+  if (getCookie('graphStyle') != graphStyle) { 
+    setCookie('graphStyle', graphStyle);
+    updateGraphs(graphStyle)
   }
 }
+function updateGraphs(graphType) {
+  const collection = document.getElementsByClassName("promGraph");
+  for (let i = 0; i < collection.length; i++) {
+    collection[i].src = "{{ $.PromURL }}/consoles/som_"+graphType+".html?szenario="+collection[i].name+"&duration={{ $.Duration }}&width=600&height=100&end={{ $.End }}"
+   // console.log(collection[i].name +" -> "+ collection[i].src)
+  }
+}
+
+const graphStyle = getCookie('graphStyle')
+if (graphStyle === null) {
+  graphStyle = "summary"
+}
+updateGraphs(graphStyle)
+
 </script>
 
 <!--Embed the footer.html template at this location-->
