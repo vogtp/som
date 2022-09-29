@@ -44,6 +44,7 @@
               <label class="form-check-label" for="theme">Dark theme</label>
               <input class="form-check-input form-switch" style="padding-left: 1rem;" type="checkbox" id="theme" checked="false" onchange="updateTheme(this)">
             </div>
+            <div class="dropdown-divider"></div>
             <a class="dropdown-item" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
             <a class="dropdown-item" id="graphiql"  href="{{.Baseurl}}/api/{{.Query}}"> GraphQL API </a>
             <div class="dropdown-divider" id="debug_divider"></div>
@@ -62,32 +63,30 @@
 
 
 <script>
-  showIfDebug("mesh_info")
-  showIfDebug("graphiql")
-  showIfDebug("debug_divider")
+  function updateMenu() {
+    showIfDebug("mesh_info")
+    showIfDebug("graphiql")
+    showIfDebug("debug_divider")
+  }
+  updateMenu()
  
   function updateDebug(selectObject) {
-    url = new URL(window.location.href)
     if ( selectObject.checked ) {
-      url.searchParams.set('debug', 1);
+      setCookie('debug', true);
     }else{
-      url.searchParams.delete('debug')
+      setCookie('debug', false)
     }
-    window.location.href = url
+    updateMenu()
   }
   function setDebug(){
-    url = new URL(window.location.href)
     val = false
-    if (url.searchParams.has('debug') && url.searchParams.get('debug') != "0") {
+    if (getCookie('debug') === "true") {
       val = true
     }
     $('#debug').prop('checked', val);
   }
 
-  setDebug()
-</script>
 
-<script >
   function updateTheme(selectObject) {
     if ( selectObject.checked ) {
       setCookie('theme', 'dark');

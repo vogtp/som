@@ -98,9 +98,8 @@
 <script>
 function showIfDebug(el) {
   var x = document.getElementById(el);
-  url = new URL(window.location.href);
 
-  if (url.searchParams.get('debug')) {
+  if (getCookie('debug') === "true") {
     x.style.display = "block";
   } else {
   x.style.display = "none";
