@@ -106,8 +106,8 @@ function updateGraphs(graphType) {
   }
 }
 
-const graphStyle = getCookie('graphStyle')
-if (graphStyle === null) {
+graphStyle = getCookie('graphStyle')
+if (graphStyle === null || graphStyle === '') {
   graphStyle = "summary"
 }
 updateGraphs(graphStyle)
