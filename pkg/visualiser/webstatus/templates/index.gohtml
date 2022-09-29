@@ -37,9 +37,9 @@ option {
         Graph Style:
         <select name="graphStyle" class="btn btn-secondary" id="graphStyle" onchange="updateGraphStyle(this)">
             <option selected disabled hidden>Choose</option>
-            <option value="summary"  {{ if eq .GraphStyle "summary" }}selected{{end}} >Summary</option>
-            <option value="avail"    {{ if eq .GraphStyle "avail" }}selected{{end}} >Availability</option>
-            <option value="steps"    {{ if eq .GraphStyle "steps" }}selected{{end}}>Step Times</option>
+            <option value="summary" selected >Summary</option>
+            <option value="avail"            >Availability</option>
+            <option value="steps"            >Step Times</option>
         </select>
     </td>
 </tr>
@@ -109,6 +109,7 @@ graphStyle = getCookie('graphStyle')
 if (graphStyle === null || graphStyle === '') {
   graphStyle = "summary"
 }
+document.getElementById("graphStyle").value = graphStyle;
 updateGraphs(graphStyle)
 
 </script>

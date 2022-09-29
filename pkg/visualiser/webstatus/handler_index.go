@@ -33,21 +33,14 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		End         int
 		Duration    int
 		DurationStr string
-		GraphStyle  string
 		Szenarios   []indexValue
 	}{
 		commonData:  common("SOM Szenarios", r),
 		PromURL:     fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Duration:    7 * 24 * 60 * 60,
 		DurationStr: "7d",
-		GraphStyle:  "summary",
 	}
-	s.hcl.Tracef("PromURL: %v", data.PromURL)
-	r.ParseForm()
-	if r.Form.Has("graphStyle") {
-		data.GraphStyle = r.Form.Get("graphStyle")
-	}
-
+	
 	utc := data.DatePicker.End.Hour() - data.DatePicker.End.UTC().Hour()
 	data.End = int(data.DatePicker.End.Unix()) + utc*int(time.Hour.Seconds())
 	data.Duration = int(data.DatePicker.End.Unix() - data.DatePicker.Start.Unix())
