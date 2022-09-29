@@ -5,11 +5,13 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/bridger"
 )
 
 type promAvail struct {
-	availGauges map[string]prometheus.Gauge
+	availGauges    map[string]prometheus.Gauge
+	availGaugeVecs map[string]*prometheus.GaugeVec
 }
 
 // UpdatePrometheus updates the prometheus counters
@@ -18,7 +20,10 @@ func (sg *statusGroup) UpdatePrometheus() {
 		return
 	}
 	if sg.promAvail == nil {
-		sg.promAvail = &promAvail{availGauges: make(map[string]prometheus.Gauge)}
+		sg.promAvail = &promAvail{
+			availGauges:    make(map[string]prometheus.Gauge),
+			availGaugeVecs: make(map[string]*prometheus.GaugeVec),
+		}
 	}
 	for _, sz := range sg.Szenarios() {
 		sg.promAvail.updateSzenario(sz)
@@ -26,7 +31,21 @@ func (sg *statusGroup) UpdatePrometheus() {
 }
 
 func (pa *promAvail) updateSzenario(sz SzenarioGroup) {
-	pa.getAvailGauge(sz).Set(float64(sz.Availability()))
+	avail := float64(sz.Availability())
+	pa.getAvailGauge(sz).Set(avail)
+	gv := pa.getAvailGaugeVec(sz)
+	gvAvail, err := gv.GetMetricWithLabelValues("availability")
+	if err != nil {
+		hcl.Warnf("Cannot get avail gauge vec: %v", err)
+		return
+	}
+	gvAvail.Set(avail * 100)
+	gvTotal, err := gv.GetMetricWithLabelValues("check_time")
+	if err != nil {
+		hcl.Warnf("Cannot get total gauge vec: %v", err)
+		return
+	}
+	gvTotal.Set(sz.LastTotal())
 }
 
 func (pa *promAvail) getAvailGauge(sz SzenarioGroup) prometheus.Gauge {
@@ -37,4 +56,18 @@ func (pa *promAvail) getAvailGauge(sz SzenarioGroup) prometheus.Gauge {
 		pa.availGauges[name] = ag
 	}
 	return ag
+}
+
+func (pa *promAvail) getAvailGaugeVec(sz SzenarioGroup) *prometheus.GaugeVec {
+	name := fmt.Sprintf("%s_summary", bridger.PrometheusName(sz.Key()))
+	gv := pa.availGaugeVecs[name]
+	if gv == nil {
+		gv = promauto.NewGaugeVec(prometheus.GaugeOpts{
+			Name: name,
+		},
+			[]string{"type"},
+		)
+		pa.availGaugeVecs[name] = gv
+	}
+	return gv
 }

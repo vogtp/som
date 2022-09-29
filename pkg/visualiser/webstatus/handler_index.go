@@ -40,7 +40,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		PromURL:     fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Duration:    7 * 24 * 60 * 60,
 		DurationStr: "7d",
-		GraphStyle:  "avail",
+		GraphStyle:  "summary",
 	}
 	s.hcl.Tracef("PromURL: %v", data.PromURL)
 	r.ParseForm()
