@@ -14,8 +14,7 @@
     <link rel="shortcut icon" type="image/png" href="{{.Baseurl}}/static/favicon.png">  
 
     <!-- Darkly from https://bootswatch.com/darkly/ -->
-    <link href="{{.Baseurl}}/static/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
-
+    
     <script
       src="https://code.jquery.com/jquery-3.6.0.min.js"
       integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
@@ -28,6 +27,48 @@
       crossorigin="anonymous"
     ></script>
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    <script>
+       function setCookie(cname, cvalue) {
+          exdays = 100000
+          const d = new Date();
+          d.setTime(d.getTime() + (exdays*24*60*60*1000));
+          let expires = "expires="+ d.toUTCString();
+          document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+        function getCookie(cname) {
+          let name = cname + "=";
+          let decodedCookie = decodeURIComponent(document.cookie);
+          let ca = decodedCookie.split(';');
+          for(let i = 0; i <ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+              c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+              return c.substring(name.length, c.length);
+            }
+          }
+          return "";
+        }
+       function addCss(fileName) {
+
+          var head = document.head;
+          var link = document.createElement("link");
+
+          link.type = "text/css";
+          link.rel = "stylesheet";
+          link.href = fileName;
+
+          head.appendChild(link);
+        }
+        function darkTheme() {
+          addCss("{{.Baseurl}}/static/css/darkly.min.css")
+        }
+        function lightTheme() {
+          addCss("{{.Baseurl}}/static/css/flatly.min.css")
+        }
+    </script>
 
   </head>
   <style>

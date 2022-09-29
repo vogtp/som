@@ -40,6 +40,10 @@
             <a class="dropdown-item" href="#">Something else here</a>
             <div class="dropdown-divider"></div>
             -->
+            <div class="form-check form-switch" style="margin-left: 15px; display: block;">
+              <label class="form-check-label" for="theme">Dark theme</label>
+              <input class="form-check-input form-switch" style="padding-left: 1rem;" type="checkbox" id="theme" checked="false" onchange="updateTheme(this)">
+            </div>
             <a class="dropdown-item" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
             <a class="dropdown-item" id="graphiql"  href="{{.Baseurl}}/api/{{.Query}}"> GraphQL API </a>
             <div class="dropdown-divider" id="debug_divider"></div>
@@ -61,7 +65,7 @@
   showIfDebug("mesh_info")
   showIfDebug("graphiql")
   showIfDebug("debug_divider")
-
+ 
   function updateDebug(selectObject) {
     url = new URL(window.location.href)
     if ( selectObject.checked ) {
@@ -69,7 +73,7 @@
     }else{
       url.searchParams.delete('debug')
     }
-      window.location.href = url
+    window.location.href = url
   }
   function setDebug(){
     url = new URL(window.location.href)
@@ -79,5 +83,32 @@
     }
     $('#debug').prop('checked', val);
   }
+
   setDebug()
+</script>
+
+<script >
+  function updateTheme(selectObject) {
+    if ( selectObject.checked ) {
+      setCookie('theme', 'dark');
+      darkTheme()
+    }else{
+      setCookie('theme', 'light')
+      lightTheme()
+    }
+  }
+  function setTheme(){
+    val = false
+    if (getCookie('theme') == "dark") {
+      darkTheme()
+      val = true
+    }else{
+      lightTheme()
+    }
+    $('#theme').prop('checked', val);
+  }
+  setDebug()
+  setTheme()
+
+
 </script>

@@ -13,9 +13,9 @@
 </style>
 
 <script>
-if (localStorage.getItem('graphiql:theme') === null){
-    localStorage.setItem('graphiql:theme', 'dark');
-}
+//if (localStorage.getItem('graphiql:theme') === null && getCookie("theme") !== null) {
+    localStorage.setItem('graphiql:theme', getCookie("theme"));
+//}
 </script>
 
 <iframe src="{{.Baseurl}}/graphiql/" scrolling="no" frameborder="0"></iframe>
