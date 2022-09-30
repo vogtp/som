@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/stater/alertmgr"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 )
@@ -105,6 +106,9 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		}
 		if stati, err := alert.QueryStati().All(ctx); err == nil {
 			for _, s := range stati {
+				if s.Name == alertmgr.KeyTopology {
+					continue
+				}
 				alertDetail.Stati[s.Name] = s.Value
 			}
 		} else {
