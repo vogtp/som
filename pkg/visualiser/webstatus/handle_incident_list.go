@@ -60,7 +60,6 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	common.Title = fmt.Sprintf("SOM Incidents: %s (%v)", name, len(summary))
 	var data = struct {
 		*commonData
 		PromURL            string
@@ -112,6 +111,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		return filtered[i].Start.After(filtered[j].Start)
 	})
 	data.Incidents = filtered
+	common.Title = fmt.Sprintf("SOM Incidents: %s (%v)", name, len(data.Incidents))
 
 	s.render(w, r, "incident_list.gohtml", data)
 }
