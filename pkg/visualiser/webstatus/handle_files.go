@@ -36,7 +36,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 	file, err := s.Ent().File.Query().Where(file.UUIDEQ(id)).First(r.Context())
 	if err != nil {
 		s.hcl.Warnf("No such file %s: %v", idStr, err)
-		http.Error(w, "No such file", http.StatusBadRequest)
+		http.Error(w, "No such file", http.StatusNotFound)
 		return
 	}
 	s.hcl.Debugf("Serving file: %s.%s", file.Name, file.Ext)
