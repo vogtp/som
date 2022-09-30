@@ -5,7 +5,6 @@ import (
 	"embed"
 	"html/template"
 	"strings"
-	"sync"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
@@ -23,29 +22,17 @@ var (
 
 // WebStatus displays the current status on the web
 type WebStatus struct {
-	hcl              hcl.Logger
-	data             *szenarioData
-	alertFileTmpl    *template.Template
-	alertPathTmpl    *template.Template
-	incidentFileTmpl *template.Template
-	incidentPathTmpl *template.Template
-	muACache         sync.Mutex
-	alertCache       map[string]string
-	muICache         sync.Mutex
-	incidentCache    map[string]string
-	dbAccess         *db.Client
+	hcl  hcl.Logger
+	data *szenarioData
+	dbAccess *db.Client
 }
 
 // New registers a WebStatus on the event bus
 func New() *WebStatus {
 	c := core.Get()
 	s := &WebStatus{
-		hcl:           c.HCL().Named("webstatus"),
-		alertCache:    make(map[string]string),
-		incidentCache: make(map[string]string),
+		hcl: c.HCL().Named("webstatus"),
 	}
-	s.initaliseAlertTemplates()
-	s.initIncidentTemplates()
 	s.data = newSzenarioData(s.hcl)
 
 	if err := s.data.load(); err != nil {
@@ -100,18 +87,12 @@ func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
 	if err := s.Ent().Alert.Save(context.Background(), a); err != nil {
 		s.hcl.Warnf("Cannot save alert to DB: %v", err)
 	}
-	if err := s.saveAlert(a); err != nil {
-		s.hcl.Warnf("Cannot save alert: %v", err)
-	}
 }
 
 func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 	s.hcl.Infof("Webstatus got  %s %s (%s - %s) ", i.Type.String(), i.Name, i.Start.Format(cfg.TimeFormatString), i.End.Format(cfg.TimeFormatString))
 	if err := s.Ent().Incident.Save(context.Background(), i); err != nil {
 		s.hcl.Warnf("Cannot save incident to DB: %v", err)
-	}
-	if err := s.saveIncident(i); err != nil {
-		s.hcl.Warnf("Cannot save incident: %v", err)
 	}
 }
 
