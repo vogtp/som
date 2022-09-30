@@ -14,7 +14,7 @@ type Counter struct {
 func (Counter) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("Name"),
-		field.String("Value"),
+		field.Float("Value"),
 	}
 }
 

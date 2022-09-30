@@ -94,9 +94,7 @@ func (ug usrGroup) LastEvent() *msg.SzenarioEvtMsg {
 
 func getEvtTot(e *msg.SzenarioEvtMsg) float64 {
 	if tot, ok := e.Counters["step.total"]; ok {
-		if f, ok := tot.(float64); ok {
-			return f
-		}
+		return tot
 	}
 	return 0
 }

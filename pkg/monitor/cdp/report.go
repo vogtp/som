@@ -23,7 +23,7 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 	}
 	for k, v := range cdp.consMsg {
 		if v > 0 {
-			cdp.evtMsg.SetCounter("console."+k, v)
+			cdp.evtMsg.SetCounter("console."+k, float64(v))
 		}
 	}
 	cdp.bus.Szenario.Send(cdp.evtMsg)

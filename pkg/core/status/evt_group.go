@@ -78,11 +78,7 @@ func (w evtWrapper) GetCounter(counter string) float64 {
 	if !ok {
 		return -1
 	}
-	f, ok := c.(float64)
-	if !ok {
-		return -1
-	}
-	return f
+	return c
 }
 
 // Add panics (not supported for events)

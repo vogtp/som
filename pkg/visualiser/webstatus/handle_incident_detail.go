@@ -29,7 +29,7 @@ type incidentData struct {
 	*ent.Incident
 	Status   status.Status
 	Errors   []*ent.Failure
-	Counters map[string]string
+	Counters map[string]float64
 	Stati    map[string]string
 	Files    []msg.FileMsgItem
 	ErrStr   string
@@ -133,7 +133,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 			Incident: f,
 			Status:   prepaireStatus(stat),
 			Stati:    make(map[string]string),
-			Counters: make(map[string]string),
+			Counters: make(map[string]float64),
 		}
 
 		id.ErrStr = id.Error

@@ -102,7 +102,7 @@ func getMsg(ctx context.Context, m *ent.Incident) (*msg.SzenarioEvtMsg, error) {
 		Region:     m.Region,
 		ProbeOS:    m.ProbeOS,
 		ProbeHost:  m.ProbeHost,
-		Counters:   make(map[string]any),
+		Counters:   make(map[string]float64),
 		Stati:      make(map[string]string),
 	}
 	failures, err := m.QueryFailures().All(ctx)

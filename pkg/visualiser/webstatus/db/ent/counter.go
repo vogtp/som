@@ -18,7 +18,7 @@ type Counter struct {
 	// Name holds the value of the "Name" field.
 	Name string `json:"Name,omitempty"`
 	// Value holds the value of the "Value" field.
-	Value             string `json:"Value,omitempty"`
+	Value             float64 `json:"Value,omitempty"`
 	alert_counters    *int
 	incident_counters *int
 }
@@ -28,9 +28,11 @@ func (*Counter) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case counter.FieldValue:
+			values[i] = new(sql.NullFloat64)
 		case counter.FieldID:
 			values[i] = new(sql.NullInt64)
-		case counter.FieldName, counter.FieldValue:
+		case counter.FieldName:
 			values[i] = new(sql.NullString)
 		case counter.ForeignKeys[0]: // alert_counters
 			values[i] = new(sql.NullInt64)
@@ -64,10 +66,10 @@ func (c *Counter) assignValues(columns []string, values []any) error {
 				c.Name = value.String
 			}
 		case counter.FieldValue:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field Value", values[i])
 			} else if value.Valid {
-				c.Value = value.String
+				c.Value = value.Float64
 			}
 		case counter.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -115,7 +117,7 @@ func (c *Counter) String() string {
 	builder.WriteString(c.Name)
 	builder.WriteString(", ")
 	builder.WriteString("Value=")
-	builder.WriteString(c.Value)
+	builder.WriteString(fmt.Sprintf("%v", c.Value))
 	builder.WriteByte(')')
 	return builder.String()
 }

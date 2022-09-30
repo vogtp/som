@@ -86,7 +86,7 @@ func Name(v string) predicate.Counter {
 }
 
 // Value applies equality check predicate on the "Value" field. It's identical to ValueEQ.
-func Value(v string) predicate.Counter {
+func Value(v float64) predicate.Counter {
 	return predicate.Counter(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldValue), v))
 	})
@@ -192,21 +192,21 @@ func NameContainsFold(v string) predicate.Counter {
 }
 
 // ValueEQ applies the EQ predicate on the "Value" field.
-func ValueEQ(v string) predicate.Counter {
+func ValueEQ(v float64) predicate.Counter {
 	return predicate.Counter(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldValue), v))
 	})
 }
 
 // ValueNEQ applies the NEQ predicate on the "Value" field.
-func ValueNEQ(v string) predicate.Counter {
+func ValueNEQ(v float64) predicate.Counter {
 	return predicate.Counter(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldValue), v))
 	})
 }
 
 // ValueIn applies the In predicate on the "Value" field.
-func ValueIn(vs ...string) predicate.Counter {
+func ValueIn(vs ...float64) predicate.Counter {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -217,7 +217,7 @@ func ValueIn(vs ...string) predicate.Counter {
 }
 
 // ValueNotIn applies the NotIn predicate on the "Value" field.
-func ValueNotIn(vs ...string) predicate.Counter {
+func ValueNotIn(vs ...float64) predicate.Counter {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -228,65 +228,30 @@ func ValueNotIn(vs ...string) predicate.Counter {
 }
 
 // ValueGT applies the GT predicate on the "Value" field.
-func ValueGT(v string) predicate.Counter {
+func ValueGT(v float64) predicate.Counter {
 	return predicate.Counter(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldValue), v))
 	})
 }
 
 // ValueGTE applies the GTE predicate on the "Value" field.
-func ValueGTE(v string) predicate.Counter {
+func ValueGTE(v float64) predicate.Counter {
 	return predicate.Counter(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldValue), v))
 	})
 }
 
 // ValueLT applies the LT predicate on the "Value" field.
-func ValueLT(v string) predicate.Counter {
+func ValueLT(v float64) predicate.Counter {
 	return predicate.Counter(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldValue), v))
 	})
 }
 
 // ValueLTE applies the LTE predicate on the "Value" field.
-func ValueLTE(v string) predicate.Counter {
+func ValueLTE(v float64) predicate.Counter {
 	return predicate.Counter(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldValue), v))
-	})
-}
-
-// ValueContains applies the Contains predicate on the "Value" field.
-func ValueContains(v string) predicate.Counter {
-	return predicate.Counter(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldValue), v))
-	})
-}
-
-// ValueHasPrefix applies the HasPrefix predicate on the "Value" field.
-func ValueHasPrefix(v string) predicate.Counter {
-	return predicate.Counter(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldValue), v))
-	})
-}
-
-// ValueHasSuffix applies the HasSuffix predicate on the "Value" field.
-func ValueHasSuffix(v string) predicate.Counter {
-	return predicate.Counter(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldValue), v))
-	})
-}
-
-// ValueEqualFold applies the EqualFold predicate on the "Value" field.
-func ValueEqualFold(v string) predicate.Counter {
-	return predicate.Counter(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldValue), v))
-	})
-}
-
-// ValueContainsFold applies the ContainsFold predicate on the "Value" field.
-func ValueContainsFold(v string) predicate.Counter {
-	return predicate.Counter(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldValue), v))
 	})
 }
 

@@ -183,19 +183,12 @@ func TestBodyDump(t *testing.T) {
 	}
 }
 
-func getCounter(couters map[string]any, key string) int {
+func getCounter(couters map[string]float64, key string) int {
 	v, ok := couters[key]
 	if !ok {
 		return -1
 	}
-	if i, ok := v.(int); ok {
-		return i
-	}
-	if f, ok := v.(float64); ok {
-		return int(f)
-	}
-
-	return -1
+	return int(v)
 }
 
 func TestConsoleLog(t *testing.T) {

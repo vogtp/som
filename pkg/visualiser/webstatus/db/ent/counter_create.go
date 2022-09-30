@@ -28,8 +28,8 @@ func (cc *CounterCreate) SetName(s string) *CounterCreate {
 }
 
 // SetValue sets the "Value" field.
-func (cc *CounterCreate) SetValue(s string) *CounterCreate {
-	cc.mutation.SetValue(s)
+func (cc *CounterCreate) SetValue(f float64) *CounterCreate {
+	cc.mutation.SetValue(f)
 	return cc
 }
 
@@ -153,7 +153,7 @@ func (cc *CounterCreate) createSpec() (*Counter, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := cc.mutation.Value(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: counter.FieldValue,
 		})
@@ -224,7 +224,7 @@ func (u *CounterUpsert) UpdateName() *CounterUpsert {
 }
 
 // SetValue sets the "Value" field.
-func (u *CounterUpsert) SetValue(v string) *CounterUpsert {
+func (u *CounterUpsert) SetValue(v float64) *CounterUpsert {
 	u.Set(counter.FieldValue, v)
 	return u
 }
@@ -232,6 +232,12 @@ func (u *CounterUpsert) SetValue(v string) *CounterUpsert {
 // UpdateValue sets the "Value" field to the value that was provided on create.
 func (u *CounterUpsert) UpdateValue() *CounterUpsert {
 	u.SetExcluded(counter.FieldValue)
+	return u
+}
+
+// AddValue adds v to the "Value" field.
+func (u *CounterUpsert) AddValue(v float64) *CounterUpsert {
+	u.Add(counter.FieldValue, v)
 	return u
 }
 
@@ -290,9 +296,16 @@ func (u *CounterUpsertOne) UpdateName() *CounterUpsertOne {
 }
 
 // SetValue sets the "Value" field.
-func (u *CounterUpsertOne) SetValue(v string) *CounterUpsertOne {
+func (u *CounterUpsertOne) SetValue(v float64) *CounterUpsertOne {
 	return u.Update(func(s *CounterUpsert) {
 		s.SetValue(v)
+	})
+}
+
+// AddValue adds v to the "Value" field.
+func (u *CounterUpsertOne) AddValue(v float64) *CounterUpsertOne {
+	return u.Update(func(s *CounterUpsert) {
+		s.AddValue(v)
 	})
 }
 
@@ -517,9 +530,16 @@ func (u *CounterUpsertBulk) UpdateName() *CounterUpsertBulk {
 }
 
 // SetValue sets the "Value" field.
-func (u *CounterUpsertBulk) SetValue(v string) *CounterUpsertBulk {
+func (u *CounterUpsertBulk) SetValue(v float64) *CounterUpsertBulk {
 	return u.Update(func(s *CounterUpsert) {
 		s.SetValue(v)
+	})
+}
+
+// AddValue adds v to the "Value" field.
+func (u *CounterUpsertBulk) AddValue(v float64) *CounterUpsertBulk {
+	return u.Update(func(s *CounterUpsert) {
+		s.AddValue(v)
 	})
 }
 

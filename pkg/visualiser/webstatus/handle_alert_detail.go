@@ -24,7 +24,7 @@ const (
 type alertDetailData struct {
 	*ent.Alert
 	Errors   []*ent.Failure
-	Counters map[string]string
+	Counters map[string]float64
 	Stati    map[string]string
 	Files    []msg.FileMsgItem
 	ErrStr   string
@@ -96,7 +96,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		alertDetail := alertDetailData{
 			Alert:    alert,
 			Stati:    make(map[string]string),
-			Counters: make(map[string]string),
+			Counters: make(map[string]float64),
 		}
 		alertDetail.ErrStr = alertDetail.Error
 		if errs, err := alert.QueryFailures().All(ctx); err == nil {

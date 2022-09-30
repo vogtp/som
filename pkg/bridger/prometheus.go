@@ -78,24 +78,23 @@ func (p *prometheusBackend) setGaugeVec(e *msg.SzenarioEvtMsg) {
 	defer p.mu.Unlock()
 	gv := p.getGaugeVec(e)
 
-	for n, c := range e.Counters {
+	for n, f := range e.Counters {
 		if !strings.HasPrefix(n, step) {
 			continue
 		}
-		if f, ok := c.(float64); ok {
-			m, err := gv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
-			if err != nil {
-				p.hcl.Warnf("GaugeVec: %v", err)
-			}
-			if m == nil {
-				p.hcl.Warnf("GaugeVec %s is nil", n)
-				continue
-			}
-			if errors.Is(e.Err(), szenario.TimeoutError{}) {
-				f = downValue
-			}
-			m.Set(f)
+		m, err := gv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
+		if err != nil {
+			p.hcl.Warnf("GaugeVec: %v", err)
 		}
+		if m == nil {
+			p.hcl.Warnf("GaugeVec %s is nil", n)
+			continue
+		}
+		if errors.Is(e.Err(), szenario.TimeoutError{}) {
+			f = downValue
+		}
+		m.Set(f)
+
 	}
 }
 
@@ -120,14 +119,13 @@ func (p *prometheusBackend) setGauge(e *msg.SzenarioEvtMsg) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	psz := p.getPromSzenario(e)
-	for n, c := range e.Counters {
-		if f, ok := c.(float64); ok {
-			ph := psz.getGauge(e.Name, n)
-			if errors.Is(e.Err(), szenario.TimeoutError{}) {
-				f = downValue
-			}
-			ph.Set(f)
+	for n, f := range e.Counters {
+		ph := psz.getGauge(e.Name, n)
+		if errors.Is(e.Err(), szenario.TimeoutError{}) {
+			f = downValue
 		}
+		ph.Set(f)
+
 	}
 }
 
@@ -171,24 +169,22 @@ func (p *prometheusBackend) setHistogramVec(e *msg.SzenarioEvtMsg) {
 	defer p.mu.Unlock()
 	hv := p.getHistogramVec(e)
 
-	for n, c := range e.Counters {
+	for n, f := range e.Counters {
 		if !strings.HasPrefix(n, step) {
 			continue
 		}
-		if f, ok := c.(float64); ok {
-			m, err := hv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
-			if err != nil {
-				p.hcl.Warnf("GaugeVec: %v", err)
-			}
-			if m == nil {
-				p.hcl.Warnf("GaugeVec %s is nil", n)
-				continue
-			}
-			if errors.Is(e.Err(), szenario.TimeoutError{}) {
-				f = downValue
-			}
-			m.Observe(f)
+		m, err := hv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
+		if err != nil {
+			p.hcl.Warnf("GaugeVec: %v", err)
 		}
+		if m == nil {
+			p.hcl.Warnf("GaugeVec %s is nil", n)
+			continue
+		}
+		if errors.Is(e.Err(), szenario.TimeoutError{}) {
+			f = downValue
+		}
+		m.Observe(f)
 	}
 }
 

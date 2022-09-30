@@ -37,7 +37,7 @@ func createSzenarioEvtMsg() *SzenarioEvtMsg {
 		Time:     time.Time{},
 		mu:       sync.RWMutex{},
 		Errors:   make([]string, 0),
-		Counters: make(map[string]any),
+		Counters: make(map[string]float64),
 		Stati:    make(map[string]string),
 		Files:    make([]FileMsgItem, 0),
 	}
@@ -69,12 +69,11 @@ type SzenarioEvtMsg struct {
 	Region     string    `json:"Region"`
 	Errors     []string
 	mu         sync.RWMutex
-	Counters   map[string]any `json:"Counters"`
-	// any is ugly for go, but much nicer json since float and int are different
-	Stati map[string]string
-	Files     []FileMsgItem `json:"Files"`
-	ProbeOS   string `json:"OS"`
-	ProbeHost string `json:"Host"`
+	Counters   map[string]float64 `json:"Counters"`
+	Stati      map[string]string
+	Files      []FileMsgItem `json:"Files"`
+	ProbeOS    string        `json:"OS"`
+	ProbeHost  string        `json:"Host"`
 }
 
 // AddErr adds a non nil error to the message
@@ -110,7 +109,7 @@ func (m *SzenarioEvtMsg) SetStatus(key string, val string) {
 
 // SetCounter adds or replaces a counter
 // a counter must be int or float
-func (m *SzenarioEvtMsg) SetCounter(key string, val any) {
+func (m *SzenarioEvtMsg) SetCounter(key string, val float64) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.Counters[key] = val

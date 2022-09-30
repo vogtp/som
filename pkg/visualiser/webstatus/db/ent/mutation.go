@@ -1261,7 +1261,8 @@ type CounterMutation struct {
 	typ           string
 	id            *int
 	_Name         *string
-	_Value        *string
+	_Value        *float64
+	add_Value     *float64
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Counter, error)
@@ -1403,12 +1404,13 @@ func (m *CounterMutation) ResetName() {
 }
 
 // SetValue sets the "Value" field.
-func (m *CounterMutation) SetValue(s string) {
-	m._Value = &s
+func (m *CounterMutation) SetValue(f float64) {
+	m._Value = &f
+	m.add_Value = nil
 }
 
 // Value returns the value of the "Value" field in the mutation.
-func (m *CounterMutation) Value() (r string, exists bool) {
+func (m *CounterMutation) Value() (r float64, exists bool) {
 	v := m._Value
 	if v == nil {
 		return
@@ -1419,7 +1421,7 @@ func (m *CounterMutation) Value() (r string, exists bool) {
 // OldValue returns the old "Value" field's value of the Counter entity.
 // If the Counter object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CounterMutation) OldValue(ctx context.Context) (v string, err error) {
+func (m *CounterMutation) OldValue(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldValue is only allowed on UpdateOne operations")
 	}
@@ -1433,9 +1435,28 @@ func (m *CounterMutation) OldValue(ctx context.Context) (v string, err error) {
 	return oldValue.Value, nil
 }
 
+// AddValue adds f to the "Value" field.
+func (m *CounterMutation) AddValue(f float64) {
+	if m.add_Value != nil {
+		*m.add_Value += f
+	} else {
+		m.add_Value = &f
+	}
+}
+
+// AddedValue returns the value that was added to the "Value" field in this mutation.
+func (m *CounterMutation) AddedValue() (r float64, exists bool) {
+	v := m.add_Value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
 // ResetValue resets all changes to the "Value" field.
 func (m *CounterMutation) ResetValue() {
 	m._Value = nil
+	m.add_Value = nil
 }
 
 // Where appends a list predicates to the CounterMutation builder.
@@ -1506,7 +1527,7 @@ func (m *CounterMutation) SetField(name string, value ent.Value) error {
 		m.SetName(v)
 		return nil
 	case counter.FieldValue:
-		v, ok := value.(string)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1519,13 +1540,21 @@ func (m *CounterMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *CounterMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.add_Value != nil {
+		fields = append(fields, counter.FieldValue)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *CounterMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case counter.FieldValue:
+		return m.AddedValue()
+	}
 	return nil, false
 }
 
@@ -1534,6 +1563,13 @@ func (m *CounterMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *CounterMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case counter.FieldValue:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddValue(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Counter numeric field %s", name)
 }

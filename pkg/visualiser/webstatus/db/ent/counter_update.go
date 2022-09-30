@@ -34,8 +34,15 @@ func (cu *CounterUpdate) SetName(s string) *CounterUpdate {
 }
 
 // SetValue sets the "Value" field.
-func (cu *CounterUpdate) SetValue(s string) *CounterUpdate {
-	cu.mutation.SetValue(s)
+func (cu *CounterUpdate) SetValue(f float64) *CounterUpdate {
+	cu.mutation.ResetValue()
+	cu.mutation.SetValue(f)
+	return cu
+}
+
+// AddValue adds f to the "Value" field.
+func (cu *CounterUpdate) AddValue(f float64) *CounterUpdate {
+	cu.mutation.AddValue(f)
 	return cu
 }
 
@@ -125,7 +132,14 @@ func (cu *CounterUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := cu.mutation.Value(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: counter.FieldValue,
+		})
+	}
+	if value, ok := cu.mutation.AddedValue(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: counter.FieldValue,
 		})
@@ -156,8 +170,15 @@ func (cuo *CounterUpdateOne) SetName(s string) *CounterUpdateOne {
 }
 
 // SetValue sets the "Value" field.
-func (cuo *CounterUpdateOne) SetValue(s string) *CounterUpdateOne {
-	cuo.mutation.SetValue(s)
+func (cuo *CounterUpdateOne) SetValue(f float64) *CounterUpdateOne {
+	cuo.mutation.ResetValue()
+	cuo.mutation.SetValue(f)
+	return cuo
+}
+
+// AddValue adds f to the "Value" field.
+func (cuo *CounterUpdateOne) AddValue(f float64) *CounterUpdateOne {
+	cuo.mutation.AddValue(f)
 	return cuo
 }
 
@@ -277,7 +298,14 @@ func (cuo *CounterUpdateOne) sqlSave(ctx context.Context) (_node *Counter, err e
 	}
 	if value, ok := cuo.mutation.Value(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeFloat64,
+			Value:  value,
+			Column: counter.FieldValue,
+		})
+	}
+	if value, ok := cuo.mutation.AddedValue(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: counter.FieldValue,
 		})

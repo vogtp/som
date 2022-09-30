@@ -202,7 +202,7 @@ func (c *Counter) Node(ctx context.Context) (node *Node, err error) {
 		return nil, err
 	}
 	node.Fields[1] = &Field{
-		Type:  "string",
+		Type:  "float64",
 		Name:  "Value",
 		Value: string(buf),
 	}

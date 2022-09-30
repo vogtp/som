@@ -51,7 +51,7 @@ func (client *Client) getCounter(ctx context.Context, msg *msg.SzenarioEvtMsg) (
 	i := 0
 	cntr := make([]*ent.Counter, len(msg.Counters))
 	for k, v := range msg.Counters {
-		t, err := client.Counter.Create().SetName(k).SetValue(fmt.Sprintf("%v", v)).Save(ctx)
+		t, err := client.Counter.Create().SetName(k).SetValue(v).Save(ctx)
 		if err != nil {
 			if reterr == nil {
 				reterr = err

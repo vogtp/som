@@ -50,7 +50,7 @@ type ncBackend struct {
 }
 
 type ncGenericMsg struct {
-	Counters map[string]any    `json:"counters"`
+	Counters map[string]float64    `json:"counters"`
 	Statuses map[string]string `json:"statuses"`
 	Retain   int               `json:"retain"`
 }
