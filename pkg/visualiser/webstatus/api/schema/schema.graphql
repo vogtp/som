@@ -15,7 +15,7 @@ enum Level {
 type Counter {
     id: ID!
     Name: String!
-    Value: String!
+    Value: Float!
 }
 
 type Status {
