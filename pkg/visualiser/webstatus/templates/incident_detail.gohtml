@@ -102,32 +102,46 @@
 </td>
 </tr>
 
+{{ if gt (len .Steps) 0 }}
 <tr>
 <td class="list">Steps:</td>
 <td class="list">
+<table>
 {{ range $key, $val := .Steps }}
-<p>{{ $key }}: {{ $val}} </p>
+<tr><td>{{ $key }}</td><td> {{ $val}}</td></tr>
 {{ end }}
+</table>
 </td>
 </tr>
+{{end}}
 
+
+{{ if gt (len .Counters) 0 }}
 <tr>
 <td class="list">Counters:</td>
 <td class="list">
+<table>
 {{ range $key, $val := .Counters }}
-<p>{{ $key }}: {{ $val}} </p>
+<tr><td>{{ $key }}</td><td> {{ $val}}</td></tr>
 {{ end }}
+</table>
 </td>
 </tr>
+{{end}}
 
+{{ if gt (len .Stati) 0 }}
 <tr>
 <td class="list">Stati:</td>
 <td class="list">
+<table>
 {{ range $key, $val := .Stati }}
-<p>{{ $key }}: {{ $val}} </p>
+<tr><td>{{ $key }}</td><td> {{ $val}}</td></tr>
 {{ end }}
+</table>
 </td>
 </tr>
+{{end}}
+
 
 <tr>
 <td class="list">Images:</td>
