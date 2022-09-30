@@ -103,6 +103,15 @@
 </tr>
 
 <tr>
+<td class="list">Steps:</td>
+<td class="list">
+{{ range $key, $val := .Steps }}
+<p>{{ $key }}: {{ $val}} </p>
+{{ end }}
+</td>
+</tr>
+
+<tr>
 <td class="list">Counters:</td>
 <td class="list">
 {{ range $key, $val := .Counters }}

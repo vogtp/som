@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -26,6 +27,7 @@ type alertDetailData struct {
 	Errors   []*ent.Failure
 	Counters map[string]float64
 	Stati    map[string]string
+	Steps    map[string]time.Duration
 	Files    []msg.FileMsgItem
 	ErrStr   string
 }
@@ -97,6 +99,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 			Alert:    alert,
 			Stati:    make(map[string]string),
 			Counters: make(map[string]float64),
+			Steps:    make(map[string]time.Duration),
 		}
 		alertDetail.ErrStr = alertDetail.Error
 		if errs, err := alert.QueryFailures().All(ctx); err == nil {
@@ -114,8 +117,13 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		} else {
 			s.hcl.Warnf("Loading stati: %v", err)
 		}
+		const stepPrefix = "step."
 		if ctrs, err := alert.QueryCounters().All(ctx); err == nil {
 			for _, c := range ctrs {
+				if strings.HasPrefix(c.Name, stepPrefix) {
+					alertDetail.Steps[c.Name[len(stepPrefix):]] = time.Duration(c.Value * float64(time.Second)).Round(time.Millisecond)
+					continue
+				}
 				alertDetail.Counters[c.Name] = c.Value
 			}
 		} else {
@@ -127,7 +135,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 				alertDetail.Files[i] = f.MsgItem()
 			}
 		} else {
-			s.hcl.Warnf("Loading counters: %v", err)
+			s.hcl.Warnf("Loading files: %v", err)
 		}
 		data.Alerts[aCnt-i-1] = alertDetail
 		s.hcl.Infof("Region: %v", alert.Region)

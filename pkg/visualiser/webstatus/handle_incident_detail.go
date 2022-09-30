@@ -14,6 +14,7 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
+	"github.com/vogtp/som/pkg/stater/alertmgr"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
@@ -31,6 +32,7 @@ type incidentData struct {
 	Errors   []*ent.Failure
 	Counters map[string]float64
 	Stati    map[string]string
+	Steps    map[string]time.Duration
 	Files    []msg.FileMsgItem
 	ErrStr   string
 }
@@ -134,6 +136,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 			Status:   prepaireStatus(stat),
 			Stati:    make(map[string]string),
 			Counters: make(map[string]float64),
+			Steps:    make(map[string]time.Duration),
 		}
 
 		id.ErrStr = id.Error
@@ -144,13 +147,21 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		}
 		if stati, err := f.QueryStati().All(ctx); err == nil {
 			for _, s := range stati {
+				if s.Name == alertmgr.KeyTopology {
+					continue
+				}
 				id.Stati[s.Name] = s.Value
 			}
 		} else {
 			s.hcl.Warnf("Loading stati: %v", err)
 		}
+		const stepPrefix = "step."
 		if ctrs, err := f.QueryCounters().All(ctx); err == nil {
 			for _, c := range ctrs {
+				if strings.HasPrefix(c.Name, stepPrefix) {
+					id.Steps[c.Name[len(stepPrefix):]] = time.Duration(c.Value * float64(time.Second)).Round(time.Millisecond)
+					continue
+				}
 				id.Counters[c.Name] = c.Value
 			}
 		} else {
@@ -168,7 +179,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 				id.Files[i] = f.MsgItem()
 			}
 		} else {
-			s.hcl.Warnf("Loading counters: %v", err)
+			s.hcl.Warnf("Loading files: %v", err)
 		}
 		data.Incidents[aCnt-i-1] = id
 	}
