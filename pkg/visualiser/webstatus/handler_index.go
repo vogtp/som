@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/bridger"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
 type indexValue struct {
@@ -40,7 +42,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		Duration:    7 * 24 * 60 * 60,
 		DurationStr: "7d",
 	}
-	
+
 	utc := data.DatePicker.End.Hour() - data.DatePicker.End.UTC().Hour()
 	data.End = int(data.DatePicker.End.Unix()) + utc*int(time.Hour.Seconds())
 	data.Duration = int(data.DatePicker.End.Unix() - data.DatePicker.Start.Unix())
@@ -73,7 +75,21 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		}
 		avg /= float64(len(times))
 		iv.AvgTime = formatStepTime(avg)
-		iv.IncidentCount = s.getIncidentCount(iv.Name)
+		var cnt = make([]struct {
+			IncidentID uuid.UUID `json:"incident_id"`
+		}, 0)
+		if err := s.Ent().IncidentSummary.Query().Where(
+			incident.NameEqualFold(szName),
+			incident.And(
+				incident.TimeGTE(data.DatePicker.Start),
+				incident.TimeLTE(data.DatePicker.End),
+			),
+		).GroupBy(incident.FieldIncidentID).Scan(r.Context(), &cnt); err == nil {
+			iv.IncidentCount = len(cnt)
+		} else {
+			iv.IncidentCount = -1
+			s.hcl.Warnf("Cannot count incidents of %s: %v", szName, err)
+		}
 		data.Szenarios = append(data.Szenarios, iv)
 	}
 	s.render(w, r, "index.gohtml", data)
