@@ -22,8 +22,8 @@ var (
 
 // WebStatus displays the current status on the web
 type WebStatus struct {
-	hcl  hcl.Logger
-	data *szenarioData
+	hcl      hcl.Logger
+	data     *szenarioData
 	dbAccess *db.Client
 }
 
@@ -72,13 +72,15 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 		if sz.Key() != e.Name {
 			continue
 		}
+		curAvail := sz.Availability()
 		avail, found := s.data.Availabilites[e.Name]
 		if !found {
-			s.data.Availabilites[e.Name] = sz.Availability()
+			avail = curAvail
+			s.data.Availabilites[e.Name] = curAvail
 			continue
 		}
-		s.data.Availabilites[e.Name] = (avail + sz.Availability()) / 2
-		s.hcl.Debugf("%s availability (%v + %v)/2 = %v", e.Name, avail, sz.Availability(), s.data.Availabilites[e.Name])
+		s.data.Availabilites[e.Name] = (avail + curAvail) / 2
+		s.hcl.Debugf("%s availability (%v + %v)/2 = %v", e.Name, avail, curAvail, s.data.Availabilites[e.Name])
 	}
 }
 
