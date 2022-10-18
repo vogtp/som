@@ -2,6 +2,7 @@ package cdp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"os"
@@ -214,6 +215,9 @@ func (cdp *Engine) reportResults(start time.Time) {
 		} else {
 			err = fmt.Errorf("unknown panic: %v", r2)
 		}
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		err = fmt.Errorf("timeout reached after %v",d)
 	}
 	if err != nil {
 		cdp.AddErr(err)

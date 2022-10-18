@@ -11,19 +11,42 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
+// StepTimeout executes a Step with an timeout
+func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...chromedp.Action) error {
+	br := cdp.browser
+	var cancel context.CancelFunc
+	cdp.browser, cancel = context.WithTimeout(cdp.browser, timeout)
+	defer func() {
+		cdp.browser = br
+	}()
+	defer cancel()
+	err := cdp.step(name, actions...)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			err = fmt.Errorf("step timeout (%v) reached", timeout)
+		}
+	}
+	return err
+}
+
 // Step executes the actions given and records how long it takes
 func (cdp *Engine) Step(name string, actions ...chromedp.Action) {
+	if err := cdp.step(name, actions...); err != nil {
+		cdp.ErrorScreenshot(err)
+		panic(err)
+	}
+}
+
+func (cdp *Engine) step(name string, actions ...chromedp.Action) error {
 	cdp.muStep.Lock()
 	defer cdp.muStep.Unlock()
 	cdp.stepInfo.start(name)
 	defer cdp.stepInfo.end(name)
-	if err := chromedp.Run(cdp.browser, actions...); err != nil {
-		if errors.Is(err, context.Canceled) {
-			err = fmt.Errorf("timeout %v", cdp.timeout)
-		}
-		cdp.ErrorScreenshot(err)
-		panic(err)
+	err := chromedp.Run(cdp.browser, actions...)
+	if errors.Is(err, context.Canceled) {
+		err = fmt.Errorf("%s timeout %v", cdp.szenario.Name(), cdp.timeout)
 	}
+	return err
 }
 
 // IsPresent checks if something is present

@@ -1,6 +1,10 @@
 package szenario
 
-import "github.com/chromedp/chromedp"
+import (
+	"time"
+
+	"github.com/chromedp/chromedp"
+)
 
 // JobFunc is the signature of a function that runs as job
 type JobFunc func(Engine) error
@@ -10,6 +14,8 @@ type CheckFunc func(*string) error
 
 // Engine is executing a szenario
 type Engine interface {
+	// StepTimeout executes a Step with an timeout
+	StepTimeout(name string, timeout time.Duration, actions ...chromedp.Action) error
 	// Step executes the actions given and records how long it takes
 	Step(name string, actions ...chromedp.Action)
 	// IsPresent checks if something is present
