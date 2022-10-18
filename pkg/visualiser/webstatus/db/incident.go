@@ -28,6 +28,8 @@ func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error 
 	i.SetUUID(msg.ID)
 	if incID, err := uuid.Parse(msg.IncidentID); err == nil {
 		i.SetIncidentID(incID)
+	}else{
+		ic.client.hcl.Errorf("Cannot parse incident ID: %v",err)
 	}
 	i.SetName(msg.Name)
 	i.SetTime(msg.Time)

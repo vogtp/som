@@ -87,14 +87,14 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
 	s.hcl.Debugf("Webstatus got %s alert", a.Name)
 	if err := s.Ent().Alert.Save(context.Background(), a); err != nil {
-		s.hcl.Warnf("Cannot save alert to DB: %v", err)
+		s.hcl.Errorf("Cannot save alert to DB: %v", err)
 	}
 }
 
 func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
 	s.hcl.Infof("Webstatus got  %s %s (%s - %s) ", i.Type.String(), i.Name, i.Start.Format(cfg.TimeFormatString), i.End.Format(cfg.TimeFormatString))
 	if err := s.Ent().Incident.Save(context.Background(), i); err != nil {
-		s.hcl.Warnf("Cannot save incident to DB: %v", err)
+		s.hcl.Errorf("Cannot save %s incident %s to DB: %v", i.Name, i.ID, err)
 	}
 }
 
