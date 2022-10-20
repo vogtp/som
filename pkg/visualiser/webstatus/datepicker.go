@@ -112,7 +112,7 @@ func parseTime(t time.Time, str string) time.Time {
 	if len(str) > 0 {
 		i, err := strconv.Atoi(str)
 		if err == nil {
-			return time.Unix(int64(i), 0)
+			return time.Unix(int64(i), 0).UTC()
 		}
 	}
 	return t
