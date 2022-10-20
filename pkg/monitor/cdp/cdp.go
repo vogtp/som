@@ -217,7 +217,7 @@ func (cdp *Engine) reportResults(start time.Time) {
 		}
 	}
 	if errors.Is(err, context.DeadlineExceeded) {
-		err = fmt.Errorf("timeout reached after %v",d)
+		err = fmt.Errorf("timeout reached after %v", d)
 	}
 	if err != nil {
 		cdp.AddErr(err)
@@ -350,7 +350,7 @@ func (cdp *Engine) dumpHTML(name string) {
 		cdp.AddErr(fmt.Errorf("cannot read dom to get html: %v", err))
 		return
 	}
-
+	cdp.hcl.Debugf("HTML:\n%s", html)
 	cdp.evtMsg.AddFile(msg.NewFileMsgItem(
 		name,
 		mime.HTML,
