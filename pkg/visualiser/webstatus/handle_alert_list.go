@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
@@ -43,6 +44,8 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		s.hcl.Infof("where: %s", sz)
 		q.Where(alert.NameEqualFold(sz))
 	}
+	//FIXME terrible hack
+	common.DatePicker.End = common.DatePicker.End.Add(2 * time.Hour)
 	q.Where(
 		alert.And(
 			alert.TimeGTE(common.DatePicker.Start),
