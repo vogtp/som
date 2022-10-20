@@ -38,6 +38,8 @@ var szenarioRun = &cobra.Command{
 			if err == nil {
 				sz = append(sz, usz...)
 				continue
+			}else{
+				fmt.Printf("Cannot get szenarios of user %s: %v", username, err)
 			}
 			name := strings.ToLower(n)
 
