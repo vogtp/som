@@ -51,6 +51,7 @@ var userAdd = &cobra.Command{
 	Short: "Add a SOM user",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("\nAdd new user:")
 		name := term.ReadOrArgs("username", args, 0)
 		email := term.ReadOrArgs("email", args, 1)
 		ty := ""
@@ -102,7 +103,7 @@ var userShowPw = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("cannot set password of user %s: %v", name, err)
 		}
-		fmt.Printf("%s: %v\n", name, u.Password())
+		fmt.Printf("\n%s: %v\n", name, u.Password())
 		return nil
 	},
 }
@@ -112,6 +113,7 @@ var userList = &cobra.Command{
 	Short: "List SOM users",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("\nUsers:")
 		users, err := user.Store.List()
 		if err != nil {
 			return fmt.Errorf("cannot get userlist: %v", err)
