@@ -24,6 +24,7 @@ func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...ch
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			err = fmt.Errorf("step timeout (%v) reached", timeout)
+			cdp.ErrorScreenshot(err)
 		}
 	}
 	return err

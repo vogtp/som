@@ -197,7 +197,7 @@ func (cdp *Engine) run() bool {
 	if err := cdp.szenario.Execute(cdp); err != nil {
 		cdp.hcl.Errorf("Szenario %s returned error: %v", cdp.szenario.Name(), err)
 		//set to final status
-		cdp.stepInfo.name = "szenario error"
+		//cdp.stepInfo.name = "szenario error"
 		ok = false
 		panic(err)
 	}
