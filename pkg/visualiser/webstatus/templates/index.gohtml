@@ -100,7 +100,8 @@ function updateGraphStyle(selectObject) {
 function updateGraphs(graphType) {
   const collection = document.getElementsByClassName("promGraph");
   for (let i = 0; i < collection.length; i++) {
-    collection[i].src = "{{ $.PromURL }}/consoles/som_"+graphType+".html?szenario="+collection[i].name+"&duration={{ $.Duration }}&width=600&height=100&end={{ $.End }}"
+    let dur = {{ $.DatePicker.End.Unix }} - {{ $.DatePicker.Start.Unix }}
+    collection[i].src = "{{ $.PromURL }}/consoles/som_"+graphType+".html?szenario="+collection[i].name+"&duration="+dur+"&width=600&height=100&end={{ $.DatePicker.End.Unix }}"
    // console.log(collection[i].name +" -> "+ collection[i].src)
   }
 }

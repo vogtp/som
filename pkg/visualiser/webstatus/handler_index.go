@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"math"
 	"net/http"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -32,20 +31,11 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 	var data = struct {
 		*commonData
 		PromURL     string
-		End         int
-		Duration    int
-		DurationStr string
 		Szenarios   []indexValue
 	}{
 		commonData:  common("SOM Szenarios", r),
 		PromURL:     fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
-		Duration:    7 * 24 * 60 * 60,
-		DurationStr: "7d",
 	}
-
-	utc := data.DatePicker.End.Hour() - data.DatePicker.End.UTC().Hour()
-	data.End = int(data.DatePicker.End.Unix()) + utc*int(time.Hour.Seconds())
-	data.Duration = int(data.DatePicker.End.Unix() - data.DatePicker.Start.Unix())
 
 	for _, stat := range s.data.Status.Szenarios() {
 		szName := stat.Key()
