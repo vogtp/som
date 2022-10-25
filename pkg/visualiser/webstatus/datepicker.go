@@ -39,50 +39,50 @@ func (dp *datepicker) init(r *http.Request) {
 	dp.processTimespan(r)
 }
 
-func (dp datepicker) nowUtc() time.Time {
-	return time.Now().UTC()
+func (dp datepicker) now() time.Time {
+	return time.Now()
 }
 
 func (dp *datepicker) processTimespan(r *http.Request) {
-	start := dp.nowUtc().Add(-30 * 24 * time.Hour)
-	end := dp.nowUtc()
+	start := dp.now().Add(-30 * 24 * time.Hour)
+	end := dp.now()
 	switch dp.Timespan {
 	case last24hLabel:
-		end = dp.nowUtc()
+		end = dp.now()
 		start = end.Add(-24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case todayLabel:
-		t := dp.nowUtc()
+		t := dp.now()
 		start = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 		end = start.Add(24 * time.Hour).Add(-1 * time.Nanosecond)
 	case yesterdayLabel:
-		t := dp.nowUtc()
+		t := dp.now()
 		end = time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location())
 		start = end.Add(-24 * time.Hour)
 		end = end.Add(-1 * time.Nanosecond)
 	case last7dLabel:
-		end = dp.nowUtc()
+		end = dp.now()
 		start = end.Add(-7 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case last30dLabel:
-		end = dp.nowUtc()
+		end = dp.now()
 		start = end.Add(-30 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case last90dLabel:
-		end = dp.nowUtc()
+		end = dp.now()
 		start = end.Add(-90 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case last365dLabel:
-		end = dp.nowUtc()
+		end = dp.now()
 		start = end.Add(-365 * 24 * time.Hour)
 		start = time.Date(start.Year(), start.Month(), start.Day(), end.Hour(), end.Minute(), end.Second(), end.Nanosecond(), start.Location())
 	case thisMonthLabel:
-		now := dp.nowUtc()
+		now := dp.now()
 		currentYear, currentMonth, _ := now.Date()
 		start = time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, now.Location())
 		end = start.AddDate(0, 1, -1).Add(24 * time.Hour).Add(-1 * time.Nanosecond)
 	case lastMonthLabel:
-		now := dp.nowUtc()
+		now := dp.now()
 		currentYear, currentMonth, _ := now.Date()
 		start = time.Date(currentYear, currentMonth-1, 1, 0, 0, 0, 0, now.Location())
 		end = start.AddDate(0, 1, -1).Add(24 * time.Hour).Add(-1 * time.Nanosecond)
@@ -112,7 +112,7 @@ func parseTime(t time.Time, str string) time.Time {
 	if len(str) > 0 {
 		i, err := strconv.Atoi(str)
 		if err == nil {
-			return time.Unix(int64(i), 0).UTC()
+			return time.Unix(int64(i), 0)
 		}
 	}
 	return t

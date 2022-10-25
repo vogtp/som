@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -80,8 +79,6 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Szenarios:          szenarios,
 	}
 	filtered := make([]incidentWeb, 0)
-	//FIXME terrible hack
-	data.DatePicker.End = data.DatePicker.End.Add(2*time.Hour)
 	for _, sum := range summary {
 		if sum.Start.Time().After(data.DatePicker.End) {
 			continue
