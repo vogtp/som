@@ -45,6 +45,7 @@
               <input class="form-check-input form-switch" style="padding-left: 1rem;" type="checkbox" id="theme" checked="false" onchange="updateTheme(this)">
             </div>
             <div class="dropdown-divider"></div>
+            <a class="dropdown-item" id="web_components" href="{{.Baseurl}}/szenario/{{.Query}}"> Web Compoments </a>
             <a class="dropdown-item" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
             <a class="dropdown-item" id="graphiql"  href="{{.Baseurl}}/api/{{.Query}}"> GraphQL API </a>
             <div class="dropdown-divider" id="debug_divider"></div>
@@ -66,6 +67,7 @@
   function updateMenu() {
     showIfDebug("mesh_info")
     showIfDebug("graphiql")
+    showIfDebug("web_components")
     showIfDebug("debug_divider")
   }
   updateMenu()

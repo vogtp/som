@@ -1,0 +1,17 @@
+<!-- szenario_component_info.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+
+
+{{ range .Szenarios }}
+<p>
+  <a href="{{$.Baseurl}}{{$.ImgPath}}{{.}}.png">
+    <img src="{{$.Baseurl}}{{$.ImgPath}}{{.}}" />
+    {{.}}
+  </a>
+</p>
+{{ end }}
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.gohtml" .}}

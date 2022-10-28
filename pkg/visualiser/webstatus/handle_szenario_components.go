@@ -51,5 +51,21 @@ func (s *WebStatus) handleSzenarioComponent(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	http.Error(w, "No such szenario", http.StatusNotFound)
+	s.handleSzenarioComponentInfo(w, r)
+}
+
+func (s *WebStatus) handleSzenarioComponentInfo(w http.ResponseWriter, r *http.Request) {
+	var data = struct {
+		*commonData
+		ImgPath   string
+		Szenarios []string
+	}{
+		commonData: common("Szenarios Components", r),
+		ImgPath:    szenarioComponentPath,
+		Szenarios:  make([]string, len(s.data.Status.Szenarios())),
+	}
+	for i, stat := range s.data.Status.Szenarios() {
+		data.Szenarios[i] = stat.Key()
+	}
+	s.render(w, r, "szenario_component_info.gohtml", data)
 }
