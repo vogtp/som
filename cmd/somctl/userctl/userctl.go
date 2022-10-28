@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/monitor/szenario"
@@ -17,7 +18,10 @@ func Command() *cobra.Command {
 	userCtl.AddCommand(userList)
 	userCtl.AddCommand(userShow)
 	userCtl.AddCommand(userAdd)
-	userShow.AddCommand(userShowPw)
+	if hcl.IsGoRun() {
+		// show password is only supported in debugging
+		userShow.AddCommand(userShowPw)
+	}
 	return userCtl
 }
 
