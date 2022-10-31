@@ -3,15 +3,34 @@
 <!-- Embed the header.html template at this location-->
 {{ template "header.gohtml" .}}
 
+<style>
+div.imgLine {
+    display: flex;
+    align-items: baseline;
+}
+</style>
 
+<h3>Status Images</h3>
+<div id="images">
 {{ range .Szenarios }}
-<p>
-  <a href="{{$.Baseurl}}{{$.ImgPath}}{{.}}.png">
-    <img src="{{$.Baseurl}}{{$.ImgPath}}{{.}}" />
+<div class="imgLine">
+  <a style="width: 20%" href="{{$.Baseurl}}{{$.ImgPath}}{{.}}.png">
+    <img id="statusImg" src="{{$.Baseurl}}{{$.ImgPath}}{{.}}" />
     {{.}}
   </a>
-</p>
+  <pre id="code"> </pre>
+</div>
 {{ end }}
+</div>
+
+<script>
+const listItems = document.querySelector('#images').children;
+const listArray = Array.from(listItems);
+listArray.forEach((item) => {
+  item.querySelector('#code').appendChild(document.createTextNode( "<img src='"+ item.querySelector('#statusImg').src + ".png' />" ))
+  console.log(item.querySelector('#statusImg').outerHTML)
+});
+</script>
 
 <!--Embed the footer.html template at this location-->
 {{ template "footer.gohtml" .}}
