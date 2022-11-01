@@ -28,6 +28,9 @@ func (us *store) load() error {
 		return fmt.Errorf("cannot decode users from gob: %v", err)
 	}
 	us.hcl.Infof("Loaded %d users from %s", len(us.data), dbFile)
+	if err:=us.mirgrate(); err != nil {
+		us.hcl.Warnf("Cannot mirgrate %s: %v", dbFile, err)
+	}
 	return nil
 }
 

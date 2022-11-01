@@ -4,17 +4,26 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/vogtp/som/pkg/core"
 )
 
 // User stores a user and its encrypted password
 type User struct {
-	Username string `json:"name"`
-	Mail     string `json:"email"`
-	Longname string `json:"displayname"`
-	Passwd   []byte `json:"payload"`
-	UserType string `json:"type"`
+	Username string    `json:"name"`
+	Mail     string    `json:"email"`
+	Longname string    `json:"displayname"`
+	Passwd   []byte    `json:"payload"`
+	History  []PwEntry `json:"history"`
+	UserType string    `json:"type"`
+}
+
+// PwEntry stores pw history
+type PwEntry struct {
+	Passwd  []byte    `json:"payload"`
+	Created time.Time `json:"created"`
+	LastUse time.Time `json:"last_use"`
 }
 
 // Name returns the name
@@ -42,12 +51,17 @@ func (u *User) Type() string {
 
 // Password decrypts the password
 func (u *User) Password() string {
-	return string(decrypt(u.Passwd, core.Keystore.Key()))
+	pw := u.History[0].Passwd
+	return string(decrypt(pw, core.Keystore.Key()))
 }
 
 // SetPassword encrypts the password
 func (u *User) SetPassword(pw string) {
-	u.Passwd = encrypt([]byte(pw), core.Keystore.Key())
+	pe := PwEntry{
+		Passwd:  encrypt([]byte(pw), core.Keystore.Key()),
+		Created: time.Now(),
+	}
+	u.History = append([]PwEntry{pe}, u.History...)
 }
 
 // String implements stringer
