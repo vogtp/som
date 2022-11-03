@@ -32,6 +32,6 @@ var dbThinOutCtl = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("cannot connect to DB: %w", err)
 		}
-		return access.IncidentSummary.ThinOut(cmd.Context())
+		return access.ThinOutIncidents(cmd.Context())
 	},
 }
