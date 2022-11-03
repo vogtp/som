@@ -67,7 +67,7 @@ func (mmt MinMaxTime) Time() time.Time {
 	return mmt.t
 }
 
-// Time returns the underlying time
+// Since returns the underlying time
 func (mmt MinMaxTime) Since(t MinMaxTime) time.Duration {
 	return mmt.t.Sub(t.t).Truncate(time.Second)
 }

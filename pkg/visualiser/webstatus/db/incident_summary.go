@@ -34,11 +34,13 @@ func (isq *IncidentSummaryQuery) Query() *IncidentSummaryQuery {
 	return isq
 }
 
+// Where wrap ent where
 func (isq *IncidentSummaryQuery) Where(s ...predicate.Incident) *IncidentSummaryQuery {
 	isq.IncidentQuery.Where(s...)
 	return isq
 }
 
+// First wrap ent first
 func (isq *IncidentSummaryQuery) First(ctx context.Context) (*IncidentSummary, error) {
 	isq.IncidentQuery.Limit(1)
 	all, err := isq.All(ctx)
