@@ -63,9 +63,13 @@ func (u *User) NextPassword() string {
 
 // Password decrypts the password
 func (u *User) Password() string {
-	cur := u.History[u.pwIdx]
-	cur.LastUse = time.Now()
-	return string(decrypt(cur.Passwd, core.Keystore.Key()))
+	// if !(u.pwIdx < len(u.History)) {
+	// 	return ""
+	// }
+	// cur := u.History[u.pwIdx]
+	// cur.LastUse = time.Now()
+	// return string(decrypt(cur.Passwd, core.Keystore.Key()))
+	return string(decrypt(u.Passwd, core.Keystore.Key()))
 }
 
 // PasswordCreated returns the time when the password was created
@@ -80,11 +84,12 @@ func (u *User) PasswordLastUse() time.Time {
 
 // SetPassword encrypts the password
 func (u *User) SetPassword(pw string) {
-	pe := PwEntry{
-		Passwd:  encrypt([]byte(pw), core.Keystore.Key()),
-		Created: time.Now(),
-	}
-	u.History = append([]*PwEntry{&pe}, u.History...)
+	u.Passwd = encrypt([]byte(pw), core.Keystore.Key())
+	// pe := PwEntry{
+	// 	Passwd:  encrypt([]byte(pw), core.Keystore.Key()),
+	// 	Created: time.Now(),
+	// }
+	// u.History = append([]*PwEntry{&pe}, u.History...)
 }
 
 // String implements stringer
