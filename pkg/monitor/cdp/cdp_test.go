@@ -2,7 +2,7 @@ package cdp
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -125,7 +125,7 @@ func TestTimeOut(t *testing.T) {
 	if !timeout {
 		t.Error("Timeout is not triggred")
 	}
-	files, err := ioutil.ReadDir(testOutFolder)
+	files, err := os.ReadDir(testOutFolder)
 	if err != nil {
 		t.Errorf("Cannot read output dir %s: %v", testOutFolder, err)
 	}
@@ -367,7 +367,7 @@ func runTestBody(t *testing.T, bus *core.Bus, cdp *Engine, tc *bodyTestCase) {
 		t.Errorf("Script %q should error %v got: %v", tc.name, tc.wantErr, srvErr)
 	}
 
-	files, err := ioutil.ReadDir(testOutFolder)
+	files, err := os.ReadDir(testOutFolder)
 	if err != nil {
 		t.Errorf("Cannot read output dir %s: %v", testOutFolder, err)
 	}
@@ -397,7 +397,7 @@ func TestReporter(t *testing.T) {
 	}))
 	ncDummy := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// go does not like its own self signed certs
-		b, err := ioutil.ReadAll(r.Body)
+		b, err := io.ReadAll(r.Body)
 		if err != nil {
 			t.Error(err)
 		}

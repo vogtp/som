@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/vogtp/som/pkg/core/status"
@@ -48,7 +47,7 @@ func (am *AlertMgr) wirteJSONFile() error {
 		return fmt.Errorf("cannot marshal json: %w", err)
 	}
 
-	err = ioutil.WriteFile(jsonDBFile, b, 0644)
+	err = os.WriteFile(jsonDBFile, b, 0644)
 	if err != nil {
 		return fmt.Errorf("cannot write file %s: %w", jsonDBFile, err)
 	}
@@ -63,7 +62,7 @@ func (am *AlertMgr) readJSONFile() error {
 	if errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("not found %s: %w", jsonDBFile, err)
 	}
-	plan, _ := ioutil.ReadFile(fi.Name())
+	plan, _ := os.ReadFile(fi.Name())
 
 	dat := jsonData{
 		BasicStates: am.basicStates,

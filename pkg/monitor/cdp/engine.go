@@ -22,7 +22,7 @@ func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 	}
 	ctx := cdp.ctx //context.Background()
 	if cdp.show {
-		ctx, cancel = chromedp.NewExecAllocator(ctx,
+		ctx, _ = chromedp.NewExecAllocator(ctx,
 			append(chromedp.DefaultExecAllocatorOptions[:],
 				chromedp.Flag("headless", !cdp.show),
 				chromedp.Flag("incognito", true),

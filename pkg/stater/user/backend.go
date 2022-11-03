@@ -182,7 +182,11 @@ func (us *store) AddRaw(u User, password []byte) {
 		us.hcl.Warnf("User must have a name: %v", u)
 		return
 	}
-	defer us.save()
+	defer func() {
+		if err := us.save(); err != nil {
+			backend.hcl.Warnf("cannot save user store: %v", err)
+		}
+	}()
 	us.mu.Lock()
 	defer us.mu.Unlock()
 	u.Passwd = password

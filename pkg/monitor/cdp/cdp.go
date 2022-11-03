@@ -269,7 +269,11 @@ func (cdp *Engine) TimeOut(d time.Duration) context.CancelFunc {
 			cdp.hcl.Warnf("Triggered timeout %v taking screenshot!", d)
 			cdp.ErrorScreenshot(fmt.Errorf("timeout %v", d))
 			cdp.AddErr(szenario.TimeoutError{Timeout: d})
-			time.AfterFunc(500*time.Millisecond, func() { chromedp.Cancel(cdp.browser) })
+			time.AfterFunc(500*time.Millisecond, func() {
+				if err := chromedp.Cancel(cdp.browser); err != nil {
+					cdp.hcl.Warnf("cannot cancel for timeout: %v", err)
+				}
+			})
 		case <-cncl:
 			cdp.hcl.Debug("Timeout was canceled")
 		case <-cdp.ctx.Done():

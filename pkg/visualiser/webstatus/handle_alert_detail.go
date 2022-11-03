@@ -40,9 +40,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id = strings.ToLower(r.URL.Path[idx+len(AlertDetailPath):])
-	if strings.HasSuffix(id, "/") {
-		id = id[:len(id)-1]
-	}
+	id = strings.TrimSuffix(id, "/")
 
 	s.hcl.Infof("alerts details %s requested", id)
 	ctx := r.Context()
@@ -67,12 +65,12 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		s.Error(w, r, "No such alert", err, http.StatusInternalServerError)
 		return
 	}
-	url := r.URL.String()
-	if len(r.URL.RawQuery) > 0 {
-		url += "&"
-	} else {
-		url += "?"
-	}
+	// url := r.URL.String()
+	// if len(r.URL.RawQuery) > 0 {
+	// 	url += "&"
+	// } else {
+	// 	url += "?"
+	// }
 	var data = struct {
 		*commonData
 		PromURL            string

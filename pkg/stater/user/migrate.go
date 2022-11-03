@@ -14,7 +14,7 @@ func (us *store) mirgrate() error {
 		}
 	}
 	us.mu.Unlock()
-	us.save()
+	err := us.save()
 	us.mu.Lock()
-	return nil
+	return err
 }

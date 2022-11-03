@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"sync"
 	"time"
@@ -66,7 +65,7 @@ func (sz *szenarioData) wirteJSONFile() error {
 		return fmt.Errorf("cannot marshal json: %w", err)
 	}
 
-	err = ioutil.WriteFile(jsonDBFile, b, 0644)
+	err = os.WriteFile(jsonDBFile, b, 0644)
 	if err != nil {
 		return fmt.Errorf("cannot write file %s: %w", jsonDBFile, err)
 	}
@@ -81,7 +80,7 @@ func (sz *szenarioData) readJSONFile() error {
 	if errors.Is(err, os.ErrNotExist) {
 		return fmt.Errorf("not found %s: %w", jsonDBFile, err)
 	}
-	plan, _ := ioutil.ReadFile(fi.Name())
+	plan, _ := os.ReadFile(fi.Name())
 	err = json.Unmarshal(plan, sz)
 	if err != nil {
 		return fmt.Errorf("error loading json from %v: %w", jsonDBFile, err)

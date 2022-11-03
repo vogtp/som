@@ -20,7 +20,9 @@ func (s *WebStatus) getPages(r *http.Request, total int) ([]pageInfo, int) {
 
 	var pages []pageInfo
 	page := 1
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		s.hcl.Warnf("cannot parse form: %v", err)
+	}
 	if str := r.Form.Get("page"); len(str) > 0 {
 		if p, err := strconv.Atoi(str); err == nil {
 			page = p
@@ -31,7 +33,7 @@ func (s *WebStatus) getPages(r *http.Request, total int) ([]pageInfo, int) {
 	offset := (page - 1) * pageSize
 	s.hcl.Debugf("Paging offset %v len %v total %v", offset, pageSize, total)
 
-	pgCnt := int(math.Ceil(float64(total / pageSize)))
+	pgCnt := int(math.Ceil(float64(total) / float64(pageSize)))
 	url := r.URL
 
 	r.Form.Set("page", fmt.Sprintf("%d", page-1))

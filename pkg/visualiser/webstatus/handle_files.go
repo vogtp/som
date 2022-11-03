@@ -21,9 +21,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	idStr = strings.ToLower(r.URL.Path[idx+len(FilesPath):])
-	if strings.HasSuffix(idStr, "/") {
-		idStr = idStr[:len(idStr)-1]
-	}
+	idStr = strings.TrimSuffix(idStr, "/")
 
 	id, err := uuid.Parse(idStr)
 	if err != nil {

@@ -4,11 +4,9 @@ import (
 	"context"
 	"embed"
 	"html/template"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -47,14 +45,6 @@ func New() *WebStatus {
 	return s
 }
 
-func (s *WebStatus) getDataRoot() string {
-	root := viper.GetString(cfg.DataDir)
-	if len(root) > 0 && !strings.HasSuffix(root, "/") {
-		root += "/"
-	}
-	return root
-}
-
 func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 	s.hcl.Debugf("Webstatus got %s event", e.Name)
 	s.data.mu.Lock()
@@ -77,7 +67,6 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 		curAvail := sz.Availability()
 		avail, found := s.data.Availabilites[e.Name]
 		if !found {
-			avail = curAvail
 			s.data.Availabilites[e.Name] = curAvail
 			continue
 		}
@@ -117,11 +106,13 @@ var onceDB sync.Once
 
 func (s *WebStatus) startDBCleanupJob() {
 	onceDB.Do(func() {
-		ticker := time.Tick(6 * time.Hour)
+		ticker := time.NewTicker(6 * time.Hour)
 		go func() {
 			for {
-				s.dbAccess.ThinOutIncidents(context.Background())
-				<-ticker
+				if err := s.dbAccess.ThinOutIncidents(context.Background()); err != nil {
+					s.hcl.Warnf("thining out incidents failed: %v", err)
+				}
+				<-ticker.C
 			}
 		}()
 	})

@@ -18,7 +18,7 @@ func (client *Client) getErrors(ctx context.Context, msg *msg.SzenarioEvtMsg) ([
 			if reterr == nil {
 				reterr = err
 			} else {
-				err = fmt.Errorf("%v %w", reterr, err)
+				reterr = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
 		errs[i] = t
@@ -37,7 +37,7 @@ func (client *Client) getStati(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]
 			if reterr == nil {
 				reterr = err
 			} else {
-				err = fmt.Errorf("%v %w", reterr, err)
+				reterr = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
 		stati[i] = t
@@ -56,7 +56,7 @@ func (client *Client) getCounter(ctx context.Context, msg *msg.SzenarioEvtMsg) (
 			if reterr == nil {
 				reterr = err
 			} else {
-				err = fmt.Errorf("%v %w", reterr, err)
+				reterr = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
 		cntr[i] = t
@@ -79,11 +79,10 @@ func (client *Client) getFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]
 			if reterr == nil {
 				reterr = err
 			} else {
-				err = fmt.Errorf("%v %w", reterr, err)
+				reterr = fmt.Errorf("%v %w", reterr, err)
 			}
 		}
 		fils[i] = t
-		i++
 	}
 	return fils, reterr
 }

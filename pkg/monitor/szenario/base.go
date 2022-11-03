@@ -6,11 +6,6 @@ import (
 	"github.com/vogtp/go-hcl"
 )
 
-type initListItem struct {
-	s  Szenario
-	ut []string
-}
-
 type setNamer interface {
 	SetName(string)
 }

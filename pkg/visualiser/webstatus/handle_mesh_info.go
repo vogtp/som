@@ -2,7 +2,7 @@ package webstatus
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/vogtp/som/pkg/core"
@@ -27,7 +27,7 @@ func (s *WebStatus) handleMeshInfo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		s.hcl.Errorf("Cannot read Mesh info body %v", err)
 		s.Error(w, r, "Cannot read mesh info", err, http.StatusInternalServerError)

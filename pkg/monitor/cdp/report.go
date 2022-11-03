@@ -26,6 +26,8 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 			cdp.evtMsg.SetCounter("console."+k, float64(v))
 		}
 	}
-	cdp.bus.Szenario.Send(cdp.evtMsg)
+	if err := cdp.bus.Szenario.Send(cdp.evtMsg); err != nil {
+		cdp.hcl.Warnf("cannot send szenario message: %v", err)
+	}
 	cdp.hcl.Infof("Status %s: %v", cdp.szenario.Name(), status)
 }

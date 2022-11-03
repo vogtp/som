@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
@@ -27,7 +28,9 @@ type commonData struct {
 }
 
 func common(t string, r *http.Request) *commonData {
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		hcl.Warnf("Cannot parse form: %v", err)
+	}
 	q := ""
 	if len(r.URL.RawQuery) > 0 {
 		q = fmt.Sprintf("?%s", r.URL.RawQuery)

@@ -45,9 +45,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	id = strings.ToLower(r.URL.Path[idx+len(IncidentDetailPath):])
-	if strings.HasSuffix(id, "/") {
-		id = id[:len(id)-1]
-	}
+	id = strings.TrimSuffix(id, "/")
 	s.hcl.Debugf("incidents details %s requested", id)
 
 	ctx := r.Context()

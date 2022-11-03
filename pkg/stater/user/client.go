@@ -75,12 +75,15 @@ func (us *client) Add(u *User) error {
 	}
 	msg := grav.NewMsg(msgtype.UserAdd, b)
 	var retErr error
-	p.Send(msg).WaitUntil(defaultTimeout, func(m grav.Message) error {
+	err = p.Send(msg).WaitUntil(defaultTimeout, func(m grav.Message) error {
 		if len(m.Data()) > 0 {
 			retErr = fmt.Errorf("server side error: %v", string(m.Data()))
 		}
 		return nil
 	})
+	if err != nil {
+		return fmt.Errorf("cannot send user msg: %w", err)
+	}
 	return retErr
 }
 
