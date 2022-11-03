@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
@@ -17,8 +18,12 @@ const (
 	maxIncidentsPerSummary30d = 50
 )
 
+var cleanupMutex sync.Mutex
+
 // ThinOutIncidents removes multiple incident entries
 func (c *Client) ThinOutIncidents(ctx context.Context) error {
+	cleanupMutex.Lock()
+	defer cleanupMutex.Unlock()
 	incidents, err := c.IncidentSummary.Query().All(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot query incident summaries: %w", err)
