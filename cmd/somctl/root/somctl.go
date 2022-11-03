@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/suborbital/grav/grav"
+	"github.com/vogtp/som/cmd/somctl/dbctl"
 	"github.com/vogtp/som/cmd/somctl/incidentctl"
 	"github.com/vogtp/som/cmd/somctl/szenarioctl"
 	"github.com/vogtp/som/cmd/somctl/userctl"
@@ -33,6 +34,7 @@ func Command(szCfg *szenario.Config) error {
 	rootCtl.AddCommand(userctl.Command())
 	rootCtl.AddCommand(szenarioctl.Command())
 	rootCtl.AddCommand(incidentctl.Command())
+	rootCtl.AddCommand(dbctl.Command())
 
 	if err := rootCtl.Execute(); err != nil {
 		fmt.Println(err)
