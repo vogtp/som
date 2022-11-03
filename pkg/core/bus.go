@@ -66,8 +66,12 @@ func (e *Bus) cleanup() {
 	e.Szenario.cleanup()
 	e.Alert.cleanup()
 	e.mesh.Stop()
-	e.bus.Withdraw()
-	e.bus.Stop()
+	if err := e.bus.Withdraw(); err != nil {
+		e.hcl.Warnf("cannot withdraw from bus: %v", err)
+	}
+	if err := e.bus.Stop(); err != nil {
+		e.hcl.Warnf("cannot stop bus: %v", err)
+	}
 }
 
 // WaitMsgProcessed waits until the managed cannels have their messages sent

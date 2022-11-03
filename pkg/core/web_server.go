@@ -95,7 +95,9 @@ func (w *WebServer) Start() {
 // Stop the webserver
 func (w *WebServer) Stop() {
 	w.hcl.Warn("Stopping web server")
-	w.srv.Shutdown(context.Background())
+	if err := w.srv.Shutdown(context.Background()); err != nil {
+		w.hcl.Warnf("cannot shutdown webserver: %v", err)
+	}
 }
 
 // BasePath is the url path

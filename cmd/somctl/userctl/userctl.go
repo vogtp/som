@@ -30,8 +30,8 @@ var userCtl = &cobra.Command{
 	Use:   "user",
 	Short: "Manage SOM users",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
 	},
 }
 

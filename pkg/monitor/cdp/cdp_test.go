@@ -98,7 +98,7 @@ func TestTimeOut(t *testing.T) {
 
 	htmlData := "MyAnswer"
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, htmlData)
+		fmt.Fprint(w, htmlData)
 	}))
 	defer srv.Close()
 	timeout := false
@@ -129,7 +129,7 @@ func TestTimeOut(t *testing.T) {
 	if err != nil {
 		t.Errorf("Cannot read output dir %s: %v", testOutFolder, err)
 	}
-	if len(files) < 0 {
+	if len(files) < 1 {
 		t.Error("Unexpected number of output files:")
 	}
 }
@@ -145,7 +145,7 @@ func TestBodyDump(t *testing.T) {
 </html>`, htmlBody)
 	called := false
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, htmlData)
+		fmt.Fprint(w, htmlData)
 		called = true
 	}))
 	defer srv.Close()
@@ -212,7 +212,7 @@ trow("testException")
 </body>
 </html>`
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, htmlData)
+		fmt.Fprint(w, htmlData)
 	}))
 	defer srv.Close()
 	var srvErr error
@@ -323,7 +323,9 @@ func TestBody(t *testing.T) {
 }
 
 func runTestBody(t *testing.T, bus *core.Bus, cdp *Engine, tc *bodyTestCase) {
-	core.EnsureOutFolder(testOutFolder)
+	if err := core.EnsureOutFolder(testOutFolder); err != nil {
+		t.Error(err)
+	}
 	defer cleanupOutFolder()
 	var srvErr error
 	htmlData := fmt.Sprintf(`<html>
@@ -333,7 +335,7 @@ func runTestBody(t *testing.T, bus *core.Bus, cdp *Engine, tc *bodyTestCase) {
 </html>`, tc.body)
 	called := false
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, htmlData)
+		fmt.Fprint(w, htmlData)
 		called = true
 	}))
 	defer srv.Close()
@@ -391,7 +393,7 @@ func TestReporter(t *testing.T) {
 </body>
 </html>`
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, htmlData)
+		fmt.Fprint(w, htmlData)
 	}))
 	ncDummy := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// go does not like its own self signed certs
@@ -441,7 +443,7 @@ func TestRepeat(t *testing.T) {
 </html>`
 	calls := 0
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, htmlData)
+		fmt.Fprint(w, htmlData)
 		calls++
 	}))
 	cdp, cancel := New(opts...)

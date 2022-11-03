@@ -62,7 +62,6 @@ func (cdp *Engine) IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool
 		nodes := new([]*proto.Node)
 		if err := chromedp.Run(cdp.browser, chromedp.Nodes(sel, nodes, opts...)); err != nil {
 			if errors.Is(err, context.Canceled) {
-				err = fmt.Errorf("timeout %v", cdp.timeout)
 				p <- false
 				return
 			}
@@ -108,5 +107,6 @@ func (cdp *Engine) Body(checks ...szenario.CheckFunc) chromedp.Action {
 
 // WaitForEver blocks until the timeout is reached
 func (cdp *Engine) WaitForEver() {
+	//nolint:errcheck
 	chromedp.Run(cdp.browser, chromedp.WaitReady(`#ThisWillNotBeFoundAndWeWaitForEver`, chromedp.ByID))
 }

@@ -50,9 +50,9 @@ type ncBackend struct {
 }
 
 type ncGenericMsg struct {
-	Counters map[string]float64    `json:"counters"`
-	Statuses map[string]string `json:"statuses"`
-	Retain   int               `json:"retain"`
+	Counters map[string]float64 `json:"counters"`
+	Statuses map[string]string  `json:"statuses"`
+	Retain   int                `json:"retain"`
 }
 
 func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
@@ -77,7 +77,9 @@ func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 	}
 
 	var buf bytes.Buffer
-	json.NewEncoder(&buf).Encode(data)
+	if err := json.NewEncoder(&buf).Encode(data); err != nil {
+		hcl.Warnf("Cannot encode netcrunch: %v", err)
+	}
 	hcl.Infof("NC Json: %s to %s", buf.String(), nc.srv)
 	req, err := http.NewRequest(http.MethodPost,
 		fmt.Sprintf("https://%s/api/rest/1/sensors/%s/update", nc.srv, nc.id),

@@ -20,8 +20,8 @@ var szenarioCtl = &cobra.Command{
 	Aliases: []string{"sz"},
 	Short:   "Manage SOM szenarios",
 	Long:    ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
 	},
 }
 

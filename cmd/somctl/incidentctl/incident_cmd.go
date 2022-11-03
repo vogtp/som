@@ -9,8 +9,8 @@ var incidentCtl = &cobra.Command{
 	Aliases: []string{"incidents", "inci", "inc"},
 	Short:   "Manage SOM incidents",
 	Long:    ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
 	},
 }
 

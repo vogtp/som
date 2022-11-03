@@ -59,7 +59,8 @@ func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 				continue
 			}
 			url := d.cfg.GetString(cfgAlertDestTeamsWebhook)
-			if ok, err := goteamsnotify.IsValidWebhookURL(url); !ok || err != nil {
+
+			if err := goteamsnotify.NewClient().ValidateWebhook(url); err != nil {
 				teams.hcl.Warnf("%s: teams webhook URL %q not valid: %v", d.name, url, err)
 				if err != nil {
 					ret = err
@@ -74,8 +75,9 @@ func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 }
 
 func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
+	mstClient := goteamsnotify.NewClient()
 	webhookURL := d.cfg.GetString(cfgAlertDestTeamsWebhook)
-	if ok, err := goteamsnotify.IsValidWebhookURL(webhookURL); !ok || err != nil {
+	if err := goteamsnotify.NewClient().ValidateWebhook(webhookURL); err != nil {
 		return fmt.Errorf("not sending teams message webhook URL %s not valid: %v", webhookURL, err)
 	}
 	img := ""
@@ -99,7 +101,6 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	if err != nil {
 		teams.hcl.Errorf("index Template error %v", err)
 	}
-	mstClient := goteamsnotify.NewClient()
 	msgCard := goteamsnotify.NewMessageCard()
 	msgCard.Title = getSubject(e, r, d)
 	msgCard.Text = fmt.Sprintf("<p>\n%s\n</p>\n%s", text, img)
@@ -123,11 +124,15 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	if err := msgCard.AddPotentialAction(pa); err != nil {
 		return fmt.Errorf("error creating new teams message card: %w", err)
 	}
-
+	if err := msgCard.Validate(); err != nil {
+		teams.hcl.Errorf("msg card is not valid: %v", err)
+		return fmt.Errorf("msg card is not valid: %w", err)
+	}
 	return mstClient.SendWithRetry(context.TODO(), webhookURL, msgCard, 3, 5)
 	//return mstClient.Send(webhookURL, msgCard)
 }
 
+//nolint:unused
 func (teams *Teams) getImage(img []byte) (string, error) {
 	image, err := png.Decode(bytes.NewReader(img))
 	if err != nil {

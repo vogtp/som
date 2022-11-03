@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -32,7 +31,7 @@ func EnsureOutFolder(outFolder string) error {
 		outFolder = outFolder + "/"
 	}
 	fn := outFolder + "test.txt"
-	if err := ioutil.WriteFile(fn, []byte("Testoutput"), 0644); err != nil {
+	if err := os.WriteFile(fn, []byte("Testoutput"), 0644); err != nil {
 		dir, err2 := os.Getwd()
 		if err2 != nil {
 			hcl.Errorf("Getwd: %v", err)

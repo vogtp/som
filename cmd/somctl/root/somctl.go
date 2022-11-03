@@ -70,8 +70,8 @@ var (
 			core.Get().Bus().WaitMsgProcessed()
 			coreClose()
 		},
-		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Help()
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
 		},
 	}
 )

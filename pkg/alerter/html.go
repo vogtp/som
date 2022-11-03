@@ -36,7 +36,7 @@ func getHTML(e *msg.AlertMsg) (string, error) {
 	}
 	topo, foundTopo := e.Stati[alertmgr.KeyTopology]
 	if foundTopo {
-		data.Topology = fmt.Sprintf("%s", topo)
+		data.Topology = topo
 		delete(data.Alert.Stati, alertmgr.KeyTopology)
 	}
 	var body bytes.Buffer

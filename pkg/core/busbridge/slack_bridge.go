@@ -83,6 +83,9 @@ func (s Slack) start() {
 func (s Slack) Send(evt *msg.SzenarioEvtMsg) error {
 	s.hcl.Warnf("Sending message: %v", reflect.TypeOf(evt))
 	b, err := ToBridgePayload(evt)
+	if err != nil {
+		s.hcl.Warnf("bridge payload: %v", err)
+	}
 	chanID, ts, err := s.client.PostMessage(
 		s.channel,
 		slack.MsgOptionText(b, true),
@@ -93,6 +96,7 @@ func (s Slack) Send(evt *msg.SzenarioEvtMsg) error {
 	return nil
 }
 
+//nolint:unused
 func (s Slack) say(txt string) error {
 	chanID, ts, err := s.client.PostMessage(
 		s.channel,

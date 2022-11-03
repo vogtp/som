@@ -10,6 +10,7 @@ import (
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
+//nolint:unused
 func checkSzGrp(t *testing.T, g Grouper, lvl Level) {
 	t.Helper()
 	if got := g.Level(); got != lvl {

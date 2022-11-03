@@ -75,8 +75,12 @@ func New(c *core.Core) *Alerter {
 }
 
 func (a *Alerter) addDefaultComponents() {
-	a.AddConditon(StatusCond{})
-	a.AddConditon(SzenarioCond{})
+	if err := a.AddConditon(StatusCond{}); err != nil {
+		a.hcl.Warnf("Cannot add status condition: %v", err)
+	}
+	if err := a.AddConditon(SzenarioCond{}); err != nil {
+		a.hcl.Warnf("Cannot add szenario condition: %v", err)
+	}
 	if err := a.AddEngine(NewMailer()); err != nil {
 		a.hcl.Warnf("Cannot create engine: %v", err)
 	}

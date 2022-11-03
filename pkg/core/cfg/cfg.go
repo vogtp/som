@@ -24,7 +24,9 @@ func Parse() {
 
 	pflag.Parse()
 
-	viper.BindPFlags(pflag.CommandLine)
+	if err := viper.BindPFlags(pflag.CommandLine); err != nil {
+		hcl.Errorf("cannot bin flags: %v", err)
+	}
 	viper.SetConfigType("yaml")
 	viper.SetConfigName(viper.GetString(CfgFile))
 	viper.AddConfigPath(".")

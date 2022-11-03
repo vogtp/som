@@ -115,6 +115,7 @@ func (p *prometheusBackend) getGaugeVec(e *msg.SzenarioEvtMsg) *prometheus.Gauge
 	return gv
 }
 
+//nolint:unused
 func (p *prometheusBackend) setGauge(e *msg.SzenarioEvtMsg) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -129,6 +130,7 @@ func (p *prometheusBackend) setGauge(e *msg.SzenarioEvtMsg) {
 	}
 }
 
+//nolint:unused
 func (p *prometheusBackend) getPromSzenario(e *msg.SzenarioEvtMsg) *promSz {
 	psz := p.promSz[e.Name]
 	if psz == nil {
@@ -148,6 +150,7 @@ func PrometheusName(s string) string {
 	return strings.ToLower(s)
 }
 
+//nolint:unused
 func (ps *promSz) getGauge(szName, name string) prometheus.Gauge {
 	szName = PrometheusName(szName)
 	name = PrometheusName(name)
@@ -164,6 +167,7 @@ func (ps *promSz) getGauge(szName, name string) prometheus.Gauge {
 	return ph
 }
 
+//nolint:unused
 func (p *prometheusBackend) setHistogramVec(e *msg.SzenarioEvtMsg) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -188,6 +192,7 @@ func (p *prometheusBackend) setHistogramVec(e *msg.SzenarioEvtMsg) {
 	}
 }
 
+//nolint:unused
 func (p *prometheusBackend) getHistogramVec(e *msg.SzenarioEvtMsg) *prometheus.HistogramVec {
 	name := e.Name + "_histo"
 	hv := p.histoVec[name]
