@@ -13,21 +13,24 @@ import (
 
 // StepTimeout executes a Step with an timeout
 func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...chromedp.Action) error {
-	br := cdp.browser
-	var cancel context.CancelFunc
-	cdp.browser, cancel = context.WithTimeout(cdp.browser, timeout)
-	defer func() {
-		cdp.browser = br
+	errChan := make(chan error)
+	go func() {
+		errChan <- cdp.step(name, actions...)
 	}()
-	defer cancel()
-	err := cdp.step(name, actions...)
-	if err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			err = fmt.Errorf("step timeout (%v) reached", timeout)
-			cdp.ErrorScreenshot(err)
+
+	select {
+	case err := <-errChan:
+		if err != nil {
+			if errors.Is(err, context.DeadlineExceeded) {
+				err = fmt.Errorf("step timeout (%v) reached", timeout)
+				cdp.ErrorScreenshot(err)
+			}
 		}
+		return err
+	case <-time.After(timeout):
+		return fmt.Errorf("step timeout %v reached", timeout)
 	}
-	return err
+
 }
 
 // Step executes the actions given and records how long it takes
