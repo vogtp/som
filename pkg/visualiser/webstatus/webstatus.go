@@ -5,6 +5,8 @@ import (
 	"embed"
 	"html/template"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
@@ -106,7 +108,22 @@ func (s *WebStatus) Ent() *db.Client {
 			s.hcl.Errorf("Cannot connect to DB: %v", err)
 		}
 		s.dbAccess = entAccess
+		s.startDBCleanupJob()
 	}
-
 	return s.dbAccess
+}
+
+var onceDB sync.Once
+
+func (s *WebStatus) startDBCleanupJob() {
+	onceDB.Do(func() {
+		ticker := time.Tick(6 * time.Hour)
+		go func() {
+			for {
+				s.dbAccess.ThinOutIncidents(context.Background())
+				<-ticker
+			}
+		}()
+	})
+
 }
