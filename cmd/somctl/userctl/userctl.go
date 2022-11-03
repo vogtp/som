@@ -9,6 +9,7 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 )
@@ -108,6 +109,10 @@ var userShowPw = &cobra.Command{
 			return fmt.Errorf("cannot set password of user %s: %v", name, err)
 		}
 		fmt.Printf("\n%s: %v\n", name, u.Password())
+		fmt.Println("History:")
+		for pw := u.NextPassword(); pw != ""; pw = u.NextPassword() {
+			fmt.Printf("  %-20s - Created: %s LastUse: %s\n", pw, u.PasswordCreated().Format(cfg.TimeFormatString), u.PasswordLastUse().Format(cfg.TimeFormatString))
+		}
 		return nil
 	},
 }

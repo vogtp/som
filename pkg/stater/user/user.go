@@ -11,12 +11,13 @@ import (
 
 // User stores a user and its encrypted password
 type User struct {
-	Username string    `json:"name"`
-	Mail     string    `json:"email"`
-	Longname string    `json:"displayname"`
-	Passwd   []byte    `json:"payload"`
-	History  []PwEntry `json:"history"`
-	UserType string    `json:"type"`
+	Username string     `json:"name"`
+	Mail     string     `json:"email"`
+	Longname string     `json:"displayname"`
+	Passwd   []byte     `json:"payload"`
+	History  []*PwEntry `json:"history"`
+	UserType string     `json:"type"`
+	pwIdx    int
 }
 
 // PwEntry stores pw history
@@ -49,10 +50,32 @@ func (u *User) Type() string {
 	return u.UserType
 }
 
+// NextPassword increases the password index and returns the decrypted PW
+func (u *User) NextPassword() string {
+	if !(u.pwIdx+1 < len(u.History)) {
+		return ""
+	}
+	u.pwIdx++
+	cur := u.History[u.pwIdx]
+	cur.LastUse = time.Now()
+	return string(decrypt(cur.Passwd, core.Keystore.Key()))
+}
+
 // Password decrypts the password
 func (u *User) Password() string {
-	pw := u.History[0].Passwd
-	return string(decrypt(pw, core.Keystore.Key()))
+	cur := u.History[u.pwIdx]
+	cur.LastUse = time.Now()
+	return string(decrypt(cur.Passwd, core.Keystore.Key()))
+}
+
+// PasswordCreated returns the time when the password was created
+func (u *User) PasswordCreated() time.Time {
+	return u.History[u.pwIdx].Created
+}
+
+// PasswordLastUse returns the time when the password was last accessed
+func (u *User) PasswordLastUse() time.Time {
+	return u.History[u.pwIdx].LastUse
 }
 
 // SetPassword encrypts the password
@@ -61,7 +84,7 @@ func (u *User) SetPassword(pw string) {
 		Passwd:  encrypt([]byte(pw), core.Keystore.Key()),
 		Created: time.Now(),
 	}
-	u.History = append([]PwEntry{pe}, u.History...)
+	u.History = append([]*PwEntry{&pe}, u.History...)
 }
 
 // String implements stringer
