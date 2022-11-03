@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"math"
 	"sync"
@@ -22,6 +21,8 @@ var cleanupMutex sync.Mutex
 
 // ThinOutIncidents removes multiple incident entries
 func (c *Client) ThinOutIncidents(ctx context.Context) error {
+	c.hcl.Info("Starting thin out")
+	defer c.hcl.Info("Finish thin out")
 	cleanupMutex.Lock()
 	defer cleanupMutex.Unlock()
 	incidents, err := c.IncidentSummary.Query().All(ctx)
@@ -55,15 +56,12 @@ func (c *Client) thinoutIncident(ctx context.Context, incSum *IncidentSummary, m
 	if err != nil {
 		return fmt.Errorf("cannot query incidents of %v: %w", incSum.IncidentID, err)
 	}
-	i := intervall
+	i := 0
 	thisFailure := ""
-	notFound := ent.NotFoundError{}
 	for _, inc := range incidents {
 		fail, err := inc.QueryFailures().Order(ent.Desc(failure.FieldIdx)).First(ctx)
 		if err != nil {
-			if !errors.Is(err, &notFound) {
-				c.hcl.Warnf("cannot get failures: %v", err)
-			}
+			c.hcl.Debugf("cannot get failures: %v", err)
 			continue
 		}
 		lastFailure := thisFailure
