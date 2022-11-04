@@ -51,6 +51,7 @@ func (u *User) Type() string {
 }
 
 // NextPassword increases the password index and returns the decrypted PW
+// retruns empty string "" if no more passwords are present
 func (u *User) NextPassword() string {
 	if !(u.pwIdx+1 < len(u.History)) {
 		return ""

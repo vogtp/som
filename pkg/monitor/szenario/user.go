@@ -1,5 +1,7 @@
 package szenario
 
+import "time"
+
 // User stores a user and its encrypted password
 type User interface {
 	// Name returns the name
@@ -15,6 +17,19 @@ type User interface {
 
 	// Password decrypts the password
 	Password() string
+
+	// NextPassword increases the password index and returns the decrypted PW
+	// retruns empty string "" if no more passwords are present
+	NextPassword() string
+
+	// PasswordHistoryCount returns the number of PW in the history
+	PasswordHistoryCount() int
+
+	// PasswordCreated returns the time when the password was created
+	PasswordCreated() time.Time
+
+	// PasswordLastUse returns the time when the password was last accessed
+	PasswordLastUse() time.Time
 
 	// SetPassword encrypts the password
 	SetPassword(pw string)
