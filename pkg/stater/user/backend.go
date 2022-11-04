@@ -102,7 +102,20 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 	}
 	us.mu.Lock()
 	if oldUser, ok := us.data[u.Name()]; ok {
-		u.History = append(u.History, oldUser.History...)
+		for _, oldPw := range oldUser.History {
+			found := false
+			for _, newPw := range u.History {
+				if oldPw == newPw {
+					found = true
+					break
+				}
+			}
+			if found {
+				continue
+			}
+			u.History = append(u.History, oldPw)
+		}
+
 	}
 	us.data[u.Name()] = *u
 	us.mu.Unlock()
