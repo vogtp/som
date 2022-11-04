@@ -12,6 +12,11 @@ type JobFunc func(Engine) error
 // CheckFunc is used to check the plaintext body content
 type CheckFunc func(*string) error
 
+type EitherOption struct {
+	ID     any
+	Action chromedp.Action
+}
+
 // Engine is executing a szenario
 type Engine interface {
 	// StepTimeout executes a Step with an timeout
@@ -20,6 +25,7 @@ type Engine interface {
 	Step(name string, actions ...chromedp.Action)
 	// IsPresent checks if something is present
 	IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool
+	Either(name string, option ...EitherOption) <-chan any
 	// Body is used to check the content of the page
 	Body(checks ...CheckFunc) chromedp.Action
 	// WaitForEver blocks until the timeout is reached

@@ -11,6 +11,20 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
+func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan any {
+	res := make(chan any)
+	for _, o := range option {
+		go func(o szenario.EitherOption) {
+			err := chromedp.Run(cdp.browser, o.Action)
+			if err != nil {
+				cdp.hcl.Infof("Option %v: %v", o.ID, err)
+			}
+			res <- o.ID
+		}(o)
+	}
+	return res
+}
+
 // StepTimeout executes a Step with an timeout
 func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...chromedp.Action) error {
 	errChan := make(chan error)
@@ -30,7 +44,6 @@ func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...ch
 	case <-time.After(timeout):
 		return fmt.Errorf("step timeout %v reached", timeout)
 	}
-
 }
 
 // Step executes the actions given and records how long it takes
