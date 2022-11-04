@@ -149,7 +149,7 @@ func (us *store) buildUserlistMsg() (grav.Message, error) {
 	us.mu.RLock()
 	defer us.mu.RUnlock()
 
-	users := make([]User, len(us.data))
+	users := make([]User, 0, len(us.data))
 	for _, u := range us.data {
 		users = append(users, u)
 	}
