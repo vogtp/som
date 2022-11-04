@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/go-hcl"
@@ -189,6 +190,11 @@ func (us *store) AddRaw(u User, password []byte) {
 	}()
 	us.mu.Lock()
 	defer us.mu.Unlock()
-	u.Passwd = password
+	u.History = []*PwEntry{
+		{
+			Passwd:  password,
+			Created: time.Now(),
+		},
+	}
 	us.data[u.Name()] = u
 }

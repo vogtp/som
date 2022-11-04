@@ -11,13 +11,13 @@ import (
 
 // User stores a user and its encrypted password
 type User struct {
-	Username string     `json:"name"`
-	Mail     string     `json:"email"`
-	Longname string     `json:"displayname"`
-	Passwd   []byte     `json:"payload"`
-	History  []*PwEntry `json:"history"`
-	UserType string     `json:"type"`
-	pwIdx    int
+	Username         string     `json:"name"`
+	Mail             string     `json:"email"`
+	Longname         string     `json:"displayname"`
+	DeprecatedPasswd []byte     `json:"payload"` // Deprecated: use History instead.
+	History          []*PwEntry `json:"history"`
+	UserType         string     `json:"type"`
+	pwIdx            int
 }
 
 // PwEntry stores pw history
@@ -63,13 +63,13 @@ func (u *User) NextPassword() string {
 
 // Password decrypts the password
 func (u *User) Password() string {
-	// if !(u.pwIdx < len(u.History)) {
-	// 	return ""
-	// }
-	// cur := u.History[u.pwIdx]
-	// cur.LastUse = time.Now()
-	// return string(decrypt(cur.Passwd, core.Keystore.Key()))
-	return string(decrypt(u.Passwd, core.Keystore.Key()))
+	if !(u.pwIdx < len(u.History)) {
+		return ""
+	}
+	cur := u.History[u.pwIdx]
+	cur.LastUse = time.Now()
+	return string(decrypt(cur.Passwd, core.Keystore.Key()))
+	// return string(decrypt(u.Passwd, core.Keystore.Key()))
 }
 
 // PasswordCreated returns the time when the password was created
@@ -84,12 +84,12 @@ func (u *User) PasswordLastUse() time.Time {
 
 // SetPassword encrypts the password
 func (u *User) SetPassword(pw string) {
-	u.Passwd = encrypt([]byte(pw), core.Keystore.Key())
-	// pe := PwEntry{
-	// 	Passwd:  encrypt([]byte(pw), core.Keystore.Key()),
-	// 	Created: time.Now(),
-	// }
-	// u.History = append([]*PwEntry{&pe}, u.History...)
+	// u.Passwd = encrypt([]byte(pw), core.Keystore.Key())
+	pe := PwEntry{
+		Passwd:  encrypt([]byte(pw), core.Keystore.Key()),
+		Created: time.Now(),
+	}
+	u.History = append([]*PwEntry{&pe}, u.History...)
 }
 
 // String implements stringer
@@ -112,11 +112,8 @@ func (u User) IsValid() error {
 	if len(u.UserType) < 1 {
 		return errors.New("users must have a type")
 	}
-	if len(u.Passwd) < 1 {
-		return errors.New("users must have a password")
-	}
 	if len(u.Password()) < 1 {
-		return errors.New("users password is not decryptable")
+		return errors.New("users must have a password")
 	}
 	return nil
 }

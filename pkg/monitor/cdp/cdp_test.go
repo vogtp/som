@@ -28,7 +28,12 @@ var (
 		Username: "name",
 		Mail:     "mail@example.com",
 		Longname: "testuser",
-		Passwd:   []byte("MY_TEST_KEY"),
+		History: []*user.PwEntry{
+			{
+				Passwd:  []byte("MY_TEST_KEY"),
+				Created: time.Now(),
+			},
+		},
 		UserType: "test",
 	}
 )
