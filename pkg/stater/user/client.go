@@ -49,7 +49,7 @@ func (us *client) Get(name string) (*User, error) {
 
 	})
 	if err != nil {
-		hcl.Errorf("Failed to get user %s: %v", name, err)
+		hcl.Warnf("Failed to get user %s: %v", name, err)
 		if u, ok := backend.data[name]; ok {
 			hcl.Errorf("using local user: %v", name)
 			return &u, nil
