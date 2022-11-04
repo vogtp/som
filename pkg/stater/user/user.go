@@ -72,6 +72,11 @@ func (u *User) Password() string {
 	// return string(decrypt(u.Passwd, core.Keystore.Key()))
 }
 
+// PasswordHistoryCount returns the number of PW in the history
+func (u User) PasswordHistoryCount() int {
+	return len(u.History)
+}
+
 // PasswordCreated returns the time when the password was created
 func (u *User) PasswordCreated() time.Time {
 	return u.History[u.pwIdx].Created
@@ -94,7 +99,7 @@ func (u *User) SetPassword(pw string) {
 
 // String implements stringer
 func (u User) String() string {
-	return fmt.Sprintf("%-30s %-30s %-10s", u.Name(), u.Email(), u.Type())
+	return fmt.Sprintf("%-30s %-30s %-10s (Password History %2d)", u.Name(), u.Email(), u.Type(), u.PasswordHistoryCount())
 }
 
 // IsValid checks if all needed fields are set
