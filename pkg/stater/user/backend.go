@@ -101,6 +101,9 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 		return nil, fmt.Errorf("new user %v is not valid: %v", u.Name(), err)
 	}
 	us.mu.Lock()
+	if oldUser, ok := us.data[u.Name()]; ok {
+		u.History = append(u.History, oldUser.History...)
+	}
 	us.data[u.Name()] = *u
 	us.mu.Unlock()
 	us.hcl.Infof("Added user %s to store", u.Name())

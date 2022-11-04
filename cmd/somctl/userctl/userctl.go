@@ -52,9 +52,10 @@ var userShow = &cobra.Command{
 }
 
 var userAdd = &cobra.Command{
-	Use:   "add [USERNAME EMAIL TYPE PASSWORD]",
-	Short: "Add a SOM user",
-	Long:  ``,
+	Use:     "add [USERNAME EMAIL TYPE PASSWORD]",
+	Short:   "Add or modify a SOM user",
+	Long:    ``,
+	Aliases: []string{"modify", "mod"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("\nAdd new user:")
 		name := term.ReadOrArgs("username", args, 0)
@@ -130,8 +131,8 @@ var userList = &cobra.Command{
 		sort.Slice(users, func(i, j int) bool {
 			return users[i].Name() < users[j].Name()
 		})
-		for _, u := range users {
-			fmt.Println(u.String())
+		for i, u := range users {
+			fmt.Printf("%v: %s\n", i, u.String())
 		}
 		return nil
 	},
