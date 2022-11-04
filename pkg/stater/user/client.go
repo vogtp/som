@@ -37,7 +37,7 @@ func (us *client) Get(name string) (*User, error) {
 	defer p.Disconnect()
 	user := new(User)
 	err := p.Send(grav.NewMsg(msgtype.UserRequest, []byte(name))).WaitUntil(defaultTimeout, func(m grav.Message) error {
-		hcl.Debugf("Reply for user %s: %T %+v", name, m, m.Data())
+		hcl.Tracef("Reply for user %s: %T %+v", name, m,string( m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:
 			return m.UnmarshalData(user)
@@ -95,7 +95,7 @@ func (us *client) List() ([]User, error) {
 	defer p.Disconnect()
 	users := make([]User, 0)
 	err := p.Send(grav.NewMsg(msgtype.UserList, nil)).WaitUntil(defaultTimeout, func(m grav.Message) error {
-		hcl.Debugf("Reply for userlist: %T %+v", m, m.Data())
+		hcl.Tracef("Reply for userlist: %T %+v", m, string(m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:
 			return m.UnmarshalData(&users)
@@ -110,6 +110,6 @@ func (us *client) List() ([]User, error) {
 		hcl.Errorf("Failed to get userlist: %v", err)
 		return nil, err
 	}
-	hcl.Debugf("Received users: %v", users)
+	hcl.Debugf("Received users: %#v", users)
 	return users, nil
 }
