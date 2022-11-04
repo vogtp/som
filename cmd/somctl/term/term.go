@@ -10,12 +10,20 @@ import (
 )
 
 // ReadOrArgs a value from the teminal or the args
-func ReadOrArgs(name string, args []string, idx int) string {
+func ReadOrArgs(name string, args []string, idx int, defaultValue string) string {
 	if args != nil && idx > -1 &&
 		idx < len(args) && len(args[idx]) > 0 {
 		return args[idx]
 	}
-	return Read(name)
+	if len(defaultValue) > 0 {
+		name = fmt.Sprintf("%s (%s)", name, defaultValue)
+	}
+	val := Read(name)
+
+	if len(defaultValue) > 0 && len(val) < 1 {
+		val = defaultValue
+	}
+	return val
 }
 
 // Read a value from the teminal

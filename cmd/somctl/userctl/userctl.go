@@ -58,12 +58,24 @@ var userAdd = &cobra.Command{
 	Aliases: []string{"modify", "mod"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("\nAdd new user:")
-		name := term.ReadOrArgs("username", args, 0)
-		email := term.ReadOrArgs("email", args, 1)
+		defaultValue := ""
+		name := term.ReadOrArgs("username", args, 0, defaultValue)
+		existUser, err := user.Store.Get(name)
+		if err != nil {
+			core.Get().HCL().Debugf("User %s not found in backend: %v\n", name, err)
+		}
+		if existUser != nil {
+			fmt.Printf("Found existing user %s empty input will be filled with values from this user...\n", existUser.Name())
+			defaultValue = existUser.Mail
+		}
+		email := term.ReadOrArgs("email", args, 1, defaultValue)
+		if existUser != nil {
+			defaultValue = existUser.Type()
+		}
 		ty := ""
 		szConfig := core.Get().SzenaioConfig()
 		for len(ty) < 1 {
-			ty = term.ReadOrArgs("type", args, 2)
+			ty = term.ReadOrArgs("type", args, 2, defaultValue)
 			ty = strings.TrimSpace(ty)
 			if szConfig != nil && len(szConfig.GetUserTypes()) > 1 {
 				ut := szConfig.GetUserType(ty)
@@ -85,11 +97,14 @@ var userAdd = &cobra.Command{
 			Mail:     email,
 			UserType: ty,
 		}
+		if existUser != nil {
+			u.History = existUser.History
+		}
 		u.SetPassword(pw)
 		if err := u.IsValid(); err != nil {
 			return fmt.Errorf("user is not valid: %w", err)
 		}
-		err := user.Store.Add(u)
+		err = user.Store.Add(u)
 		if err != nil {
 			return fmt.Errorf("cannot add user %s: %v", name, err)
 		}
