@@ -35,7 +35,7 @@ type alertDetailData struct {
 func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	id := ""
 	idx := strings.Index(r.URL.Path, AlertDetailPath)
-	if idx < 1 {
+	if idx < 0 {
 		s.Error(w, r, "No alert ID given", nil, http.StatusBadRequest)
 		return
 	}
@@ -86,7 +86,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		IncidentDetailPath: IncidentDetailPath,
 		Alerts:             make([]alertDetailData, aCnt),
 	}
-	data.FilesURL = data.Baseurl + "/" + FilesPath
+	data.FilesURL = data.Baseurl + FilesPath
 
 	for i, alert := range alerts {
 		if errors.Is(ctx.Err(), context.Canceled) {

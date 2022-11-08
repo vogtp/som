@@ -9,10 +9,10 @@
 <div class="btn-group" role="group">
     <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="">
-    <a class="dropdown-item" href="{{ $.Baseurl }}/{{ $.IncidentListPath }}/{{$.Query}}">All Szenarios</a>
+    <a class="dropdown-item" href="{{ $.Baseurl }}{{ $.IncidentListPath }}/{{$.Query}}">All Szenarios</a>
     
     {{ range .Szenarios}}
-    <a class="dropdown-item" href="{{ $.Baseurl }}/{{ $.IncidentListPath }}/{{ . }}{{$.Query}}"> {{.}} </a>
+    <a class="dropdown-item" href="{{ $.Baseurl }}{{ $.IncidentListPath }}/{{ . }}{{$.Query}}"> {{.}} </a>
     {{end}}
     
     </div>
@@ -41,45 +41,45 @@
 {{ range .Incidents }}
 <tr>
     <td> 
-     <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+     <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
       <img class="level" title="{{.Level}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
      </a>
     </td>
     <td> 
-     <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+     <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Start }}
      </a>
     </td>
     <td>
         {{ if not .End.IsZero }}
-        <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+        <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
          {{ .End }}
         </a>
         {{ end }}
     </td>
     <td>
         {{ if not .End.IsZero }}
-        <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+        <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
          {{ .End.Since .Start }}
         </a>
         {{else}}
           {{ $.Since .Start }}
         {{ end }}
     </td>
-    <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+    <td> <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Name }}
      </a> 
     </td>
-    <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+    <td> <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .AlertCount }} 
      </a>
     </td>
-    <td> <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+    <td> <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Total }} 
      </a>
     </td>
     <td> 
-     <a href="{{$.Baseurl}}/{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
+     <a href="{{$.Baseurl}}{{$.IncidentDetailPath}}/{{.IncidentID}}{{$.Query}}">
         {{ .Error }}  
      </a>
     </td>

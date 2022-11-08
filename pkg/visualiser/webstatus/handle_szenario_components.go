@@ -13,7 +13,7 @@ const (
 func (s *WebStatus) handleSzenarioComponent(w http.ResponseWriter, r *http.Request) {
 	szName := ""
 	idx := strings.Index(r.URL.Path, szenarioComponentPath)
-	if idx > 0 {
+	if idx > -1 {
 		szName = r.URL.Path[idx+len(szenarioComponentPath):]
 		for strings.HasSuffix(szName, "/") {
 			szName = szName[:len(szName)-1]
