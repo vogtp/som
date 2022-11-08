@@ -17,10 +17,37 @@ type OwaSzenario struct {
 
 // Execute the szenario
 func (s *OwaSzenario) Execute(engine szenario.Engine) (err error) {
+
+	loggedIn := false
+	for !loggedIn {
+		err := s.login(engine)
+		if err == nil {
+			loggedIn = true
+		}
+		if s.User().NextPassword() == "" {
+			return err
+		}
+	}
+
+	//engine.WaitForEver()
+
+	defer func() {
+		engine.Step("Logout",
+			chromedp.Navigate(s.OwaURL+"/owa/logoff.owa"),
+		//	chromedp.WaitVisible(`#openingMessage`, chromedp.ByID),
+		)
+	}()
+
+	engine.Step("check loaded", engine.Body(engine.Contains("Sent Items"), engine.Contains("Inbox"), engine.Bigger(100)))
+	return nil
+}
+
+func (s *OwaSzenario) login(engine szenario.Engine) (err error) {
 	engine.Step("Loading",
 		chromedp.Navigate(s.OwaURL),
 		chromedp.WaitVisible(`#userNameInput`, chromedp.ByID),
 	)
+	fmt.Printf("PW: %v\n",s.User().Password())
 	engine.Step("Login",
 		chromedp.WaitVisible(`#userNameInput`, chromedp.ByID),
 		chromedp.SendKeys(`#userNameInput`, s.User().Name()+"\r", chromedp.ByID),
@@ -52,15 +79,5 @@ func (s *OwaSzenario) Execute(engine szenario.Engine) (err error) {
 		engine.AddErr(err)
 		return err
 	}
-	//engine.WaitForEver()
-
-	defer func() {
-		engine.Step("Logout",
-			chromedp.Navigate(s.OwaURL+"/owa/logoff.owa"),
-		//	chromedp.WaitVisible(`#openingMessage`, chromedp.ByID),
-		)
-	}()
-
-	engine.Step("check loaded", engine.Body(engine.Contains("Sent Items"), engine.Contains("Inbox"), engine.Bigger(100)))
-	return nil
+	return err
 }
