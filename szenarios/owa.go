@@ -27,6 +27,12 @@ func (s *OwaSzenario) Execute(engine szenario.Engine) (err error) {
 		chromedp.WaitReady(`#passwordInput`, chromedp.ByID),
 		chromedp.SendKeys(`#passwordInput`, s.User().Password()+"\r", chromedp.ByID),
 	)
+	defer func() {
+		engine.Step("Logout",
+			chromedp.Navigate(s.OwaURL+"/owa/logoff.owa"),
+		//	chromedp.WaitVisible(`#openingMessage`, chromedp.ByID),
+		)
+	}()
 	loadedID := `#O365_MainLink_NavMenu,#EndOfLifeMessageDiv`
 	if s.LoginTimeout == 0 {
 		s.LoginTimeout = 2 * time.Second
@@ -53,13 +59,6 @@ func (s *OwaSzenario) Execute(engine szenario.Engine) (err error) {
 		return err
 	}
 	//engine.WaitForEver()
-
-	defer func() {
-		engine.Step("Logout",
-			chromedp.Navigate(s.OwaURL+"/owa/logoff.owa"),
-		//	chromedp.WaitVisible(`#openingMessage`, chromedp.ByID),
-		)
-	}()
 
 	engine.Step("check loaded", engine.Body(engine.Contains("Sent Items"), engine.Contains("Inbox"), engine.Bigger(100)))
 	return nil
