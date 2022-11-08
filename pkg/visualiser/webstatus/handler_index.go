@@ -30,11 +30,11 @@ type indexValue struct {
 func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 	var data = struct {
 		*commonData
-		PromURL     string
-		Szenarios   []indexValue
+		PromURL   string
+		Szenarios []indexValue
 	}{
-		commonData:  common("SOM Szenarios", r),
-		PromURL:     fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
+		commonData: common("SOM Szenarios", r),
+		PromURL:    fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 	}
 
 	for _, stat := range s.data.Status.Szenarios() {
@@ -54,7 +54,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 			Img:             stat.Level().Img(),
 
 			LastUpdate:   stat.LastUpdate().Format(cfg.TimeFormatString),
-			IncidentList: fmt.Sprintf("%s/%s/%s/", data.Baseurl, incidentListPath, szName),
+			IncidentList: fmt.Sprintf("%s%s/%s/", data.Baseurl, incidentListPath, szName),
 		}
 
 		iv.LastTime = formatStepTime(stat.LastTotal())

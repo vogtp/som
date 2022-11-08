@@ -56,7 +56,9 @@ func (w *WebServer) init(c *Core) {
 		Handler:           w.mux,
 	}
 
-	if !strings.HasPrefix(w.basepath, "/") {
+	if len(w.basepath) < 2 {
+		w.basepath = ""
+	} else if !strings.HasPrefix(w.basepath, "/") {
 		w.basepath = fmt.Sprintf("/%s", w.basepath)
 	}
 	ip := "localhost"

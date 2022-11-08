@@ -8,10 +8,10 @@
 <div class="btn-group" role="group">
     <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
     <div class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="">
-    <a class="dropdown-item" href="{{ $.Baseurl }}/{{ $.AlertListPath }}/{{$.Query}}">All Szenarios</a>
+    <a class="dropdown-item" href="{{ $.Baseurl }}{{ $.AlertListPath }}/{{$.Query}}">All Szenarios</a>
     
     {{ range .Szenarios}}
-    <a class="dropdown-item"  href="{{ $.Baseurl }}/{{ $.AlertListPath }}/{{ . }}{{$.Query}}"> {{.}} </a>
+    <a class="dropdown-item"  href="{{ $.Baseurl }}{{ $.AlertListPath }}/{{ . }}{{$.Query}}"> {{.}} </a>
     {{end}}
     
     </div>

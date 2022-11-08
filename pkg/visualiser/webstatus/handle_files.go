@@ -16,7 +16,7 @@ const (
 func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 	idStr := ""
 	idx := strings.Index(r.URL.Path, FilesPath)
-	if idx < 1 {
+	if idx < 0 {
 		http.Error(w, "No file ID given", http.StatusBadRequest)
 		return
 	}

@@ -26,7 +26,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	sz := ""
 	name := ""
 	idx := strings.Index(r.URL.Path, incidentListPath)
-	if idx > 0 {
+	if idx > -1 {
 		name = r.URL.Path[idx+len(incidentListPath):]
 		for strings.HasSuffix(name, "/") {
 			name = name[:len(name)-1]

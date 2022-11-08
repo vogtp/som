@@ -59,7 +59,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	for i, a := range alerts {
 		alertDatas[i] = alertData{
 			AlertInfo:  a,
-			DetailLink: fmt.Sprintf("%s/%s/%s/", baseurl, AlertDetailPath, a.UUID.String()),
+			DetailLink: fmt.Sprintf("%s%s/%s/", baseurl, AlertDetailPath, a.UUID.String()),
 		}
 	}
 	s.hcl.Infof("Loaded %v alerts", len(alerts))

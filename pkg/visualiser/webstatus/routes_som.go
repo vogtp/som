@@ -13,7 +13,7 @@ import (
 func (s *WebStatus) routes() {
 	w := core.Get().WebServer()
 
-	w.Handle("/static/", http.StripPrefix("/som/", http.FileServer(http.FS(assetData))))
+	w.Handle("/static/", http.StripPrefix(w.BasePath(), http.FileServer(http.FS(assetData))))
 	w.HandleFunc(FilesPath, s.handleFiles)
 
 	// handlers below this line will be reported in the log

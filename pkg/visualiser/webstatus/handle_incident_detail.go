@@ -40,14 +40,12 @@ type incidentData struct {
 func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request) {
 	id := ""
 	idx := strings.Index(r.URL.Path, IncidentDetailPath)
-	if idx < 1 {
+	if idx < 0 {
 		s.Error(w, r, "No incident ID given", nil, http.StatusBadRequest)
 		return
 	}
 	id = strings.ToLower(r.URL.Path[idx+len(IncidentDetailPath):])
-	if strings.HasSuffix(id, "/") {
-		id = id[:len(id)-1]
-	}
+	id = strings.TrimSuffix(id, "/")
 	s.hcl.Debugf("incidents details %s requested", id)
 
 	ctx := r.Context()
@@ -113,8 +111,8 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		Pages:      pages,
 	}
 	data.TitleImage = fmt.Sprintf("%s/static/status/%s.png", data.Baseurl, data.Level.Img())
-	data.FilesURL = data.Baseurl + "/" + FilesPath
-	data.AlertLink = data.Baseurl + "/" + AlertDetailPath
+	data.FilesURL = data.Baseurl + FilesPath
+	data.AlertLink = data.Baseurl + AlertDetailPath
 
 	for i, f := range incidents {
 		if errors.Is(ctx.Err(), context.Canceled) {
