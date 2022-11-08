@@ -14,7 +14,7 @@ type User struct {
 	Username         string     `json:"name"`
 	Mail             string     `json:"email"`
 	Longname         string     `json:"displayname"`
-	DeprecatedPasswd []byte     `json:"payload"` // Deprecated: use History instead.
+	DeprecatedPasswd []byte     `json:"payload"` // Deprecated: use History instead. (since v0.11.0)
 	History          []*PwEntry `json:"history"`
 	UserType         string     `json:"type"`
 	pwIdx            int
