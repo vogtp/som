@@ -13,6 +13,11 @@ func (cdp *Engine) Headless() bool {
 	return !cdp.show
 }
 
+// HCL returns the logger
+func (cdp *Engine) HCL() hcl.Logger {
+	return cdp.hcl
+}
+
 func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 	if cdp.browser != nil {
 		if pc := chromedp.FromContext(cdp.browser); pc != nil && pc.Browser != nil {

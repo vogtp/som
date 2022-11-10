@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
+	"github.com/vogtp/go-hcl"
 )
 
 // JobFunc is the signature of a function that runs as job
@@ -46,4 +47,6 @@ type Engine interface {
 	SetStatus(key, val string)
 	// AddErr adds a error to the event
 	AddErr(err error)
+	// HCL returns the logger
+	HCL() hcl.Logger
 }

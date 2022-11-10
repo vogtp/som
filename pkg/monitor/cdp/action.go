@@ -12,6 +12,11 @@ import (
 )
 
 func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan any {
+	defer time.Sleep(cdp.stepDelay)
+	cdp.muStep.Lock()
+	defer cdp.muStep.Unlock()
+	cdp.stepInfo.start(name)
+	defer cdp.stepInfo.end(name)
 	res := make(chan any)
 	for _, o := range option {
 		go func(o szenario.EitherOption) {
@@ -21,6 +26,7 @@ func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan a
 				res <- err
 				return
 			}
+			cdp.hcl.Infof("%s selected option: %v", name, o.ID)
 			res <- o.ID
 		}(o)
 	}
