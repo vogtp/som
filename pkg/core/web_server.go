@@ -55,7 +55,7 @@ func (w *WebServer) init(c *Core) {
 		ReadHeaderTimeout: 2 * time.Second,
 		Handler:           w.mux,
 	}
-
+	w.basepath = strings.TrimSuffix(w.basepath, "/")
 	if len(w.basepath) < 2 {
 		w.basepath = ""
 	} else if !strings.HasPrefix(w.basepath, "/") {
