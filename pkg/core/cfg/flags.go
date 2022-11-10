@@ -16,6 +16,8 @@ const (
 	CheckTimeout = "check.timeout"
 	// CheckRepeat Check intervall (time.Duration)
 	CheckRepeat = "check.repeat"
+	// CheckStepDelay a delay between steps (time.Duration)
+	CheckStepDelay = "check.step.delay"
 	// CheckUser the user the check is run with (probably temp workaround) -- not parsed as flag globally
 	CheckUser = "check.user"
 	// CheckRegion region the checks runs in
@@ -49,6 +51,7 @@ func init() {
 	pflag.Bool(BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
 	pflag.Duration(CheckTimeout, 60*time.Second, "Check timeout")
 	pflag.Duration(CheckRepeat, 0, "Check intervall (e.g. 5m)")
+	pflag.Duration(CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
 	pflag.String(CheckRegion, "default", "The region the check runs in")
 	pflag.String(DataDir, "data", "Folder to save output like screenshots in")
 	pflag.String(LogLevel, "warn", "Set the loglevel: error warn info debug trace off")

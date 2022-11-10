@@ -51,6 +51,7 @@ type Engine struct {
 	noClose       bool
 	repeat        time.Duration
 	timeout       time.Duration
+	stepDelay     time.Duration
 	timeoutTicker *time.Ticker
 	sendReport    bool
 }
@@ -72,6 +73,7 @@ func New(opts ...Option) (*Engine, context.CancelFunc) {
 		noClose:    viper.GetBool(cfg.BrowserNoClose),
 		timeout:    viper.GetDuration(cfg.CheckTimeout),
 		repeat:     viper.GetDuration(cfg.CheckRepeat),
+		stepDelay:  viper.GetDuration(cfg.CheckStepDelay),
 	}
 
 	for _, o := range opts {
@@ -193,7 +195,6 @@ func (cdp *Engine) run() bool {
 
 	now := time.Now()
 	defer cdp.reportResults(now) // catches the panic
-	defer func() { cdp.hcl.Warnf("Running %s took %v", cdp.szenario.Name(), time.Since(now)) }()
 	if err := cdp.szenario.Execute(cdp); err != nil {
 		cdp.hcl.Errorf("Szenario %s returned error: %v", cdp.szenario.Name(), err)
 		cdp.ErrorScreenshot(err)
@@ -205,6 +206,14 @@ func (cdp *Engine) run() bool {
 
 func (cdp *Engine) reportResults(start time.Time) {
 	d := time.Since(start)
+
+	if cdp.stepDelay > 0 {
+		td := d - cdp.stepDelay*time.Duration(len(cdp.stepInfo.stepTimes))
+		if td > 0 {
+			d = td
+		}
+	}
+	cdp.hcl.Warnf("Running %s took %v", cdp.szenario.Name(), d)
 	// cleanup panic, i.e. step failure
 	r2 := recover()
 	var err error

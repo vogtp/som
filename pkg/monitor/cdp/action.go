@@ -44,6 +44,7 @@ func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...ch
 	case <-time.After(timeout):
 		return fmt.Errorf("step timeout %v reached", timeout)
 	}
+
 }
 
 // Step executes the actions given and records how long it takes
@@ -55,6 +56,7 @@ func (cdp *Engine) Step(name string, actions ...chromedp.Action) {
 }
 
 func (cdp *Engine) step(name string, actions ...chromedp.Action) error {
+	defer time.Sleep(cdp.stepDelay)
 	cdp.muStep.Lock()
 	defer cdp.muStep.Unlock()
 	cdp.stepInfo.start(name)
