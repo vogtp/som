@@ -17,7 +17,9 @@ func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan a
 		go func(o szenario.EitherOption) {
 			err := chromedp.Run(cdp.browser, o.Action)
 			if err != nil {
-				cdp.hcl.Infof("Option %v: %v", o.ID, err)
+				cdp.hcl.Debugf("Unmached Option %v: %v", o.ID, err)
+				res <- err
+				return
 			}
 			res <- o.ID
 		}(o)
