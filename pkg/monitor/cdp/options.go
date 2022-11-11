@@ -29,9 +29,9 @@ func NoClose() Option {
 	}
 }
 
-// Show controls if the browser is started headless or not
-func Show() Option {
+// Headless controls if the browser is started headless or not
+func Headless(b bool) Option {
 	return func(e *Engine) {
-		e.show = true
+		e.headless = b
 	}
 }

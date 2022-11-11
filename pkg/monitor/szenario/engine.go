@@ -31,8 +31,8 @@ type Engine interface {
 	Body(checks ...CheckFunc) chromedp.Action
 	// WaitForEver blocks until the timeout is reached
 	WaitForEver()
-	// Headless indicates if the browser is headless (i.e. does not show on screen)
-	Headless() bool
+	// IsHeadless indicates if the browser is headless (i.e. does not show on screen)
+	IsHeadless() bool
 	// Dump prints the body and its size to log
 	Dump() CheckFunc
 	// Contains looks for a string in the body

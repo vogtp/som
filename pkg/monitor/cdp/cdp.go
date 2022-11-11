@@ -47,7 +47,7 @@ type Engine struct {
 	evtMsg *msg.SzenarioEvtMsg
 
 	// flags
-	show          bool
+	headless      bool
 	noClose       bool
 	repeat        time.Duration
 	timeout       time.Duration
@@ -69,7 +69,7 @@ func New(opts ...Option) (*Engine, context.CancelFunc) {
 		runChan:    make(chan szenarionRunWrapper, 100),
 		sendReport: true,
 		consMsg:    make(map[string]int),
-		show:       viper.GetBool(cfg.BrowserShow),
+		headless:   !viper.GetBool(cfg.BrowserShow),
 		noClose:    viper.GetBool(cfg.BrowserNoClose),
 		timeout:    viper.GetDuration(cfg.CheckTimeout),
 		repeat:     viper.GetDuration(cfg.CheckRepeat),

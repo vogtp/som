@@ -8,9 +8,9 @@ import (
 	"github.com/vogtp/go-hcl"
 )
 
-// Headless indicates if the browser is headless (i.e. does not show on screen)
-func (cdp *Engine) Headless() bool {
-	return !cdp.show
+// IsHeadless indicates if the browser is headless (i.e. does not show on screen)
+func (cdp *Engine) IsHeadless() bool {
+	return cdp.headless
 }
 
 // HCL returns the logger
@@ -26,15 +26,15 @@ func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 		}
 	}
 	ctx := cdp.ctx //context.Background()
-	if cdp.show {
-		ctx, _ = chromedp.NewExecAllocator(ctx,
-			append(chromedp.DefaultExecAllocatorOptions[:],
-				chromedp.Flag("headless", !cdp.show),
-				chromedp.Flag("incognito", true),
-				chromedp.Flag("disable-background-networking", false),
-			)...,
-		)
-	}
+	//if !cdp.headless {
+	ctx, _ = chromedp.NewExecAllocator(ctx,
+		append(chromedp.DefaultExecAllocatorOptions[:],
+			chromedp.Flag("headless", cdp.headless),
+			chromedp.Flag("incognito", true),
+			chromedp.Flag("disable-background-networking", false),
+		)...,
+	)
+	//}
 
 	cdp.browser, cancel = chromedp.NewContext(
 		ctx,
