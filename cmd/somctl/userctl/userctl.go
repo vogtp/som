@@ -124,7 +124,7 @@ var userShowPw = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("cannot set password of user %s: %v", name, err)
 		}
-		fmt.Printf("\n%s:\n", name)
+		fmt.Printf("\n%s: %s\n", name, u.String())
 		fmt.Printf("  %-20s (Created: %s LastUse: %s)\n", u.Password(), u.PasswordCreated().Format(cfg.TimeFormatString), u.PasswordLastUse().Format(cfg.TimeFormatString))
 		fmt.Println("History:")
 		for pw := u.NextPassword(); pw != ""; pw = u.NextPassword() {
