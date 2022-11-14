@@ -105,7 +105,7 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 		for _, oldPw := range oldUser.History {
 			found := false
 			for _, newPw := range u.History {
-				if oldPw == newPw {
+				if string(oldPw.Passwd) == string(newPw.Passwd) {
 					found = true
 					break
 				}
