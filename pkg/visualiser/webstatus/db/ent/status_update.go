@@ -117,18 +117,10 @@ func (su *StatusUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := su.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: status.FieldName,
-		})
+		_spec.SetField(status.FieldName, field.TypeString, value)
 	}
 	if value, ok := su.mutation.Value(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: status.FieldValue,
-		})
+		_spec.SetField(status.FieldValue, field.TypeString, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -269,18 +261,10 @@ func (suo *StatusUpdateOne) sqlSave(ctx context.Context) (_node *Status, err err
 		}
 	}
 	if value, ok := suo.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: status.FieldName,
-		})
+		_spec.SetField(status.FieldName, field.TypeString, value)
 	}
 	if value, ok := suo.mutation.Value(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: status.FieldValue,
-		})
+		_spec.SetField(status.FieldValue, field.TypeString, value)
 	}
 	_node = &Status{config: suo.config}
 	_spec.Assign = _node.assignValues

@@ -292,83 +292,43 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 	)
 	_spec.OnConflict = ac.conflict
 	if value, ok := ac.mutation.UUID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: alert.FieldUUID,
-		})
+		_spec.SetField(alert.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
 	if value, ok := ac.mutation.IncidentID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: alert.FieldIncidentID,
-		})
+		_spec.SetField(alert.FieldIncidentID, field.TypeUUID, value)
 		_node.IncidentID = value
 	}
 	if value, ok := ac.mutation.Name(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldName,
-		})
+		_spec.SetField(alert.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
 	if value, ok := ac.mutation.Time(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: alert.FieldTime,
-		})
+		_spec.SetField(alert.FieldTime, field.TypeTime, value)
 		_node.Time = value
 	}
 	if value, ok := ac.mutation.IntLevel(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: alert.FieldIntLevel,
-		})
+		_spec.SetField(alert.FieldIntLevel, field.TypeInt, value)
 		_node.IntLevel = value
 	}
 	if value, ok := ac.mutation.Username(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldUsername,
-		})
+		_spec.SetField(alert.FieldUsername, field.TypeString, value)
 		_node.Username = value
 	}
 	if value, ok := ac.mutation.Region(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldRegion,
-		})
+		_spec.SetField(alert.FieldRegion, field.TypeString, value)
 		_node.Region = value
 	}
 	if value, ok := ac.mutation.ProbeOS(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldProbeOS,
-		})
+		_spec.SetField(alert.FieldProbeOS, field.TypeString, value)
 		_node.ProbeOS = value
 	}
 	if value, ok := ac.mutation.ProbeHost(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldProbeHost,
-		})
+		_spec.SetField(alert.FieldProbeHost, field.TypeString, value)
 		_node.ProbeHost = value
 	}
 	if value, ok := ac.mutation.Error(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldError,
-		})
+		_spec.SetField(alert.FieldError, field.TypeString, value)
 		_node.Error = value
 	}
 	if nodes := ac.mutation.CountersIDs(); len(nodes) > 0 {

@@ -298,6 +298,11 @@ func (sq *StatusQuery) Select(fields ...string) *StatusSelect {
 	return selbuild
 }
 
+// Aggregate returns a StatusSelect configured with the given aggregations.
+func (sq *StatusQuery) Aggregate(fns ...AggregateFunc) *StatusSelect {
+	return sq.Select().Aggregate(fns...)
+}
+
 func (sq *StatusQuery) prepareQuery(ctx context.Context) error {
 	for _, f := range sq.fields {
 		if !status.ValidColumn(f) {
@@ -364,11 +369,14 @@ func (sq *StatusQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (sq *StatusQuery) sqlExist(ctx context.Context) (bool, error) {
-	n, err := sq.sqlCount(ctx)
-	if err != nil {
+	switch _, err := sq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
 		return false, fmt.Errorf("ent: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return n > 0, nil
 }
 
 func (sq *StatusQuery) querySpec() *sqlgraph.QuerySpec {
@@ -503,8 +511,6 @@ func (sgb *StatusGroupBy) sqlQuery() *sql.Selector {
 	for _, fn := range sgb.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	// If no columns were selected in a custom aggregation function, the default
-	// selection is the fields used for "group-by", and the aggregation functions.
 	if len(selector.SelectedColumns()) == 0 {
 		columns := make([]string, 0, len(sgb.fields)+len(sgb.fns))
 		for _, f := range sgb.fields {
@@ -524,6 +530,12 @@ type StatusSelect struct {
 	sql *sql.Selector
 }
 
+// Aggregate adds the given aggregation functions to the selector query.
+func (ss *StatusSelect) Aggregate(fns ...AggregateFunc) *StatusSelect {
+	ss.fns = append(ss.fns, fns...)
+	return ss
+}
+
 // Scan applies the selector query and scans the result into the given value.
 func (ss *StatusSelect) Scan(ctx context.Context, v any) error {
 	if err := ss.prepareQuery(ctx); err != nil {
@@ -534,6 +546,16 @@ func (ss *StatusSelect) Scan(ctx context.Context, v any) error {
 }
 
 func (ss *StatusSelect) sqlScan(ctx context.Context, v any) error {
+	aggregation := make([]string, 0, len(ss.fns))
+	for _, fn := range ss.fns {
+		aggregation = append(aggregation, fn(ss.sql))
+	}
+	switch n := len(*ss.selector.flds); {
+	case n == 0 && len(aggregation) > 0:
+		ss.sql.Select(aggregation...)
+	case n != 0 && len(aggregation) > 0:
+		ss.sql.AppendSelect(aggregation...)
+	}
 	rows := &sql.Rows{}
 	query, args := ss.sql.Query()
 	if err := ss.driver.Query(ctx, query, args, rows); err != nil {

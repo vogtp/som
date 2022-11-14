@@ -181,51 +181,27 @@ func (fc *FileCreate) createSpec() (*File, *sqlgraph.CreateSpec) {
 	)
 	_spec.OnConflict = fc.conflict
 	if value, ok := fc.mutation.UUID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: file.FieldUUID,
-		})
+		_spec.SetField(file.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
 	if value, ok := fc.mutation.Name(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldName,
-		})
+		_spec.SetField(file.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
 	if value, ok := fc.mutation.GetType(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldType,
-		})
+		_spec.SetField(file.FieldType, field.TypeString, value)
 		_node.Type = value
 	}
 	if value, ok := fc.mutation.Ext(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldExt,
-		})
+		_spec.SetField(file.FieldExt, field.TypeString, value)
 		_node.Ext = value
 	}
 	if value, ok := fc.mutation.Size(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: file.FieldSize,
-		})
+		_spec.SetField(file.FieldSize, field.TypeInt, value)
 		_node.Size = value
 	}
 	if value, ok := fc.mutation.Payload(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
-			Value:  value,
-			Column: file.FieldPayload,
-		})
+		_spec.SetField(file.FieldPayload, field.TypeBytes, value)
 		_node.Payload = value
 	}
 	return _node, _spec

@@ -124,25 +124,13 @@ func (fu *FailureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := fu.mutation.Error(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: failure.FieldError,
-		})
+		_spec.SetField(failure.FieldError, field.TypeString, value)
 	}
 	if value, ok := fu.mutation.Idx(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: failure.FieldIdx,
-		})
+		_spec.SetField(failure.FieldIdx, field.TypeInt, value)
 	}
 	if value, ok := fu.mutation.AddedIdx(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: failure.FieldIdx,
-		})
+		_spec.AddField(failure.FieldIdx, field.TypeInt, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -290,25 +278,13 @@ func (fuo *FailureUpdateOne) sqlSave(ctx context.Context) (_node *Failure, err e
 		}
 	}
 	if value, ok := fuo.mutation.Error(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: failure.FieldError,
-		})
+		_spec.SetField(failure.FieldError, field.TypeString, value)
 	}
 	if value, ok := fuo.mutation.Idx(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: failure.FieldIdx,
-		})
+		_spec.SetField(failure.FieldIdx, field.TypeInt, value)
 	}
 	if value, ok := fuo.mutation.AddedIdx(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: failure.FieldIdx,
-		})
+		_spec.AddField(failure.FieldIdx, field.TypeInt, value)
 	}
 	_node = &Failure{config: fuo.config}
 	_spec.Assign = _node.assignValues

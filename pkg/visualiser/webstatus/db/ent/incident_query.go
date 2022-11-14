@@ -446,6 +446,11 @@ func (iq *IncidentQuery) Select(fields ...string) *IncidentSelect {
 	return selbuild
 }
 
+// Aggregate returns a IncidentSelect configured with the given aggregations.
+func (iq *IncidentQuery) Aggregate(fns ...AggregateFunc) *IncidentSelect {
+	return iq.Select().Aggregate(fns...)
+}
+
 func (iq *IncidentQuery) prepareQuery(ctx context.Context) error {
 	for _, f := range iq.fields {
 		if !incident.ValidColumn(f) {
@@ -696,11 +701,14 @@ func (iq *IncidentQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (iq *IncidentQuery) sqlExist(ctx context.Context) (bool, error) {
-	n, err := iq.sqlCount(ctx)
-	if err != nil {
+	switch _, err := iq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
 		return false, fmt.Errorf("ent: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return n > 0, nil
 }
 
 func (iq *IncidentQuery) querySpec() *sqlgraph.QuerySpec {
@@ -891,8 +899,6 @@ func (igb *IncidentGroupBy) sqlQuery() *sql.Selector {
 	for _, fn := range igb.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	// If no columns were selected in a custom aggregation function, the default
-	// selection is the fields used for "group-by", and the aggregation functions.
 	if len(selector.SelectedColumns()) == 0 {
 		columns := make([]string, 0, len(igb.fields)+len(igb.fns))
 		for _, f := range igb.fields {
@@ -912,6 +918,12 @@ type IncidentSelect struct {
 	sql *sql.Selector
 }
 
+// Aggregate adds the given aggregation functions to the selector query.
+func (is *IncidentSelect) Aggregate(fns ...AggregateFunc) *IncidentSelect {
+	is.fns = append(is.fns, fns...)
+	return is
+}
+
 // Scan applies the selector query and scans the result into the given value.
 func (is *IncidentSelect) Scan(ctx context.Context, v any) error {
 	if err := is.prepareQuery(ctx); err != nil {
@@ -922,6 +934,16 @@ func (is *IncidentSelect) Scan(ctx context.Context, v any) error {
 }
 
 func (is *IncidentSelect) sqlScan(ctx context.Context, v any) error {
+	aggregation := make([]string, 0, len(is.fns))
+	for _, fn := range is.fns {
+		aggregation = append(aggregation, fn(is.sql))
+	}
+	switch n := len(*is.selector.flds); {
+	case n == 0 && len(aggregation) > 0:
+		is.sql.Select(aggregation...)
+	case n != 0 && len(aggregation) > 0:
+		is.sql.AppendSelect(aggregation...)
+	}
 	rows := &sql.Rows{}
 	query, args := is.sql.Query()
 	if err := is.driver.Query(ctx, query, args, rows); err != nil {

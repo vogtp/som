@@ -144,19 +144,11 @@ func (fc *FailureCreate) createSpec() (*Failure, *sqlgraph.CreateSpec) {
 	)
 	_spec.OnConflict = fc.conflict
 	if value, ok := fc.mutation.Error(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: failure.FieldError,
-		})
+		_spec.SetField(failure.FieldError, field.TypeString, value)
 		_node.Error = value
 	}
 	if value, ok := fc.mutation.Idx(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: failure.FieldIdx,
-		})
+		_spec.SetField(failure.FieldIdx, field.TypeInt, value)
 		_node.Idx = value
 	}
 	return _node, _spec

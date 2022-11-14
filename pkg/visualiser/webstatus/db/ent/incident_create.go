@@ -324,107 +324,55 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 	)
 	_spec.OnConflict = ic.conflict
 	if value, ok := ic.mutation.UUID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: incident.FieldUUID,
-		})
+		_spec.SetField(incident.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
 	if value, ok := ic.mutation.IncidentID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: incident.FieldIncidentID,
-		})
+		_spec.SetField(incident.FieldIncidentID, field.TypeUUID, value)
 		_node.IncidentID = value
 	}
 	if value, ok := ic.mutation.Name(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: incident.FieldName,
-		})
+		_spec.SetField(incident.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
 	if value, ok := ic.mutation.Time(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: incident.FieldTime,
-		})
+		_spec.SetField(incident.FieldTime, field.TypeTime, value)
 		_node.Time = value
 	}
 	if value, ok := ic.mutation.IntLevel(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: incident.FieldIntLevel,
-		})
+		_spec.SetField(incident.FieldIntLevel, field.TypeInt, value)
 		_node.IntLevel = value
 	}
 	if value, ok := ic.mutation.Username(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: incident.FieldUsername,
-		})
+		_spec.SetField(incident.FieldUsername, field.TypeString, value)
 		_node.Username = value
 	}
 	if value, ok := ic.mutation.Region(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: incident.FieldRegion,
-		})
+		_spec.SetField(incident.FieldRegion, field.TypeString, value)
 		_node.Region = value
 	}
 	if value, ok := ic.mutation.ProbeOS(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: incident.FieldProbeOS,
-		})
+		_spec.SetField(incident.FieldProbeOS, field.TypeString, value)
 		_node.ProbeOS = value
 	}
 	if value, ok := ic.mutation.ProbeHost(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: incident.FieldProbeHost,
-		})
+		_spec.SetField(incident.FieldProbeHost, field.TypeString, value)
 		_node.ProbeHost = value
 	}
 	if value, ok := ic.mutation.Error(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: incident.FieldError,
-		})
+		_spec.SetField(incident.FieldError, field.TypeString, value)
 		_node.Error = value
 	}
 	if value, ok := ic.mutation.Start(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: incident.FieldStart,
-		})
+		_spec.SetField(incident.FieldStart, field.TypeTime, value)
 		_node.Start = value
 	}
 	if value, ok := ic.mutation.End(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: incident.FieldEnd,
-		})
+		_spec.SetField(incident.FieldEnd, field.TypeTime, value)
 		_node.End = value
 	}
 	if value, ok := ic.mutation.State(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
-			Value:  value,
-			Column: incident.FieldState,
-		})
+		_spec.SetField(incident.FieldState, field.TypeBytes, value)
 		_node.State = value
 	}
 	if nodes := ic.mutation.CountersIDs(); len(nodes) > 0 {

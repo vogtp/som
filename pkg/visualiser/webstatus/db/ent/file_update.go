@@ -149,53 +149,25 @@ func (fu *FileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := fu.mutation.UUID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: file.FieldUUID,
-		})
+		_spec.SetField(file.FieldUUID, field.TypeUUID, value)
 	}
 	if value, ok := fu.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldName,
-		})
+		_spec.SetField(file.FieldName, field.TypeString, value)
 	}
 	if value, ok := fu.mutation.GetType(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldType,
-		})
+		_spec.SetField(file.FieldType, field.TypeString, value)
 	}
 	if value, ok := fu.mutation.Ext(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldExt,
-		})
+		_spec.SetField(file.FieldExt, field.TypeString, value)
 	}
 	if value, ok := fu.mutation.Size(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: file.FieldSize,
-		})
+		_spec.SetField(file.FieldSize, field.TypeInt, value)
 	}
 	if value, ok := fu.mutation.AddedSize(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: file.FieldSize,
-		})
+		_spec.AddField(file.FieldSize, field.TypeInt, value)
 	}
 	if value, ok := fu.mutation.Payload(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
-			Value:  value,
-			Column: file.FieldPayload,
-		})
+		_spec.SetField(file.FieldPayload, field.TypeBytes, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -367,53 +339,25 @@ func (fuo *FileUpdateOne) sqlSave(ctx context.Context) (_node *File, err error) 
 		}
 	}
 	if value, ok := fuo.mutation.UUID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: file.FieldUUID,
-		})
+		_spec.SetField(file.FieldUUID, field.TypeUUID, value)
 	}
 	if value, ok := fuo.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldName,
-		})
+		_spec.SetField(file.FieldName, field.TypeString, value)
 	}
 	if value, ok := fuo.mutation.GetType(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldType,
-		})
+		_spec.SetField(file.FieldType, field.TypeString, value)
 	}
 	if value, ok := fuo.mutation.Ext(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: file.FieldExt,
-		})
+		_spec.SetField(file.FieldExt, field.TypeString, value)
 	}
 	if value, ok := fuo.mutation.Size(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: file.FieldSize,
-		})
+		_spec.SetField(file.FieldSize, field.TypeInt, value)
 	}
 	if value, ok := fuo.mutation.AddedSize(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: file.FieldSize,
-		})
+		_spec.AddField(file.FieldSize, field.TypeInt, value)
 	}
 	if value, ok := fuo.mutation.Payload(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBytes,
-			Value:  value,
-			Column: file.FieldPayload,
-		})
+		_spec.SetField(file.FieldPayload, field.TypeBytes, value)
 	}
 	_node = &File{config: fuo.config}
 	_spec.Assign = _node.assignValues

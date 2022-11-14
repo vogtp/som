@@ -8,64 +8,96 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
-func (a *Alert) Counters(ctx context.Context) ([]*Counter, error) {
-	result, err := a.NamedCounters(graphql.GetFieldContext(ctx).Field.Alias)
+func (a *Alert) Counters(ctx context.Context) (result []*Counter, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = a.NamedCounters(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = a.Edges.CountersOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = a.QueryCounters().All(ctx)
 	}
 	return result, err
 }
 
-func (a *Alert) Stati(ctx context.Context) ([]*Status, error) {
-	result, err := a.NamedStati(graphql.GetFieldContext(ctx).Field.Alias)
+func (a *Alert) Stati(ctx context.Context) (result []*Status, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = a.NamedStati(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = a.Edges.StatiOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = a.QueryStati().All(ctx)
 	}
 	return result, err
 }
 
-func (a *Alert) Failures(ctx context.Context) ([]*Failure, error) {
-	result, err := a.NamedFailures(graphql.GetFieldContext(ctx).Field.Alias)
+func (a *Alert) Failures(ctx context.Context) (result []*Failure, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = a.NamedFailures(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = a.Edges.FailuresOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = a.QueryFailures().All(ctx)
 	}
 	return result, err
 }
 
-func (a *Alert) Files(ctx context.Context) ([]*File, error) {
-	result, err := a.NamedFiles(graphql.GetFieldContext(ctx).Field.Alias)
+func (a *Alert) Files(ctx context.Context) (result []*File, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = a.NamedFiles(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = a.Edges.FilesOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = a.QueryFiles().All(ctx)
 	}
 	return result, err
 }
 
-func (i *Incident) Counters(ctx context.Context) ([]*Counter, error) {
-	result, err := i.NamedCounters(graphql.GetFieldContext(ctx).Field.Alias)
+func (i *Incident) Counters(ctx context.Context) (result []*Counter, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = i.NamedCounters(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = i.Edges.CountersOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = i.QueryCounters().All(ctx)
 	}
 	return result, err
 }
 
-func (i *Incident) Stati(ctx context.Context) ([]*Status, error) {
-	result, err := i.NamedStati(graphql.GetFieldContext(ctx).Field.Alias)
+func (i *Incident) Stati(ctx context.Context) (result []*Status, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = i.NamedStati(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = i.Edges.StatiOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = i.QueryStati().All(ctx)
 	}
 	return result, err
 }
 
-func (i *Incident) Failures(ctx context.Context) ([]*Failure, error) {
-	result, err := i.NamedFailures(graphql.GetFieldContext(ctx).Field.Alias)
+func (i *Incident) Failures(ctx context.Context) (result []*Failure, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = i.NamedFailures(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = i.Edges.FailuresOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = i.QueryFailures().All(ctx)
 	}
 	return result, err
 }
 
-func (i *Incident) Files(ctx context.Context) ([]*File, error) {
-	result, err := i.NamedFiles(graphql.GetFieldContext(ctx).Field.Alias)
+func (i *Incident) Files(ctx context.Context) (result []*File, err error) {
+	if fc := graphql.GetFieldContext(ctx); fc != nil && fc.Field.Alias != "" {
+		result, err = i.NamedFiles(graphql.GetFieldContext(ctx).Field.Alias)
+	} else {
+		result, err = i.Edges.FilesOrErr()
+	}
 	if IsNotLoaded(err) {
 		result, err = i.QueryFiles().All(ctx)
 	}

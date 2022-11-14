@@ -350,93 +350,43 @@ func (au *AlertUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := au.mutation.UUID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: alert.FieldUUID,
-		})
+		_spec.SetField(alert.FieldUUID, field.TypeUUID, value)
 	}
 	if value, ok := au.mutation.IncidentID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: alert.FieldIncidentID,
-		})
+		_spec.SetField(alert.FieldIncidentID, field.TypeUUID, value)
 	}
 	if au.mutation.IncidentIDCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Column: alert.FieldIncidentID,
-		})
+		_spec.ClearField(alert.FieldIncidentID, field.TypeUUID)
 	}
 	if value, ok := au.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldName,
-		})
+		_spec.SetField(alert.FieldName, field.TypeString, value)
 	}
 	if value, ok := au.mutation.Time(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: alert.FieldTime,
-		})
+		_spec.SetField(alert.FieldTime, field.TypeTime, value)
 	}
 	if value, ok := au.mutation.IntLevel(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: alert.FieldIntLevel,
-		})
+		_spec.SetField(alert.FieldIntLevel, field.TypeInt, value)
 	}
 	if value, ok := au.mutation.AddedIntLevel(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: alert.FieldIntLevel,
-		})
+		_spec.AddField(alert.FieldIntLevel, field.TypeInt, value)
 	}
 	if value, ok := au.mutation.Username(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldUsername,
-		})
+		_spec.SetField(alert.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := au.mutation.Region(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldRegion,
-		})
+		_spec.SetField(alert.FieldRegion, field.TypeString, value)
 	}
 	if value, ok := au.mutation.ProbeOS(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldProbeOS,
-		})
+		_spec.SetField(alert.FieldProbeOS, field.TypeString, value)
 	}
 	if value, ok := au.mutation.ProbeHost(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldProbeHost,
-		})
+		_spec.SetField(alert.FieldProbeHost, field.TypeString, value)
 	}
 	if value, ok := au.mutation.Error(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldError,
-		})
+		_spec.SetField(alert.FieldError, field.TypeString, value)
 	}
 	if au.mutation.ErrorCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: alert.FieldError,
-		})
+		_spec.ClearField(alert.FieldError, field.TypeString)
 	}
 	if au.mutation.CountersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -1020,93 +970,43 @@ func (auo *AlertUpdateOne) sqlSave(ctx context.Context) (_node *Alert, err error
 		}
 	}
 	if value, ok := auo.mutation.UUID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: alert.FieldUUID,
-		})
+		_spec.SetField(alert.FieldUUID, field.TypeUUID, value)
 	}
 	if value, ok := auo.mutation.IncidentID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Value:  value,
-			Column: alert.FieldIncidentID,
-		})
+		_spec.SetField(alert.FieldIncidentID, field.TypeUUID, value)
 	}
 	if auo.mutation.IncidentIDCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeUUID,
-			Column: alert.FieldIncidentID,
-		})
+		_spec.ClearField(alert.FieldIncidentID, field.TypeUUID)
 	}
 	if value, ok := auo.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldName,
-		})
+		_spec.SetField(alert.FieldName, field.TypeString, value)
 	}
 	if value, ok := auo.mutation.Time(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: alert.FieldTime,
-		})
+		_spec.SetField(alert.FieldTime, field.TypeTime, value)
 	}
 	if value, ok := auo.mutation.IntLevel(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: alert.FieldIntLevel,
-		})
+		_spec.SetField(alert.FieldIntLevel, field.TypeInt, value)
 	}
 	if value, ok := auo.mutation.AddedIntLevel(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: alert.FieldIntLevel,
-		})
+		_spec.AddField(alert.FieldIntLevel, field.TypeInt, value)
 	}
 	if value, ok := auo.mutation.Username(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldUsername,
-		})
+		_spec.SetField(alert.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := auo.mutation.Region(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldRegion,
-		})
+		_spec.SetField(alert.FieldRegion, field.TypeString, value)
 	}
 	if value, ok := auo.mutation.ProbeOS(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldProbeOS,
-		})
+		_spec.SetField(alert.FieldProbeOS, field.TypeString, value)
 	}
 	if value, ok := auo.mutation.ProbeHost(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldProbeHost,
-		})
+		_spec.SetField(alert.FieldProbeHost, field.TypeString, value)
 	}
 	if value, ok := auo.mutation.Error(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: alert.FieldError,
-		})
+		_spec.SetField(alert.FieldError, field.TypeString, value)
 	}
 	if auo.mutation.ErrorCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Column: alert.FieldError,
-		})
+		_spec.ClearField(alert.FieldError, field.TypeString)
 	}
 	if auo.mutation.CountersCleared() {
 		edge := &sqlgraph.EdgeSpec{

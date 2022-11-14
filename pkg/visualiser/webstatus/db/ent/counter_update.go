@@ -124,25 +124,13 @@ func (cu *CounterUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := cu.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: counter.FieldName,
-		})
+		_spec.SetField(counter.FieldName, field.TypeString, value)
 	}
 	if value, ok := cu.mutation.Value(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeFloat64,
-			Value:  value,
-			Column: counter.FieldValue,
-		})
+		_spec.SetField(counter.FieldValue, field.TypeFloat64, value)
 	}
 	if value, ok := cu.mutation.AddedValue(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeFloat64,
-			Value:  value,
-			Column: counter.FieldValue,
-		})
+		_spec.AddField(counter.FieldValue, field.TypeFloat64, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -290,25 +278,13 @@ func (cuo *CounterUpdateOne) sqlSave(ctx context.Context) (_node *Counter, err e
 		}
 	}
 	if value, ok := cuo.mutation.Name(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: counter.FieldName,
-		})
+		_spec.SetField(counter.FieldName, field.TypeString, value)
 	}
 	if value, ok := cuo.mutation.Value(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeFloat64,
-			Value:  value,
-			Column: counter.FieldValue,
-		})
+		_spec.SetField(counter.FieldValue, field.TypeFloat64, value)
 	}
 	if value, ok := cuo.mutation.AddedValue(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeFloat64,
-			Value:  value,
-			Column: counter.FieldValue,
-		})
+		_spec.AddField(counter.FieldValue, field.TypeFloat64, value)
 	}
 	_node = &Counter{config: cuo.config}
 	_spec.Assign = _node.assignValues

@@ -216,7 +216,7 @@ func (c *AlertClient) DeleteOne(a *Alert) *AlertDeleteOne {
 	return c.DeleteOneID(a.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *AlertClient) DeleteOneID(id int) *AlertDeleteOne {
 	builder := c.Delete().Where(alert.ID(id))
 	builder.mutation.id = &id
@@ -248,7 +248,7 @@ func (c *AlertClient) GetX(ctx context.Context, id int) *Alert {
 // QueryCounters queries the Counters edge of a Alert.
 func (c *AlertClient) QueryCounters(a *Alert) *CounterQuery {
 	query := &CounterQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
@@ -264,7 +264,7 @@ func (c *AlertClient) QueryCounters(a *Alert) *CounterQuery {
 // QueryStati queries the Stati edge of a Alert.
 func (c *AlertClient) QueryStati(a *Alert) *StatusQuery {
 	query := &StatusQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
@@ -280,7 +280,7 @@ func (c *AlertClient) QueryStati(a *Alert) *StatusQuery {
 // QueryFailures queries the Failures edge of a Alert.
 func (c *AlertClient) QueryFailures(a *Alert) *FailureQuery {
 	query := &FailureQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
@@ -296,7 +296,7 @@ func (c *AlertClient) QueryFailures(a *Alert) *FailureQuery {
 // QueryFiles queries the Files edge of a Alert.
 func (c *AlertClient) QueryFiles(a *Alert) *FileQuery {
 	query := &FileQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
@@ -370,7 +370,7 @@ func (c *CounterClient) DeleteOne(co *Counter) *CounterDeleteOne {
 	return c.DeleteOneID(co.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *CounterClient) DeleteOneID(id int) *CounterDeleteOne {
 	builder := c.Delete().Where(counter.ID(id))
 	builder.mutation.id = &id
@@ -460,7 +460,7 @@ func (c *FailureClient) DeleteOne(f *Failure) *FailureDeleteOne {
 	return c.DeleteOneID(f.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *FailureClient) DeleteOneID(id int) *FailureDeleteOne {
 	builder := c.Delete().Where(failure.ID(id))
 	builder.mutation.id = &id
@@ -550,7 +550,7 @@ func (c *FileClient) DeleteOne(f *File) *FileDeleteOne {
 	return c.DeleteOneID(f.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *FileClient) DeleteOneID(id int) *FileDeleteOne {
 	builder := c.Delete().Where(file.ID(id))
 	builder.mutation.id = &id
@@ -640,7 +640,7 @@ func (c *IncidentClient) DeleteOne(i *Incident) *IncidentDeleteOne {
 	return c.DeleteOneID(i.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *IncidentClient) DeleteOneID(id int) *IncidentDeleteOne {
 	builder := c.Delete().Where(incident.ID(id))
 	builder.mutation.id = &id
@@ -672,7 +672,7 @@ func (c *IncidentClient) GetX(ctx context.Context, id int) *Incident {
 // QueryCounters queries the Counters edge of a Incident.
 func (c *IncidentClient) QueryCounters(i *Incident) *CounterQuery {
 	query := &CounterQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
@@ -688,7 +688,7 @@ func (c *IncidentClient) QueryCounters(i *Incident) *CounterQuery {
 // QueryStati queries the Stati edge of a Incident.
 func (c *IncidentClient) QueryStati(i *Incident) *StatusQuery {
 	query := &StatusQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
@@ -704,7 +704,7 @@ func (c *IncidentClient) QueryStati(i *Incident) *StatusQuery {
 // QueryFailures queries the Failures edge of a Incident.
 func (c *IncidentClient) QueryFailures(i *Incident) *FailureQuery {
 	query := &FailureQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
@@ -720,7 +720,7 @@ func (c *IncidentClient) QueryFailures(i *Incident) *FailureQuery {
 // QueryFiles queries the Files edge of a Incident.
 func (c *IncidentClient) QueryFiles(i *Incident) *FileQuery {
 	query := &FileQuery{config: c.config}
-	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
@@ -794,7 +794,7 @@ func (c *StatusClient) DeleteOne(s *Status) *StatusDeleteOne {
 	return c.DeleteOneID(s.ID)
 }
 
-// DeleteOne returns a builder for deleting the given entity by its id.
+// DeleteOneID returns a builder for deleting the given entity by its id.
 func (c *StatusClient) DeleteOneID(id int) *StatusDeleteOne {
 	builder := c.Delete().Where(status.ID(id))
 	builder.mutation.id = &id

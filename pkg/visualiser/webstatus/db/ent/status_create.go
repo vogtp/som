@@ -144,19 +144,11 @@ func (sc *StatusCreate) createSpec() (*Status, *sqlgraph.CreateSpec) {
 	)
 	_spec.OnConflict = sc.conflict
 	if value, ok := sc.mutation.Name(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: status.FieldName,
-		})
+		_spec.SetField(status.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
 	if value, ok := sc.mutation.Value(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: status.FieldValue,
-		})
+		_spec.SetField(status.FieldValue, field.TypeString, value)
 		_node.Value = value
 	}
 	return _node, _spec

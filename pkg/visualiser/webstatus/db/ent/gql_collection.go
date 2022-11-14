@@ -25,7 +25,7 @@ func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationCont
 	path = append([]string(nil), path...)
 	for _, field := range graphql.CollectFields(op, field.Selections, satisfies) {
 		switch field.Name {
-		case "counters", "Counters":
+		case "counters":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
@@ -37,7 +37,7 @@ func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationCont
 			a.WithNamedCounters(alias, func(wq *CounterQuery) {
 				*wq = *query
 			})
-		case "stati", "Stati":
+		case "stati":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
@@ -49,7 +49,7 @@ func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationCont
 			a.WithNamedStati(alias, func(wq *StatusQuery) {
 				*wq = *query
 			})
-		case "failures", "Failures":
+		case "failures":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
@@ -61,7 +61,7 @@ func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationCont
 			a.WithNamedFailures(alias, func(wq *FailureQuery) {
 				*wq = *query
 			})
-		case "files", "Files":
+		case "files":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
@@ -249,7 +249,7 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 	path = append([]string(nil), path...)
 	for _, field := range graphql.CollectFields(op, field.Selections, satisfies) {
 		switch field.Name {
-		case "counters", "Counters":
+		case "counters":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
@@ -261,7 +261,7 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 			i.WithNamedCounters(alias, func(wq *CounterQuery) {
 				*wq = *query
 			})
-		case "stati", "Stati":
+		case "stati":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
@@ -273,7 +273,7 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 			i.WithNamedStati(alias, func(wq *StatusQuery) {
 				*wq = *query
 			})
-		case "failures", "Failures":
+		case "failures":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
@@ -285,7 +285,7 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 			i.WithNamedFailures(alias, func(wq *FailureQuery) {
 				*wq = *query
 			})
-		case "files", "Files":
+		case "files":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
