@@ -2,7 +2,6 @@ package szenarios
 
 import (
 	"errors"
-	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
@@ -11,8 +10,7 @@ import (
 // OwaSzenario load Outlook Web Acces (on prem) and checks that the inbox is visible
 type OwaSzenario struct {
 	*szenario.Base
-	OwaURL       string
-	LoginTimeout time.Duration
+	OwaURL string
 }
 
 // Execute the szenario
