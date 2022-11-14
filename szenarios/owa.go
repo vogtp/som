@@ -1,7 +1,7 @@
 package szenarios
 
 import (
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -53,33 +53,31 @@ func (s *OwaSzenario) login(engine szenario.Engine) (err error) {
 	engine.Step("Login",
 		chromedp.WaitVisible(`#userNameInput`, chromedp.ByID),
 		chromedp.SendKeys(`#userNameInput`, s.User().Name()+"\r", chromedp.ByID),
-		chromedp.WaitReady(`#passwordInput`, chromedp.ByID),
-		chromedp.SendKeys(`#passwordInput`, s.User().Password()+"\r", chromedp.ByID),
 	)
 	loadedID := `#O365_MainLink_NavMenu,#EndOfLifeMessageDiv`
-	if s.LoginTimeout == 0 {
-		s.LoginTimeout = 2 * time.Second
-	}
-	if err := engine.StepTimeout("Check for loading", s.LoginTimeout,
-		chromedp.WaitReady(loadedID+",.errorHeader", chromedp.ByID),
-	); err != nil {
-		//set language and timezone manually
-		return fmt.Errorf("Set language and timezone manually and this will be gone: %v", err)
-		// //*[@id="selTz"]/option[49]
-		// engine.Step("Accept first login",
-		// 	chromedp.Click(`*[@id="selTz"]/option[49]`, chromedp.BySearch),
-		// 	//	chromedp.Click(`//select[@id="selTz"]/option[@value="UTC"]`, chromedp.BySearch),
-		// 	//	chromedp.Click(`document.querySelector("select#selTz > option[value="UTC"]")`, chromedp.ByQuery),
-		// 	chromedp.Click(`document.querySelector("#lgnDiv > div.hidden-submit > input[type=submit]")`, chromedp.ByJSPath),
-		// 	chromedp.WaitNotVisible("#selTz", chromedp.ByID),
-		// )
-		// engine.Step("Wait for loading", chromedp.WaitReady(loadedID+",.errorHeader", chromedp.ByID))
-	}
+	errorClass := `#error`
+	submitBu := `#nextButton`
 
-	if !engine.IsPresent(loadedID, chromedp.ByID) {
-		err = fmt.Errorf("Error page loaded")
-		engine.AddErr(err)
-		return err
+	for i := 0; i < 4; i++ {
+		engine.Step("Login",
+			chromedp.WaitReady(`#passwordInput`, chromedp.ByID),
+			chromedp.SendKeys(`#passwordInput`, s.User().Password()+"\r", chromedp.ByID),
+		)
+		option := <-engine.Either("Login Check",
+			szenario.EitherOption{ID: loadedID, Action: chromedp.WaitVisible(loadedID, chromedp.ByID)},
+			szenario.EitherOption{ID: errorClass, Action: chromedp.WaitVisible(errorClass, chromedp.ByID)},
+		)
+		if option == loadedID {
+			return nil
+		}
+		engine.Step("Login",
+			chromedp.WaitReady(submitBu, chromedp.ByID),
+			chromedp.Click(submitBu, chromedp.ByID),
+		)
+		pw := s.User().NextPassword()
+		if pw == "" {
+			break
+		}
 	}
-	return err
+	return errors.New("Login failed")
 }
