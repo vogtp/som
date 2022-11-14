@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/monitor/cdp"
@@ -22,9 +21,6 @@ func init() {
 func Run(name string, coreOpts ...core.Option) (func(), error) {
 	cfg.Parse()
 	username := viper.GetString(cfg.CheckUser)
-	if len(username) < 1 && (hcl.IsGoRun() || hcl.IsGoTest()) {
-		username = viper.GetString(cfg.CheckUser)
-	}
 	if len(username) < 1 {
 		return func() {}, fmt.Errorf("No user given. Use --%s or set it in the config", cfg.CheckUser)
 	}
@@ -46,7 +42,7 @@ func loop(c *core.Core, username string) {
 			hcl.Errorf("Szenario run: %v", err)
 			wait := 30 * time.Second
 			hcl.Errorf("Waiting %v", wait)
-			<-time.After(wait)
+			time.Sleep(wait)
 		}
 	}
 }

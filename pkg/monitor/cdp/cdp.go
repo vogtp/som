@@ -176,7 +176,7 @@ func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
 	}
 	delay := cdp.rescheduleDelay(&srw)
 	cdp.hcl.Infof("Rescheduling %s in %v", srw.sz.Name(), delay)
-	<-time.After(delay)
+	time.Sleep(delay)
 	cdp.runChan <- srw
 }
 

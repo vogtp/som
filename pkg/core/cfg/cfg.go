@@ -59,7 +59,7 @@ func processConfigFile() {
 	}
 	//autosave the current config
 	go func() {
-		<-time.After(10 * time.Second)
+		time.Sleep(10 * time.Second)
 		for {
 			if !viper.GetBool(CfgSave) {
 				hcl.Debug("Requested not to save config")
@@ -70,7 +70,7 @@ func processConfigFile() {
 			if err := viper.WriteConfigAs(viper.GetString(CfgFile)); err != nil {
 				hcl.Warnf("Could not write config: %v", err)
 			}
-			<-time.After(time.Hour)
+			time.Sleep(time.Hour)
 		}
 	}()
 }

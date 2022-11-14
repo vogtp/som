@@ -26,7 +26,7 @@ func AddCommand(c *cobra.Command) {
 }
 
 // Command adds the root command
-func Command(szCfg *szenario.Config)  {
+func Command(szCfg *szenario.Config) {
 	processFlags()
 
 	c, coreClose = core.New("somctl", core.Szenario(szCfg))
@@ -59,7 +59,7 @@ var (
 					return nil
 				})
 			}
-			<-time.After(300 * time.Millisecond)
+			time.Sleep(300 * time.Millisecond)
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
 			if !cmd.IsAvailableCommand() {
