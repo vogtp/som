@@ -21,6 +21,7 @@ import (
 	"github.com/vogtp/som/pkg/core/mime"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/monitor/szenario"
+	"github.com/vogtp/som/pkg/stater/user"
 )
 
 // Option configures the Engine
@@ -115,8 +116,33 @@ type szenarionRunWrapper struct {
 	retry     int
 }
 
-// Schedule one or more szenarios
-func (cdp *Engine) Schedule(szenarios ...szenario.Szenario) {
+// Execute runs one or more szenarios
+func (cdp *Engine) RunUser(username string) error {
+	user, err := user.Store.Get(username)
+	if err != nil {
+		return fmt.Errorf("no such user: %v", username)
+	}
+	sc := core.Get().SzenaioConfig()
+	if sc == nil || sc == szenario.NoConfig {
+		return fmt.Errorf("No szenarion config loaded!")
+	}
+	szs, err := sc.ByUser(user)
+	if err != nil {
+		return fmt.Errorf("cannot get szenarios for user %v", username)
+	}
+	cdp.schedule(szs...)
+	cdp.loop()
+	return nil
+}
+
+// Execute runs one or more szenarios
+func (cdp *Engine) Execute(szenarios ...szenario.Szenario) {
+	cdp.schedule(szenarios...)
+	cdp.loop()
+}
+
+// schedule one or more szenarios
+func (cdp *Engine) schedule(szenarios ...szenario.Szenario) {
 	cdp.hcl.Infof("Scheduling %d szenarios.", len(szenarios))
 	for _, sz := range szenarios {
 		cdp.hcl.Infof("Scheduling szenario %s", sz.Name())
@@ -124,14 +150,8 @@ func (cdp *Engine) Schedule(szenarios ...szenario.Szenario) {
 	}
 }
 
-// Execute runs one or more szenarios
-func (cdp *Engine) Execute(szenarios ...szenario.Szenario) {
-	cdp.Schedule(szenarios...)
-	cdp.Loop()
-}
-
-// Loop runs the szenarios and never returns
-func (cdp *Engine) Loop() {
+// loop runs the szenarios and never returns
+func (cdp *Engine) loop() {
 	if cdp.repeat > 0 {
 		cdp.hcl.Warnf("Starting the main szenarion loop (repeat every %v minutes)", cdp.repeat.Minutes())
 	}

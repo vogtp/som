@@ -10,7 +10,6 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
-	"github.com/vogtp/som/pkg/stater/user"
 )
 
 func init() {
@@ -48,16 +47,11 @@ func loop(c *core.Core, username string) {
 }
 
 func run(c *core.Core, username string) error {
-	user, err := user.Store.Get(username)
-	if err != nil {
-		return fmt.Errorf("no such user: %v", username)
-	}
 	cdp, cancel := cdp.New()
 	defer cancel()
-	szs, err := c.SzenaioConfig().ByUser(user)
+	err := cdp.RunUser(username)
 	if err != nil {
 		panic(err)
 	}
-	cdp.Execute(szs...)
 	return nil
 }
