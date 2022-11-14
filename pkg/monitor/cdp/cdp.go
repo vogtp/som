@@ -136,7 +136,6 @@ func (cdp *Engine) Loop() {
 		cdp.hcl.Warnf("Starting the main szenarion loop (repeat every %v minutes)", cdp.repeat.Minutes())
 	}
 	for srw := range cdp.runChan {
-		cdp.baseHcl.Infof("Running: %v", srw)
 		cdp.hcl = cdp.baseHcl.Named(srw.sz.Name())
 		cdp.szenario = srw.sz
 		cdp.stepInfo = newStepInfo(&cdp.hcl)
