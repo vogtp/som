@@ -71,8 +71,6 @@
   function updateMenu() {
     showIfDebug("mesh_info")
     showIfDebug("graphiql")
-    showIfDebug("web_components")
-    showIfDebug("debug_divider")
   }
   updateMenu()
  
@@ -124,6 +122,7 @@
       $('#autoreload').prop('checked', true );
     } else {
       $('#autoreload').prop('checked', false );
+      window.setTimeout( function() {  }, 300000);
     }
   }
   setTheme()
