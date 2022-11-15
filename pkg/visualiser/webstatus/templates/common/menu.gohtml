@@ -44,6 +44,10 @@
               <label class="form-check-label" for="theme">Dark theme</label>
               <input class="form-check-input form-switch" style="padding-left: 1rem;" type="checkbox" id="theme" checked="false" onchange="updateTheme(this)">
             </div>
+            <div class="form-check form-switch" style="margin-left: 15px; display: block;">
+              <label class="form-check-label" for="autoreload">Auto Reload</label>
+              <input class="form-check-input form-switch" style="padding-left: 1rem;" type="checkbox" id="autoreload" checked="false" onchange="updateAutoreload(this)">
+            </div>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" id="web_components" href="{{.Baseurl}}/szenario/{{.Query}}"> Web Compoments </a>
             <a class="dropdown-item" id="mesh_info" href="{{.Baseurl}}/mesh_info{{.Query}}"> Mesh </a>
@@ -88,7 +92,6 @@
     $('#debug').prop('checked', val);
   }
 
-
   function updateTheme(selectObject) {
     if ( selectObject.checked ) {
       setCookie('theme', 'dark');
@@ -108,8 +111,22 @@
     }
     $('#theme').prop('checked', val);
   }
+  
+  function updateAutoreload(selectObject) {
+    setCookie('autoreload', selectObject.checked);
+    setAutoReload()
+  }
+
+  function setAutoReload(){
+    ar = getCookie('autoreload')
+    if ( ar === "true") {
+      window.setTimeout( function() {  window.location.reload();}, 30000);
+      $('#autoreload').prop('checked', true );
+    } else {
+      $('#autoreload').prop('checked', false );
+    }
+  }
   setTheme()
   setDebug()
-
-
+  setAutoReload()
 </script>
