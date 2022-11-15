@@ -85,3 +85,15 @@ prometheus:
 web:
     port: 0
     urlpath: /
+password:
+    change: false
+    szenarios: # szeanrios to change the password
+        - ""
+    rules:
+        length: 20 # length of the password
+        numDigits: 3 # number of digits in the password
+        numSymbols: 3 # number of symbols in the password
+        upper: "" # upper case letters to be used in password ("" use default)
+        lower: "" # lower case letters to be used in password ("" use default)
+        digits: "" # digits to be used in password ("" use default)
+        symbols: "" # symbols to be used in password ("" use default)

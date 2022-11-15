@@ -49,9 +49,36 @@ const (
 	StatusTimeout = "status.timeout"
 	// StatusCleanup is the duration after which a status will be removed if no event is received
 	StatusCleanup = "status.cleanup"
+
+	// PasswdChange should the password be changed
+	PasswdChange = "password.change"
+	// PasswdChgSz szeanrios to change the password
+	PasswdChgSz = "password.szenarios"
+	// PasswdRuleUpper upper case letters to be used in password ("" use default)
+	PasswdRuleUpper = "password.rule.upper"
+	// PasswdRuleLower lower case letters to be used in password ("" use default)
+	PasswdRuleLower = "password.rule.lower"
+	// PasswdRuleDigit digits to be used in password ("" use default)
+	PasswdRuleDigit = "password.rule.digits"
+	// PasswdRuleSymbols symbols to be used in password ("" use default)
+	PasswdRuleSymbols = "password.rule.symbols"
+	// PasswdRuleLength length of the password
+	PasswdRuleLength = "password.rule.length"
+	// PasswdRuleNumSymbols number of digits in the password
+	PasswdRuleNumDigits = "password.rule.numDigits"
+	// PasswdRuleNumSymbols number of symbols in the password
+	PasswdRuleNumSymbols = "password.rule.numSymbols"
 )
 
 func init() {
+	viper.SetDefault(PasswdChange, false)
+	viper.SetDefault(PasswdChgSz, []string{})
+	viper.SetDefault(PasswdRuleUpper, "")
+	viper.SetDefault(PasswdRuleLower, "")
+	viper.SetDefault(PasswdRuleDigit, "")
+	viper.SetDefault(PasswdRuleLength, 20)
+	viper.SetDefault(PasswdRuleNumDigits, 3)
+	viper.SetDefault(PasswdRuleNumSymbols, 3)
 
 	viper.SetDefault(PromURL, "http://localhost:9090/")
 	viper.SetDefault(PromBasePath, "/")

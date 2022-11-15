@@ -19,6 +19,7 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/prometheus/client_golang v1.13.1
 	github.com/schollz/progressbar/v3 v3.12.0
+	github.com/sethvargo/go-password v0.2.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/slack-go/slack v0.11.3
 	github.com/spf13/cast v1.5.0
