@@ -52,7 +52,7 @@ func (s *OwaSzenario) login(engine szenario.Engine) (err error) {
 		chromedp.WaitVisible(`#userNameInput`, chromedp.ByID),
 		chromedp.SendKeys(`#userNameInput`, s.User().Name()+"\r", chromedp.ByID),
 	)
-	loadedID := `#O365_MainLink_NavMenu,#EndOfLifeMessageDiv`
+	loadedID := `#O365_MainLink_NavMenu,#EndOfLifeMessageDiv,#lnkHdrcheckmessages`
 	errorClass := `#error`
 	submitBu := `#nextButton`
 
