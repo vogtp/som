@@ -131,6 +131,9 @@ func (cdp *Engine) RunUser(username string) error {
 	if err != nil {
 		return fmt.Errorf("cannot get szenarios for user %v", username)
 	}
+	if viper.GetBool(cfg.PasswdChange) {
+		go cdp.passwordChangeLoop(user)
+	}
 	cdp.schedule(szs...)
 	cdp.loop()
 	return nil
@@ -188,7 +191,6 @@ func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
 }
 
 func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
-	cdp.hcl.Errorf("PW Change sz %v: %v",srw.sz.Name(), srw.pwChange)
 	if srw.pwChange {
 		cdp.hcl.Infof("%s is a password change szenario, resceduling elsewhere", srw.sz.Name())
 		return
