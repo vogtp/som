@@ -22,6 +22,10 @@ type User interface {
 	// retruns empty string "" if no more passwords are present
 	NextPassword() string
 
+	// NewPassword generates a new password
+	// it does not store the password
+	NewPassword() (string, error)
+
 	// PasswordHistoryCount returns the number of PW in the history
 	PasswordHistoryCount() int
 
