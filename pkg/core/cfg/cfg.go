@@ -57,22 +57,24 @@ func processConfigFile() {
 			hcl.Warnf("config error: %v", err)
 		}
 	}
-	//autosave the current config
-	go func() {
-		time.Sleep(10 * time.Second)
-		for {
-			if !viper.GetBool(CfgSave) {
-				hcl.Debug("Requested not to save config")
-				return
+	if viper.GetBool(CfgSave) {
+		//autosave the current config
+		go func() {
+			time.Sleep(10 * time.Second)
+			for {
+				if !viper.GetBool(CfgSave) {
+					hcl.Debug("Requested not to save config")
+					return
+				}
+				// should we write it regular and overwrite?
+				hcl.Info("Writing config")
+				if err := viper.WriteConfigAs(viper.GetString(CfgFile)); err != nil {
+					hcl.Warnf("Could not write config: %v", err)
+				}
+				time.Sleep(time.Hour)
 			}
-			// should we write it regular and overwrite?
-			hcl.Info("Writing config")
-			if err := viper.WriteConfigAs(viper.GetString(CfgFile)); err != nil {
-				hcl.Warnf("Could not write config: %v", err)
-			}
-			time.Sleep(time.Hour)
-		}
-	}()
+		}()
+	}
 }
 
 // HclOptions configures the HCL logger (using commandline flags)
