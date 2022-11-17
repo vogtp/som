@@ -37,7 +37,7 @@ func (us *client) Get(name string) (*User, error) {
 	defer p.Disconnect()
 	user := new(User)
 	err := p.Send(grav.NewMsg(msgtype.UserRequest, []byte(name))).WaitUntil(defaultTimeout, func(m grav.Message) error {
-		hcl.Tracef("Reply for user %s: %T %+v", name, m,string( m.Data()))
+		hcl.Tracef("Reply for user %s: %T %+v", name, m, string(m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:
 			return m.UnmarshalData(user)
@@ -60,13 +60,13 @@ func (us *client) Get(name string) (*User, error) {
 	return user, nil
 }
 
-// Add a user to the store
-func (us *client) Add(u *User) error {
+// Save a user to the store
+func (us *client) Save(u *User) error {
 	hcl := core.Get().HCL().Named("user.client")
 	if err := u.IsValid(); err != nil {
 		return fmt.Errorf("user is not valid: %w", err)
 	}
-	hcl.Debugf("Adding user: %v", u.Name())
+	hcl.Debugf("Saving user: %v", u.Name())
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	b, err := json.Marshal(u)

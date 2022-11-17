@@ -104,7 +104,7 @@ var userAdd = &cobra.Command{
 		if err := u.IsValid(); err != nil {
 			return fmt.Errorf("user is not valid: %w", err)
 		}
-		err = user.Store.Add(u)
+		err = user.Store.Save(u)
 		if err != nil {
 			return fmt.Errorf("cannot add user %s: %v", name, err)
 		}

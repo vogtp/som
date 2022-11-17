@@ -35,6 +35,13 @@ type User interface {
 	// PasswordLastUse returns the time when the password was last accessed
 	PasswordLastUse() time.Time
 
+	// ResetPasswordIndex start with the first password
+	// and reset the number of failed logins to 0
+	ResetPasswordIndex()
+
+	// FailedLogins the number of failed logins
+	FailedLogins() int
+
 	// SetPassword encrypts the password
 	SetPassword(pw string)
 
@@ -43,4 +50,7 @@ type User interface {
 
 	// IsValid checks if all needed fields are set
 	IsValid() error
+
+	// Save the user to the store
+	Save() error
 }

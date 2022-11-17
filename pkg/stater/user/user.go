@@ -88,6 +88,17 @@ func (u *User) PasswordLastUse() time.Time {
 	return u.History[u.pwIdx].LastUse
 }
 
+// ResetPasswordIndex start with the first password
+// and reset the number of failed logins to 0
+func (u *User) ResetPasswordIndex() {
+	u.pwIdx = 0
+}
+
+// FailedLogins the number of failed logins
+func (u User) FailedLogins() int {
+	return u.pwIdx
+}
+
 // SetPassword encrypts the password
 func (u *User) SetPassword(pw string) {
 	// u.Passwd = encrypt([]byte(pw), core.Keystore.Key())
@@ -96,6 +107,15 @@ func (u *User) SetPassword(pw string) {
 		Created: time.Now(),
 	}
 	u.History = append([]*PwEntry{&pe}, u.History...)
+	core.Get().HCL().Warnf("Change password of user %s", u.Name())
+}
+
+// Save the user to the store
+func (u *User) Save() error {
+	if err := Store.Save(u); err != nil {
+		return fmt.Errorf("cannot save %s: %w", u.Name(), err)
+	}
+	return nil
 }
 
 // String implements stringer
