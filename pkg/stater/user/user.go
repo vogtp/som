@@ -106,7 +106,9 @@ func (u *User) SetPassword(pw string) {
 		Passwd:  encrypt([]byte(pw), core.Keystore.Key()),
 		Created: time.Now(),
 	}
-	u.History = append([]*PwEntry{&pe}, u.History...)
+	if len(u.History) < 1 || string(u.History[0].Passwd) != string(pe.Passwd) {
+		u.History = append([]*PwEntry{&pe}, u.History...)
+	}
 	core.Get().HCL().Warnf("Change password of user %s", u.Name())
 }
 
