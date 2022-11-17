@@ -87,6 +87,7 @@ web:
     urlpath: /
 password:
     change: false
+    intervall: 12h # change the password after this delay and repeat with it
     szenarios: # szeanrios to change the password
         - ""
     rules:
