@@ -16,6 +16,7 @@ import (
 
 const (
 	downValue = 0
+	step      = "step"
 )
 
 // RegisterPrometheus registers NetCrunch Messages on the eventbus
@@ -64,8 +65,6 @@ func (p *prometheusBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 	// histogram is not useful here
 	// p.setHistogramVec(e)
 }
-
-const step = "step"
 
 func stepToLabel(s string) string {
 	l := s[len(step)+1:]
