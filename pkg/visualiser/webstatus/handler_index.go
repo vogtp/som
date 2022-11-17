@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/bridger"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
@@ -39,6 +40,9 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 	for _, stat := range s.data.Status.Szenarios() {
 		szName := stat.Key()
+		if szName == cdp.PasswordChangeSzenarioName {
+			continue
+		}
 		avail, found := s.data.Availabilites[szName]
 		if !found {
 			avail = stat.Availability()
