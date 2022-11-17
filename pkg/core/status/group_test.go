@@ -105,8 +105,6 @@ func TestGroup_JSON(t *testing.T) {
 	}{
 		{"dow", []Grouper{downGrp, okGrp, warnGrp}, Warning},
 		{"dowo", []Grouper{downGrp, okGrp, warnGrp, okGrp}, Issues},
-		{"eO", []Grouper{evtGrpOK}, Unknown},
-		{"eOw", []Grouper{evtGrpOK, warnGrp}, OK},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -1,4 +1,4 @@
-package cdp
+package cdp_test
 
 import (
 	"fmt"
@@ -17,6 +17,7 @@ import (
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 	"github.com/vogtp/som/pkg/visualiser"
@@ -75,9 +76,9 @@ func NewSzenario(n string, exec szenario.JobFunc) szenario.Szenario {
 	return &testSz{name: n, exec: exec}
 }
 
-func initEnv(t *testing.T) (*core.Bus, []Option, func()) {
-	opts := make([]Option, 0)
-	opts = append(opts, Timeout(120*time.Second))
+func initEnv(t *testing.T) (*core.Bus, []cdp.Option, func()) {
+	opts := make([]cdp.Option, 0)
+	opts = append(opts, cdp.Timeout(120*time.Second))
 
 	hcl := hcl.New(hcl.WithName(t.Name()), hcl.WithLevel(hclog.Warn))
 	c, close := core.New("som-test", core.HCL(hcl))
@@ -99,7 +100,7 @@ func cleanupOutFolder() {
 func TestTimeOut(t *testing.T) {
 	bus, opts, cleanupEnv := initEnv(t)
 	defer cleanupEnv()
-	opts = append(opts, Timeout(2*time.Second))
+	opts = append(opts, cdp.Timeout(2*time.Second))
 
 	htmlData := "MyAnswer"
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +108,7 @@ func TestTimeOut(t *testing.T) {
 	}))
 	defer srv.Close()
 	timeout := false
-	cdp, cancel := New(opts...)
+	cdp, cancel := cdp.New(opts...)
 	defer cancel()
 
 	sz := NewSzenario("TestTimeOut",
@@ -155,7 +156,7 @@ func TestBodyDump(t *testing.T) {
 	}))
 	defer srv.Close()
 	var srvErr error
-	cdp, cancel := New(opts...)
+	cdp, cancel := cdp.New(opts...)
 	defer cancel()
 	sz := NewSzenario("TestBody",
 		func(cdp szenario.Engine) error {
@@ -221,7 +222,7 @@ trow("testException")
 	}))
 	defer srv.Close()
 	var srvErr error
-	cdp, cancel := New(opts...)
+	cdp, cancel := cdp.New(opts...)
 	defer cancel()
 	sz := NewSzenario("TestBody",
 		func(cdp szenario.Engine) error {
@@ -274,7 +275,7 @@ type bodyTestCase struct {
 func TestBody(t *testing.T) {
 	bus, opts, cleanupEnv := initEnv(t)
 	defer cleanupEnv()
-	cdp, cancel := New(opts...)
+	cdp, cancel := cdp.New(opts...)
 	defer cancel()
 	tests := []bodyTestCase{
 		{
@@ -327,7 +328,7 @@ func TestBody(t *testing.T) {
 
 }
 
-func runTestBody(t *testing.T, bus *core.Bus, cdp *Engine, tc *bodyTestCase) {
+func runTestBody(t *testing.T, bus *core.Bus, cdp *cdp.Engine, tc *bodyTestCase) {
 	if err := core.EnsureOutFolder(testOutFolder); err != nil {
 		t.Error(err)
 	}
@@ -361,7 +362,7 @@ func runTestBody(t *testing.T, bus *core.Bus, cdp *Engine, tc *bodyTestCase) {
 			srvErr = e.Err()
 		}
 	})
-	cdp.runChan = make(chan szenarionRunWrapper, 100)
+	//cdp.runChan = make(chan szenarionRunWrapper, 100)
 	cdp.Execute(sz)
 	bus.Szenario.WaitMsgProcessed()
 	if !called {
@@ -412,7 +413,7 @@ func TestReporter(t *testing.T) {
 	ncDummy.StartTLS()
 	defer srv.Close()
 	var srvErr error
-	cdp, cancel := New(opts...)
+	cdp, cancel := cdp.New(opts...)
 	defer cancel()
 	sz := NewSzenario("TestBody",
 		func(cdp szenario.Engine) error {
@@ -440,7 +441,7 @@ func TestReporter(t *testing.T) {
 func TestRepeat(t *testing.T) {
 	bus, opts, cleanupEnv := initEnv(t)
 	defer cleanupEnv()
-	opts = append(opts, Repeat(1*time.Second), Timeout(3*time.Second))
+	opts = append(opts, cdp.Repeat(1*time.Second), cdp.Timeout(3*time.Second))
 	htmlData := `<html>
 <body>
 <h1 id="h1id">title</h1>
@@ -451,8 +452,8 @@ func TestRepeat(t *testing.T) {
 		fmt.Fprint(w, htmlData)
 		calls++
 	}))
-	cdp, cancel := New(opts...)
-	cdp.repeat = 1 * time.Second
+	opts = append(opts, cdp.Repeat(time.Second))
+	cdp, cancel := cdp.New(opts...)
 	sz := NewSzenario("TestBody",
 		func(cdp szenario.Engine) error {
 			cdp.Step("Open", chromedp.Navigate(srv.URL))
