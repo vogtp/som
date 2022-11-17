@@ -23,8 +23,8 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 		pwAge := time.Since(cdp.szenario.User().PasswordCreated())
 		cdp.evtMsg.SetCounter("logins.passwordage", float64(pwAge.Seconds()))
 		cdp.evtMsg.SetStatus("logins.passwordage", fmt.Sprintf("%v", pwAge))
-		cdp.hcl.Errorf("Failed logins: %v", failedLogins)
-		cdp.hcl.Errorf("Password Age: %v", pwAge)
+		cdp.hcl.Warnf("Failed logins: %v", failedLogins)
+		cdp.hcl.Warnf("Password Age: %v", pwAge)
 	}
 	for k, v := range cdp.stepInfo.stepTimes {
 		if v > 0 {

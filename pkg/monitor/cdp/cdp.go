@@ -114,6 +114,7 @@ type szenarionRunWrapper struct {
 	sz        szenario.Szenario
 	lastRunOk bool
 	retry     int
+	pwChange  bool
 }
 
 // Execute runs one or more szenarios
@@ -187,6 +188,11 @@ func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
 }
 
 func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
+	cdp.hcl.Errorf("PW Change sz %v: %v",srw.sz.Name(), srw.pwChange)
+	if srw.pwChange {
+		cdp.hcl.Infof("%s is a password change szenario, resceduling elsewhere", srw.sz.Name())
+		return
+	}
 	if cdp.repeat < 1 {
 		if len(cdp.runChan) < 1 {
 			cdp.baseHcl.Infof("No more szenarios, closing the run channel")
