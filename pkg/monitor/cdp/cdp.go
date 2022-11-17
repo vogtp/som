@@ -213,6 +213,7 @@ func (cdp *Engine) run() bool {
 	defer timeoutCancel()
 
 	now := time.Now()
+	cdp.szenario.User().ResetPasswordIndex()
 	defer cdp.reportResults(now) // catches the panic
 	if err := cdp.szenario.Execute(cdp); err != nil {
 		cdp.hcl.Errorf("Szenario %s returned error: %v", cdp.szenario.Name(), err)

@@ -1,6 +1,7 @@
 package cdp
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -16,6 +17,15 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 		status = cdp.evtMsg.Err().Error()
 	}
 	cdp.evtMsg.SetCounter("step.total", totalDuration.Seconds())
+	failedLogins := cdp.szenario.User().FailedLogins()
+	cdp.evtMsg.SetCounter("logins.failed", float64(failedLogins))
+	if failedLogins > 0 {
+		pwAge := time.Since(cdp.szenario.User().PasswordCreated())
+		cdp.evtMsg.SetCounter("logins.passwordage", float64(pwAge.Seconds()))
+		cdp.evtMsg.SetStatus("logins.passwordage", fmt.Sprintf("%v", pwAge))
+		cdp.hcl.Errorf("Failed logins: %v", failedLogins)
+		cdp.hcl.Errorf("Password Age: %v", pwAge)
+	}
 	for k, v := range cdp.stepInfo.stepTimes {
 		if v > 0 {
 			cdp.evtMsg.SetCounter("step."+k, v)
