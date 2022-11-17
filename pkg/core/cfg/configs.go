@@ -55,19 +55,19 @@ const (
 	// PasswdChgSz szeanrios to change the password
 	PasswdChgSz = "password.szenarios"
 	// PasswdRuleUpper upper case letters to be used in password ("" use default)
-	PasswdRuleUpper = "password.rule.upper"
+	PasswdRuleUpper = "password.rules.upper"
 	// PasswdRuleLower lower case letters to be used in password ("" use default)
-	PasswdRuleLower = "password.rule.lower"
+	PasswdRuleLower = "password.rules.lower"
 	// PasswdRuleDigit digits to be used in password ("" use default)
-	PasswdRuleDigit = "password.rule.digits"
+	PasswdRuleDigit = "password.rules.digits"
 	// PasswdRuleSymbols symbols to be used in password ("" use default)
-	PasswdRuleSymbols = "password.rule.symbols"
+	PasswdRuleSymbols = "password.rules.symbols"
 	// PasswdRuleLength length of the password
-	PasswdRuleLength = "password.rule.length"
+	PasswdRuleLength = "password.rules.length"
 	// PasswdRuleNumSymbols number of digits in the password
-	PasswdRuleNumDigits = "password.rule.numDigits"
+	PasswdRuleNumDigits = "password.rules.numDigits"
 	// PasswdRuleNumSymbols number of symbols in the password
-	PasswdRuleNumSymbols = "password.rule.numSymbols"
+	PasswdRuleNumSymbols = "password.rules.numSymbols"
 )
 
 func init() {
