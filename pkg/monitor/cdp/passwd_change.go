@@ -74,6 +74,10 @@ func (cdp *Engine) passwordChangeLoop(user *user.User) {
 	}
 
 	pwChgSz.runWrapper = szenarionRunWrapper{sz: pwChgSz, pwChange: true}
+	if viper.GetDuration(cfg.PasswdChangeInitalDelay) > -1 {
+		delay = viper.GetDuration(cfg.PasswdChangeInitalDelay)
+		hcl.Warnf("Setting initial delay to %v --> ONLY USE THIS IN DEBUGGIN!", delay)
+	}
 	time.Sleep(delay)
 	cdp.runChan <- pwChgSz.runWrapper
 }
