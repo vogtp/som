@@ -34,7 +34,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		PromURL   string
 		Szenarios []indexValue
 	}{
-		commonData: common("SOM Szenarios", r),
+		commonData: common("", r),
 		PromURL:    fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 	}
 

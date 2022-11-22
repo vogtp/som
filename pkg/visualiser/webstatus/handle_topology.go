@@ -30,7 +30,7 @@ func (s *WebStatus) handleTopology(w http.ResponseWriter, r *http.Request) {
 		TimeFormat string
 		Status     *statusData
 	}{
-		commonData: common("SOM Topology", r),
+		commonData: common("", r),
 		TimeFormat: cfg.TimeFormatString,
 		Status:     prepaireStatus(s.data.Status),
 	}
