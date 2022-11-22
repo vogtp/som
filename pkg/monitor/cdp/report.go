@@ -18,13 +18,12 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 	}
 	cdp.evtMsg.SetCounter("step.total", totalDuration.Seconds())
 	failedLogins := cdp.szenario.User().FailedLogins()
+	pwAge := time.Since(cdp.szenario.User().PasswordCreated())
 	cdp.evtMsg.SetCounter("logins.failed", float64(failedLogins))
-	if failedLogins > 0 {
-		pwAge := time.Since(cdp.szenario.User().PasswordCreated())
-		cdp.evtMsg.SetCounter("logins.passwordage", float64(pwAge.Seconds()))
-		cdp.evtMsg.SetStatus("logins.passwordage", fmt.Sprintf("%v", pwAge))
-		cdp.hcl.Warnf("Failed logins: %v (password Age: %v)", failedLogins, pwAge)
-	}
+	cdp.evtMsg.SetCounter("logins.passwordage", float64(pwAge.Seconds()))
+	cdp.evtMsg.SetStatus("logins.passwordage", fmt.Sprintf("%v", pwAge))
+	cdp.hcl.Warnf("Failed logins: %v (password Age: %v)", failedLogins, pwAge)
+
 	for k, v := range cdp.stepInfo.stepTimes {
 		if v > 0 {
 			cdp.evtMsg.SetCounter("step."+k, v)
