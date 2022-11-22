@@ -51,7 +51,6 @@ type Engine struct {
 	// flags
 	headless      bool
 	noClose       bool
-	repeat        time.Duration
 	timeout       time.Duration
 	stepDelay     time.Duration
 	timeoutTicker *time.Ticker
@@ -74,7 +73,6 @@ func New(opts ...Option) (*Engine, context.CancelFunc) {
 		headless:   !viper.GetBool(cfg.BrowserShow),
 		noClose:    viper.GetBool(cfg.BrowserNoClose),
 		timeout:    viper.GetDuration(cfg.CheckTimeout),
-		repeat:     viper.GetDuration(cfg.CheckRepeat),
 		stepDelay:  viper.GetDuration(cfg.CheckStepDelay),
 	}
 
@@ -115,7 +113,6 @@ type szenarionRunWrapper struct {
 	sz        szenario.Szenario
 	lastRunOk bool
 	retry     int
-	pwChange  bool
 }
 
 // Execute runs one or more szenarios
@@ -157,9 +154,6 @@ func (cdp *Engine) schedule(szenarios ...szenario.Szenario) {
 
 // loop runs the szenarios and never returns
 func (cdp *Engine) loop() {
-	if cdp.repeat > 0 {
-		cdp.hcl.Warnf("Starting the main szenarion loop (repeat every %v minutes)", cdp.repeat.Minutes())
-	}
 	for srw := range cdp.runChan {
 		cdp.hcl = cdp.baseHcl.Named(srw.sz.Name())
 		cdp.szenario = srw.sz
@@ -176,8 +170,11 @@ func (cdp *Engine) loop() {
 }
 
 func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
-	delay := cdp.repeat
+	delay := srw.sz.RepeatDelay()
 	if srw.lastRunOk {
+		return delay
+	}
+	if _, ok := srw.sz.(*passwdChgSzenario); ok {
 		return delay
 	}
 	srw.retry++
@@ -192,15 +189,7 @@ func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
 }
 
 func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
-	if pwc, ok := srw.sz.(*passwdChgSzenario); ok {
-		pwc.reschedule()
-		return
-	}
-	if srw.pwChange {
-		cdp.baseHcl.Infof("%s is a password change szenario, resceduling elsewhere", srw.sz.Name())
-		return
-	}
-	if cdp.repeat < 1 {
+	if srw.sz.RepeatDelay() < 1 {
 		if len(cdp.runChan) < 1 {
 			cdp.baseHcl.Infof("No more szenarios, closing the run channel")
 			close(cdp.runChan)

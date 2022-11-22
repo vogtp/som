@@ -2,8 +2,11 @@ package szenario
 
 import (
 	"fmt"
+	"time"
 
+	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/cfg"
 )
 
 type setNamer interface {
@@ -38,9 +41,10 @@ func (c Config) Add(name string, s Szenario, ut []*UserType) Szenario {
 
 // Base is the base type of all szenarios
 type Base struct {
-	name       string
-	user       User
-	LoginRetry int
+	name        string
+	user        User
+	CheckRepeat time.Duration
+	LoginRetry  int
 }
 
 // SetName do not call!
@@ -73,4 +77,12 @@ func (s Base) MaxLoginTry() int {
 		return s.LoginRetry
 	}
 	return 4
+}
+
+// RepeatDelay between executions
+func (s Base) RepeatDelay() time.Duration {
+	if s.CheckRepeat > 0 {
+		return s.CheckRepeat
+	}
+	return viper.GetDuration(cfg.CheckRepeat)
 }

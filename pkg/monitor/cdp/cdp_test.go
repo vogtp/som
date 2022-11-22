@@ -45,9 +45,10 @@ func init() {
 }
 
 type testSz struct {
-	name string
-	user szenario.User
-	exec szenario.JobFunc
+	name   string
+	user   szenario.User
+	exec   szenario.JobFunc
+	repeat time.Duration
 }
 
 // Name returns the name
@@ -77,8 +78,13 @@ func (s *testSz) Execute(cdp szenario.Engine) (err error) {
 	return s.exec(cdp)
 }
 
-func NewSzenario(n string, exec szenario.JobFunc) szenario.Szenario {
-	return &testSz{name: n, exec: exec}
+// RepeatDelay between executions
+func (s *testSz) RepeatDelay() time.Duration {
+	return s.repeat
+}
+
+func NewSzenario(n string, exec szenario.JobFunc) *testSz {
+	return &testSz{name: n, exec: exec, repeat: 5 * time.Minute}
 }
 
 func initEnv(t *testing.T) (*core.Bus, []cdp.Option, func()) {
@@ -446,7 +452,7 @@ func TestReporter(t *testing.T) {
 func TestRepeat(t *testing.T) {
 	bus, opts, cleanupEnv := initEnv(t)
 	defer cleanupEnv()
-	opts = append(opts, cdp.Repeat(1*time.Second), cdp.Timeout(3*time.Second))
+	opts = append(opts, cdp.Timeout(3*time.Second))
 	htmlData := `<html>
 <body>
 <h1 id="h1id">title</h1>
@@ -457,7 +463,6 @@ func TestRepeat(t *testing.T) {
 		fmt.Fprint(w, htmlData)
 		calls++
 	}))
-	opts = append(opts, cdp.Repeat(time.Second))
 	cdp, cancel := cdp.New(opts...)
 	sz := NewSzenario("TestBody",
 		func(cdp szenario.Engine) error {
@@ -466,6 +471,7 @@ func TestRepeat(t *testing.T) {
 			return nil
 		},
 	)
+	sz.repeat = time.Second
 	sz.SetUser(testUser)
 	end := make(chan bool)
 	evtCalls := 0

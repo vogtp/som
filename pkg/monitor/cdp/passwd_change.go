@@ -16,8 +16,8 @@ const (
 
 type passwdChgSzenario struct {
 	*szenario.Base
-	cdp        *Engine
-	delay      time.Duration
+	cdp *Engine
+	//	delay      time.Duration
 	szenarios  []szenario.Szenario
 	runWrapper szenarionRunWrapper
 }
@@ -33,15 +33,7 @@ func (s *passwdChgSzenario) Execute(engine szenario.Engine) (err error) {
 			engine.AddErr(err)
 		}
 	}
-	// go s.reschedule()
 	return nil
-}
-
-func (s *passwdChgSzenario) reschedule() {
-	hcl := s.cdp.baseHcl
-	hcl.Warnf("Reschedule password change in %v", s.delay)
-	time.Sleep(s.delay)
-	s.cdp.runChan <- s.runWrapper
 }
 
 func (cdp *Engine) passwordChangeLoop(user *user.User) {
@@ -53,9 +45,10 @@ func (cdp *Engine) passwordChangeLoop(user *user.User) {
 	hcl.Warnf("Staring password change loop for %s (every %v)", user.Name(), delay)
 
 	pwChgSz := &passwdChgSzenario{
-		Base:  &szenario.Base{},
-		cdp:   cdp,
-		delay: delay,
+		Base: &szenario.Base{
+			CheckRepeat: delay,
+		},
+		cdp: cdp,
 	}
 	pwChgSz.SetName(PasswordChangeSzenarioName)
 	pwChgSz.SetUser(user)
@@ -78,7 +71,7 @@ func (cdp *Engine) passwordChangeLoop(user *user.User) {
 		return
 	}
 
-	pwChgSz.runWrapper = szenarionRunWrapper{sz: pwChgSz, pwChange: true}
+	pwChgSz.runWrapper = szenarionRunWrapper{sz: pwChgSz}
 	if viper.GetDuration(cfg.PasswdChangeInitalDelay) > -1 {
 		delay = viper.GetDuration(cfg.PasswdChangeInitalDelay)
 		hcl.Warnf("Setting initial delay to %v --> ONLY USE THIS IN DEBUGGIN!", delay)
