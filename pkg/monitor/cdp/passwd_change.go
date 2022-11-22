@@ -33,7 +33,7 @@ func (s *passwdChgSzenario) Execute(engine szenario.Engine) (err error) {
 			engine.AddErr(err)
 		}
 	}
-	go s.reschedule()
+	// go s.reschedule()
 	return nil
 }
 

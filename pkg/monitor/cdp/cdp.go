@@ -192,6 +192,10 @@ func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
 }
 
 func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
+	if pwc, ok := srw.sz.(*passwdChgSzenario); ok {
+		pwc.reschedule()
+		return
+	}
 	if srw.pwChange {
 		cdp.baseHcl.Infof("%s is a password change szenario, resceduling elsewhere", srw.sz.Name())
 		return
