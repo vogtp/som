@@ -44,6 +44,7 @@ var szenarioRun = &cobra.Command{
 		}
 		var sz []szenario.Szenario
 		szConfig := core.Get().SzenaioConfig()
+		ut:=user.UserType
 		for _, n := range args {
 			user.UserType = n
 			usz, err := szConfig.ByUser(user)
@@ -62,7 +63,7 @@ var szenarioRun = &cobra.Command{
 				return fmt.Errorf("no such szenario: %v\nPossible values: %s", n, possibeSzenarioNames())
 			}
 		}
-
+		user.UserType = ut
 		if len(sz) < 1 {
 			return fmt.Errorf("no such szenario: %v\nPossible values: %s", strings.Join(args, " "), possibeSzenarioNames())
 		}
