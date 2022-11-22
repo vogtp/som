@@ -33,10 +33,15 @@ func (s *passwdChgSzenario) Execute(engine szenario.Engine) (err error) {
 			engine.AddErr(err)
 		}
 	}
-	hcl.Warnf("Reschedule password chanmge in %v", s.delay)
+	go s.reschedule()
+	return nil
+}
+
+func (s *passwdChgSzenario) reschedule() {
+	hcl := s.cdp.baseHcl
+	hcl.Warnf("Reschedule password change in %v", s.delay)
 	time.Sleep(s.delay)
 	s.cdp.runChan <- s.runWrapper
-	return nil
 }
 
 func (cdp *Engine) passwordChangeLoop(user *user.User) {
