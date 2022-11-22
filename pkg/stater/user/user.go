@@ -58,7 +58,6 @@ func (u *User) NextPassword() string {
 	}
 	u.pwIdx++
 	cur := u.History[u.pwIdx]
-	cur.LastUse = time.Now()
 	return string(decrypt(cur.Passwd, core.Keystore.Key()))
 }
 
@@ -68,9 +67,13 @@ func (u *User) Password() string {
 		return ""
 	}
 	cur := u.History[u.pwIdx]
-	cur.LastUse = time.Now()
 	return string(decrypt(cur.Passwd, core.Keystore.Key()))
 	// return string(decrypt(u.Passwd, core.Keystore.Key()))
+}
+
+// LoginSuccessfull sets the last use of the password
+func (u *User) LoginSuccessfull() {
+	u.History[u.pwIdx].LastUse = time.Now()
 }
 
 // PasswordHistoryCount returns the number of PW in the history

@@ -22,6 +22,9 @@ type User interface {
 	// retruns empty string "" if no more passwords are present
 	NextPassword() string
 
+	// LoginSuccessfull sets the last use of the password
+	LoginSuccessfull()
+
 	// NewPassword generates a new password
 	// it does not store the password
 	NewPassword() (string, error)

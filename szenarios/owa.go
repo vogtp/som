@@ -66,6 +66,7 @@ func (s *OwaSzenario) login(engine szenario.Engine) (err error) {
 			szenario.EitherOption{ID: errorClass, Action: chromedp.WaitVisible(errorClass, chromedp.ByID)},
 		)
 		if option == loadedID {
+			s.User().LoginSuccessfull()
 			return nil
 		}
 		engine.Step("Login",

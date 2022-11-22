@@ -216,6 +216,11 @@ func (cdp *Engine) run() bool {
 
 	now := time.Now()
 	cdp.szenario.User().ResetPasswordIndex()
+	defer func() {
+		if err := cdp.szenario.User().Save(); err != nil {
+			cdp.hcl.Warnf("Cannot save user after szenario run: %v", err)
+		}
+	}()
 	defer cdp.reportResults(now) // catches the panic
 	if err := cdp.szenario.Execute(cdp); err != nil {
 		cdp.hcl.Errorf("Szenario %s returned error: %v", cdp.szenario.Name(), err)
