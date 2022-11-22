@@ -19,10 +19,8 @@ func Command() *cobra.Command {
 	userCtl.AddCommand(userList)
 	userCtl.AddCommand(userShow)
 	userCtl.AddCommand(userAdd)
-	if hcl.IsGoRun() {
-		// show password is only supported in debugging
-		userShow.AddCommand(userShowPw)
-	}
+	userShow.AddCommand(userShowPw)
+
 	return userCtl
 }
 
@@ -125,9 +123,18 @@ var userShowPw = &cobra.Command{
 			return fmt.Errorf("cannot set password of user %s: %v", name, err)
 		}
 		fmt.Printf("\n%s: %s\n", name, u.String())
-		fmt.Printf("  %-20s (Created: %s LastUse: %s)\n", u.Password(), u.PasswordCreated().Format(cfg.TimeFormatString), u.PasswordLastUse().Format(cfg.TimeFormatString))
+		pw := u.Password()
+		if !hcl.IsGoRun() {
+			// show password is only supported in debugging
+			pw = "********"
+		}
+		fmt.Printf("  %-20s (Created: %s LastUse: %s)\n", pw, u.PasswordCreated().Format(cfg.TimeFormatString), u.PasswordLastUse().Format(cfg.TimeFormatString))
 		fmt.Println("History:")
 		for pw := u.NextPassword(); pw != ""; pw = u.NextPassword() {
+			if !hcl.IsGoRun() {
+				// show password is only supported in debugging
+				pw = "********"
+			}
 			fmt.Printf("  %-20s (Created: %s LastUse: %s)\n", pw, u.PasswordCreated().Format(cfg.TimeFormatString), u.PasswordLastUse().Format(cfg.TimeFormatString))
 		}
 		return nil
