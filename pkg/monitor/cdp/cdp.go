@@ -48,10 +48,11 @@ type Engine struct {
 	mu     sync.Mutex
 	evtMsg *msg.SzenarioEvtMsg
 
+	timeout time.Duration
+
 	// flags
 	headless      bool
 	noClose       bool
-	timeout       time.Duration
 	stepDelay     time.Duration
 	timeoutTicker *time.Ticker
 	sendReport    bool
@@ -72,7 +73,6 @@ func New(opts ...Option) (*Engine, context.CancelFunc) {
 		consMsg:    make(map[string]int),
 		headless:   !viper.GetBool(cfg.BrowserShow),
 		noClose:    viper.GetBool(cfg.BrowserNoClose),
-		timeout:    viper.GetDuration(cfg.CheckTimeout),
 		stepDelay:  viper.GetDuration(cfg.CheckStepDelay),
 	}
 
@@ -211,7 +211,7 @@ func (cdp *Engine) run() bool {
 	cdp.evtMsg = msg.NewSzenarioEvtMsg(cdp.szenario.Name(), cdp.szenario.User().Name(), time.Now())
 	engineCancel := cdp.createEngine()
 	defer engineCancel()
-	timeoutCancel := cdp.TimeOut(cdp.timeout)
+	timeoutCancel := cdp.TimeOut(cdp.szenario.Timeout())
 	defer timeoutCancel()
 
 	now := time.Now()

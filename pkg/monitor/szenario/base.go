@@ -41,10 +41,11 @@ func (c Config) Add(name string, s Szenario, ut []*UserType) Szenario {
 
 // Base is the base type of all szenarios
 type Base struct {
-	name        string
-	user        User
-	CheckRepeat time.Duration
-	LoginRetry  int
+	name         string
+	user         User
+	CheckRepeat  time.Duration
+	CheckTimeout time.Duration
+	LoginRetry   int
 }
 
 // SetName do not call!
@@ -85,4 +86,12 @@ func (s Base) RepeatDelay() time.Duration {
 		return s.CheckRepeat
 	}
 	return viper.GetDuration(cfg.CheckRepeat)
+}
+
+// Timeout for an execution
+func (s Base) Timeout() time.Duration {
+	if s.CheckTimeout > 0 {
+		return s.CheckTimeout
+	}
+	return viper.GetDuration(cfg.CheckTimeout)
 }

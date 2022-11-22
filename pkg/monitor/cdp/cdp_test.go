@@ -83,6 +83,11 @@ func (s *testSz) RepeatDelay() time.Duration {
 	return s.repeat
 }
 
+// Timeout of execution
+func (s *testSz) Timeout() time.Duration {
+	return time.Minute
+}
+
 func NewSzenario(n string, exec szenario.JobFunc) *testSz {
 	return &testSz{name: n, exec: exec, repeat: 5 * time.Minute}
 }
