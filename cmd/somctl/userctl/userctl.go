@@ -55,7 +55,7 @@ var userAdd = &cobra.Command{
 	Use:     "add [USERNAME EMAIL TYPE PASSWORD]",
 	Short:   "Add or modify a SOM user",
 	Long:    ``,
-	Aliases: []string{"modify", "mod"},
+	Aliases: []string{"modify", "mod", "set"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("\nAdd new user:")
 		defaultValue := ""
