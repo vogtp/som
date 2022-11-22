@@ -12,7 +12,6 @@ import (
 )
 
 func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan any {
-	defer time.Sleep(cdp.stepDelay)
 	cdp.muStep.Lock()
 	defer cdp.muStep.Unlock()
 	cdp.stepInfo.start(name)
@@ -35,6 +34,7 @@ func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan a
 
 // StepTimeout executes a Step with an timeout
 func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...chromedp.Action) error {
+	defer cdp.endStepActions()
 	errChan := make(chan error)
 	go func() {
 		errChan <- cdp.step(name, actions...)
@@ -57,6 +57,7 @@ func (cdp *Engine) StepTimeout(name string, timeout time.Duration, actions ...ch
 
 // Step executes the actions given and records how long it takes
 func (cdp *Engine) Step(name string, actions ...chromedp.Action) {
+	defer cdp.endStepActions()
 	if err := cdp.step(name, actions...); err != nil {
 		cdp.ErrorScreenshot(err)
 		panic(err)
@@ -64,7 +65,6 @@ func (cdp *Engine) Step(name string, actions ...chromedp.Action) {
 }
 
 func (cdp *Engine) step(name string, actions ...chromedp.Action) error {
-	defer time.Sleep(cdp.stepDelay)
 	cdp.muStep.Lock()
 	defer cdp.muStep.Unlock()
 	cdp.stepInfo.start(name)

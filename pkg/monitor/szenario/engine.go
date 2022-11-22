@@ -30,8 +30,6 @@ type Engine interface {
 	Either(name string, option ...EitherOption) <-chan any
 	// Body is used to check the content of the page
 	Body(checks ...CheckFunc) chromedp.Action
-	// WaitForEver blocks until the timeout is reached
-	WaitForEver()
 	// IsHeadless indicates if the browser is headless (i.e. does not show on screen)
 	IsHeadless() bool
 	// Dump prints the body and its size to log
@@ -50,4 +48,9 @@ type Engine interface {
 	AddErr(err error)
 	// HCL returns the logger
 	HCL() hcl.Logger
+
+	// WaitForEver blocks until the timeout is reached
+	WaitForEver()
+	// BreakWaitForUserInput waits until any key is clicked on the cmdlint
+	BreakWaitForUserInput()
 }

@@ -35,3 +35,11 @@ func Headless(b bool) Option {
 		e.headless = b
 	}
 }
+
+// StepBreakPoint sets a channel used a break point after each step
+func StepBreakPoint(c chan any) Option {
+	return func(e *Engine) {
+		c <- "Start"
+		e.stepBreakPoint = c
+	}
+}

@@ -34,7 +34,8 @@ type Engine struct {
 	hcl     hcl.Logger
 	bus     *core.Bus
 
-	runChan chan szenarionRunWrapper
+	runChan        chan szenarionRunWrapper
+	stepBreakPoint chan any
 
 	// muStep protects step related stuff
 	muStep   sync.Mutex
@@ -132,7 +133,7 @@ func (cdp *Engine) RunUser(username string) error {
 		return fmt.Errorf("cannot get szenarios for user %v", username)
 	}
 	if viper.GetBool(cfg.PasswdChange) {
-		go cdp.passwordChangeLoop(user)
+		cdp.passwordChangeLoop(user)
 	}
 	cdp.schedule(szs...)
 	cdp.loop()
