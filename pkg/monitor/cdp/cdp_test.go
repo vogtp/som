@@ -67,6 +67,11 @@ func (s *testSz) SetUser(u szenario.User) {
 	s.user = u
 }
 
+// MaxLoginTry returns how many times a login with a new password should be attemped
+func (s *testSz) MaxLoginTry() int {
+	return 4
+}
+
 // Execute the szenario
 func (s *testSz) Execute(cdp szenario.Engine) (err error) {
 	return s.exec(cdp)

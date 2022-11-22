@@ -38,8 +38,9 @@ func (c Config) Add(name string, s Szenario, ut []*UserType) Szenario {
 
 // Base is the base type of all szenarios
 type Base struct {
-	name string
-	user User
+	name       string
+	user       User
+	LoginRetry int
 }
 
 // SetName do not call!
@@ -64,4 +65,12 @@ func (s *Base) User() User {
 // SetUser set the user the szenario runs with
 func (s *Base) SetUser(u User) {
 	s.user = u
+}
+
+// MaxLoginTry returns how many times a login with a new password should be attemped
+func (s Base) MaxLoginTry() int {
+	if s.LoginRetry > 0 {
+		return s.LoginRetry
+	}
+	return 4
 }

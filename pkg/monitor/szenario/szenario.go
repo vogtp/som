@@ -6,4 +6,5 @@ type Szenario interface {
 	User() User           // User returns the user the szenario runs with
 	SetUser(u User)       // SetUser set the user the szenario runs with
 	Execute(Engine) error // Execute the szenario
+	MaxLoginTry() int     // MaxLoginTry returns how many times a login with a new password should be attemped
 }

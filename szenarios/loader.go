@@ -24,7 +24,10 @@ func Load() *szenario.Config {
 	)
 	szConfig.Add(
 		"OWA",
-		&OwaSzenario{Base: &szenario.Base{},
+		&OwaSzenario{
+			Base: &szenario.Base{
+				LoginRetry: 4,
+			},
 			OwaURL: "http://mail.example.com",
 		},
 		[]*szenario.UserType{userTypeStaf},
