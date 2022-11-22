@@ -133,7 +133,7 @@ func (cdp *Engine) RunUser(username string) error {
 		return fmt.Errorf("cannot get szenarios for user %v", username)
 	}
 	if viper.GetBool(cfg.PasswdChange) {
-		cdp.passwordChangeLoop(user)
+		go cdp.passwordChangeLoop(user)
 	}
 	cdp.schedule(szs...)
 	cdp.loop()
@@ -185,7 +185,7 @@ func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
 		srw.retry = 0
 		return delay
 	}
-	cdp.hcl.Infof("Szenario %s failed, reschedule faster (retry %d)", srw.sz.Name(), srw.retry)
+	cdp.baseHcl.Infof("Szenario %s failed, reschedule faster (retry %d)", srw.sz.Name(), srw.retry)
 	delay /= 5
 	delay *= time.Duration(srw.retry)
 	return delay
@@ -193,7 +193,7 @@ func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
 
 func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
 	if srw.pwChange {
-		cdp.hcl.Infof("%s is a password change szenario, resceduling elsewhere", srw.sz.Name())
+		cdp.baseHcl.Infof("%s is a password change szenario, resceduling elsewhere", srw.sz.Name())
 		return
 	}
 	if cdp.repeat < 1 {
@@ -204,7 +204,7 @@ func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
 		return
 	}
 	delay := cdp.rescheduleDelay(&srw)
-	cdp.hcl.Infof("Rescheduling %s in %v", srw.sz.Name(), delay)
+	cdp.baseHcl.Warnf("Rescheduling %s in %v", srw.sz.Name(), delay)
 	time.Sleep(delay)
 	cdp.runChan <- srw
 }
