@@ -10,5 +10,5 @@ type Szenario interface {
 	Execute(Engine) error       // Execute the szenario
 	RepeatDelay() time.Duration // RepeatDelay between executions
 	Timeout() time.Duration     // Timeout for an execution
-	MaxLoginTry() int           // MaxLoginTry returns how many times a login with a new password should be attemped
+	GetMaxLoginTry() int        // GetMaxLoginTry returns how many times a login with a new password should be attemped
 }

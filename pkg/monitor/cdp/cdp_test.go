@@ -68,8 +68,8 @@ func (s *testSz) SetUser(u szenario.User) {
 	s.user = u
 }
 
-// MaxLoginTry returns how many times a login with a new password should be attemped
-func (s *testSz) MaxLoginTry() int {
+// GetMaxLoginTry returns how many times a login with a new password should be attemped
+func (s *testSz) GetMaxLoginTry() int {
 	return 4
 }
 

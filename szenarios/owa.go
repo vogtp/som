@@ -56,7 +56,7 @@ func (s *OwaSzenario) login(engine szenario.Engine) (err error) {
 	errorClass := `#error`
 	submitBu := `#nextButton`
 
-	for i := 0; i < s.MaxLoginTry(); i++ {
+	for i := 0; i < s.GetMaxLoginTry(); i++ {
 		engine.Step("Login",
 			chromedp.WaitReady(`#passwordInput`, chromedp.ByID),
 			chromedp.SendKeys(`#passwordInput`, s.User().Password()+"\r", chromedp.ByID),

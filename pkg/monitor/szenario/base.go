@@ -72,8 +72,8 @@ func (s *Base) SetUser(u User) {
 	s.user = u
 }
 
-// MaxLoginTry returns how many times a login with a new password should be attemped
-func (s Base) MaxLoginTry() int {
+// GetMaxLoginTry returns how many times a login with a new password should be attemped
+func (s Base) GetMaxLoginTry() int {
 	if s.LoginRetry > 0 {
 		return s.LoginRetry
 	}
