@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
@@ -52,7 +53,7 @@ func New(name string, opts ...Option) (*Core, func()) {
 		o(c)
 	}
 	if newCore {
-		c.hcl.Errorf("SOM %s starting...", cfg.Version)
+		c.hcl.Errorf("SOM %s starting...", som.Version)
 		c.web.init(c)
 		c.bus.init(c)
 		c.web.Start()

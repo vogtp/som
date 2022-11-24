@@ -3,7 +3,7 @@ build: generate build-stater build-monitor-cdp build-visualiser build-alerter bu
 
 # add build date and time to version
 curdate=$(shell date -u +%Y%m%d-%H%M)
-build_date = -ldflags "-X  github.com/vogtp/som/pkg/core/cfg.BuildInfo=$(curdate)"
+build_date = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
 
 .PHONY: generate
 generate:

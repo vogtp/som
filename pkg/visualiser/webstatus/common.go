@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core"
-	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 )
 
@@ -38,7 +38,7 @@ func common(t string, r *http.Request) *commonData {
 	cd := &commonData{
 		Title:   t,
 		Baseurl: core.Get().WebServer().BasePath(),
-		Version: cfg.Version,
+		Version: som.Version,
 		Query:   q,
 		Theme:   "light",
 	}

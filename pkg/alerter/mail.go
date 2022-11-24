@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
@@ -127,7 +128,7 @@ func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 		return fmt.Errorf("index Template error %v", err)
 	}
 
-	bd := fmt.Sprintf("<html><body>%s%s<br /><small>SOM Version: %s</small></body></html>", body, img, cfg.Version)
+	bd := fmt.Sprintf("<html><body>%s%s<br /><small>SOM Version: %s</small></body></html>", body, img, som.Version)
 	m.SetBody("text/html", bd)
 
 	mailer := gomail.Dialer{Host: alt.smtpHost, Port: alt.smtpPort}
