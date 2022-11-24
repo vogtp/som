@@ -18,6 +18,9 @@ function resize(id)
     <th>Szenario</th>
     <th>Region</th>
     <th>User</th>
+    {{ if .DispLastRun}}
+    <th>Age</th>
+    {{ end }}
     <th></th>
 </tr>
 </thead>
@@ -28,6 +31,7 @@ function resize(id)
         <img class="level" title="{{.String}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
         {{ .Key }}
     </td>
+    <td class="list"></td>
     <td class="list"></td>
     <td class="list"></td>
     <td class="list"></td>
@@ -42,6 +46,7 @@ function resize(id)
     </td>
     <td class="list"></td>
     <td class="list"></td>
+    <td class="list"></td>
 </tr>
 
 {{ range .Users }}
@@ -52,6 +57,9 @@ function resize(id)
         <img class="level" title="{{.String}}" src="{{$.Baseurl}}/static/status/{{.Level.Img}}.png" />
         {{ .Key }}
     </td>
+    {{ if $.DispLastRun}}
+    <td class="list"> {{ $.Since .LastUpdate }}</td>
+    {{ end }}
     <td class="list">
         {{if gt .Level $.OK}}
         {{ .Error}} <br> 

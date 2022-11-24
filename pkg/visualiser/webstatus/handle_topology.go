@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"image/png"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nfnt/resize"
@@ -18,9 +19,14 @@ import (
 
 type statusData struct {
 	status.Status
-	Image   map[string]template.HTML
-	OK      status.Level
-	Baseurl string
+	Image       map[string]template.HTML
+	OK          status.Level
+	Baseurl     string
+	DispLastRun bool
+}
+
+func (statusData) Since(t time.Time) time.Duration {
+	return time.Since(t).Truncate(time.Second)
 }
 
 func (s *WebStatus) handleTopology(w http.ResponseWriter, r *http.Request) {
@@ -34,6 +40,8 @@ func (s *WebStatus) handleTopology(w http.ResponseWriter, r *http.Request) {
 		TimeFormat: cfg.TimeFormatString,
 		Status:     prepaireStatus(s.data.Status),
 	}
+	data.Status.DispLastRun = true
+
 	s.render(w, r, "topology.gohtml", data)
 }
 
