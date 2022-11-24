@@ -42,7 +42,7 @@ func New(name string, opts ...Option) (*Core, func()) {
 				basepath: viper.GetString(cfg.WebURLBasePath),
 			},
 			bus: &Bus{
-				gravLogLevel: hclog.LevelFromString(viper.GetString(cfg.BusLogLevel)),
+				busLogLevel: hclog.LevelFromString(viper.GetString(cfg.BusLogLevel)),
 			},
 		}
 	} else if c.name != name {

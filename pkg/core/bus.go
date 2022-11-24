@@ -6,8 +6,8 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
-	"github.com/suborbital/grav/grav"
-	mesh "github.com/vogtp/go-grav-mesh"
+	"github.com/suborbital/e2core/bus/bus"
+	mesh "github.com/vogtp/go-mesh"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
@@ -17,12 +17,12 @@ import (
 // Bus is the event bus
 type Bus struct {
 	hcl  hcl.Logger
-	bus  *grav.Grav
+	bus  *bus.Bus
 	mesh *mesh.Mgr
 
 	endpointURL string
 
-	gravLogLevel hclog.Level
+	busLogLevel hclog.Level
 
 	Szenario *eventHandler[msg.SzenarioEvtMsg]
 	Alert    *eventHandler[msg.AlertMsg]
@@ -80,8 +80,8 @@ func (e *Bus) WaitMsgProcessed() {
 	e.Alert.WaitMsgProcessed()
 }
 
-// Connect to grav and return a pod
-func (e *Bus) Connect() *grav.Pod {
+// Connect to bus and return a pod
+func (e *Bus) Connect() *bus.Pod {
 	return e.bus.Connect()
 }
 

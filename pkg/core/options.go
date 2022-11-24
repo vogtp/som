@@ -30,10 +30,10 @@ func HCL(hcl hcl.Logger) Option {
 	}
 }
 
-// BusLogger enables and sets the loggin of the grav bus
+// BusLogger enables and sets the loggin of the bus bus
 func BusLogger(level hclog.Level) Option {
 	return func(c *Core) {
-		c.bus.gravLogLevel = level
+		c.bus.busLogLevel = level
 	}
 }
 

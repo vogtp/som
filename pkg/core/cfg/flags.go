@@ -60,10 +60,10 @@ func init() {
 	pflag.String(LogLevel, "warn", "Set the loglevel: error warn info debug trace off")
 	pflag.String(WebURLBasePath, "", "the base path of the URL")
 	pflag.Int(WebPort, 0, "Port the webserver runs on")
-	pflag.String(BusLogLevel, "off", "Log level of the grav bus")
+	pflag.String(BusLogLevel, "off", "Log level of the bus")
 	pflag.Bool(CfgSave, false, "Should the configs be written to file periodically")
 	pflag.Bool(AlertEnabled, true, "Disable alerting")
-	pflag.StringSlice(BusEndpoints, nil, "List of external grav endpoints (e.g. localhost:8080/meta/message) use multiple times to add multiple endpoints")
+	pflag.StringSlice(BusEndpoints, nil, "List of external endpoints (e.g. localhost:8080/meta/message) use multiple times to add multiple endpoints")
 	pflag.String(CfgFile, "som.yml", "File with the config to load")
 	pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
 }

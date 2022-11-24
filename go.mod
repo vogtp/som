@@ -25,13 +25,13 @@ require (
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.13.0
-	github.com/suborbital/grav v0.5.1
-	github.com/suborbital/vektor v0.6.0
+	github.com/spf13/viper v1.14.0
+	github.com/suborbital/e2core v0.5.0
+	github.com/suborbital/vektor v0.6.1
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
-	github.com/vogtp/go-grav-mesh v0.0.0-20220819125732-e4af3605ea22
 	github.com/vogtp/go-hcl v0.3.0
+	github.com/vogtp/go-mesh v0.1.0
 	github.com/xiaoqidun/entps v0.0.0-20221104132355-4a0322df267c
 	golang.org/x/sync v0.1.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/suborbital/grav/grav"
+	"github.com/suborbital/e2core/bus/bus"
 	"github.com/vogtp/go-hcl"
 )
 
@@ -17,17 +17,17 @@ type eventHandler[M eventer] struct {
 	wgMsg    sync.WaitGroup
 	mu       sync.Mutex
 	hcl      hcl.Logger
-	bus      *grav.Grav
-	handlers []*grav.Pod
+	bus      *bus.Bus
+	handlers []*bus.Pod
 	msgType  string
 }
 
-func newHandler[M eventer](hcl hcl.Logger, b *grav.Grav, msgType string) *eventHandler[M] {
+func newHandler[M eventer](hcl hcl.Logger, b *bus.Bus, msgType string) *eventHandler[M] {
 	h := &eventHandler[M]{
 		hcl:      hcl.Named(msgType),
 		bus:      b,
 		msgType:  msgType,
-		handlers: make([]*grav.Pod, 0),
+		handlers: make([]*bus.Pod, 0),
 	}
 	return h
 }
@@ -46,7 +46,7 @@ func (h *eventHandler[M]) Send(evt *M) error {
 	h.hcl.Tracef("Sending %s msg %+v", h.msgType, evt)
 	p := h.bus.Connect()
 	defer p.Disconnect()
-	p.Send(grav.NewMsg(h.msgType, b))
+	p.Send(bus.NewMsg(h.msgType, b))
 	return nil
 }
 
@@ -57,7 +57,7 @@ type EventHandler[M eventer] func(*M)
 func (h *eventHandler[M]) Handle(f EventHandler[M]) {
 	p := h.bus.Connect()
 	h.handlers = append(h.handlers, p)
-	p.OnType(h.msgType, func(m grav.Message) error {
+	p.OnType(h.msgType, func(m bus.Message) error {
 		h.wgMsg.Add(1)
 		defer h.wgMsg.Done()
 		evt := new(M)

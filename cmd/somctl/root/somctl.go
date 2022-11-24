@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/suborbital/grav/grav"
+	"github.com/suborbital/e2core/bus/bus"
 	"github.com/vogtp/som/cmd/somctl/dbctl"
 	"github.com/vogtp/som/cmd/somctl/incidentctl"
 	"github.com/vogtp/som/cmd/somctl/szenarioctl"
@@ -54,7 +54,7 @@ var (
 				return
 			}
 			if viper.GetBool(LogRawBus) {
-				c.Bus().Connect().On(func(m grav.Message) error {
+				c.Bus().Connect().On(func(m bus.Message) error {
 					fmt.Fprintf(cmd.OutOrStdout(), "Raw Bus: %s\n", string(m.Data()))
 					return nil
 				})
