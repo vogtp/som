@@ -102,6 +102,29 @@ func (u User) FailedLogins() int {
 	return u.pwIdx
 }
 
+func (u *User) deleteOldPasswords() {
+	if u.PasswordLastUse().IsZero() {
+		return
+	}
+	hcl := core.Get().HCL().Named("passwordCleanup")
+	curAge := time.Since(u.PasswordLastUse())
+	if curAge > time.Hour {
+		return
+	}
+	hist := make([]*PwEntry, 0)
+	for i := 0; i < len(u.History); i++ {
+		if time.Since(u.History[i].LastUse) > 7*24*time.Hour {
+			continue
+		}
+		hist = append(hist, u.History[i])
+	}
+	if len(hist) < u.pwIdx+1 || len(hist) < 5 || len(hist) >= len(u.History) {
+		return
+	}
+	hcl.Infof("%s deleted old passwords: %v -> %v", u.Name(), len(u.History), len(hist))
+	u.History = hist
+}
+
 // SetPassword encrypts the password
 func (u *User) SetPassword(pw string) {
 	// u.Passwd = encrypt([]byte(pw), core.Keystore.Key())
