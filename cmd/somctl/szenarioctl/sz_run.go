@@ -33,7 +33,7 @@ var szenarioRun = &cobra.Command{
 	Long:    `run szenarios`,
 	Example: "run all or run owa intranet",
 	RunE: func(cmd *cobra.Command, args []string) error {
-
+		viper.Set(cfg.BrowserShow, true)
 		username := viper.GetString(cfg.CheckUser)
 		if len(username) < 1 {
 			return errors.New("No user given")
@@ -44,7 +44,7 @@ var szenarioRun = &cobra.Command{
 		}
 		var sz []szenario.Szenario
 		szConfig := core.Get().SzenaioConfig()
-		ut:=user.UserType
+		ut := user.UserType
 		for _, n := range args {
 			user.UserType = n
 			usz, err := szConfig.ByUser(user)
