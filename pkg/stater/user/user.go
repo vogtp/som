@@ -124,7 +124,7 @@ func (u *User) deleteOldPasswords() {
 	}
 	hist := make([]*PwEntry, 0)
 	for i := 0; i < len(u.History); i++ {
-		if time.Since(u.History[i].LastUse) > 24*time.Hour {
+		if time.Since(u.History[i].LastUse) > 3*24*time.Hour {
 			continue
 		}
 		hist = append(hist, u.History[i])
