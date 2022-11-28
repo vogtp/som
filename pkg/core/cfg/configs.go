@@ -55,6 +55,8 @@ const (
 	// PasswdChgSz szeanrios to change the password
 	PasswdChgIntervall = "password.intervall"
 	// PasswdChgSz szeanrios to change the password
+	PasswdChgMax = "password.maxperday"
+	// PasswdChgSz szeanrios to change the password
 	PasswdChgSz = "password.szenarios"
 	// PasswdRuleUpper upper case letters to be used in password ("" use default)
 	PasswdRuleUpper = "password.rules.upper"
@@ -75,6 +77,7 @@ const (
 func init() {
 	viper.SetDefault(PasswdChange, false)
 	viper.SetDefault(PasswdChgIntervall, 12*time.Hour)
+	viper.SetDefault(PasswdChgMax, 10)
 	viper.SetDefault(PasswdChgSz, []string{})
 	viper.SetDefault(PasswdRuleUpper, "")
 	viper.SetDefault(PasswdRuleLower, "")

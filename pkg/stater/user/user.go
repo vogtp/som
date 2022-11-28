@@ -97,6 +97,17 @@ func (u *User) ResetPasswordIndex() {
 	u.pwIdx = 0
 }
 
+// NumPasswdChg number of times the password was changed
+func (u *User) NumPasswdChg(d time.Duration) int {
+	cnt := 0
+	for _, pw := range u.History {
+		if time.Since(pw.Created) < d {
+			cnt++
+		}
+	}
+	return cnt
+}
+
 // FailedLogins the number of failed logins
 func (u User) FailedLogins() int {
 	return u.pwIdx

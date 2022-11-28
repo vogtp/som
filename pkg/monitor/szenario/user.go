@@ -38,6 +38,9 @@ type User interface {
 	// PasswordLastUse returns the time when the password was last accessed
 	PasswordLastUse() time.Time
 
+	// NumPasswdChg number of times the password was changed
+	NumPasswdChg(time.Duration) int
+
 	// ResetPasswordIndex start with the first password
 	// and reset the number of failed logins to 0
 	ResetPasswordIndex()
