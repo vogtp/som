@@ -29,7 +29,7 @@ func (s *passwdChgSzenario) Execute(engine szenario.Engine) (err error) {
 
 	pwCheckInt := 24 * time.Hour
 	pwChgCnt := s.User().NumPasswdChg(pwCheckInt)
-	hcl.Infof("Number of pw changes: %v", pwChgCnt)
+	hcl.Infof("Number of pw changes: %v in %v", pwChgCnt, pwCheckInt)
 	if pwChgCnt > viper.GetInt(cfg.PasswdChange) {
 		err := fmt.Errorf("changed %v times in the last %v", pwChgCnt, pwCheckInt)
 		hcl.Warnf("Not changing passwords: %v", err)
