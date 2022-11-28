@@ -98,7 +98,7 @@ func (us *client) List() ([]User, error) {
 		hcl.Tracef("Reply for userlist: %T %+v", m, string(m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:
-			return json.Unmarshal(m.Data(), users)
+			return json.Unmarshal(m.Data(), &users)
 		case msgtype.UserError:
 			return fmt.Errorf("user backend error: %v", string(m.Data()))
 		default:
