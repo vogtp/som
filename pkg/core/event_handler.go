@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/suborbital/e2core/bus/bus"
+	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/go-hcl"
 )
 
@@ -17,17 +17,17 @@ type eventHandler[M eventer] struct {
 	wgMsg    sync.WaitGroup
 	mu       sync.Mutex
 	hcl      hcl.Logger
-	bus      *bus.Bus
-	handlers []*bus.Pod
+	grav     *grav.Grav
+	handlers []*grav.Pod
 	msgType  string
 }
 
-func newHandler[M eventer](hcl hcl.Logger, b *bus.Bus, msgType string) *eventHandler[M] {
+func newHandler[M eventer](hcl hcl.Logger, b *grav.Grav, msgType string) *eventHandler[M] {
 	h := &eventHandler[M]{
 		hcl:      hcl.Named(msgType),
-		bus:      b,
+		grav:     b,
 		msgType:  msgType,
-		handlers: make([]*bus.Pod, 0),
+		handlers: make([]*grav.Pod, 0),
 	}
 	return h
 }
@@ -44,9 +44,9 @@ func (h *eventHandler[M]) Send(evt *M) error {
 		return fmt.Errorf("cannot marshal %+v: %v", evt, err)
 	}
 	h.hcl.Tracef("Sending %s msg %+v", h.msgType, evt)
-	p := h.bus.Connect()
+	p := h.grav.Connect()
 	defer p.Disconnect()
-	p.Send(bus.NewMsg(h.msgType, b))
+	p.Send(grav.NewMsg(h.msgType, b))
 	return nil
 }
 
@@ -55,16 +55,16 @@ type EventHandler[M eventer] func(*M)
 
 // HandleSzenarioEvt handles SzenarioEvtMsgs
 func (h *eventHandler[M]) Handle(f EventHandler[M]) {
-	p := h.bus.Connect()
+	p := h.grav.Connect()
 	h.handlers = append(h.handlers, p)
-	p.OnType(h.msgType, func(m bus.Message) error {
+	p.OnType(h.msgType, func(m grav.Message) error {
 		h.wgMsg.Add(1)
 		defer h.wgMsg.Done()
 		evt := new(M)
 		err := json.Unmarshal(m.Data(), evt)
 		if err != nil {
 			h.hcl.Errorf("Could not unmarshal message %s: %v", string(m.Data()), err)
-			// does not return an error the the program, just signals the bus
+			// does not return an error the the program, just signals the grav
 			return fmt.Errorf("could not unmarshal message %s: %w", string(m.Data()), err)
 		}
 		f(evt)

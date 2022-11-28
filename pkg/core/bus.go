@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
-	"github.com/suborbital/e2core/bus/bus"
+	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/go-hcl"
 	mesh "github.com/vogtp/go-mesh"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -17,7 +17,7 @@ import (
 // Bus is the event bus
 type Bus struct {
 	hcl  hcl.Logger
-	bus  *bus.Bus
+	bus  *grav.Grav
 	mesh *mesh.Mgr
 
 	endpointURL string
@@ -80,8 +80,8 @@ func (e *Bus) WaitMsgProcessed() {
 	e.Alert.WaitMsgProcessed()
 }
 
-// Connect to bus and return a pod
-func (e *Bus) Connect() *bus.Pod {
+// Connect to grav and return a pod
+func (e *Bus) Connect() *grav.Pod {
 	return e.bus.Connect()
 }
 
