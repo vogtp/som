@@ -19,6 +19,7 @@ func Command() *cobra.Command {
 	userCtl.AddCommand(userList)
 	userCtl.AddCommand(userShow)
 	userCtl.AddCommand(userAdd)
+	userCtl.AddCommand(userDel)
 	userShow.AddCommand(userShowPw)
 
 	return userCtl
@@ -45,6 +46,28 @@ var userShow = &cobra.Command{
 			return fmt.Errorf("cannot get user %s: %v", name, err)
 		}
 		fmt.Printf("User %s:\n%v\n", name, u.String())
+		return nil
+	},
+}
+
+var userDel = &cobra.Command{
+	Use:     "delete USERNAME",
+	Short:   "Display a SOM user",
+	Long:    ``,
+	Args:    cobra.ExactArgs(1),
+	Aliases: []string{"del"},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		name := args[0]
+		if term.Read(fmt.Sprintf("Do you really want to delete %s", name)) != "yes" {
+			fmt.Println("Answer was not yes...")
+			return nil
+		}
+		msg, err := user.Store.Delete(name)
+		if err != nil {
+			fmt.Printf("cannot delete user %s: %v\n", name, err)
+			return nil
+		}
+		fmt.Println(msg)
 		return nil
 	},
 }

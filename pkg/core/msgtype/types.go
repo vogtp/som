@@ -18,4 +18,6 @@ const (
 	UserAdd = "user.add"
 	// UserResponse response for user requests
 	UserResponse = "user.response"
+	// UserDelete deletes a use from the backend
+	UserDelete = "user.delete"
 )

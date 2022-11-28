@@ -27,9 +27,9 @@ func ReadOrArgs(name string, args []string, idx int, defaultValue string) string
 }
 
 // Read a value from the teminal
-func Read(name string) string {
+func Read(msg string) string {
 	r := bufio.NewReader(os.Stdin)
-	fmt.Printf("%s: ", name)
+	fmt.Printf("%s: ", msg)
 	val, err := r.ReadString('\n')
 	if err != nil {
 		fmt.Printf("Error reading: %v", err)
