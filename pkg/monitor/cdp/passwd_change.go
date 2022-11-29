@@ -1,6 +1,7 @@
 package cdp
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/spf13/viper"
@@ -25,6 +26,16 @@ type passwdChgSzenario struct {
 // Execute the szenario
 func (s *passwdChgSzenario) Execute(engine szenario.Engine) (err error) {
 	hcl := s.cdp.baseHcl
+
+	pwCheckInt := 24 * time.Hour
+	pwChgCnt := s.User().NumPasswdChg(pwCheckInt)
+	hcl.Infof("Number of pw changes: %v in %v", pwChgCnt, pwCheckInt)
+	if pwChgCnt > viper.GetInt(cfg.PasswdChange) {
+		err := fmt.Errorf("changed %v times in the last %v", pwChgCnt, pwCheckInt)
+		hcl.Warnf("Not changing passwords: %v", err)
+		return err
+	}
+
 	hcl.Warnf("Running password change")
 	for _, sz := range s.szenarios {
 		hcl.Warnf("Running password change szenario: %s", sz.Name())

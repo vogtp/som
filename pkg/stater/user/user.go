@@ -97,6 +97,17 @@ func (u *User) ResetPasswordIndex() {
 	u.pwIdx = 0
 }
 
+// NumPasswdChg number of times the password was changed
+func (u *User) NumPasswdChg(d time.Duration) int {
+	cnt := 0
+	for _, pw := range u.History {
+		if time.Since(pw.Created) < d {
+			cnt++
+		}
+	}
+	return cnt
+}
+
 // FailedLogins the number of failed logins
 func (u User) FailedLogins() int {
 	return u.pwIdx
@@ -113,7 +124,7 @@ func (u *User) deleteOldPasswords() {
 	}
 	hist := make([]*PwEntry, 0)
 	for i := 0; i < len(u.History); i++ {
-		if time.Since(u.History[i].LastUse) > 24*time.Hour {
+		if time.Since(u.History[i].LastUse) > 3*24*time.Hour {
 			continue
 		}
 		hist = append(hist, u.History[i])
@@ -148,7 +159,7 @@ func (u *User) Save() error {
 
 // String implements stringer
 func (u User) String() string {
-	return fmt.Sprintf("%-30s %-30s %-10s (Password History %2d)", u.Name(), u.Email(), u.Type(), u.PasswordHistoryCount())
+	return fmt.Sprintf("%-30s %-30s %-10s Password: History %2d Changes %2v in 24h", u.Name(), u.Email(), u.Type(), u.PasswordHistoryCount(), u.NumPasswdChg(24*time.Hour))
 }
 
 // IsValid checks if all needed fields are set

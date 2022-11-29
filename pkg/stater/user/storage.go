@@ -31,7 +31,6 @@ func (us *store) load() error {
 	if err := us.mirgrate(); err != nil {
 		us.hcl.Warnf("Cannot mirgrate %s: %v", dbFile, err)
 	}
-	us.cleanupPasswords()
 	return nil
 }
 
@@ -59,17 +58,8 @@ func (us *store) save() error {
 }
 
 func (us *store) cleanupPasswords() {
-	// //data := make(map[string]User)
-	//
-	//	for _, u := range us.data {
-	//		u.deleteOldPasswords()
-	//		//	data[n] = u
-	//	}
-	//
-	// //us.data = data
-	// fmt.Printf("Users: %v\n", len(us.data))
-	//
-	//	for n, u := range us.data {
-	//		fmt.Printf("%v %v hist: %v\n", n, u.Name(), len(u.History))
-	//	}
+	for n, u := range us.data {
+		u.deleteOldPasswords()
+		us.data[n] = u
+	}
 }

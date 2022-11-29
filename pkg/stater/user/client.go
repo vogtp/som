@@ -113,3 +113,27 @@ func (us *client) List() ([]User, error) {
 	hcl.Debugf("Received users: %#v", users)
 	return users, nil
 }
+
+// Delete the user
+func (us *client) Delete(name string) (string, error) {
+	hcl := core.Get().HCL().Named("user.client")
+	hcl.Debugf("Deleting user: %v", name)
+	p := core.Get().Bus().Connect()
+	defer p.Disconnect()
+	msg := ""
+	err := p.Send(grav.NewMsg(msgtype.UserDelete, []byte(name))).WaitUntil(defaultTimeout, func(m grav.Message) error {
+		hcl.Tracef("Reply for user %s: %T %+v", name, m, string(m.Data()))
+		switch m.Type() {
+		case msgtype.UserResponse:
+			msg = string(m.Data())
+			return nil
+		case msgtype.UserError:
+			return fmt.Errorf("user backend error: %v", string(m.Data()))
+		default:
+			return fmt.Errorf("unknown message type %s : %+v", m.Type(), m)
+		}
+
+	})
+
+	return msg, err
+}

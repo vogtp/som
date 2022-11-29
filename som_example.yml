@@ -88,6 +88,7 @@ web:
 password:
     change: false
     intervall: 12h # change the password after this delay and repeat with it
+    maxperday: 10 # maximal number of password changes per day
     szenarios: # szeanrios to change the password
         - ""
     rules:

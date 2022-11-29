@@ -61,6 +61,8 @@ func (us *store) start() {
 			return us.getUserList(m)
 		case msgtype.UserAdd:
 			return us.addUser(m)
+		case msgtype.UserDelete:
+			return us.deleteUser(m)
 		case msgtype.UserError:
 			return nil
 		case msgtype.UserResponse:
@@ -90,6 +92,35 @@ func (us *store) addUser(m grav.Message) error {
 	p.Send(msg)
 
 	return err
+}
+
+func (us *store) deleteUser(m grav.Message) error {
+	name := string(m.Data())
+	us.hcl.Warnf("Deleting user %s from store", name)
+
+	var msgTxt string
+	msgType := msgtype.UserError
+	if _, ok := us.data[name]; ok {
+		us.mu.Lock()
+		delete(us.data, name)
+		us.mu.Unlock()
+		if err := us.save(); err != nil {
+			us.hcl.Warnf("Cannot save store to delete user %v: %v", name, err)
+			msgTxt = fmt.Sprintf("Cannot save store to delete user %v: %v", name, err)
+		} else {
+			msgTxt = fmt.Sprintf("Deleted %s", name)
+			msgType = msgtype.UserResponse
+		}
+	} else {
+		msgTxt = fmt.Sprintf("No such user %s", name)
+	}
+
+	msg := grav.NewMsg(msgType, []byte(msgTxt))
+	msg.SetReplyTo(m.UUID())
+	p := core.Get().Bus().Connect()
+	defer p.Disconnect()
+	p.Send(msg)
+	return nil
 }
 
 func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
