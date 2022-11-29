@@ -26,12 +26,12 @@ type passwdChgSzenario struct {
 // Execute the szenario
 func (s *passwdChgSzenario) Execute(engine szenario.Engine) (err error) {
 	hcl := s.cdp.baseHcl
-
+	engine.Step("Inital Check")
 	pwCheckInt := 24 * time.Hour
 	pwChgCnt := s.User().NumPasswdChg(pwCheckInt)
 	hcl.Infof("Number of pw changes: %v in %v", pwChgCnt, pwCheckInt)
-	if pwChgCnt > viper.GetInt(cfg.PasswdChange) {
-		err := fmt.Errorf("changed %v times in the last %v", pwChgCnt, pwCheckInt)
+	if pwChgCnt > viper.GetInt(cfg.PasswdChgMax) {
+		err := fmt.Errorf("changed %v/%v times in the last %v", pwChgCnt, viper.GetInt(cfg.PasswdChange), pwCheckInt)
 		hcl.Warnf("Not changing passwords: %v", err)
 		return err
 	}

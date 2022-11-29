@@ -64,12 +64,36 @@ func (p *prometheusBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 	p.setGaugeVec(e)
 	// histogram is not useful here
 	// p.setHistogramVec(e)
+	p.savePasswordInfo(e)
 }
 
 func stepToLabel(s string) string {
 	l := s[len(step)+1:]
 	l = PrometheusName(l)
 	return l
+}
+
+func (p *prometheusBackend) savePasswordInfo(e *msg.SzenarioEvtMsg) {
+	p.saveCounter(e, "logins.passwordage", PrometheusName(e.Username))
+	p.saveCounter(e, "logins.failed", PrometheusName(e.Username))
+}
+func (p *prometheusBackend) saveCounter(e *msg.SzenarioEvtMsg, counterName string, promLabel string) {
+	cntr, ok := e.Counters[counterName]
+	if !ok {
+		return
+	}
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	gvPwAge := p.getGaugeVecByName(PrometheusName(counterName))
+
+	m, err := gvPwAge.GetMetricWithLabelValues(PrometheusName(e.Name), promLabel, PrometheusName(e.Region))
+	if err != nil {
+		p.hcl.Warnf("GaugeVec %s: %v", counterName, err)
+	}
+	if m == nil {
+		return
+	}
+	m.Set(cntr)
 }
 
 func (p *prometheusBackend) setGaugeVec(e *msg.SzenarioEvtMsg) {
@@ -98,18 +122,22 @@ func (p *prometheusBackend) setGaugeVec(e *msg.SzenarioEvtMsg) {
 }
 
 func (p *prometheusBackend) getGaugeVec(e *msg.SzenarioEvtMsg) *prometheus.GaugeVec {
-	gv := p.gaugeVec[e.Name]
+	return p.getGaugeVecByName(e.Name)
+}
+
+func (p *prometheusBackend) getGaugeVecByName(name string) *prometheus.GaugeVec {
+	gv := p.gaugeVec[name]
 	if gv == nil {
-		p.hcl.Infof("Creating GaugeVec %v ", e.Name)
+		p.hcl.Infof("Creating GaugeVec %v ", name)
 		gv = promauto.NewGaugeVec(prometheus.GaugeOpts{
 			//Namespace: PrometheusName(e.Name),
-			Name: PrometheusName(e.Name),
+			Name: PrometheusName(name),
 			//Subsystem: ,
 			// Help: "The total number of processed events",
 		},
 			[]string{"step", "user", "region"},
 		)
-		p.gaugeVec[e.Name] = gv
+		p.gaugeVec[name] = gv
 	}
 	return gv
 }
