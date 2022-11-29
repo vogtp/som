@@ -54,6 +54,10 @@ alert:
               - Teams Prod
               - Mail to colleges
               - Mail to boss # no problem destination is disabled anyway, he will not get mails
+
+status:
+  timeout: 6h # the duration after which a status will be unknow if no event is received
+  cleanup: 168h # 7days -- the duration after which a status will be removed if no event is received
 browser:
     noclose: false
     show: false
@@ -70,9 +74,6 @@ check:
     timeout: 1m0s
     region: default
     #user: # default user (manly usefull for testing)
-status:
-    timeout: 6h
-    cleanup: 168h
 config:
     save: false
 core:
