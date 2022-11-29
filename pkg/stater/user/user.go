@@ -159,7 +159,7 @@ func (u *User) Save() error {
 
 // String implements stringer
 func (u User) String() string {
-	return fmt.Sprintf("%-30s %-30s %-10s (Password History %2d)", u.Name(), u.Email(), u.Type(), u.PasswordHistoryCount())
+	return fmt.Sprintf("%-30s %-30s %-10s Password: History %2d Changes %2v in 24h", u.Name(), u.Email(), u.Type(), u.PasswordHistoryCount(), u.NumPasswdChg(24*time.Hour))
 }
 
 // IsValid checks if all needed fields are set
