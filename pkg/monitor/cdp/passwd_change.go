@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	PasswordChangeSzenarioName = "PasswdChg"
+	PasswordChangeSzenarioName = "Passwd Change"
 )
 
 type passwdChgSzenario struct {
