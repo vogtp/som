@@ -20,6 +20,7 @@ type IncidentSummary struct {
 	IntLevel   int        `json:"level"`
 	Start      MinMaxTime `json:"start"`
 	End        MinMaxTime `json:"end"`
+	LastUpdate MinMaxTime `json:"time"`
 	Error      string     `json:"error"`
 }
 
@@ -73,6 +74,7 @@ func (isq *IncidentSummaryQuery) groupAndAggregate() *ent.IncidentGroupBy {
 			ent.As(ent.Count(), "Total"),
 			ent.As(ent.Max(incident.FieldIntLevel), "Level"),
 			ent.As(ent.Max(incident.FieldEnd), "End"),
+			ent.As(ent.Max(incident.FieldTime), "Time"),
 			ent.As(ent.Min(incident.FieldStart), "Start"),
 			ent.As(ent.Max(incident.FieldError), "Error"),
 		)
@@ -95,7 +97,7 @@ func (isq IncidentSummaryQuery) CloseIncident(ctx context.Context, is *IncidentS
 	closer.SetProbeHost("")
 	closer.SetProbeOS("")
 	closer.SetState([]byte(""))
-	
+
 	return closer.Exec(ctx)
 }
 

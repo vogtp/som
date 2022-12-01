@@ -2,9 +2,12 @@ package webstatus
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
+	"github.com/spf13/viper"
+	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/status"
 )
 
@@ -41,6 +44,9 @@ func (s *WebStatus) cleanupIncidents(ctx context.Context) {
 		s.hcl.Warnf("Cannot close stale incidents: %v", err)
 		return
 	}
+
+	autocloseDuration := 2 * viper.GetDuration(cfg.AlertIncidentCorrelationReopenTime)
+	s.hcl.Infof("Cleaning up stale incidents.  (Autoclosing after %v)", autocloseDuration)
 	for _, is := range all {
 		if !is.End.IsZero() {
 			continue
@@ -49,12 +55,12 @@ func (s *WebStatus) cleanupIncidents(ctx context.Context) {
 		if szGrp := s.data.Status.Get(is.Name); szGrp != nil {
 			lvl = szGrp.Level()
 		}
-		if lvl > status.OK {
+		if lvl > status.OK && time.Since(is.LastUpdate.Time()) < autocloseDuration {
 			// not cleaning up since status is not OK or UNKNOWN
 			continue
 		}
 		s.hcl.Infof("Closing incident: %v -> %s\n", is.Name, lvl)
-		err := incidentSummary.CloseIncident(ctx, is, "Cleanup Job", lvl, "Autoclosed")
+		err := incidentSummary.CloseIncident(ctx, is, "Cleanup Job", lvl, fmt.Sprintf("%s (Stale incident: autoclosed)", is.Error))
 		if err != nil {
 			s.hcl.Warnf("Cannot save incident %s %v: %v", is.Name, is.IncidentID, err)
 		}
