@@ -5,8 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/google/uuid"
-	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/status"
 )
 
@@ -37,43 +35,28 @@ func (s *WebStatus) thinOutIncidents(ctx context.Context) {
 	}
 }
 func (s *WebStatus) cleanupIncidents(ctx context.Context) {
-	ent := s.Ent()
-	all, err := ent.IncidentSummary.Query().All(ctx)
+	incidentSummary := s.Ent().IncidentSummary
+	all, err := incidentSummary.Query().All(ctx)
 	if err != nil {
 		s.hcl.Warnf("Cannot close stale incidents: %v", err)
 		return
 	}
-	for _, inci := range all {
-		if !inci.End.IsZero() {
+	for _, is := range all {
+		if !is.End.IsZero() {
 			continue
 		}
 		lvl := status.Unknown
-		if szGrp := s.data.Status.Get(inci.Name); szGrp != nil {
+		if szGrp := s.data.Status.Get(is.Name); szGrp != nil {
 			lvl = szGrp.Level()
 		}
 		if lvl > status.OK {
 			// not cleaning up since status is not OK or UNKNOWN
 			continue
 		}
-		s.hcl.Infof("Closing incident: %T %v -> %s\n", inci, inci.Name, lvl)
-		closer := ent.Incident.IncidentClient.Create()
-		closer.SetUUID(uuid.New())
-		closer.SetIncidentID(inci.IncidentID)
-		closer.SetName(inci.Name)
-		// fix stupid time formating
-		now, _ := time.Parse(cfg.TimeFormatString, time.Now().Format(cfg.TimeFormatString))
-		closer.SetTime(now)
-		closer.SetStart(inci.Start.Time())
-		closer.SetEnd(now)
-		closer.SetIntLevel(int(lvl))
-		closer.SetError("Autoclosed")
-		closer.SetUsername("Cleanup Job")
-		closer.SetRegion("")
-		closer.SetProbeHost("")
-		closer.SetProbeOS("")
-		closer.SetState([]byte(""))
-		if err := closer.Exec(ctx); err != nil {
-			s.hcl.Warnf("Cannot save incident %s %v: %v", inci.Name, inci.IncidentID, err)
+		s.hcl.Infof("Closing incident: %v -> %s\n", is.Name, lvl)
+		err := incidentSummary.CloseIncident(ctx, is, "Cleanup Job", lvl, "Autoclosed")
+		if err != nil {
+			s.hcl.Warnf("Cannot save incident %s %v: %v", is.Name, is.IncidentID, err)
 		}
 	}
 }

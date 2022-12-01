@@ -2,8 +2,10 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
@@ -74,6 +76,27 @@ func (isq *IncidentSummaryQuery) groupAndAggregate() *ent.IncidentGroupBy {
 			ent.As(ent.Min(incident.FieldStart), "Start"),
 			ent.As(ent.Max(incident.FieldError), "Error"),
 		)
+}
+
+func (isq IncidentSummaryQuery) CloseIncident(ctx context.Context, is *IncidentSummary, username string, statusLevel status.Level, failure string) error {
+	closer := isq.client.Incident.IncidentClient.Create()
+	closer.SetUUID(uuid.New())
+	closer.SetIncidentID(is.IncidentID)
+	closer.SetName(is.Name)
+	// fix stupid time formating
+	now, _ := time.Parse(cfg.TimeFormatString, time.Now().Format(cfg.TimeFormatString))
+	closer.SetTime(now)
+	closer.SetStart(is.Start.Time())
+	closer.SetEnd(now)
+	closer.SetIntLevel(int(statusLevel))
+	closer.SetError(failure)
+	closer.SetUsername(username)
+	closer.SetRegion("")
+	closer.SetProbeHost("")
+	closer.SetProbeOS("")
+	closer.SetState([]byte(""))
+	
+	return closer.Exec(ctx)
 }
 
 // Level convinience method that calls status Level
