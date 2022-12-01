@@ -4,8 +4,6 @@ import (
 	"context"
 	"embed"
 	"html/template"
-	"sync"
-	"time"
 
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
@@ -42,6 +40,7 @@ func New() *WebStatus {
 	c.Bus().Alert.Handle(s.handleAlert)
 	c.Bus().Incident.Handle(s.handleIncident)
 	s.routes()
+	s.cleanup()
 	return s
 }
 
@@ -97,24 +96,6 @@ func (s *WebStatus) Ent() *db.Client {
 			s.hcl.Errorf("Cannot connect to DB: %v", err)
 		}
 		s.dbAccess = entAccess
-		s.startDBCleanupJob()
 	}
 	return s.dbAccess
-}
-
-var onceDB sync.Once
-
-func (s *WebStatus) startDBCleanupJob() {
-	onceDB.Do(func() {
-		ticker := time.NewTicker(6 * time.Hour)
-		go func() {
-			for {
-				if err := s.dbAccess.ThinOutIncidents(context.Background()); err != nil {
-					s.hcl.Warnf("thining out incidents failed: %v", err)
-				}
-				<-ticker.C
-			}
-		}()
-	})
-
 }
