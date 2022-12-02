@@ -16,15 +16,8 @@ type OwaSzenario struct {
 // Execute the szenario
 func (s *OwaSzenario) Execute(engine szenario.Engine) (err error) {
 
-	loggedIn := false
-	for !loggedIn {
-		err := s.login(engine)
-		if err == nil {
-			loggedIn = true
-		}
-		if s.User().NextPassword() == "" {
-			return err
-		}
+	if err := s.login(engine); err != nil {
+		return err
 	}
 
 	//engine.WaitForEver()
