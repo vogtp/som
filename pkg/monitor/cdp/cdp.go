@@ -34,7 +34,11 @@ type Engine struct {
 	hcl     hcl.Logger
 	bus     *core.Bus
 
-	runChan        chan szenarionRunWrapper
+	// runChan contains the next szenarios to be run
+	runChan chan szenarionRunWrapper
+	// triggerSzenarioChan triggers a szenario run (send the szenario name to the channel or all for all szenarios)
+	triggerSzenarioChan chan string
+	// stepBreakPoint is used to pause between steps, read from chan to proceed to next step
 	stepBreakPoint chan any
 
 	// muStep protects step related stuff
@@ -64,16 +68,17 @@ func New(opts ...Option) (*Engine, context.CancelFunc) {
 	hcl := core.HCL().Named("cdp")
 	ctx, cancel := context.WithCancel(context.Background())
 	cdp := &Engine{
-		ctx:        ctx,
-		baseHcl:    hcl,
-		hcl:        hcl,
-		bus:        core.Bus(),
-		runChan:    make(chan szenarionRunWrapper, 100),
-		sendReport: true,
-		consMsg:    make(map[string]int),
-		headless:   !viper.GetBool(cfg.BrowserShow),
-		noClose:    viper.GetBool(cfg.BrowserNoClose),
-		stepDelay:  viper.GetDuration(cfg.CheckStepDelay),
+		ctx:                 ctx,
+		baseHcl:             hcl,
+		hcl:                 hcl,
+		bus:                 core.Bus(),
+		runChan:             make(chan szenarionRunWrapper, 100),
+		triggerSzenarioChan: make(chan string, 100),
+		sendReport:          true,
+		consMsg:             make(map[string]int),
+		headless:            !viper.GetBool(cfg.BrowserShow),
+		noClose:             viper.GetBool(cfg.BrowserNoClose),
+		stepDelay:           viper.GetDuration(cfg.CheckStepDelay),
 	}
 
 	for _, o := range opts {
@@ -198,7 +203,21 @@ func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
 	}
 	delay := cdp.rescheduleDelay(&srw)
 	cdp.baseHcl.Warnf("Rescheduling %s in %v", srw.sz.Name(), delay)
-	time.Sleep(delay)
+
+	ticker := time.NewTicker(delay)
+	for wait := true; wait; {
+		select {
+		case <-ticker.C:
+			wait = false
+		case sz := <-cdp.triggerSzenarioChan:
+			switch sz {
+			case srw.sz.Name():
+				wait = false
+			case "all":
+				wait = false
+			}
+		}
+	}
 	cdp.runChan <- srw
 }
 
