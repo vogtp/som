@@ -133,3 +133,12 @@ func (cdp *Engine) WaitForEver() {
 	//nolint:errcheck
 	chromedp.Run(cdp.browser, chromedp.WaitReady(`#ThisWillNotBeFoundAndWeWaitForEver`, chromedp.ByID))
 }
+
+// GetURL returns the current URL
+func (cdp *Engine) GetURL() string {
+	var href string
+	if err := chromedp.Run(cdp.browser, chromedp.Evaluate(`window.location.href`, &href)); err != nil {
+		return fmt.Sprintf("Cannot get href: %v", err)
+	}
+	return href
+}
