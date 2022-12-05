@@ -244,6 +244,7 @@ func (cdp *Engine) run() bool {
 	if err := cdp.szenario.Execute(cdp); err != nil {
 		cdp.hcl.Errorf("Szenario %s returned error: %v", cdp.szenario.Name(), err)
 		cdp.ErrorScreenshot(err)
+		cdp.evtMsg.SetStatus("URL", cdp.GetURL())
 		ok = false
 		panic(err)
 	}
@@ -324,6 +325,7 @@ func (cdp *Engine) TimeOut(d time.Duration) context.CancelFunc {
 			cdp.hcl.Warnf("Triggered timeout %v taking screenshot!", d)
 			cdp.ErrorScreenshot(fmt.Errorf("timeout %v", d))
 			cdp.AddErr(szenario.TimeoutError{Timeout: d})
+			cdp.evtMsg.SetStatus("URL", cdp.GetURL())
 			time.AfterFunc(500*time.Millisecond, func() {
 				if err := chromedp.Cancel(cdp.browser); err != nil {
 					cdp.hcl.Warnf("cannot cancel for timeout: %v", err)
