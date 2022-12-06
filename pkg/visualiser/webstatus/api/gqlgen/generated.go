@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -46,6 +47,7 @@ type ResolverRoot interface {
 	Incident() IncidentResolver
 	IncidentSummary() IncidentSummaryResolver
 	Query() QueryResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -137,6 +139,10 @@ type ComplexityRoot struct {
 		Name  func(childComplexity int) int
 		Value func(childComplexity int) int
 	}
+
+	Subscription struct {
+		IncidentUpdate func(childComplexity int, szenario *string) int
+	}
 }
 
 type AlertResolver interface {
@@ -163,6 +169,9 @@ type QueryResolver interface {
 	Incidents(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *uuid.UUID, after *time.Time, before *time.Time) ([]*db.IncidentSummary, error)
 	IncidentEntries(ctx context.Context, szenario *string, timestamp *time.Time, incidentID *uuid.UUID, after *time.Time, before *time.Time) ([]*ent.Incident, error)
 	Alerts(ctx context.Context, szenario *string, after *time.Time, before *time.Time) ([]*ent.Alert, error)
+}
+type SubscriptionResolver interface {
+	IncidentUpdate(ctx context.Context, szenario *string) (<-chan *ent.Incident, error)
 }
 
 type executableSchema struct {
@@ -634,6 +643,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Status.Value(childComplexity), true
 
+	case "Subscription.IncidentUpdate":
+		if e.complexity.Subscription.IncidentUpdate == nil {
+			break
+		}
+
+		args, err := ec.field_Subscription_IncidentUpdate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Subscription.IncidentUpdate(childComplexity, args["Szenario"].(*string)), true
+
 	}
 	return 0, false
 }
@@ -654,6 +675,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 			ctx = graphql.WithUnmarshalerMap(ctx, inputUnmarshalMap)
 			data := ec._Query(ctx, rc.Operation.SelectionSet)
 			var buf bytes.Buffer
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next(ctx)
+
+			if data == nil {
+				return nil
+			}
 			data.MarshalGQL(&buf)
 
 			return &graphql.Response{
@@ -835,6 +873,12 @@ type Failure {
     Idx: Int!
 }
 `, BuiltIn: false},
+	{Name: "../schema/subscription.graphql", Input: `
+type Subscription {
+    IncidentUpdate(
+        Szenario: String = ""
+    ): Incident
+}`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -1004,6 +1048,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Subscription_IncidentUpdate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["Szenario"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Szenario"))
+		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Szenario"] = arg0
 	return args, nil
 }
 
@@ -4224,6 +4283,110 @@ func (ec *executionContext) fieldContext_Status_Value(ctx context.Context, field
 	return fc, nil
 }
 
+func (ec *executionContext) _Subscription_IncidentUpdate(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_IncidentUpdate(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().IncidentUpdate(rctx, fc.Args["Szenario"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *ent.Incident):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalOIncident2ᚖgithubᚗcomᚋvogtpᚋsomᚋpkgᚋvisualiserᚋwebstatusᚋdbᚋentᚐIncident(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_IncidentUpdate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Incident_id(ctx, field)
+			case "Level":
+				return ec.fieldContext_Incident_Level(ctx, field)
+			case "Start":
+				return ec.fieldContext_Incident_Start(ctx, field)
+			case "End":
+				return ec.fieldContext_Incident_End(ctx, field)
+			case "State":
+				return ec.fieldContext_Incident_State(ctx, field)
+			case "UUID":
+				return ec.fieldContext_Incident_UUID(ctx, field)
+			case "IncidentID":
+				return ec.fieldContext_Incident_IncidentID(ctx, field)
+			case "Name":
+				return ec.fieldContext_Incident_Name(ctx, field)
+			case "Username":
+				return ec.fieldContext_Incident_Username(ctx, field)
+			case "Region":
+				return ec.fieldContext_Incident_Region(ctx, field)
+			case "ProbeOS":
+				return ec.fieldContext_Incident_ProbeOS(ctx, field)
+			case "ProbeHost":
+				return ec.fieldContext_Incident_ProbeHost(ctx, field)
+			case "Error":
+				return ec.fieldContext_Incident_Error(ctx, field)
+			case "Counters":
+				return ec.fieldContext_Incident_Counters(ctx, field)
+			case "Stati":
+				return ec.fieldContext_Incident_Stati(ctx, field)
+			case "Failures":
+				return ec.fieldContext_Incident_Failures(ctx, field)
+			case "Files":
+				return ec.fieldContext_Incident_Files(ctx, field)
+			case "Alerts":
+				return ec.fieldContext_Incident_Alerts(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Incident", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Subscription_IncidentUpdate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext___Directive_name(ctx, field)
 	if err != nil {
@@ -6837,6 +7000,26 @@ func (ec *executionContext) _Status(ctx context.Context, sel ast.SelectionSet, o
 	return out
 }
 
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func(ctx context.Context) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "IncidentUpdate":
+		return ec._Subscription_IncidentUpdate(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
+}
+
 var __DirectiveImplementors = []string{"__Directive"}
 
 func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionSet, obj *introspection.Directive) graphql.Marshaler {
@@ -7873,6 +8056,13 @@ func (ec *executionContext) marshalOIncident2ᚕᚖgithubᚗcomᚋvogtpᚋsomᚋ
 	}
 
 	return ret
+}
+
+func (ec *executionContext) marshalOIncident2ᚖgithubᚗcomᚋvogtpᚋsomᚋpkgᚋvisualiserᚋwebstatusᚋdbᚋentᚐIncident(ctx context.Context, sel ast.SelectionSet, v *ent.Incident) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Incident(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOIncidentSummary2ᚕᚖgithubᚗcomᚋvogtpᚋsomᚋpkgᚋvisualiserᚋwebstatusᚋdbᚐIncidentSummaryᚄ(ctx context.Context, sel ast.SelectionSet, v []*db.IncidentSummary) graphql.Marshaler {

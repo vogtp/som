@@ -1,0 +1,6 @@
+
+type Subscription {
+    IncidentUpdate(
+        Szenario: String = ""
+    ): Incident
+}
