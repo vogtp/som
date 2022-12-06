@@ -1,6 +1,12 @@
 
 type Subscription {
-    IncidentUpdate(
+
+    Incident(
         Szenario: String = ""
     ): Incident
+
+    Alert(
+        Szenario: String = ""
+    ): Alert
+    
 }
