@@ -894,9 +894,10 @@ type Subscription {
         Szenario: String = ""
     ): Incident
 
- Alert(
+    Alert(
         Szenario: String = ""
     ): Alert
+    
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
