@@ -58,9 +58,8 @@ func (us *store) save() error {
 }
 
 func (us *store) cleanupPasswords() {
-	// FIXME PW cleanup disabled for now
-	// for n, u := range us.data {
-	// 	u.deleteOldPasswords()
-	// 	us.data[n] = u
-	// }
+	for n, u := range us.data {
+		u.deleteOldPasswords()
+		us.data[n] = u
+	}
 }
