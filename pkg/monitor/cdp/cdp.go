@@ -296,7 +296,7 @@ func (cdp *Engine) AddErr(err error) {
 		return
 	}
 	err = fmt.Errorf("%q step %q failed: %w", cdp.szenario.Name(), cdp.stepInfo.name, err)
-	cdp.hcl.Errorf("%v", err)
+	cdp.hcl.Warnf("%v", err)
 	cdp.evtMsg.AddErr(err)
 }
 

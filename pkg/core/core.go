@@ -53,7 +53,7 @@ func New(name string, opts ...Option) (*Core, func()) {
 		o(c)
 	}
 	if newCore {
-		c.hcl.Errorf("SOM %s starting...", som.Version)
+		c.hcl.Warnf("SOM %s starting...", som.Version)
 		c.web.init(c)
 		c.bus.init(c)
 		c.web.Start()
