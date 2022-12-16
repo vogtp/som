@@ -25,7 +25,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	sz := ""
 	name := ""
 	idx := strings.Index(r.URL.Path, alertListPath)
-	if idx > 0 {
+	if idx > -1 {
 		name = r.URL.Path[idx+len(alertListPath):]
 		for strings.HasSuffix(name, "/") {
 			name = name[:len(name)-1]
@@ -40,7 +40,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	q := s.Ent().Alert.Query().Order(ent.Desc(alert.FieldTime))
 	if len(sz) > 0 {
-		s.hcl.Infof("where: %s", sz)
+		s.hcl.Debugf("where: %s", sz)
 		q.Where(alert.NameEqualFold(sz))
 	}
 	q.Where(
