@@ -1,6 +1,7 @@
 package webstatus
 
 import (
+	"io"
 	"net/http"
 	"strings"
 
@@ -41,7 +42,9 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", file.Type)
-	_, err = w.Write(file.Payload)
+	// _, err = w.Write(file.Payload)
+	reader := strings.NewReader(string(file.Payload))
+	_, err = io.Copy(w, reader)
 	if err != nil {
 		s.hcl.Warnf("Cannot write file %s: %v", file, err)
 	}
