@@ -264,6 +264,7 @@ func (cq *CounterQuery) Clone() *CounterQuery {
 //		GroupBy(counter.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
+//
 func (cq *CounterQuery) GroupBy(field string, fields ...string) *CounterGroupBy {
 	grbuild := &CounterGroupBy{config: cq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -290,6 +291,7 @@ func (cq *CounterQuery) GroupBy(field string, fields ...string) *CounterGroupBy 
 //	client.Counter.Query().
 //		Select(counter.FieldName).
 //		Scan(ctx, &v)
+//
 func (cq *CounterQuery) Select(fields ...string) *CounterSelect {
 	cq.fields = append(cq.fields, fields...)
 	selbuild := &CounterSelect{CounterQuery: cq}

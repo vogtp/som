@@ -264,6 +264,7 @@ func (fq *FailureQuery) Clone() *FailureQuery {
 //		GroupBy(failure.FieldError).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
+//
 func (fq *FailureQuery) GroupBy(field string, fields ...string) *FailureGroupBy {
 	grbuild := &FailureGroupBy{config: fq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -290,6 +291,7 @@ func (fq *FailureQuery) GroupBy(field string, fields ...string) *FailureGroupBy 
 //	client.Failure.Query().
 //		Select(failure.FieldError).
 //		Scan(ctx, &v)
+//
 func (fq *FailureQuery) Select(fields ...string) *FailureSelect {
 	fq.fields = append(fq.fields, fields...)
 	selbuild := &FailureSelect{FailureQuery: fq}

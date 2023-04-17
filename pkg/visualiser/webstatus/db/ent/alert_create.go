@@ -426,6 +426,7 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
+//
 func (ac *AlertCreate) OnConflict(opts ...sql.ConflictOption) *AlertUpsertOne {
 	ac.conflict = opts
 	return &AlertUpsertOne{
@@ -439,6 +440,7 @@ func (ac *AlertCreate) OnConflict(opts ...sql.ConflictOption) *AlertUpsertOne {
 //	client.Alert.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
+//
 func (ac *AlertCreate) OnConflictColumns(columns ...string) *AlertUpsertOne {
 	ac.conflict = append(ac.conflict, sql.ConflictColumns(columns...))
 	return &AlertUpsertOne{
@@ -605,6 +607,7 @@ func (u *AlertUpsert) ClearError() *AlertUpsert {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
+//
 func (u *AlertUpsertOne) UpdateNewValues() *AlertUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -613,9 +616,10 @@ func (u *AlertUpsertOne) UpdateNewValues() *AlertUpsertOne {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.Alert.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
+//  client.Alert.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
 func (u *AlertUpsertOne) Ignore() *AlertUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
@@ -931,6 +935,7 @@ func (acb *AlertCreateBulk) ExecX(ctx context.Context) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
+//
 func (acb *AlertCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlertUpsertBulk {
 	acb.conflict = opts
 	return &AlertUpsertBulk{
@@ -944,6 +949,7 @@ func (acb *AlertCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlertUpsertB
 //	client.Alert.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
+//
 func (acb *AlertCreateBulk) OnConflictColumns(columns ...string) *AlertUpsertBulk {
 	acb.conflict = append(acb.conflict, sql.ConflictColumns(columns...))
 	return &AlertUpsertBulk{
@@ -965,6 +971,7 @@ type AlertUpsertBulk struct {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
+//
 func (u *AlertUpsertBulk) UpdateNewValues() *AlertUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -976,6 +983,7 @@ func (u *AlertUpsertBulk) UpdateNewValues() *AlertUpsertBulk {
 //	client.Alert.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
+//
 func (u *AlertUpsertBulk) Ignore() *AlertUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u

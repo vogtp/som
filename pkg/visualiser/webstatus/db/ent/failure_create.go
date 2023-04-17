@@ -170,6 +170,7 @@ func (fc *FailureCreate) createSpec() (*Failure, *sqlgraph.CreateSpec) {
 //			SetError(v+v).
 //		}).
 //		Exec(ctx)
+//
 func (fc *FailureCreate) OnConflict(opts ...sql.ConflictOption) *FailureUpsertOne {
 	fc.conflict = opts
 	return &FailureUpsertOne{
@@ -183,6 +184,7 @@ func (fc *FailureCreate) OnConflict(opts ...sql.ConflictOption) *FailureUpsertOn
 //	client.Failure.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
+//
 func (fc *FailureCreate) OnConflictColumns(columns ...string) *FailureUpsertOne {
 	fc.conflict = append(fc.conflict, sql.ConflictColumns(columns...))
 	return &FailureUpsertOne{
@@ -241,6 +243,7 @@ func (u *FailureUpsert) AddIdx(v int) *FailureUpsert {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
+//
 func (u *FailureUpsertOne) UpdateNewValues() *FailureUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -249,9 +252,10 @@ func (u *FailureUpsertOne) UpdateNewValues() *FailureUpsertOne {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.Failure.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
+//  client.Failure.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
 func (u *FailureUpsertOne) Ignore() *FailureUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
@@ -441,6 +445,7 @@ func (fcb *FailureCreateBulk) ExecX(ctx context.Context) {
 //			SetError(v+v).
 //		}).
 //		Exec(ctx)
+//
 func (fcb *FailureCreateBulk) OnConflict(opts ...sql.ConflictOption) *FailureUpsertBulk {
 	fcb.conflict = opts
 	return &FailureUpsertBulk{
@@ -454,6 +459,7 @@ func (fcb *FailureCreateBulk) OnConflict(opts ...sql.ConflictOption) *FailureUps
 //	client.Failure.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
+//
 func (fcb *FailureCreateBulk) OnConflictColumns(columns ...string) *FailureUpsertBulk {
 	fcb.conflict = append(fcb.conflict, sql.ConflictColumns(columns...))
 	return &FailureUpsertBulk{
@@ -475,6 +481,7 @@ type FailureUpsertBulk struct {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
+//
 func (u *FailureUpsertBulk) UpdateNewValues() *FailureUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -486,6 +493,7 @@ func (u *FailureUpsertBulk) UpdateNewValues() *FailureUpsertBulk {
 //	client.Failure.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
+//
 func (u *FailureUpsertBulk) Ignore() *FailureUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u

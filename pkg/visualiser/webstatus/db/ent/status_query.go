@@ -264,6 +264,7 @@ func (sq *StatusQuery) Clone() *StatusQuery {
 //		GroupBy(status.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
+//
 func (sq *StatusQuery) GroupBy(field string, fields ...string) *StatusGroupBy {
 	grbuild := &StatusGroupBy{config: sq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -290,6 +291,7 @@ func (sq *StatusQuery) GroupBy(field string, fields ...string) *StatusGroupBy {
 //	client.Status.Query().
 //		Select(status.FieldName).
 //		Scan(ctx, &v)
+//
 func (sq *StatusQuery) Select(fields ...string) *StatusSelect {
 	sq.fields = append(sq.fields, fields...)
 	selbuild := &StatusSelect{StatusQuery: sq}

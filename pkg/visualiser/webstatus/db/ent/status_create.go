@@ -170,6 +170,7 @@ func (sc *StatusCreate) createSpec() (*Status, *sqlgraph.CreateSpec) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
+//
 func (sc *StatusCreate) OnConflict(opts ...sql.ConflictOption) *StatusUpsertOne {
 	sc.conflict = opts
 	return &StatusUpsertOne{
@@ -183,6 +184,7 @@ func (sc *StatusCreate) OnConflict(opts ...sql.ConflictOption) *StatusUpsertOne 
 //	client.Status.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
+//
 func (sc *StatusCreate) OnConflictColumns(columns ...string) *StatusUpsertOne {
 	sc.conflict = append(sc.conflict, sql.ConflictColumns(columns...))
 	return &StatusUpsertOne{
@@ -235,6 +237,7 @@ func (u *StatusUpsert) UpdateValue() *StatusUpsert {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
+//
 func (u *StatusUpsertOne) UpdateNewValues() *StatusUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -243,9 +246,10 @@ func (u *StatusUpsertOne) UpdateNewValues() *StatusUpsertOne {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//	client.Status.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
+//  client.Status.Create().
+//      OnConflict(sql.ResolveWithIgnore()).
+//      Exec(ctx)
+//
 func (u *StatusUpsertOne) Ignore() *StatusUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
@@ -428,6 +432,7 @@ func (scb *StatusCreateBulk) ExecX(ctx context.Context) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
+//
 func (scb *StatusCreateBulk) OnConflict(opts ...sql.ConflictOption) *StatusUpsertBulk {
 	scb.conflict = opts
 	return &StatusUpsertBulk{
@@ -441,6 +446,7 @@ func (scb *StatusCreateBulk) OnConflict(opts ...sql.ConflictOption) *StatusUpser
 //	client.Status.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
+//
 func (scb *StatusCreateBulk) OnConflictColumns(columns ...string) *StatusUpsertBulk {
 	scb.conflict = append(scb.conflict, sql.ConflictColumns(columns...))
 	return &StatusUpsertBulk{
@@ -462,6 +468,7 @@ type StatusUpsertBulk struct {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
+//
 func (u *StatusUpsertBulk) UpdateNewValues() *StatusUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -473,6 +480,7 @@ func (u *StatusUpsertBulk) UpdateNewValues() *StatusUpsertBulk {
 //	client.Status.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
+//
 func (u *StatusUpsertBulk) Ignore() *StatusUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
