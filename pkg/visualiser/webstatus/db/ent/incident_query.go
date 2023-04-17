@@ -412,7 +412,6 @@ func (iq *IncidentQuery) WithFiles(opts ...func(*FileQuery)) *IncidentQuery {
 //		GroupBy(incident.FieldUUID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-//
 func (iq *IncidentQuery) GroupBy(field string, fields ...string) *IncidentGroupBy {
 	grbuild := &IncidentGroupBy{config: iq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -439,7 +438,6 @@ func (iq *IncidentQuery) GroupBy(field string, fields ...string) *IncidentGroupB
 //	client.Incident.Query().
 //		Select(incident.FieldUUID).
 //		Scan(ctx, &v)
-//
 func (iq *IncidentQuery) Select(fields ...string) *IncidentSelect {
 	iq.fields = append(iq.fields, fields...)
 	selbuild := &IncidentSelect{IncidentQuery: iq}

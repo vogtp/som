@@ -5,8 +5,12 @@ build: generate build-stater build-monitor-cdp build-visualiser build-alerter bu
 curdate=$(shell date -u +%Y%m%d-%H%M)
 build_date = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
 
+.PHONY: install_stinger
+install_stinger:
+	go install golang.org/x/tools/cmd/stringer@latest
+
 .PHONY: generate
-generate:
+generate: install_stinger
 	go generate ./...
 
 .PHONY: build-somctl

@@ -412,7 +412,6 @@ func (aq *AlertQuery) WithFiles(opts ...func(*FileQuery)) *AlertQuery {
 //		GroupBy(alert.FieldUUID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-//
 func (aq *AlertQuery) GroupBy(field string, fields ...string) *AlertGroupBy {
 	grbuild := &AlertGroupBy{config: aq.config}
 	grbuild.fields = append([]string{field}, fields...)
@@ -439,7 +438,6 @@ func (aq *AlertQuery) GroupBy(field string, fields ...string) *AlertGroupBy {
 //	client.Alert.Query().
 //		Select(alert.FieldUUID).
 //		Scan(ctx, &v)
-//
 func (aq *AlertQuery) Select(fields ...string) *AlertSelect {
 	aq.fields = append(aq.fields, fields...)
 	selbuild := &AlertSelect{AlertQuery: aq}

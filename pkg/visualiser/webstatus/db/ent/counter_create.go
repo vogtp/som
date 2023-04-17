@@ -170,7 +170,6 @@ func (cc *CounterCreate) createSpec() (*Counter, *sqlgraph.CreateSpec) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-//
 func (cc *CounterCreate) OnConflict(opts ...sql.ConflictOption) *CounterUpsertOne {
 	cc.conflict = opts
 	return &CounterUpsertOne{
@@ -184,7 +183,6 @@ func (cc *CounterCreate) OnConflict(opts ...sql.ConflictOption) *CounterUpsertOn
 //	client.Counter.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-//
 func (cc *CounterCreate) OnConflictColumns(columns ...string) *CounterUpsertOne {
 	cc.conflict = append(cc.conflict, sql.ConflictColumns(columns...))
 	return &CounterUpsertOne{
@@ -243,7 +241,6 @@ func (u *CounterUpsert) AddValue(v float64) *CounterUpsert {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
-//
 func (u *CounterUpsertOne) UpdateNewValues() *CounterUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -252,10 +249,9 @@ func (u *CounterUpsertOne) UpdateNewValues() *CounterUpsertOne {
 // Ignore sets each column to itself in case of conflict.
 // Using this option is equivalent to using:
 //
-//  client.Counter.Create().
-//      OnConflict(sql.ResolveWithIgnore()).
-//      Exec(ctx)
-//
+//	client.Counter.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
 func (u *CounterUpsertOne) Ignore() *CounterUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
@@ -445,7 +441,6 @@ func (ccb *CounterCreateBulk) ExecX(ctx context.Context) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-//
 func (ccb *CounterCreateBulk) OnConflict(opts ...sql.ConflictOption) *CounterUpsertBulk {
 	ccb.conflict = opts
 	return &CounterUpsertBulk{
@@ -459,7 +454,6 @@ func (ccb *CounterCreateBulk) OnConflict(opts ...sql.ConflictOption) *CounterUps
 //	client.Counter.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-//
 func (ccb *CounterCreateBulk) OnConflictColumns(columns ...string) *CounterUpsertBulk {
 	ccb.conflict = append(ccb.conflict, sql.ConflictColumns(columns...))
 	return &CounterUpsertBulk{
@@ -481,7 +475,6 @@ type CounterUpsertBulk struct {
 //			sql.ResolveWithNewValues(),
 //		).
 //		Exec(ctx)
-//
 func (u *CounterUpsertBulk) UpdateNewValues() *CounterUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
 	return u
@@ -493,7 +486,6 @@ func (u *CounterUpsertBulk) UpdateNewValues() *CounterUpsertBulk {
 //	client.Counter.Create().
 //		OnConflict(sql.ResolveWithIgnore()).
 //		Exec(ctx)
-//
 func (u *CounterUpsertBulk) Ignore() *CounterUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
 	return u
