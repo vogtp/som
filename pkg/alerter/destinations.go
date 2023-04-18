@@ -48,9 +48,9 @@ func (a *Alerter) initDests() (ret error) {
 	a.dsts = validDst
 	if len(a.dsts) < 1 {
 		ret = errors.New("no valid alerting destinations")
-		a.hcl.Error(ret.Error())
+		a.hcl.Error("no valid alerting destinations", "error", ret.Error())
 	}
-	a.hcl.Warnf("Loaded %v alert destinations", len(a.dsts))
+	a.hcl.Warn("Loaded alert destinations", "count", len(a.dsts))
 	return ret
 }
 
@@ -58,7 +58,7 @@ func (a *Alerter) parseDestinationsCfg() {
 	raw := viper.Get(cfg.AlertDestinations)
 	slc, ok := raw.([]any)
 	if !ok {
-		a.hcl.Errorf("Cannot get destinations: %v", raw)
+		a.hcl.Error("Cannot get destinations", "raw", raw)
 		return
 	}
 	for i, l := range slc {
@@ -66,7 +66,7 @@ func (a *Alerter) parseDestinationsCfg() {
 		for k := range m {
 			cfg := viper.Sub(fmt.Sprintf("%s.%v.%v", cfg.AlertDestinations, i, k))
 			if cfg == nil {
-				a.hcl.Warnf("Destination index %v is nil", i)
+				a.hcl.Warn("Destination is nil", "index", i, "engine", k)
 				continue
 			}
 			name := cfg.GetString(cfgAlertDestName)
@@ -74,7 +74,7 @@ func (a *Alerter) parseDestinationsCfg() {
 				a.hcl.Warn("No destination name, skipping")
 				continue
 			}
-			a.hcl.Infof("Alert destination %v: %q", k, name)
+			a.hcl.Info("Alert destination", "engine", k, "name", name)
 			d := &Destination{
 				name: name,
 				kind: k,
@@ -82,7 +82,7 @@ func (a *Alerter) parseDestinationsCfg() {
 			}
 
 			if err := a.AddDestination(d); err != nil {
-				a.hcl.Warnf("Cannot add destination %s: %v", name, err)
+				a.hcl.Warn("Cannot add destination", "name", name, "error", err)
 			}
 		}
 	}

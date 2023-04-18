@@ -66,7 +66,7 @@ func (alt *Mail) checkConfig(a *Alerter) (ret error) {
 				continue
 			}
 			if len(getCfgString(cfgAlertSubject, &r, &d)) < 1 {
-				alt.hcl.Warnf("%s %s has no subject", r.name, d.name)
+				alt.hcl.Warn("mail has no subject", "rule", r.name, "destination", d.name)
 			}
 			to := d.cfg.GetStringSlice(cfgAlertDestMailTo)
 			if len(to) < 1 {
@@ -88,10 +88,10 @@ func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {
 	return gomail.SetCopyFunc(func(w io.Writer) error {
 		s, err := w.Write(f.Payload)
 		if err != nil {
-			alt.hcl.Warnf("cannot attach file %q: %v", f.Name, err)
+			alt.hcl.Warn("cannot attach file", "file", f.Name, "error", err)
 		}
 		if s != f.Size {
-			alt.hcl.Warnf("not written enough %v should be %v", s, f.Size)
+			alt.hcl.Warn("not written enough", "file", f.Name, "bytes_wirtten", s, "bytes_total", f.Size)
 		}
 		return err
 	})
@@ -100,7 +100,7 @@ func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {
 func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	to := d.cfg.GetStringSlice(cfgAlertDestMailTo)
 	if len(to) < 1 {
-		alt.hcl.Debugf("No mail-to not sending %s: %v", e.Name, e.Err())
+		alt.hcl.Debug("No mail-to not sending", "alert", e.Name, "message", e.Err(), "rule", r.name, "destination", d.name)
 		return nil
 	}
 	subj := getSubject(e, r, d)
@@ -111,7 +111,7 @@ func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	img := ""
 	for _, f := range e.Files {
 		name := fmt.Sprintf("%s.%s", f.Name, f.Type.Ext)
-		alt.hcl.Debugf("Adding attachment %s", name)
+		alt.hcl.Debug("Adding attachment", "attachment", name)
 		header := make(map[string][]string)
 		header["Content-Type"] = []string{f.Type.MimeType}
 		if strings.HasPrefix(f.Type.MimeType, "image/") {
@@ -135,6 +135,6 @@ func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	if err := mailer.DialAndSend(m); err != nil {
 		return fmt.Errorf("cannot send mail: %w", err)
 	}
-	alt.hcl.Infof("Sent email %q to %v", subj, to)
+	alt.hcl.Info("Sent email", "subject", subj, "destination", to, "rule", r.name, "destination", d.name)
 	return nil
 }

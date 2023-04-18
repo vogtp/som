@@ -10,13 +10,13 @@ import (
 func Run(name string, coreOpts ...core.Option) (func(), error) {
 	c, close := core.New(name, coreOpts...)
 	if !viper.GetBool(cfg.AlertEnabled) {
-		c.HCL().Warnf("Alerting is disabled!")
+		c.HCL().Warn("Alerting is disabled!")
 		return close, nil
 	}
 	a := New(c)
 
 	if err := a.Run(); err != nil {
-		a.hcl.Warnf("Problems starting the alerter: %v", err)
+		a.hcl.Warn("Problems starting the alerter", "error", err)
 	}
 
 	return close, nil

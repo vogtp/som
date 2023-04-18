@@ -73,13 +73,13 @@ func (cdp *Engine) registerConsoleListener() {
 				cdp.consMsg[string(ev.Type)] = cdp.consMsg[string(ev.Type)] + 1
 			}
 
-			cdp.hcl.Tracef("console.%s message:", ev.Type)
-			for _, arg := range ev.Args {
-				cdp.hcl.Tracef("%s - %s", arg.Type, arg.Value)
-			}
+			// cdp.hcl.Tracef("console.%s message:", ev.Type)
+			// for _, arg := range ev.Args {
+			// 	cdp.hcl.Tracef("%s - %s", arg.Type, arg.Value)
+			// }
 		case *runtime.EventExceptionThrown:
 			cdp.consMsg["exception"] = cdp.consMsg["exception"] + 1
-			cdp.hcl.Debugf("Console exception: %s", ev.ExceptionDetails.Text)
+			cdp.hcl.Debug("Console exception", "error", ev.ExceptionDetails.Text)
 
 		}
 	})

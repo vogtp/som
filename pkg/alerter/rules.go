@@ -64,7 +64,7 @@ func (a *Alerter) initRules() (ret error) {
 		ret = errors.New("no valid alerting rules")
 		a.hcl.Error(ret.Error())
 	}
-	a.hcl.Warnf("Loaded %v alert Rules", len(a.rules))
+	a.hcl.Warn("Loaded alert Rules", "count", len(a.rules))
 	return ret
 }
 
@@ -73,7 +73,7 @@ func (a *Alerter) isValidRule(r *Rule) error {
 	for _, d := range dests {
 		dst, found := a.dsts[d]
 		if !found {
-			a.hcl.Warnf("No such destination %q ignroing", d)
+			a.hcl.Warn("No such destination: ignroing", "destination", d, "rule", r.name)
 			continue
 		}
 		r.destinations = append(r.destinations, *dst)
@@ -81,7 +81,7 @@ func (a *Alerter) isValidRule(r *Rule) error {
 	if len(r.destinations) < 1 {
 		return fmt.Errorf("a rule %s without destinations does not make sense", r.name)
 	}
-	a.hcl.Infof("Added rule %s", r.name)
+	a.hcl.Info("Added rule", "rule", r.name)
 	return nil
 }
 
@@ -89,7 +89,7 @@ func (a *Alerter) parseRulesCfg() {
 	raw := viper.Get(cfg.AlertRules)
 	slc, ok := raw.([]any)
 	if !ok {
-		a.hcl.Errorf("Cannot get rules: %v", raw)
+		a.hcl.Error("Cannot get rules", "raw", raw)
 		return
 	}
 	for i := range slc {
@@ -105,7 +105,7 @@ func (a *Alerter) parseRulesCfg() {
 			conditions: make([]condWrapper, 0),
 		}
 		if err := a.AddRule(r); err != nil {
-			a.hcl.Warnf("Not adding rule %s: %v", name, err)
+			a.hcl.Warn("Not adding rule", "rule", name, "error", err)
 		}
 	}
 }
@@ -114,18 +114,18 @@ func (a *Alerter) parseConditions(r *Rule) {
 	raw := r.cfg.Get(cfgAlertRuleConditions)
 	slc, ok := raw.(map[string]any)
 	if !ok {
-		a.hcl.Errorf("Cannot get conditions of rule %s: %v", r.name, raw)
+		a.hcl.Error("Cannot get conditions of rule", "rule", r.name, "conditions", raw)
 		return
 	}
 	for n := range slc {
 		cond, ok := a.conditions[n]
 		if !ok {
-			a.hcl.Warnf("rule %q: no such codition: %q", r.name, n)
+			a.hcl.Warn("rule: no such codition", "rule", r.name, "condition", n)
 			continue
 		}
 		cfg := r.cfg.Sub(fmt.Sprintf("%s.%v", cfgAlertRuleConditions, n))
 		if err := cond.CheckConfig(cfg); err != nil {
-			a.hcl.Warnf("Condition %q of rule %q contains errors: %v", cond.Kind(), r.name, err)
+			a.hcl.Warn("Condition %q of rule %q contains errors: %v", "condition", cond.Kind(), "rule", r.name, "error", err)
 		}
 		r.conditions = append(r.conditions, condWrapper{
 			cond: cond,

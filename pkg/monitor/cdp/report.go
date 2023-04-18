@@ -1,7 +1,6 @@
 package cdp
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -21,8 +20,8 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 	pwAge := time.Since(cdp.szenario.User().PasswordCreated())
 	cdp.evtMsg.SetCounter("logins.failed", float64(failedLogins))
 	cdp.evtMsg.SetCounter("logins.passwordage", float64(pwAge.Seconds()))
-	cdp.evtMsg.SetStatus("logins.passwordage", fmt.Sprintf("%v", pwAge))
-	cdp.hcl.Warnf("Failed logins: %v (password Age: %v)", failedLogins, pwAge)
+	cdp.evtMsg.SetStatus("logins.passwordage", pwAge.String())
+	cdp.hcl.Warn("Failed logins", "failed_login", failedLogins, "password_age", pwAge)
 
 	for k, v := range cdp.stepInfo.stepTimes {
 		if v > 0 {
@@ -35,7 +34,7 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 		}
 	}
 	if err := cdp.bus.Szenario.Send(cdp.evtMsg); err != nil {
-		cdp.hcl.Warnf("cannot send szenario message: %v", err)
+		cdp.hcl.Warn("cannot send szenario message", "error", err)
 	}
-	cdp.hcl.Infof("Status %s: %v", cdp.szenario.Name(), status)
+	cdp.hcl.Info("Szenario status", status)
 }

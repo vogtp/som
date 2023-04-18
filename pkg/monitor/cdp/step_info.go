@@ -22,7 +22,7 @@ func newStepInfo(hcl *hcl.Logger) *stepInfo {
 }
 
 func (s *stepInfo) start(name string) {
-	s.hcl.Debugf("Step: %s", name)
+	s.hcl.Debug("Step start", "step",name)
 	s.name = name
 	s.startTime = time.Now()
 }
@@ -35,5 +35,5 @@ func (s *stepInfo) end(name string) {
 	if d.Seconds() > .2 {
 		s.stepTimes[strcase.ToCamel(s.name)] = d.Seconds()
 	}
-	s.hcl.Infof("Step %q took %v", s.name, d)
+	s.hcl.Info("Step finished", "step", s.name, "duration",d)
 }
