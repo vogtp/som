@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -36,14 +35,14 @@ var incidentReplay = &cobra.Command{
 	Long:  ``,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if !hcl.IsGoRun() {
-			fmt.Println("Incident replay can be used to replay incidents to debug")
-			ans := term.Read("DO YOU REALLY WANT TO CONTINE? (yes|no)")
-			if ans != "yes" {
-				fmt.Printf("%s? OK! Stopping!\n", ans)
-				return nil
-			}
+
+		fmt.Println("Incident replay can be used to replay incidents to debug")
+		ans := term.Read("DO YOU REALLY WANT TO CONTINE? (yes|no)")
+		if ans != "yes" {
+			fmt.Printf("%s? OK! Stopping!\n", ans)
+			return nil
 		}
+
 		incidenId, err := uuid.Parse(args[0])
 		if err != nil {
 			return fmt.Errorf("%s is not a UUID: %w", args[0], err)
@@ -63,7 +62,7 @@ var incidentReplay = &cobra.Command{
 		replayDelay := viper.GetDuration(flagReplayDelay)
 		estDuration := time.Duration(len(incidents)) * replayDelay
 		fmt.Printf("\nReplaying %d events\nName: %s\nStart: %s\nEstimated time: %v (delay: %v)\nYou will need to copy alertmgr.json from stater to get sensible results!\n", len(incidents), incidents[0].Name, incidents[0].Start.Format(cfg.TimeFormatString), estDuration, replayDelay)
-		ans := term.Read("Replay? (y|n)")
+		ans = term.Read("Replay? (y|n)")
 		if ans != "y" {
 			return fmt.Errorf("You answered %s, stopping", ans)
 		}

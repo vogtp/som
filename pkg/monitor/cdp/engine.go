@@ -2,10 +2,10 @@ package cdp
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/log"
 	"golang.org/x/exp/slog"
 )
@@ -23,7 +23,7 @@ func (cdp *Engine) Log() *slog.Logger {
 func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 	if cdp.browser != nil {
 		if pc := chromedp.FromContext(cdp.browser); pc != nil && pc.Browser != nil {
-			hcl.Debug("Engine already Initialised")
+			slog.Debug("Engine already Initialised")
 			//	return pc.Cancel
 		}
 	}
@@ -40,15 +40,15 @@ func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 
 	cdp.browser, cancel = chromedp.NewContext(
 		ctx,
-		chromedp.WithErrorf(hcl.Errorf),
-		chromedp.WithLogf(hcl.Infof),
-		chromedp.WithDebugf(hcl.Tracef),
+		chromedp.WithErrorf(func(msg string, v ...interface{}) { cdp.baseLogger.Error(fmt.Sprintf(msg, v)) }),
+		chromedp.WithLogf(func(msg string, v ...interface{}) { cdp.baseLogger.Info(fmt.Sprintf(msg, v)) }),
+		chromedp.WithDebugf(func(msg string, v ...interface{}) { cdp.baseLogger.Debug(fmt.Sprintf(msg, v)) }),
 	)
 
 	cdp.registerConsoleListener()
 
 	if cdp.noClose {
-		cancel = func() { hcl.Info("No close requested keeping the window open!") }
+		cancel = func() { slog.Info("No close requested keeping the window open!") }
 	}
 	return cancel
 }
@@ -75,9 +75,9 @@ func (cdp *Engine) registerConsoleListener() {
 				cdp.consMsg[string(ev.Type)] = cdp.consMsg[string(ev.Type)] + 1
 			}
 
-			// cdp.hcl.Tracef("console.%s message:", ev.Type)
+			// cdp.log.Debug("console.%s message:", ev.Type)
 			// for _, arg := range ev.Args {
-			// 	cdp.hcl.Tracef("%s - %s", arg.Type, arg.Value)
+			// 	cdp.log.Debug("%s - %s", arg.Type, arg.Value)
 			// }
 		case *runtime.EventExceptionThrown:
 			cdp.consMsg["exception"] = cdp.consMsg["exception"] + 1

@@ -40,7 +40,7 @@ func New() (*Client, error) {
 	}
 	client := &Client{
 		Client: entClient,
-		log:    core.Get().HCL().With(log.Component, "ent"),
+		log:    core.Get().Log().With(log.Component, "ent"),
 	}
 	client.IncidentSummary = &IncidentSummaryQuery{client: client}
 	client.Incident = &IncidentClient{

@@ -84,7 +84,7 @@ var userAdd = &cobra.Command{
 		name := term.ReadOrArgs("username", args, 0, defaultValue)
 		existUser, err := user.Store.Get(name)
 		if err != nil {
-			core.Get().HCL().Debug("User not found in backend", log.User, name, log.Error, err)
+			core.Get().Log().Debug("User not found in backend", log.User, name, log.Error, err)
 		}
 		if existUser != nil {
 			fmt.Printf("Found existing user %s empty input will be filled with values from this user...\n", existUser.Name())

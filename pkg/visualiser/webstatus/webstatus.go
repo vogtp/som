@@ -30,7 +30,7 @@ type WebStatus struct {
 func New() *WebStatus {
 	c := core.Get()
 	s := &WebStatus{
-		log: c.HCL().With(log.Component, "webstatus"),
+		log: c.Log().With(log.Component, "webstatus"),
 	}
 	s.data = newSzenarioData(s.log)
 

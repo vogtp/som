@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/suborbital/grav/grav"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msgtype"
@@ -33,7 +32,7 @@ type store struct {
 func IntialiseStore() {
 	backend.setup()
 	backend.start()
-	hcl.Warn("Userstore backend started", "key_len", len(core.Keystore.Key()))
+	slog.Warn("Userstore backend started", "key_len", len(core.Keystore.Key()))
 }
 
 // createBackend creates a new UserStore
@@ -46,7 +45,7 @@ func createBackend() *store {
 
 func (us *store) setup() {
 	c := core.Get()
-	us.log = c.HCL().With(log.Component, "user.store.backend")
+	us.log = c.Log().With(log.Component, "user.store.backend")
 	if err := us.load(); err != nil {
 		us.log.Error("Cannot load users", log.Error, err)
 	}

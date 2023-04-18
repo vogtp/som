@@ -36,7 +36,7 @@ func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName 
 	// if strings.Contains(ah, "application/xml") {
 	// 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
 	// 	if err := xml.NewEncoder(w).Encode(&data); err != nil {
-	// 		s.hcl.Errorf("cannot encode data of %s to xml: %v", templateName, err)
+	// 		s.log.Errorf("cannot encode data of %s to xml: %v", templateName, err)
 	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	// 		return
 	// 	}

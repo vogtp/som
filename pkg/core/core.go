@@ -4,7 +4,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -44,7 +43,7 @@ func New(name string, opts ...Option) (*Core, func()) {
 				basepath: viper.GetString(cfg.WebURLBasePath),
 			},
 			bus: &Bus{
-				busLogLevel: hclog.LevelFromString(viper.GetString(cfg.BusLogLevel)),
+				busLogLevel: log.LevelFromString(viper.GetString(cfg.BusLogLevel)),
 			},
 		}
 	} else if c.name != name {
@@ -54,6 +53,7 @@ func New(name string, opts ...Option) (*Core, func()) {
 		o(c)
 	}
 	if newCore {
+		slog.SetDefault(c.log)
 		c.log.Warn("SOM starting...", "version", som.Version)
 		c.web.init(c)
 		c.bus.init(c)
@@ -79,8 +79,8 @@ func (c *Core) Bus() *Bus {
 	return c.bus
 }
 
-// HCL returns the logger or panics if Core not Initialised with New
-func (c *Core) HCL() *slog.Logger {
+// Log returns the logger or panics if Core not Initialised with New
+func (c *Core) Log() *slog.Logger {
 	return c.log
 }
 

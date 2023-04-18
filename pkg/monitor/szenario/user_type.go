@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/vogtp/go-hcl"
+	"golang.org/x/exp/slog"
 )
 
 // MustUserType panics if usertype creation returns an error
@@ -35,7 +35,7 @@ func (c Config) ByUser(u User) ([]Szenario, error) {
 		szs[i] = s
 	}
 	if len(szs) < 1 {
-		hcl.Warn("No szenario found for usertype","user_type", u.Type())
+		slog.Warn("No szenario found for usertype", "user_type", u.Type())
 	}
 	return szs, nil
 }

@@ -18,7 +18,7 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 	user.IntialiseStore()
 
 	if err := alertmgr.Run(); err != nil {
-		c.HCL().Warn("alertmgr refused to run", log.Error, err)
+		c.Log().Warn("alertmgr refused to run", log.Error, err)
 		return close, err
 	}
 

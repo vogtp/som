@@ -12,7 +12,6 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
@@ -21,6 +20,7 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 	"github.com/vogtp/som/pkg/visualiser"
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -108,7 +108,7 @@ func initEnv(t *testing.T) (*core.Bus, []cdp.Option, func()) {
 
 func cleanupOutFolder() {
 	if err := os.RemoveAll(testOutFolder); err != nil {
-		hcl.Warn("Cannot remove folder", "folder", testOutFolder, log.Error, err)
+		slog.Warn("Cannot remove folder", "folder", testOutFolder, log.Error, err)
 	}
 }
 
@@ -423,7 +423,7 @@ func TestReporter(t *testing.T) {
 			t.Error(err)
 		}
 		s := string(b)
-		hcl.Warn(s)
+		slog.Warn(s)
 	}))
 	ncDummy.StartTLS()
 	defer srv.Close()

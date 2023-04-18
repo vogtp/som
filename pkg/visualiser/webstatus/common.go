@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -30,7 +30,7 @@ type commonData struct {
 
 func common(t string, r *http.Request) *commonData {
 	if err := r.ParseForm(); err != nil {
-		hcl.Warn("Cannot parse form", log.Error, err)
+		slog.Warn("Cannot parse form", log.Error, err)
 	}
 	q := ""
 	if len(r.URL.RawQuery) > 0 {

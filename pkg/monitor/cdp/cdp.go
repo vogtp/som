@@ -66,12 +66,12 @@ type Engine struct {
 // New creates a new Engine
 func New(opts ...Option) (*Engine, context.CancelFunc) {
 	core := core.Get()
-	hcl := core.HCL().With(log.Component, "cdp")
+	slog := core.Log().With(log.Component, "cdp")
 	ctx, cancel := context.WithCancel(context.Background())
 	cdp := &Engine{
 		ctx:                 ctx,
-		baseLogger:          hcl,
-		log:                 hcl,
+		baseLogger:          slog,
+		log:                 slog,
 		bus:                 core.Bus(),
 		runChan:             make(chan szenarionRunWrapper, 100),
 		triggerSzenarioChan: make(chan string, 100),

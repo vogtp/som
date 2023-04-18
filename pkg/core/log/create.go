@@ -12,6 +12,10 @@ import (
 
 func New(name string) *slog.Logger {
 	lvl := LevelFromString(viper.GetString(cfg.LogLevel))
+	return Create(name, lvl)
+}
+
+func Create(name string, lvl slog.Level) *slog.Logger {
 	logOpts := slog.HandlerOptions{
 		Level: lvl,
 	}
@@ -34,7 +38,6 @@ func New(name string) *slog.Logger {
 	log := slog.New(handler)
 	log = log.With(slog.String("app", name))
 
-	slog.SetDefault(log)
 	return log
 }
 
@@ -42,6 +45,8 @@ func LevelFromString(levelStr string) slog.Level {
 	// We don't care about case. Accept both "INFO" and "info".
 	levelStr = strings.ToLower(strings.TrimSpace(levelStr))
 	switch levelStr {
+	case "trace":
+		return slog.LevelDebug
 	case "debug":
 		return slog.LevelDebug
 	case "info":
@@ -50,6 +55,8 @@ func LevelFromString(levelStr string) slog.Level {
 		return slog.LevelWarn
 	case "error":
 		return slog.LevelError
+	case "off":
+		return slog.Level(88)
 	default:
 		return slog.LevelInfo
 	}

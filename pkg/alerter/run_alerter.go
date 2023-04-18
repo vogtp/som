@@ -11,7 +11,7 @@ import (
 func Run(name string, coreOpts ...core.Option) (func(), error) {
 	c, close := core.New(name, coreOpts...)
 	if !viper.GetBool(cfg.AlertEnabled) {
-		c.HCL().Warn("Alerting is disabled!")
+		c.Log().Warn("Alerting is disabled!")
 		return close, nil
 	}
 	a := New(c)

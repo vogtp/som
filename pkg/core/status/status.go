@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
+	"golang.org/x/exp/slog"
 )
 
 // Status correlates event messages
@@ -125,7 +125,7 @@ func (sg statusGroup) JSONBySzenario(n string) []byte {
 	}
 	d, err := g.MarshalJSON()
 	if err != nil {
-		hcl.Warn("Cannot marshal JSONBySzenario", "key", n, log.Error, err)
+		slog.Warn("Cannot marshal JSONBySzenario", "key", n, log.Error, err)
 	}
 	return d
 }

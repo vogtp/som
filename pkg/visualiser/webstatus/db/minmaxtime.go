@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
+	"golang.org/x/exp/slog"
 )
 
 // MinMaxTime is a wrapper around time to support SQL max and min
@@ -33,7 +33,7 @@ func (mmt *MinMaxTime) Scan(value interface{}) error {
 	// }
 	t, err := time.Parse(format, s)
 	if err != nil {
-		hcl.Error("Cannot parse time", log.Error, s)
+		slog.Error("Cannot parse time", log.Error, s)
 	}
 	mmt.t = t
 	return err

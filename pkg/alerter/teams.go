@@ -84,14 +84,14 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	//fullImage := fmt.Sprintf("<img src='%s/%s?file=%%s.%%s' />", viper.GetString(cfg.AlertDetailURL), e.ID)
 	// for _, f := range e.Files {
 	// 	name := fmt.Sprintf("%s.%s", f.Name, f.Type.Ext)
-	// 	teams.hcl.Debugf("Adding attachment %s", name)
+	// 	teams.log.Debugf("Adding attachment %s", name)
 	// 	if f.Type == mime.Png {
 	// 		imgTag, err := teams.getImage(f.Payload)
 	// 		if err != nil {
-	// 			teams.hcl.Warnf("cannot add image %s: %v", name, err)
+	// 			teams.log.Warnf("cannot add image %s: %v", name, err)
 	// 			continue
 	// 		}
-	// 		//teams.hcl.Infof("%s",fmt.Sprintf(fullImage, f.Name, f.Type.Ext))
+	// 		//teams.log.Infof("%s",fmt.Sprintf(fullImage, f.Name, f.Type.Ext))
 	// 		//img = fmt.Sprintf("%s\n%s<br />\n", img, fmt.Sprintf(fullImage, f.Name, f.Type.Ext))
 	// 		img = fmt.Sprintf("%s\n%s<br />\n", img, imgTag)
 	// 		break

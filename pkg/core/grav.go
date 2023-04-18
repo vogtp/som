@@ -3,7 +3,6 @@ package core
 import (
 	"fmt"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
 	"github.com/suborbital/grav/discovery/local"
 	"github.com/suborbital/grav/grav"
@@ -12,6 +11,7 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
+	"golang.org/x/exp/slog"
 )
 
 func (e *Bus) initGrav(web *WebServer) {
@@ -25,14 +25,12 @@ func (e *Bus) initGrav(web *WebServer) {
 		// grav.UseBelongsTo(*belong)
 	}
 
-	if e.busLogLevel == hclog.Off {
+	if e.busLogLevel > slog.LevelError {
 		opts = append(opts, grav.UseLogger(vlog.Default(vlog.Level("null"))))
 	} else {
-		//FIXME remove HCL
-		hcl := hcl.New().Named("grav")
-		hcl.SetLevel(e.busLogLevel)
-
-		opts = append(opts, grav.UseLogger(hcl.Vlog()))
+		slog := log.Create("som.grav", e.busLogLevel)
+		vlog := log.VlogCompat(slog)
+		opts = append(opts, grav.UseLogger(vlog))
 	}
 
 	if !hcl.IsGoTest() {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/vogtp/go-hcl"
+	"golang.org/x/exp/slog"
 )
 
 // GrpReg holds all by json instanceble groups
@@ -18,7 +18,7 @@ type grpReg struct {
 
 // Add a group (best in init())
 func (r *grpReg) Add(g Grouper) {
-	hcl.Debug("Adding group to registry", "type", reflect.TypeOf(g))
+	slog.Debug("Adding group to registry", "type", reflect.TypeOf(g))
 	r.grps[fmt.Sprintf("%T", g)] = g
 }
 

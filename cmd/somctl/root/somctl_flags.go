@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
@@ -18,7 +17,6 @@ const (
 )
 
 func init() {
-	hcl.SetLevel(defaultLogLevel) // make startup silent
 	viper.SetDefault(cfg.LogLevel, defaultLogLevel.String())
 	viper.SetDefault(cfg.CoreStartdelay, time.Millisecond)
 }
@@ -33,7 +31,6 @@ func processFlags() {
 	// only set loglevel from cmd line
 	if !isCmdlineFlag(cfg.LogLevel) {
 		viper.Set(cfg.LogLevel, defaultLogLevel)
-		hcl.SetLevel(defaultLogLevel)
 	}
 	if !isCmdlineFlag(cfg.CheckRepeat) {
 		viper.Set(cfg.CheckRepeat, 0)

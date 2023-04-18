@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/go-hcl"
@@ -24,7 +23,7 @@ type Bus struct {
 
 	endpointURL string
 
-	busLogLevel hclog.Level
+	busLogLevel slog.Level
 
 	Szenario *eventHandler[msg.SzenarioEvtMsg]
 	Alert    *eventHandler[msg.AlertMsg]

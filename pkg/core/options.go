@@ -1,8 +1,8 @@
 package core
 
 import (
-	"github.com/hashicorp/go-hclog"
 	"github.com/vogtp/som/pkg/monitor/szenario"
+	"golang.org/x/exp/slog"
 )
 
 // Option configures the core
@@ -23,7 +23,7 @@ func BasePath(s string) Option {
 }
 
 // BusLogger enables and sets the loggin of the bus bus
-func BusLogger(level hclog.Level) Option {
+func BusLogger(level slog.Level) Option {
 	return func(c *Core) {
 		c.bus.busLogLevel = level
 	}

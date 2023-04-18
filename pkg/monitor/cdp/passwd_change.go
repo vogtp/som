@@ -52,9 +52,9 @@ func (cdp *Engine) passwordChangeLoop(user *user.User) {
 	if !viper.GetBool(cfg.PasswdChange) {
 		return
 	}
-	hcl := cdp.baseLogger
+	slog := cdp.baseLogger
 	delay := viper.GetDuration(cfg.PasswdChgIntervall)
-	hcl.Warn("Staring password change loop", log.Szenario, user.Name(), "repeat", delay)
+	slog.Warn("Staring password change loop", log.Szenario, user.Name(), "repeat", delay)
 
 	pwChgSz := &passwdChgSzenario{
 		Base: &szenario.Base{
@@ -67,26 +67,26 @@ func (cdp *Engine) passwordChangeLoop(user *user.User) {
 
 	szConfig := core.Get().SzenaioConfig()
 	szNames := viper.GetStringSlice(cfg.PasswdChgSz)
-	hcl.Debug("Found password change szenarios", "szenarios", szNames)
+	slog.Debug("Found password change szenarios", "szenarios", szNames)
 	for _, szName := range szNames {
 		sz := szConfig.ByName(szName)
 		if sz == nil {
-			hcl.Error("Password change szenario not found", log.Szenario, szName)
+			slog.Error("Password change szenario not found", log.Szenario, szName)
 			continue
 		}
 		sz.SetUser(user)
 		pwChgSz.szenarios = append(pwChgSz.szenarios, sz)
-		hcl.Warn("Added password change szenario", log.Szenario, sz.Name())
+		slog.Warn("Added password change szenario", log.Szenario, sz.Name())
 	}
 	if len(pwChgSz.szenarios) < 1 {
-		hcl.Error("No password change szenarios found")
+		slog.Error("No password change szenarios found")
 		return
 	}
 
 	pwChgSz.runWrapper = szenarionRunWrapper{sz: pwChgSz}
 	if viper.GetDuration(cfg.PasswdChangeInitalDelay) > -1 {
 		delay = viper.GetDuration(cfg.PasswdChangeInitalDelay)
-		hcl.Warn("Setting initial delay --> ONLY USE THIS IN DEBUGGIN!", "delay", delay)
+		slog.Warn("Setting initial delay --> ONLY USE THIS IN DEBUGGIN!", "delay", delay)
 	}
 	time.Sleep(delay)
 	cdp.runChan <- pwChgSz.runWrapper

@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -17,6 +16,7 @@ import (
 	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -92,10 +92,10 @@ func getNames(szenarios []szenario.Szenario) string {
 }
 
 func runSzenorios(user *user.User, szenarios []szenario.Szenario) {
-	hcl.Warn("Running szenarios", "szenarios", getNames(szenarios))
+	slog.Warn("Running szenarios", "szenarios", getNames(szenarios))
 
 	for _, s := range szenarios {
-		hcl.Info("Starting szenario", log.Szenario, s.Name(), log.User, user.Name())
+		slog.Info("Starting szenario", log.Szenario, s.Name(), log.User, user.Name())
 		s.SetUser(user)
 	}
 	opts := make([]cdp.Option, 0)

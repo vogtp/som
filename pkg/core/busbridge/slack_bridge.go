@@ -32,7 +32,7 @@ func NewSlack(ctx context.Context, logger *slog.Logger, oAuth string, appLevelTo
 			slack.OptionDebug(false),
 		),
 		socketmode.OptionDebug(false),
-		//socketmode.OptionLog(hcl),
+		//socketmode.OptionLog(log),
 	)
 	auth, err := client.AuthTestContext(ctx)
 	if err != nil {
@@ -57,14 +57,14 @@ func NewSlack(ctx context.Context, logger *slog.Logger, oAuth string, appLevelTo
 	// 	ChannelID: s.channel,
 	// })
 	// if err != nil {
-	// 	s.hcl.Errorf("channel %s probably not found: %v", s.channel, err)
+	// 	s.log.Errorf("channel %s probably not found: %v", s.channel, err)
 	// 	os.Exit(1)
 	// }
 	// if len(cursor) > 0 {
-	// 	s.hcl.Warnf("users cursor: %v should get more", cursor)
+	// 	s.log.Warnf("users cursor: %v should get more", cursor)
 	// }
 	// for _, u := range users {
-	// 	s.hcl.Infof("user: %v", u)
+	// 	s.log.Infof("user: %v", u)
 	// }
 	s.log.Info("Started bus handler")
 	return s, nil
@@ -158,11 +158,11 @@ func (s Slack) handleEventMessage(ctx context.Context, event slackevents.EventsA
 		case *slackevents.AppMentionEvent:
 			s.log.Debug("Mention", "text", ev.Text)
 			// if err := s.client.AddReactionContext(ctx, "eyes", slack.NewRefToMessage(ev.Channel, ev.TimeStamp)); err != nil {
-			// 	s.hcl.Infof("Adding readtion: %v", err)
+			// 	s.log.Infof("Adding readtion: %v", err)
 			// }
 			// go handleBackendQuery(ctx, ev.Text, client, ev.Channel)
 			// if err := s.client.AddReactionContext(ctx, "white_check_mark", slack.NewRefToMessage(ev.Channel, ev.TimeStamp)); err != nil {
-			// 	s.hcl.Infof("Adding readtion: %v", err)
+			// 	s.log.Infof("Adding readtion: %v", err)
 			// }
 		case *slackevents.MessageEvent:
 			if ev.BotID == s.auth.BotID {

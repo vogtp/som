@@ -137,7 +137,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 			s.log.Warn("Failed loading files", log.Error, err)
 		}
 		data.Alerts[aCnt-i-1] = alertDetail
-		//s.hcl.Info("Region", "region", alert.Region)
+		//s.log.Info("Region", "region", alert.Region)
 	}
 	s.render(w, r, "alert_detail.gohtml", data)
 }

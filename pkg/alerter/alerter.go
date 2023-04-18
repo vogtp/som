@@ -64,7 +64,7 @@ type Alerter struct {
 // New creates an alerter
 func New(c *core.Core) *Alerter {
 	a := &Alerter{
-		log:        c.HCL().With(log.Component, "alerter"),
+		log:        c.Log().With(log.Component, "alerter"),
 		c:          c,
 		dsts:       make(map[string]*Destination),
 		engines:    make(map[string]Engine),

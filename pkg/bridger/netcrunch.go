@@ -61,7 +61,7 @@ func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 		// not a msg for us
 		return
 	}
-	hcl := nc.log.With(log.Szenario, e.Name)
+	slog := nc.log.With(log.Szenario, e.Name)
 	data := ncGenericMsg{
 		Counters: e.Counters,
 		Statuses: make(map[string]string),
@@ -79,14 +79,14 @@ func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(data); err != nil {
-		hcl.Warn("Cannot encode netcrunch json", log.Error, err)
+		slog.Warn("Cannot encode netcrunch json", log.Error, err)
 	}
 	req, err := http.NewRequest(http.MethodPost,
 		fmt.Sprintf("https://%s/api/rest/1/sensors/%s/update", nc.srv, nc.id),
 		&buf,
 	)
 	if err != nil {
-		hcl.Error("Error creating netcrunch request", log.Error, err)
+		slog.Error("Error creating netcrunch request", log.Error, err)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -95,8 +95,8 @@ func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 	req = req.WithContext(reqCtx)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		hcl.Error("Error sending to netcrunch", log.Error, err)
+		slog.Error("Error sending to netcrunch", log.Error, err)
 		return
 	}
-	hcl.Info("Sent to netcrunch", "host", nc.srv, "status", resp.Status)
+	slog.Info("Sent to netcrunch", "host", nc.srv, "status", resp.Status)
 }

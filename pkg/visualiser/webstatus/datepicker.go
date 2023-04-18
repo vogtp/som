@@ -96,7 +96,7 @@ func (dp *datepicker) processTimespan(r *http.Request) {
 	}
 	dp.Start = start
 	dp.End = end
-	//hcl.Infof("Timespan (%s): %s - %s", dp.Timespan, start.Format(cfg.TimeFormatString), end.Format(cfg.TimeFormatString))
+	//slog.Debug("Timespan (%s): %s - %s", dp.Timespan, start.Format(cfg.TimeFormatString), end.Format(cfg.TimeFormatString))
 }
 
 func decodedFormGet(r *http.Request, key string) string {

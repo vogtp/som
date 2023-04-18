@@ -32,13 +32,13 @@ func createClient() *client {
 
 // Get returns the requested user or nil
 func (us *client) Get(name string) (*User, error) {
-	hcl := core.Get().HCL().With(log.Component, "user.client")
-	hcl.Debug("Requesting user", log.User, name)
+	slog := core.Get().Log().With(log.Component, "user.client")
+	slog.Debug("Requesting user", log.User, name)
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	user := new(User)
 	err := p.Send(grav.NewMsg(msgtype.UserRequest, []byte(name))).WaitUntil(defaultTimeout, func(m grav.Message) error {
-		//hcl.Tracef("Reply for user %s: %T %+v", name, m, string(m.Data()))
+
 		switch m.Type() {
 		case msgtype.UserResponse:
 			return json.Unmarshal(m.Data(), user)
@@ -50,24 +50,24 @@ func (us *client) Get(name string) (*User, error) {
 
 	})
 	if err != nil {
-		hcl.Warn("Failed to get user", log.User, name, log.Error, err)
+		slog.Warn("Failed to get user", log.User, name, log.Error, err)
 		if u, ok := backend.data[name]; ok {
-			hcl.Error("using local user", log.User, name)
+			slog.Error("using local user", log.User, name)
 			return &u, nil
 		}
 		return nil, err
 	}
-	hcl.Debug("Received user", log.User, name)
+	slog.Debug("Received user", log.User, name)
 	return user, nil
 }
 
 // Save a user to the store
 func (us *client) Save(u *User) error {
-	hcl := core.Get().HCL().With(log.Component, "user.client", log.User, u.Name())
+	slog := core.Get().Log().With(log.Component, "user.client", log.User, u.Name())
 	if err := u.IsValid(); err != nil {
 		return fmt.Errorf("user is not valid: %w", err)
 	}
-	hcl.Debug("Saving user")
+	slog.Debug("Saving user")
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	b, err := json.Marshal(u)
@@ -90,13 +90,13 @@ func (us *client) Save(u *User) error {
 
 // List returns a list of all users
 func (us *client) List() ([]User, error) {
-	hcl := core.Get().HCL().With(log.Component, "user.client")
-	hcl.Debug("Requesting user list")
+	slog := core.Get().Log().With(log.Component, "user.client")
+	slog.Debug("Requesting user list")
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	users := make([]User, 0)
 	err := p.Send(grav.NewMsg(msgtype.UserList, nil)).WaitUntil(defaultTimeout, func(m grav.Message) error {
-		//hcl.Tracef("Reply for userlist: %T %+v", m, string(m.Data()))
+		//slog.Debug("Reply for userlist: %T %+v", m, string(m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:
 			return json.Unmarshal(m.Data(), &users)
@@ -108,22 +108,22 @@ func (us *client) List() ([]User, error) {
 
 	})
 	if err != nil {
-		hcl.Error("Failed to get userlist", log.Error, err)
+		slog.Error("Failed to get userlist", log.Error, err)
 		return nil, err
 	}
-	hcl.Debug("Received users", "users", users)
+	slog.Debug("Received users", "users", users)
 	return users, nil
 }
 
 // Delete the user
 func (us *client) Delete(name string) (string, error) {
-	hcl := core.Get().HCL().With(log.Component, "user.client", log.User, name)
-	hcl.Debug("Deleting user")
+	slog := core.Get().Log().With(log.Component, "user.client", log.User, name)
+	slog.Debug("Deleting user")
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	msg := ""
 	err := p.Send(grav.NewMsg(msgtype.UserDelete, []byte(name))).WaitUntil(defaultTimeout, func(m grav.Message) error {
-		//hcl.Tracef("Reply for user %s: %T %+v", name, m, string(m.Data()))
+		//slog.Debug("Reply for user %s: %T %+v", name, m, string(m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:
 			msg = string(m.Data())
