@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
-	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
@@ -96,8 +95,7 @@ func initEnv(t *testing.T) (*core.Bus, []cdp.Option, func()) {
 	opts := make([]cdp.Option, 0)
 	opts = append(opts, cdp.Timeout(120*time.Second))
 
-	hcl := hcl.New(hcl.WithName(t.Name()), hcl.WithLevel(hclog.Warn))
-	c, close := core.New("som-test", core.HCL(hcl))
+	c, close := core.New("som-test")
 	bus := c.Bus()
 	visualiser.NewDumper()
 

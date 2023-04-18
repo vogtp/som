@@ -11,10 +11,11 @@ import (
 	goteamsnotify "github.com/atc0005/go-teams-notify/v2"
 	"github.com/nfnt/resize"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -23,16 +24,16 @@ const (
 
 // Teams  alerter
 type Teams struct {
-	hcl hcl.Logger
+	log *slog.Logger
 	mu  sync.Mutex
 }
 
 // NewTeams registers a Teams alerter on the event bus
 func NewTeams() (Engine, error) {
 	bus := core.Get().Bus()
-	hcl := bus.GetLogger().Named("teams")
+	log := bus.GetLogger().With(log.Component, "teams")
 	return &Teams{
-		hcl: hcl,
+		log: log,
 	}, nil
 }
 
@@ -43,7 +44,7 @@ func (teams *Teams) Kind() string { return "teams" }
 func (teams *Teams) Send(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	teams.mu.Lock()
 	defer teams.mu.Unlock()
-	teams.hcl.Info("Sending teams alert", "alert", e.Name, "message", e.Err(), "rule", r.name, "destination", d.name)
+	teams.log.Info("Sending teams alert", "alert", e.Name, "message", e.Err(), "rule", r.name, "destination", d.name)
 	err := teams.sendAlert(e, r, d)
 	if err != nil {
 		return fmt.Errorf("cannot send to teams: %v", err)
@@ -60,13 +61,13 @@ func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 			url := d.cfg.GetString(cfgAlertDestTeamsWebhook)
 
 			if err := goteamsnotify.NewClient().ValidateWebhook(url); err != nil {
-				teams.hcl.Warn("teams webhook URL not valid", "destination", d.name, "rule", r.name, "webhook", url, "error", err)
+				teams.log.Warn("teams webhook URL not valid", "destination", d.name, "rule", r.name, "webhook", url, "error", err)
 				if err != nil {
 					ret = err
 				}
 			}
 			if len(getCfgString(cfgAlertSubject, &r, &d)) < 1 {
-				teams.hcl.Warn("no subject for teams", "destination", d.name, "rule")
+				teams.log.Warn("no subject for teams", "destination", d.name, "rule")
 			}
 		}
 	}
@@ -98,7 +99,7 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	// }
 	text, err := getHTML(e)
 	if err != nil {
-		teams.hcl.Error("index Template error", "error", err, "destination", d.name, "rule")
+		teams.log.Error("index Template error", "error", err, "destination", d.name, "rule")
 	}
 	msgCard := goteamsnotify.NewMessageCard()
 	msgCard.Title = getSubject(e, r, d)
@@ -124,7 +125,7 @@ func (teams *Teams) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 		return fmt.Errorf("error creating new teams message card: %w", err)
 	}
 	if err := msgCard.Validate(); err != nil {
-		teams.hcl.Error("msg card is not valid", "error", err, "destination", d.name, "rule")
+		teams.log.Error("msg card is not valid", "error", err, "destination", d.name, "rule")
 		return fmt.Errorf("msg card is not valid: %w", err)
 	}
 	return mstClient.SendWithRetry(context.TODO(), webhookURL, msgCard, 3, 5)
@@ -148,7 +149,7 @@ func (teams *Teams) getImage(img []byte) (string, error) {
 	}
 
 	imgb64 := base64.StdEncoding.EncodeToString(buf.Bytes())
-	teams.hcl.Debug("image len", "len", len(imgb64))
+	teams.log.Debug("image len", "len", len(imgb64))
 
 	return fmt.Sprintf("<img src='data:image/png;base64, %s' />", imgb64), nil
 }

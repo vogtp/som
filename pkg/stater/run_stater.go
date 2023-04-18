@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/stater/alertmgr"
 	"github.com/vogtp/som/pkg/stater/user"
 )
@@ -17,7 +18,7 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 	user.IntialiseStore()
 
 	if err := alertmgr.Run(); err != nil {
-		c.HCL().Warnf("alertmgr refused to run: %v", err)
+		c.HCL().Warn("alertmgr refused to run", log.Error, err)
 		return close, err
 	}
 

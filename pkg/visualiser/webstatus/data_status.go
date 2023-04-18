@@ -9,23 +9,24 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/status"
+	"golang.org/x/exp/slog"
 )
 
 const jsonDBFile = "webstatus.json"
 
 type szenarioData struct {
-	hcl           hcl.Logger
+	log           *slog.Logger
 	mu            sync.RWMutex `json:"-"`
 	Status        status.Status
 	Availabilites map[string]status.Availability
 }
 
-func newSzenarioData(hcl hcl.Logger) *szenarioData {
+func newSzenarioData(logger *slog.Logger) *szenarioData {
 	sd := &szenarioData{
-		hcl:           hcl.Named("data"),
+		log:           logger.With(log.Component, "data"),
 		Status:        status.New(),
 		Availabilites: make(map[string]status.Availability),
 	}
@@ -42,7 +43,7 @@ func (sz *szenarioData) load() error {
 	go func() {
 		ticker := time.NewTicker(time.Hour)
 		for {
-			sz.hcl.Info("Cleaning status")
+			sz.log.Info("Cleaning status")
 			status.Cleanup(sz.Status)
 			<-ticker.C
 		}
@@ -69,7 +70,7 @@ func (sz *szenarioData) wirteJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot write file %s: %w", jsonDBFile, err)
 	}
-	sz.hcl.Debug("Saved szenario datasets", "count", len(sz.Status.Szenarios()), "file", jsonDBFile)
+	sz.log.Debug("Saved szenario datasets", "count", len(sz.Status.Szenarios()), "file", jsonDBFile)
 	return nil
 }
 
@@ -85,6 +86,6 @@ func (sz *szenarioData) readJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("error loading json from %v: %w", jsonDBFile, err)
 	}
-	sz.hcl.Debug("Loaded szenario datasets", "count", len(sz.Status.Szenarios()), "file", fi.Name())
+	sz.log.Debug("Loaded szenario datasets", "count", len(sz.Status.Szenarios()), "file", fi.Name())
 	return nil
 }

@@ -46,7 +46,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	}
 	id = strings.ToLower(r.URL.Path[idx+len(IncidentDetailPath):])
 	id = strings.TrimSuffix(id, "/")
-	s.hcl.Debug("incidents details requested", "id", id)
+	s.log.Debug("incidents details requested", "id", id)
 
 	ctx := r.Context()
 	client := s.Ent()
@@ -57,7 +57,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		incidentID, err = uuid.Parse(id)
 		if err != nil {
 			e := fmt.Errorf("cannot parse %s as uuid: %w", id, err)
-			s.hcl.Error("Cannot parse uuid", "error", e.Error(), "uuid", id)
+			s.log.Error("Cannot parse uuid", "error", e.Error(), "uuid", id)
 			s.Error(w, r, "Cannot parse UUID", e, http.StatusBadRequest)
 			return
 		}
@@ -116,7 +116,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 
 	for i, f := range incidents {
 		if errors.Is(ctx.Err(), context.Canceled) {
-			s.hcl.Info("Incident detail context canceld", "error", ctx.Err())
+			s.log.Info("Incident detail context canceld", "error", ctx.Err())
 			return
 		}
 
@@ -126,7 +126,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		stat := status.New()
 		err = json.Unmarshal(f.State, stat)
 		if err != nil {
-			s.hcl.Warn("Cannot unmarsh state of incident", "error", err)
+			s.log.Warn("Cannot unmarsh state of incident", "error", err)
 		}
 
 		id := incidentData{
@@ -141,7 +141,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		if errs, err := f.QueryFailures().All(ctx); err == nil {
 			id.Errors = errs
 		} else {
-			s.hcl.Warn("Failed loading errors", "error", err)
+			s.log.Warn("Failed loading errors", "error", err)
 		}
 		if stati, err := f.QueryStati().All(ctx); err == nil {
 			for _, s := range stati {
@@ -151,7 +151,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 				id.Stati[s.Name] = s.Value
 			}
 		} else {
-			s.hcl.Warn("Failed loading stati", "error", err)
+			s.log.Warn("Failed loading stati", "error", err)
 		}
 		const stepPrefix = "step."
 		if ctrs, err := f.QueryCounters().All(ctx); err == nil {
@@ -163,7 +163,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 				id.Counters[c.Name] = c.Value
 			}
 		} else {
-			s.hcl.Warn("Failed loading counters", "error", err)
+			s.log.Warn("Failed loading counters", "error", err)
 		}
 		if fils, err := f.QueryFiles().Select(
 			file.FieldUUID,
@@ -177,7 +177,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 				id.Files[i] = f.MsgItem()
 			}
 		} else {
-			s.hcl.Warn("Failed loading files", "error", err)
+			s.log.Warn("Failed loading files", "error", err)
 		}
 		data.Incidents[aCnt-i-1] = id
 	}
@@ -185,7 +185,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	if alrts, err := client.Alert.Query().Where(alert.IncidentIDEQ(incidentID)).All(ctx); err == nil {
 		data.Alerts = alrts
 	} else {
-		s.hcl.Warn("Failed loading alerts: %v", "error",err)
+		s.log.Warn("Failed loading alerts: %v", "error", err)
 	}
 
 	data.Title = fmt.Sprintf("SOM Incident: %s", data.Name)

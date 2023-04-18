@@ -6,15 +6,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
+	"golang.org/x/exp/slog"
 )
 
 type basicState struct {
 	am         *AlertMgr
-	hcl        hcl.Logger
+	log        *slog.Logger
 	Alerted    int
 	err        error
 	Start      time.Time
@@ -27,7 +28,7 @@ type basicState struct {
 func newBasicState(am *AlertMgr, e *msg.SzenarioEvtMsg) *basicState {
 	s := &basicState{
 		am:      am,
-		hcl:     am.hcl.Named(e.Name),
+		log:     am.log.With(log.Szenario, e.Name),
 		Alerted: 0,
 		err:     e.Err(),
 		Start:   e.Time,
@@ -51,7 +52,7 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 	s.err = e.Err()
 	if oldErr == nil || e.Err() == nil {
 		// no alert the first time or alert was cleared
-		s.hcl.Debug("Not alerting not a constant error", "message", e.Err(), "old_message", oldErr)
+		s.log.Debug("Not alerting not a constant error", "message", e.Err(), "old_message", oldErr)
 		return nil
 	}
 	lvl := statusGroup.Level()
@@ -59,7 +60,7 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 		s.Level >= lvl &&
 		s.LastUpdate.After(e.Time.Add(-1*s.am.alertIntervall)) {
 		// alread alerted
-		s.hcl.Debug("Not alerting: not alerting too often", "message", e.Err(), "last", s.LastUpdate, "since", e.Time.Sub(s.LastUpdate), "min_intervall", s.am.alertIntervall)
+		s.log.Debug("Not alerting: not alerting too often", "message", e.Err(), "last", s.LastUpdate, "since", e.Time.Sub(s.LastUpdate), "min_intervall", s.am.alertIntervall)
 		return nil
 	}
 	if s.Alerted > 1 {
@@ -69,7 +70,7 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 		e.Errors = append([]string{fmt.Sprintf("Initial error: %v (%s)", oldErr, s.LastUpdate.Format(cfg.TimeFormatString))}, e.Errors...)
 	}
 	if time.Since(s.LastUpdate) < viper.GetDuration(cfg.AlertDelay) {
-		s.hcl.Info("Not alerting: alert is too young", "message", e.Name, "age", time.Since(e.Time), "min_age", viper.GetDuration(cfg.AlertDelay))
+		s.log.Info("Not alerting: alert is too young", "message", e.Name, "age", time.Since(e.Time), "min_age", viper.GetDuration(cfg.AlertDelay))
 		return nil
 	}
 	s.Level = lvl
@@ -78,6 +79,6 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 	a := msg.NewAlert(e)
 	a.SetStatus(KeyTopology, statusGroup.String())
 	a.Level = lvl.String()
-	s.hcl.Info("Generating alert", "level", a.Level, "szenario", a.Name)
+	s.log.Info("Generating alert", "level", a.Level, "szenario", a.Name)
 	return a
 }

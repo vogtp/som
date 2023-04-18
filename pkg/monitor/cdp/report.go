@@ -6,7 +6,7 @@ import (
 
 func (cdp *Engine) report(totalDuration time.Duration) {
 	if !cdp.sendReport {
-		cdp.hcl.Warn("Not sending reports probably killed by OS")
+		cdp.log.Warn("Not sending reports probably killed by OS")
 		return
 	}
 	cdp.mu.Lock()
@@ -21,7 +21,7 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 	cdp.evtMsg.SetCounter("logins.failed", float64(failedLogins))
 	cdp.evtMsg.SetCounter("logins.passwordage", float64(pwAge.Seconds()))
 	cdp.evtMsg.SetStatus("logins.passwordage", pwAge.String())
-	cdp.hcl.Warn("Failed logins", "failed_login", failedLogins, "password_age", pwAge)
+	cdp.log.Warn("Failed logins", "failed_login", failedLogins, "password_age", pwAge)
 
 	for k, v := range cdp.stepInfo.stepTimes {
 		if v > 0 {
@@ -34,7 +34,7 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 		}
 	}
 	if err := cdp.bus.Szenario.Send(cdp.evtMsg); err != nil {
-		cdp.hcl.Warn("cannot send szenario message", "error", err)
+		cdp.log.Warn("cannot send szenario message", "error", err)
 	}
-	cdp.hcl.Info("Szenario status", status)
+	cdp.log.Info("Szenario status", status)
 }

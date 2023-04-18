@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 // User stores a user and its encrypted password
@@ -117,7 +118,7 @@ func (u *User) deleteOldPasswords() {
 	if u.PasswordLastUse().IsZero() {
 		return
 	}
-	hcl := core.Get().HCL().Named("passwordCleanup")
+	hcl := core.Get().HCL().With(log.Component, "passwordCleanup")
 	curAge := time.Since(u.PasswordLastUse())
 	if curAge > time.Hour {
 		return

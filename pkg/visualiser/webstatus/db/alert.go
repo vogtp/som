@@ -44,22 +44,22 @@ func (ac *AlertClient) Save(ctx context.Context, msg *msg.AlertMsg) error {
 	if errs, err := ac.client.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFailures(errs...)
 	} else {
-		ac.client.hcl.Warn("Getting errors", "error", err)
+		ac.client.log.Warn("Getting errors", "error", err)
 	}
 	if stati, err := ac.client.getStati(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddStati(stati...)
 	} else {
-		ac.client.hcl.Warn("Getting stari","error", err)
+		ac.client.log.Warn("Getting stari", "error", err)
 	}
 	if cntrs, err := ac.client.getCounter(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddCounters(cntrs...)
 	} else {
-		ac.client.hcl.Warn("Getting counters","error", err)
+		ac.client.log.Warn("Getting counters", "error", err)
 	}
 	if fils, err := ac.client.getFiles(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFiles(fils...)
 	} else {
-		ac.client.hcl.Warn("Getting files", "error",err)
+		ac.client.log.Warn("Getting files", "error", err)
 	}
 
 	return i.Exec(ctx)

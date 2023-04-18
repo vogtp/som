@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
+	"golang.org/x/exp/slog"
 )
 
 type ncConfig struct {
@@ -34,7 +35,7 @@ func registerNetCrunchWebMessage(name string, nc *ncConfig) {
 	}
 	bus.GetLogger().Info("Got NC backend", "backend", nc)
 	ncb := ncBackend{
-		hcl:  bus.GetLogger().Named("nc"),
+		log:  bus.GetLogger().With(log.Component, "nc"),
 		name: name,
 		srv:  nc.srv,
 		id:   nc.id,
@@ -44,7 +45,7 @@ func registerNetCrunchWebMessage(name string, nc *ncConfig) {
 }
 
 type ncBackend struct {
-	hcl     hcl.Logger
+	log     *slog.Logger
 	name    string
 	srv, id string
 }
@@ -60,7 +61,7 @@ func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 		// not a msg for us
 		return
 	}
-	hcl := nc.hcl.Named(e.Name)
+	hcl := nc.log.With(log.Szenario, e.Name)
 	data := ncGenericMsg{
 		Counters: e.Counters,
 		Statuses: make(map[string]string),

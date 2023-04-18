@@ -6,6 +6,7 @@ import (
 
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msgtype"
 )
 
@@ -31,7 +32,7 @@ func createClient() *client {
 
 // Get returns the requested user or nil
 func (us *client) Get(name string) (*User, error) {
-	hcl := core.Get().HCL().Named("user.client")
+	hcl := core.Get().HCL().With(log.Component, "user.client")
 	hcl.Debug("Requesting user", "user", name)
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
@@ -62,7 +63,7 @@ func (us *client) Get(name string) (*User, error) {
 
 // Save a user to the store
 func (us *client) Save(u *User) error {
-	hcl := core.Get().HCL().Named("user.client").With("user", u.Name())
+	hcl := core.Get().HCL().With(log.Component, "user.client", "user", u.Name())
 	if err := u.IsValid(); err != nil {
 		return fmt.Errorf("user is not valid: %w", err)
 	}
@@ -89,7 +90,7 @@ func (us *client) Save(u *User) error {
 
 // List returns a list of all users
 func (us *client) List() ([]User, error) {
-	hcl := core.Get().HCL().Named("user.client")
+	hcl := core.Get().HCL().With(log.Component, "user.client")
 	hcl.Debug("Requesting user list")
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
@@ -116,7 +117,7 @@ func (us *client) List() ([]User, error) {
 
 // Delete the user
 func (us *client) Delete(name string) (string, error) {
-	hcl := core.Get().HCL().Named("user.client").With("user", name)
+	hcl := core.Get().HCL().With(log.Component, "user.client", "user", name)
 	hcl.Debug("Deleting user")
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()

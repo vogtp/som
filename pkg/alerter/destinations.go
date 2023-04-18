@@ -40,7 +40,7 @@ func (a *Alerter) initDests() (ret error) {
 		_, exists := a.engines[d.kind]
 		if !exists {
 			ret = fmt.Errorf("destination kind %s does not extist", d.kind)
-			a.hcl.Warn(ret.Error())
+			a.log.Warn(ret.Error())
 			continue
 		}
 		validDst[k] = d
@@ -48,9 +48,9 @@ func (a *Alerter) initDests() (ret error) {
 	a.dsts = validDst
 	if len(a.dsts) < 1 {
 		ret = errors.New("no valid alerting destinations")
-		a.hcl.Error("no valid alerting destinations", "error", ret.Error())
+		a.log.Error("no valid alerting destinations", "error", ret.Error())
 	}
-	a.hcl.Warn("Loaded alert destinations", "count", len(a.dsts))
+	a.log.Warn("Loaded alert destinations", "count", len(a.dsts))
 	return ret
 }
 
@@ -58,7 +58,7 @@ func (a *Alerter) parseDestinationsCfg() {
 	raw := viper.Get(cfg.AlertDestinations)
 	slc, ok := raw.([]any)
 	if !ok {
-		a.hcl.Error("Cannot get destinations", "raw", raw)
+		a.log.Error("Cannot get destinations", "raw", raw)
 		return
 	}
 	for i, l := range slc {
@@ -66,15 +66,15 @@ func (a *Alerter) parseDestinationsCfg() {
 		for k := range m {
 			cfg := viper.Sub(fmt.Sprintf("%s.%v.%v", cfg.AlertDestinations, i, k))
 			if cfg == nil {
-				a.hcl.Warn("Destination is nil", "index", i, "engine", k)
+				a.log.Warn("Destination is nil", "index", i, "engine", k)
 				continue
 			}
 			name := cfg.GetString(cfgAlertDestName)
 			if len(name) < 1 {
-				a.hcl.Warn("No destination name, skipping")
+				a.log.Warn("No destination name, skipping")
 				continue
 			}
-			a.hcl.Info("Alert destination", "engine", k, "name", name)
+			a.log.Info("Alert destination", "engine", k, "name", name)
 			d := &Destination{
 				name: name,
 				kind: k,
@@ -82,7 +82,7 @@ func (a *Alerter) parseDestinationsCfg() {
 			}
 
 			if err := a.AddDestination(d); err != nil {
-				a.hcl.Warn("Cannot add destination", "name", name, "error", err)
+				a.log.Warn("Cannot add destination", "name", name, "error", err)
 			}
 		}
 	}

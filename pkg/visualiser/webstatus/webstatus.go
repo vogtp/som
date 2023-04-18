@@ -5,11 +5,12 @@ import (
 	"embed"
 	"html/template"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -20,7 +21,7 @@ var (
 
 // WebStatus displays the current status on the web
 type WebStatus struct {
-	hcl      hcl.Logger
+	log      *slog.Logger
 	data     *szenarioData
 	dbAccess *db.Client
 }
@@ -29,12 +30,12 @@ type WebStatus struct {
 func New() *WebStatus {
 	c := core.Get()
 	s := &WebStatus{
-		hcl: c.HCL().Named("webstatus"),
+		log: c.HCL().With(log.Component, "webstatus"),
 	}
-	s.data = newSzenarioData(s.hcl)
+	s.data = newSzenarioData(s.log)
 
 	if err := s.data.load(); err != nil {
-		s.hcl.Error("Cannot load config", "error", err)
+		s.log.Error("Cannot load config", "error", err)
 	}
 	c.Bus().Szenario.Handle(s.handleSzenarioEvt)
 	c.Bus().Alert.Handle(s.handleAlert)
@@ -45,13 +46,13 @@ func New() *WebStatus {
 }
 
 func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
-	s.hcl.Debug("Webstatus got event", "szenario", e.Name)
+	s.log.Debug("Webstatus got event", "szenario", e.Name)
 	s.data.mu.Lock()
 	defer func() {
 		s.data.mu.Unlock()
 		go func() {
 			if err := s.data.save(); err != nil {
-				s.hcl.Error("Cannot save config", "error", err)
+				s.log.Error("Cannot save config", "error", err)
 			}
 		}()
 	}()
@@ -70,21 +71,21 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 			continue
 		}
 		s.data.Availabilites[e.Name] = (avail + curAvail) / 2
-		s.hcl.Debug("Update availability", "szenario", e.Name, "old_availability", avail, "run_availability", curAvail, "new_availability", s.data.Availabilites[e.Name])
+		s.log.Debug("Update availability", "szenario", e.Name, "old_availability", avail, "run_availability", curAvail, "new_availability", s.data.Availabilites[e.Name])
 	}
 }
 
 func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
-	s.hcl.Debug("Webstatus got alert", "szenario", a.Name)
+	s.log.Debug("Webstatus got alert", "szenario", a.Name)
 	if err := s.Ent().Alert.Save(context.Background(), a); err != nil {
-		s.hcl.Error("Cannot save alert to DB", "error", err)
+		s.log.Error("Cannot save alert to DB", "error", err)
 	}
 }
 
 func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
-	s.hcl.Info("Webstatus got incident", "msg_type", i.Type.String(), "szenario", i.Name, "start", i.Start.Format(cfg.TimeFormatString), "end", i.End.Format(cfg.TimeFormatString))
+	s.log.Info("Webstatus got incident", "msg_type", i.Type.String(), "szenario", i.Name, "start", i.Start.Format(cfg.TimeFormatString), "end", i.End.Format(cfg.TimeFormatString))
 	if err := s.Ent().Incident.Save(context.Background(), i); err != nil {
-		s.hcl.Error("Cannot save incident to DB", "szenario", i.Name, "incident_id", i.ID, "error", err)
+		s.log.Error("Cannot save incident to DB", "szenario", i.Name, "incident_id", i.ID, "error", err)
 	}
 }
 
@@ -93,7 +94,7 @@ func (s *WebStatus) Ent() *db.Client {
 	if s.dbAccess == nil {
 		entAccess, err := db.New()
 		if err != nil {
-			s.hcl.Error("Cannot connect to DB", "error", err)
+			s.log.Error("Cannot connect to DB", "error", err)
 		}
 		s.dbAccess = entAccess
 	}

@@ -16,7 +16,7 @@ import (
 func (e *Bus) initGrav(web *WebServer) {
 
 	wsPath := viper.GetString(cfg.BusWsPath)
-	e.hcl.Debug("Bus is using endpoint", "endpoint", wsPath)
+	e.log.Debug("Bus is using endpoint", "endpoint", wsPath)
 	gwss := websocket.New()
 	opts := []grav.OptionsModifier{
 		grav.UseEndpoint(fmt.Sprintf("%v", web.port), wsPath),
@@ -27,14 +27,15 @@ func (e *Bus) initGrav(web *WebServer) {
 	if e.busLogLevel == hclog.Off {
 		opts = append(opts, grav.UseLogger(vlog.Default(vlog.Level("null"))))
 	} else {
-		hcl := e.hcl.Named("grav")
+		//FIXME remove HCL
+		hcl := hcl.New().Named("grav")
 		hcl.SetLevel(e.busLogLevel)
 
 		opts = append(opts, grav.UseLogger(hcl.Vlog()))
 	}
 
 	if !hcl.IsGoTest() {
-		e.hcl.Info("Starting local discovery")
+		e.log.Info("Starting local discovery")
 		locald := local.New()
 		opts = append(opts, grav.UseDiscovery(locald))
 	}
@@ -47,12 +48,12 @@ func (e *Bus) initGrav(web *WebServer) {
 	}
 	web.HandleFunc(wsPath, gwss.HTTPHandlerFunc())
 
-	e.hcl.Info("Init grav", "endpoints", viper.GetStringSlice(cfg.BusEndpoints))
+	e.log.Info("Init grav", "endpoints", viper.GetStringSlice(cfg.BusEndpoints))
 	for _, ep := range viper.GetStringSlice(cfg.BusEndpoints) {
 		if err := e.bus.ConnectEndpoint(ep); err != nil {
-			e.hcl.Warn("Error connecting to endpoint", "endpoint", ep, "error", err)
+			e.log.Warn("Error connecting to endpoint", "endpoint", ep, "error", err)
 			continue
 		}
-		e.hcl.Info("Connected to peer", "endpoint", ep)
+		e.log.Info("Connected to peer", "endpoint", ep)
 	}
 }

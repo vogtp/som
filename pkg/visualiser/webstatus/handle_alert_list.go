@@ -35,12 +35,12 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	if len(name) < 1 {
 		name = "All Szenarios"
 	}
-	s.hcl.Info("alerts  requested", "szenario", sz)
+	s.log.Info("alerts  requested", "szenario", sz)
 	common := common("SOM Alerts", r)
 	ctx := r.Context()
 	q := s.Ent().Alert.Query().Order(ent.Desc(alert.FieldTime))
 	if len(sz) > 0 {
-		s.hcl.Debug("Szenario filter", "szenario", sz)
+		s.log.Debug("Szenario filter", "szenario", sz)
 		q.Where(alert.NameEqualFold(sz))
 	}
 	q.Where(
@@ -62,11 +62,11 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 			DetailLink: fmt.Sprintf("%s%s/%s/", baseurl, AlertDetailPath, a.UUID.String()),
 		}
 	}
-	s.hcl.Info("Loaded alerts", "size", len(alerts))
+	s.log.Info("Loaded alerts", "size", len(alerts))
 
 	szenarios, err := s.Ent().Alert.Szenarios(ctx)
 	if err != nil {
-		s.hcl.Warn("Cannot get list of szenarios", "error", err)
+		s.log.Warn("Cannot get list of szenarios", "error", err)
 		if szenarios == nil {
 			szenarios = make([]string, 0)
 		}

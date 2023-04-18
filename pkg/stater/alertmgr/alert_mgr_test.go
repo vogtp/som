@@ -6,16 +6,16 @@ import (
 	"time"
 
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
+	"golang.org/x/exp/slog"
 )
 
 func TestAlertMgr_checkEvent(t *testing.T) {
 	core.New("")
-	am := AlertMgr{hcl: hcl.New(), basicStates: make(map[string]*basicState), status: status.New()}
+	am := AlertMgr{log: slog.Default(), basicStates: make(map[string]*basicState), status: status.New()}
 	am.alertIntervall = time.Hour
 	viper.Set(cfg.AlertDelay, time.Microsecond)
 	evtA := msg.NewSzenarioEvtMsg("A", "user", time.Now())

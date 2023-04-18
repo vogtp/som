@@ -36,7 +36,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	if len(name) < 1 {
 		name = "All Szenarios"
 	}
-	s.hcl.Debug("incidents requested", "szenario", sz)
+	s.log.Debug("incidents requested", "szenario", sz)
 	common := common("SOM Incidents", r)
 	ctx := r.Context()
 	q := s.Ent().IncidentSummary.Query()
@@ -47,14 +47,14 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	summary, err := q.All(ctx)
 	if err != nil {
 		err = fmt.Errorf("Cannot load incidents from DB:\n %v", err)
-		s.hcl.Error("Failed loading incident list", "error", err)
+		s.log.Error("Failed loading incident list", "error", err)
 		s.Error(w, r, "Database error incident list", err, http.StatusInternalServerError)
 		return
 	}
 
 	szenarios, err := s.Ent().Incident.Szenarios(ctx)
 	if err != nil {
-		s.hcl.Warn("Cannot get list of szenarios", "error", err)
+		s.log.Warn("Cannot get list of szenarios", "error", err)
 		if szenarios == nil {
 			szenarios = make([]string, 0)
 		}
@@ -93,7 +93,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		if cnt, err := s.dbAccess.Alert.Query().Where(alert.IncidentIDEQ(sum.IncidentID)).Count(ctx); err == nil {
 			sumWeb.AlertCount = cnt
 		} else {
-			s.hcl.Warn("Cannot get alert count", "error", err)
+			s.log.Warn("Cannot get alert count", "error", err)
 		}
 		filtered = append(filtered, sumWeb)
 	}

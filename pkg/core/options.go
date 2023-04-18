@@ -2,7 +2,6 @@ package core
 
 import (
 	"github.com/hashicorp/go-hclog"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
@@ -20,13 +19,6 @@ func WebPort(p int) Option {
 func BasePath(s string) Option {
 	return func(c *Core) {
 		c.web.basepath = s
-	}
-}
-
-// HCL sets the logger
-func HCL(hcl hcl.Logger) Option {
-	return func(c *Core) {
-		c.hcl = hcl
 	}
 }
 

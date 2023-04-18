@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/suborbital/grav/grav"
-	"github.com/vogtp/go-hcl"
+	"golang.org/x/exp/slog"
 )
 
 type eventer interface {
@@ -16,15 +16,15 @@ type eventer interface {
 type eventHandler[M eventer] struct {
 	wgMsg    sync.WaitGroup
 	mu       sync.Mutex
-	hcl      hcl.Logger
+	log      *slog.Logger
 	grav     *grav.Grav
 	handlers []*grav.Pod
 	msgType  string
 }
 
-func newHandler[M eventer](hcl hcl.Logger, b *grav.Grav, msgType string) *eventHandler[M] {
+func newHandler[M eventer](log *slog.Logger, b *grav.Grav, msgType string) *eventHandler[M] {
 	h := &eventHandler[M]{
-		hcl:      hcl.Named(msgType),
+		log:      log.With("bus", msgType),
 		grav:     b,
 		msgType:  msgType,
 		handlers: make([]*grav.Pod, 0),
@@ -40,10 +40,10 @@ func (h *eventHandler[M]) Send(evt *M) error {
 	defer time.AfterFunc(100*time.Millisecond, h.wgMsg.Done)
 	b, err := json.Marshal(evt)
 	if err != nil {
-		h.hcl.Error("cannot marshal", "event", evt, "error", err)
+		h.log.Error("cannot marshal", "event", evt, "error", err)
 		return fmt.Errorf("cannot marshal %+v: %v", evt, err)
 	}
-	h.hcl.Trace("Sending msg", "type", h.msgType, "event", evt)
+	h.log.Debug("Sending msg", "type", h.msgType, "event", evt)
 	p := h.grav.Connect()
 	defer p.Disconnect()
 	p.Send(grav.NewMsg(h.msgType, b))
@@ -63,7 +63,7 @@ func (h *eventHandler[M]) Handle(f EventHandler[M]) {
 		evt := new(M)
 		err := json.Unmarshal(m.Data(), evt)
 		if err != nil {
-			h.hcl.Error("Could not unmarshal message", "payload", string(m.Data()),"error", err)
+			h.log.Error("Could not unmarshal message", "payload", string(m.Data()), "error", err)
 			// does not return an error the the program, just signals the grav
 			return fmt.Errorf("could not unmarshal message %s: %w", string(m.Data()), err)
 		}

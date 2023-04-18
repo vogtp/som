@@ -5,9 +5,10 @@ import (
 
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -52,7 +53,7 @@ func getCfg(key string, r *Rule, d *Destination) any {
 
 // Alerter is the main alerter stuct
 type Alerter struct {
-	hcl        hcl.Logger
+	log        *slog.Logger
 	c          *core.Core
 	dsts       map[string]*Destination
 	engines    map[string]Engine
@@ -63,7 +64,7 @@ type Alerter struct {
 // New creates an alerter
 func New(c *core.Core) *Alerter {
 	a := &Alerter{
-		hcl:        c.HCL().Named("alerter"),
+		log:        c.HCL().With(log.Component, "alerter"),
 		c:          c,
 		dsts:       make(map[string]*Destination),
 		engines:    make(map[string]Engine),
@@ -76,16 +77,16 @@ func New(c *core.Core) *Alerter {
 
 func (a *Alerter) addDefaultComponents() {
 	if err := a.AddConditon(StatusCond{}); err != nil {
-		a.hcl.Warn("Cannot add status condition", "error", err)
+		a.log.Warn("Cannot add status condition", "error", err)
 	}
 	if err := a.AddConditon(SzenarioCond{}); err != nil {
-		a.hcl.Warn("Cannot add szenario condition", "error", err)
+		a.log.Warn("Cannot add szenario condition", "error", err)
 	}
 	if err := a.AddEngine(NewMailer()); err != nil {
-		a.hcl.Warn("Cannot create engine", "error", err)
+		a.log.Warn("Cannot create engine", "error", err)
 	}
 	if err := a.AddEngine(NewTeams()); err != nil {
-		a.hcl.Warn("Cannot create engine", "error", err)
+		a.log.Warn("Cannot create engine", "error", err)
 	}
 }
 
@@ -94,15 +95,15 @@ func (a *Alerter) Run() (ret error) {
 	a.parseConfig()
 	if err := a.initDests(); err != nil {
 		ret = err
-		a.hcl.Warn("problems initialising alerter destinations", "error", err)
+		a.log.Warn("problems initialising alerter destinations", "error", err)
 	}
 	if err := a.initRules(); err != nil {
 		ret = err
-		a.hcl.Warn("problems initialising alerter rules", "error", err)
+		a.log.Warn("problems initialising alerter rules", "error", err)
 	}
 	if err := a.initEgninges(); err != nil {
 		ret = err
-		a.hcl.Warn("problems initialising alerter engines", "error", err)
+		a.log.Warn("problems initialising alerter engines", "error", err)
 	}
 	a.c.Bus().Alert.Handle(a.handle)
 	return ret
@@ -111,7 +112,7 @@ func (a *Alerter) Run() (ret error) {
 func (a *Alerter) initEgninges() (ret error) {
 	for _, e := range a.engines {
 		if err := e.checkConfig(a); err != nil {
-			a.hcl.Warn("Engine has config errors", "engine", e.Kind(), "error", err)
+			a.log.Warn("Engine has config errors", "engine", e.Kind(), "error", err)
 			ret = err
 		}
 	}
@@ -121,16 +122,16 @@ func (a *Alerter) initEgninges() (ret error) {
 func (a *Alerter) handle(msg *msg.AlertMsg) {
 	for _, r := range a.rules {
 		if err := r.DoAlert(msg); err != nil {
-			a.hcl.Info("Not alerting", "alert", msg.Name, "error", err, "rule", r.name)
+			a.log.Info("Not alerting", "alert", msg.Name, "error", err, "rule", r.name)
 			continue
 		}
 		for _, d := range r.destinations {
 			if !getCfgBool(cfgAlertEnabled, &r, &d) {
-				a.hcl.Warn("alerting is disabled", "alert", msg.Name, "destination", d.name, "rule", r.name)
+				a.log.Warn("alerting is disabled", "alert", msg.Name, "destination", d.name, "rule", r.name)
 				continue
 			}
 			if err := a.engines[d.kind].Send(msg, &r, &d); err != nil {
-				a.hcl.Error("Cannot send message", "engine", d.kind, "destination", d.name, "error", err, "rule", r.name)
+				a.log.Error("Cannot send message", "engine", d.kind, "destination", d.name, "error", err, "rule", r.name)
 			}
 		}
 	}

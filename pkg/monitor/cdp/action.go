@@ -21,11 +21,11 @@ func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan a
 		go func(o szenario.EitherOption) {
 			err := chromedp.Run(cdp.browser, o.Action)
 			if err != nil {
-				cdp.hcl.Debug("Unmached Option", "either", name, "option", o.ID, "error", err)
+				cdp.log.Debug("Unmached Option", "either", name, "option", o.ID, "error", err)
 				res <- err
 				return
 			}
-			cdp.hcl.Info("Selected option", "either", name, "option", o.ID)
+			cdp.log.Info("Selected option", "either", name, "option", o.ID)
 			res <- o.ID
 		}(o)
 	}

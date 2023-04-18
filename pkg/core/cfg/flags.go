@@ -24,8 +24,12 @@ const (
 	CheckRegion = "check.region"
 	// DataDir Folder to save output like screenshots in
 	DataDir = "data.dir"
-	// LogLevel error warn info debug trace off
+	// LogLevel error warn info debug
 	LogLevel = "log.level"
+	// LogSource should we log the source
+	LogSource = "log.source"
+	// LogJson log in json
+	LogJson = "log.json"
 	// WebURLBasePath the base path of the URL
 	WebURLBasePath = "web.urlpath"
 	// WebPort the port the webserver runs on
@@ -61,6 +65,8 @@ func init() {
 	pflag.String(WebURLBasePath, "", "the base path of the URL")
 	pflag.Int(WebPort, 0, "Port the webserver runs on")
 	pflag.String(BusLogLevel, "off", "Log level of the bus")
+	pflag.Bool(LogSource, true, "Log the source line")
+	pflag.Bool(LogJson, false, "Log in json")
 	pflag.Bool(CfgSave, false, "Should the configs be written to file periodically")
 	pflag.Bool(AlertEnabled, true, "Disable alerting")
 	pflag.StringSlice(BusEndpoints, nil, "List of external endpoints (e.g. localhost:8080/meta/message) use multiple times to add multiple endpoints")

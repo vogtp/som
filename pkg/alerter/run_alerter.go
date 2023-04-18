@@ -16,7 +16,7 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 	a := New(c)
 
 	if err := a.Run(); err != nil {
-		a.hcl.Warn("Problems starting the alerter", "error", err)
+		a.log.Warn("Problems starting the alerter", "error", err)
 	}
 
 	return close, nil

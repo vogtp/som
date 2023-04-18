@@ -42,13 +42,13 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	id = strings.ToLower(r.URL.Path[idx+len(AlertDetailPath):])
 	id = strings.TrimSuffix(id, "/")
 
-	s.hcl.Info("alerts details requested", "alert_id", id)
+	s.log.Info("alerts details requested", "alert_id", id)
 	ctx := r.Context()
 	q := s.Ent().Alert.Query()
 	if len(id) > 0 {
 		uid, err := uuid.Parse(id)
 		if err != nil {
-			s.hcl.Error("cannot parse as uuid", "uuid", id, "error", err)
+			s.log.Error("cannot parse as uuid", "uuid", id, "error", err)
 			s.Error(w, r, "Cannot parse UUID", err, http.StatusBadRequest)
 			return
 		}
@@ -90,7 +90,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 
 	for i, alert := range alerts {
 		if errors.Is(ctx.Err(), context.Canceled) {
-			s.hcl.Info("Incident alert context canceld", "error", ctx.Err())
+			s.log.Info("Incident alert context canceld", "error", ctx.Err())
 			return
 		}
 		alertDetail := alertDetailData{
@@ -103,7 +103,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		if errs, err := alert.QueryFailures().All(ctx); err == nil {
 			alertDetail.Errors = errs
 		} else {
-			s.hcl.Warn("Failed loading errors", "error", err)
+			s.log.Warn("Failed loading errors", "error", err)
 		}
 		if stati, err := alert.QueryStati().All(ctx); err == nil {
 			for _, s := range stati {
@@ -113,7 +113,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 				alertDetail.Stati[s.Name] = s.Value
 			}
 		} else {
-			s.hcl.Warn("Failed loading stati", "error", err)
+			s.log.Warn("Failed loading stati", "error", err)
 		}
 		const stepPrefix = "step."
 		if ctrs, err := alert.QueryCounters().All(ctx); err == nil {
@@ -125,7 +125,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 				alertDetail.Counters[c.Name] = c.Value
 			}
 		} else {
-			s.hcl.Warn("Failed loading counters", "error", err)
+			s.log.Warn("Failed loading counters", "error", err)
 		}
 		if fils, err := alert.QueryFiles().All(ctx); err == nil {
 			alertDetail.Files = make([]msg.FileMsgItem, len(fils))
@@ -133,7 +133,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 				alertDetail.Files[i] = f.MsgItem()
 			}
 		} else {
-			s.hcl.Warn("Failed loading files", "error", err)
+			s.log.Warn("Failed loading files", "error", err)
 		}
 		data.Alerts[aCnt-i-1] = alertDetail
 		//s.hcl.Info("Region", "region", alert.Region)

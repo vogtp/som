@@ -10,7 +10,7 @@ import (
 // Dump prints the body and its size to log
 func (cdp *Engine) Dump() szenario.CheckFunc {
 	return func(body *string) error {
-		cdp.hcl.Debug("Got Body", "body", *body,"size", len(*body))
+		cdp.log.Debug("Got Body", "body", *body, "size", len(*body))
 		return nil
 	}
 }
@@ -21,7 +21,7 @@ func (cdp *Engine) Contains(s string) szenario.CheckFunc {
 		if !strings.Contains(*body, s) {
 			return fmt.Errorf("%s not found in body", s)
 		}
-		cdp.hcl.Info("Found in body", "search", s)
+		cdp.log.Info("Found in body", "search", s)
 		return nil
 	}
 }
@@ -32,7 +32,7 @@ func (cdp *Engine) NotContains(s string) szenario.CheckFunc {
 		if strings.Contains(*body, s) {
 			return fmt.Errorf("%s is shown", s)
 		}
-		cdp.hcl.Info("Not found in body", "search", s)
+		cdp.log.Info("Not found in body", "search", s)
 		return nil
 	}
 }
@@ -43,7 +43,7 @@ func (cdp *Engine) Bigger(i int) szenario.CheckFunc {
 		if len(*body) < i {
 			return fmt.Errorf("body is %v should be bigger %v", len(*body), i)
 		}
-		cdp.hcl.Info("Body size OK: %v > %v", len(*body), i)
+		cdp.log.Info("Body size OK: %v > %v", len(*body), i)
 		return nil
 	}
 }

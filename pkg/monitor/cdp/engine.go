@@ -6,6 +6,7 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/go-hcl"
+	"golang.org/x/exp/slog"
 )
 
 // IsHeadless indicates if the browser is headless (i.e. does not show on screen)
@@ -13,9 +14,9 @@ func (cdp *Engine) IsHeadless() bool {
 	return cdp.headless
 }
 
-// HCL returns the logger
-func (cdp *Engine) HCL() hcl.Logger {
-	return cdp.hcl
+// Log returns the logger
+func (cdp *Engine) Log() *slog.Logger {
+	return cdp.log
 }
 
 func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
@@ -79,7 +80,7 @@ func (cdp *Engine) registerConsoleListener() {
 			// }
 		case *runtime.EventExceptionThrown:
 			cdp.consMsg["exception"] = cdp.consMsg["exception"] + 1
-			cdp.hcl.Debug("Console exception", "error", ev.ExceptionDetails.Text)
+			cdp.log.Debug("Console exception", "error", ev.ExceptionDetails.Text)
 
 		}
 	})

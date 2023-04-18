@@ -52,7 +52,7 @@ func (a *Alerter) initRules() (ret error) {
 	for _, r := range a.rules {
 		if err := a.isValidRule(&r); err != nil {
 			ret = fmt.Errorf("rule %s is not valid: %v", r.name, err)
-			a.hcl.Warn(ret.Error())
+			a.log.Warn(ret.Error())
 			ret = err
 			continue
 		}
@@ -62,9 +62,9 @@ func (a *Alerter) initRules() (ret error) {
 	a.rules = validRules
 	if len(validRules) < 1 {
 		ret = errors.New("no valid alerting rules")
-		a.hcl.Error(ret.Error())
+		a.log.Error(ret.Error())
 	}
-	a.hcl.Warn("Loaded alert Rules", "count", len(a.rules))
+	a.log.Warn("Loaded alert Rules", "count", len(a.rules))
 	return ret
 }
 
@@ -73,7 +73,7 @@ func (a *Alerter) isValidRule(r *Rule) error {
 	for _, d := range dests {
 		dst, found := a.dsts[d]
 		if !found {
-			a.hcl.Warn("No such destination: ignroing", "destination", d, "rule", r.name)
+			a.log.Warn("No such destination: ignroing", "destination", d, "rule", r.name)
 			continue
 		}
 		r.destinations = append(r.destinations, *dst)
@@ -81,7 +81,7 @@ func (a *Alerter) isValidRule(r *Rule) error {
 	if len(r.destinations) < 1 {
 		return fmt.Errorf("a rule %s without destinations does not make sense", r.name)
 	}
-	a.hcl.Info("Added rule", "rule", r.name)
+	a.log.Info("Added rule", "rule", r.name)
 	return nil
 }
 
@@ -89,14 +89,14 @@ func (a *Alerter) parseRulesCfg() {
 	raw := viper.Get(cfg.AlertRules)
 	slc, ok := raw.([]any)
 	if !ok {
-		a.hcl.Error("Cannot get rules", "raw", raw)
+		a.log.Error("Cannot get rules", "raw", raw)
 		return
 	}
 	for i := range slc {
 		cfg := viper.Sub(fmt.Sprintf("%s.%v", cfg.AlertRules, i))
 		name := cfg.GetString(cfgAlertDestName)
 		if len(name) < 1 {
-			a.hcl.Warn("No destination name, skipping")
+			a.log.Warn("No destination name, skipping")
 			continue
 		}
 		r := &Rule{
@@ -105,7 +105,7 @@ func (a *Alerter) parseRulesCfg() {
 			conditions: make([]condWrapper, 0),
 		}
 		if err := a.AddRule(r); err != nil {
-			a.hcl.Warn("Not adding rule", "rule", name, "error", err)
+			a.log.Warn("Not adding rule", "rule", name, "error", err)
 		}
 	}
 }
@@ -114,18 +114,18 @@ func (a *Alerter) parseConditions(r *Rule) {
 	raw := r.cfg.Get(cfgAlertRuleConditions)
 	slc, ok := raw.(map[string]any)
 	if !ok {
-		a.hcl.Error("Cannot get conditions of rule", "rule", r.name, "conditions", raw)
+		a.log.Error("Cannot get conditions of rule", "rule", r.name, "conditions", raw)
 		return
 	}
 	for n := range slc {
 		cond, ok := a.conditions[n]
 		if !ok {
-			a.hcl.Warn("rule: no such codition", "rule", r.name, "condition", n)
+			a.log.Warn("rule: no such codition", "rule", r.name, "condition", n)
 			continue
 		}
 		cfg := r.cfg.Sub(fmt.Sprintf("%s.%v", cfgAlertRuleConditions, n))
 		if err := cond.CheckConfig(cfg); err != nil {
-			a.hcl.Warn("Condition %q of rule %q contains errors: %v", "condition", cond.Kind(), "rule", r.name, "error", err)
+			a.log.Warn("Condition %q of rule %q contains errors: %v", "condition", cond.Kind(), "rule", r.name, "error", err)
 		}
 		r.conditions = append(r.conditions, condWrapper{
 			cond: cond,

@@ -4,25 +4,25 @@ import (
 	"time"
 
 	"github.com/iancoleman/strcase"
-	"github.com/vogtp/go-hcl"
+	"golang.org/x/exp/slog"
 )
 
 type stepInfo struct {
-	hcl       *hcl.Logger
+	log       *slog.Logger
 	name      string
 	startTime time.Time
 	stepTimes map[string]float64
 }
 
-func newStepInfo(hcl *hcl.Logger) *stepInfo {
+func newStepInfo(log *slog.Logger) *stepInfo {
 	return &stepInfo{
-		hcl:       hcl,
+		log:       log,
 		stepTimes: make(map[string]float64),
 	}
 }
 
 func (s *stepInfo) start(name string) {
-	s.hcl.Debug("Step start", "step",name)
+	s.log.Debug("Step start", "step", name)
 	s.name = name
 	s.startTime = time.Now()
 }
@@ -35,5 +35,5 @@ func (s *stepInfo) end(name string) {
 	if d.Seconds() > .2 {
 		s.stepTimes[strcase.ToCamel(s.name)] = d.Seconds()
 	}
-	s.hcl.Info("Step finished", "step", s.name, "duration",d)
+	s.log.Info("Step finished", "step", s.name, "duration", d)
 }

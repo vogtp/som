@@ -25,7 +25,7 @@ func (am *AlertMgr) load() error {
 			continue
 		}
 		s.am = am
-		s.hcl = am.hcl.Named(n)
+		s.log = am.log.With("state_name", n)
 	}
 	status.Cleanup(am.status)
 	return nil
@@ -71,7 +71,7 @@ func (am *AlertMgr) readJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("error loading json from %v: %w", jsonDBFile, err)
 	}
-	am.hcl.Info("Loaded alertmgr datasets", "count", len(am.basicStates), "file", fi.Name())
-	am.hcl.Debug(am.status.String())
+	am.log.Info("Loaded alertmgr datasets", "count", len(am.basicStates), "file", fi.Name())
+	am.log.Debug(am.status.String())
 	return nil
 }

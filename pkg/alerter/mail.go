@@ -7,17 +7,17 @@ import (
 	"sync"
 
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/msg"
+	"golang.org/x/exp/slog"
 	"gopkg.in/gomail.v2"
 )
 
 // Mail is a mail alerter
 type Mail struct {
-	hcl      hcl.Logger
+	log      *slog.Logger
 	mu       sync.Mutex
 	smtpHost string
 	smtpPort int
@@ -27,13 +27,13 @@ type Mail struct {
 // NewMailer registers a mail alerter on the event bus
 func NewMailer() (Engine, error) {
 	bus := core.Get().Bus()
-	hcl := bus.GetLogger().Named("mail")
+	log := bus.GetLogger().With("alerter", "mail")
 	mailHost := viper.GetString(cfg.AlertMailSMTPHost)
 	if len(mailHost) < 1 {
 		return nil, fmt.Errorf("not creating mail alerter: no mail host given")
 	}
 	return &Mail{
-		hcl:      hcl,
+		log:      log,
 		smtpHost: mailHost,
 		smtpPort: viper.GetInt(cfg.AlertMailSMTPPort),
 		from:     viper.GetString(cfg.AlertMailFrom),
@@ -47,7 +47,7 @@ func (alt *Mail) Kind() string { return "mail" }
 func (alt *Mail) Send(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	alt.mu.Lock()
 	defer alt.mu.Unlock()
-	alt.hcl.Debug("got event %v: %v", e.Name, e.Err())
+	alt.log.Debug("got event %v: %v", e.Name, e.Err())
 
 	if err := alt.sendAlert(e, r, d); err != nil {
 		return fmt.Errorf("cannot send mail: %v", err)
@@ -58,7 +58,7 @@ func (alt *Mail) Send(e *msg.AlertMsg, r *Rule, d *Destination) error {
 func (alt *Mail) checkConfig(a *Alerter) (ret error) {
 	if !strings.Contains(alt.from, "@") {
 		ret = fmt.Errorf("mail from %q is not valid", alt.from)
-		alt.hcl.Warn(ret.Error())
+		alt.log.Warn(ret.Error())
 	}
 	for _, r := range a.rules {
 		for _, d := range r.destinations {
@@ -66,17 +66,17 @@ func (alt *Mail) checkConfig(a *Alerter) (ret error) {
 				continue
 			}
 			if len(getCfgString(cfgAlertSubject, &r, &d)) < 1 {
-				alt.hcl.Warn("mail has no subject", "rule", r.name, "destination", d.name)
+				alt.log.Warn("mail has no subject", "rule", r.name, "destination", d.name)
 			}
 			to := d.cfg.GetStringSlice(cfgAlertDestMailTo)
 			if len(to) < 1 {
 				ret = fmt.Errorf("mail dest %q: no receipients %q", d.name, to)
-				alt.hcl.Warn(ret.Error())
+				alt.log.Warn(ret.Error())
 			}
 			for _, t := range to {
 				if !strings.Contains(t, "@") {
 					ret = fmt.Errorf("mail dest %q: invaluid to %q", d.name, t)
-					alt.hcl.Warn(ret.Error())
+					alt.log.Warn(ret.Error())
 				}
 			}
 		}
@@ -88,10 +88,10 @@ func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {
 	return gomail.SetCopyFunc(func(w io.Writer) error {
 		s, err := w.Write(f.Payload)
 		if err != nil {
-			alt.hcl.Warn("cannot attach file", "file", f.Name, "error", err)
+			alt.log.Warn("cannot attach file", "file", f.Name, "error", err)
 		}
 		if s != f.Size {
-			alt.hcl.Warn("not written enough", "file", f.Name, "bytes_wirtten", s, "bytes_total", f.Size)
+			alt.log.Warn("not written enough", "file", f.Name, "bytes_wirtten", s, "bytes_total", f.Size)
 		}
 		return err
 	})
@@ -100,7 +100,7 @@ func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {
 func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	to := d.cfg.GetStringSlice(cfgAlertDestMailTo)
 	if len(to) < 1 {
-		alt.hcl.Debug("No mail-to not sending", "alert", e.Name, "message", e.Err(), "rule", r.name, "destination", d.name)
+		alt.log.Debug("No mail-to not sending", "alert", e.Name, "message", e.Err(), "rule", r.name, "destination", d.name)
 		return nil
 	}
 	subj := getSubject(e, r, d)
@@ -111,7 +111,7 @@ func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	img := ""
 	for _, f := range e.Files {
 		name := fmt.Sprintf("%s.%s", f.Name, f.Type.Ext)
-		alt.hcl.Debug("Adding attachment", "attachment", name)
+		alt.log.Debug("Adding attachment", "attachment", name)
 		header := make(map[string][]string)
 		header["Content-Type"] = []string{f.Type.MimeType}
 		if strings.HasPrefix(f.Type.MimeType, "image/") {
@@ -135,6 +135,6 @@ func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	if err := mailer.DialAndSend(m); err != nil {
 		return fmt.Errorf("cannot send mail: %w", err)
 	}
-	alt.hcl.Info("Sent email", "subject", subj, "destination", to, "rule", r.name, "destination", d.name)
+	alt.log.Info("Sent email", "subject", subj, "destination", to, "rule", r.name, "destination", d.name)
 	return nil
 }

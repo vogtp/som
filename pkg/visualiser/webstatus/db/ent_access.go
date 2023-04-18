@@ -5,17 +5,18 @@ import (
 	"fmt"
 
 	"entgo.io/ent/dialect"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/migrate"
 	_ "github.com/xiaoqidun/entps" // needed to acces sqlite
+	"golang.org/x/exp/slog"
 )
 
 // Client gives access to the DB and wraps ent
 type Client struct {
 	*ent.Client
-	hcl hcl.Logger
+	log *slog.Logger
 
 	// IncidentSummary is the query for incident summaries
 	IncidentSummary *IncidentSummaryQuery
@@ -39,7 +40,7 @@ func New() (*Client, error) {
 	}
 	client := &Client{
 		Client: entClient,
-		hcl:    core.Get().HCL().Named("ent"),
+		log:    core.Get().HCL().With(log.Component, "ent"),
 	}
 	client.IncidentSummary = &IncidentSummaryQuery{client: client}
 	client.Incident = &IncidentClient{

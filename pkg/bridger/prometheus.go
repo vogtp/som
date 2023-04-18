@@ -8,10 +8,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/monitor/szenario"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -23,7 +24,7 @@ const (
 func RegisterPrometheus() {
 	bus := core.Get().Bus()
 	p := prometheusBackend{
-		hcl:      bus.GetLogger().Named("prometheus"),
+		log:      bus.GetLogger().With(log.Component, "prometheus"),
 		promSz:   make(map[string]*promSz),
 		gaugeVec: make(map[string]*prometheus.GaugeVec),
 		histoVec: make(map[string]*prometheus.HistogramVec),
@@ -42,7 +43,7 @@ func PrometheusIsActive() bool {
 }
 
 type prometheusBackend struct {
-	hcl      hcl.Logger
+	log      *slog.Logger
 	promSz   map[string]*promSz
 	gaugeVec map[string]*prometheus.GaugeVec
 	histoVec map[string]*prometheus.HistogramVec
@@ -54,7 +55,7 @@ type promSz struct {
 }
 
 func (p *prometheusBackend) start() {
-	p.hcl.Info("Starting prometheus bridger")
+	p.log.Info("Starting prometheus bridger")
 	core.Get().WebServer().Handle("/metrics", promhttp.Handler())
 	active = true
 }
@@ -88,7 +89,7 @@ func (p *prometheusBackend) saveCounter(e *msg.SzenarioEvtMsg, counterName strin
 
 	m, err := gvPwAge.GetMetricWithLabelValues(PrometheusName(e.Name), promLabel, PrometheusName(e.Region))
 	if err != nil {
-		p.hcl.Warn("GaugeVec error", "counter", counterName, "error", err)
+		p.log.Warn("GaugeVec error", "counter", counterName, "error", err)
 	}
 	if m == nil {
 		return
@@ -107,10 +108,10 @@ func (p *prometheusBackend) setGaugeVec(e *msg.SzenarioEvtMsg) {
 		}
 		m, err := gv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
 		if err != nil {
-			p.hcl.Warn("GaugeVec error", "error", err, "counter", n, "szenario", e.Name)
+			p.log.Warn("GaugeVec error", "error", err, "counter", n, "szenario", e.Name)
 		}
 		if m == nil {
-			p.hcl.Warn("GaugeVec is nil", "counter", n, "szenario", e.Name)
+			p.log.Warn("GaugeVec is nil", "counter", n, "szenario", e.Name)
 			continue
 		}
 		if errors.Is(e.Err(), szenario.TimeoutError{}) {
@@ -128,7 +129,7 @@ func (p *prometheusBackend) getGaugeVec(e *msg.SzenarioEvtMsg) *prometheus.Gauge
 func (p *prometheusBackend) getGaugeVecByName(name string) *prometheus.GaugeVec {
 	gv := p.gaugeVec[name]
 	if gv == nil {
-		p.hcl.Info("Creating GaugeVec", "counter", name)
+		p.log.Info("Creating GaugeVec", "counter", name)
 		gv = promauto.NewGaugeVec(prometheus.GaugeOpts{
 			//Namespace: PrometheusName(e.Name),
 			Name: PrometheusName(name),
@@ -206,10 +207,10 @@ func (p *prometheusBackend) setHistogramVec(e *msg.SzenarioEvtMsg) {
 		}
 		m, err := hv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
 		if err != nil {
-			p.hcl.Warn("HistogramVec error", "error", err, "counter", n, "szenario", e.Name)
+			p.log.Warn("HistogramVec error", "error", err, "counter", n, "szenario", e.Name)
 		}
 		if m == nil {
-			p.hcl.Warn("HistogramVec is nil", "counter", n, "szenario", e.Name)
+			p.log.Warn("HistogramVec is nil", "counter", n, "szenario", e.Name)
 			continue
 		}
 		if errors.Is(e.Err(), szenario.TimeoutError{}) {
@@ -232,7 +233,7 @@ func (p *prometheusBackend) getHistogramVec(e *msg.SzenarioEvtMsg) *prometheus.H
 		},
 			[]string{"step", "user", "region"},
 		)
-		p.hcl.Info("Creating HistogramVec", "counter", name)
+		p.log.Info("Creating HistogramVec", "counter", name)
 		p.histoVec[name] = hv
 	}
 	return hv

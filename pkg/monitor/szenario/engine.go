@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
-	"github.com/vogtp/go-hcl"
+	"golang.org/x/exp/slog"
 )
 
 // JobFunc is the signature of a function that runs as job
@@ -46,8 +46,8 @@ type Engine interface {
 	SetStatus(key, val string)
 	// AddErr adds a error to the event
 	AddErr(err error)
-	// HCL returns the logger
-	HCL() hcl.Logger
+	// Log returns the logger
+	Log() *slog.Logger
 
 	// WaitForEver blocks until the timeout is reached
 	WaitForEver()

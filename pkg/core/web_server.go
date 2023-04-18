@@ -9,12 +9,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/log"
+	"golang.org/x/exp/slog"
 )
 
 // WebServer is a wrapper for a webserver
 type WebServer struct {
-	hcl      hcl.Logger
+	log      *slog.Logger
 	port     int
 	basepath string
 	url      string
@@ -26,16 +27,16 @@ type WebServer struct {
 }
 
 func (w *WebServer) init(c *Core) {
-	w.hcl = c.hcl.Named("web")
+	w.log = c.log.With(log.Component, "web")
 
 	if !IsFreePort(w.port) {
-		w.hcl.Warn("Port is not free, using a random port", "port", w.port)
+		w.log.Warn("Port is not free, using a random port", "port", w.port)
 		w.port = 0
 	}
 
 	if w.port < 1 {
 		p, err := GetFreePort()
-		w.hcl.Warn("Found free port", "port", p)
+		w.log.Warn("Found free port", "port", p)
 		if err != nil {
 			panic(err)
 		}
@@ -74,12 +75,12 @@ func (w *WebServer) Start() {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 	if w.started {
-		w.hcl.Info("Cannot start webserver, it is already running")
+		w.log.Info("Cannot start webserver, it is already running")
 		return
 	}
 	w.started = true
-	w.hcl = w.hcl.With("listen_adr", w.url)
-	w.hcl.Warn("Webserver starting")
+	w.log = w.log.With("listen_adr", w.url)
+	w.log.Warn("Webserver starting")
 	go func() {
 		err := w.srv.ListenAndServe()
 		w.mu.Lock()
@@ -87,9 +88,9 @@ func (w *WebServer) Start() {
 		w.started = false
 		if err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
-				w.hcl.Warn("http server stopped", "error",err)
+				w.log.Warn("http server stopped", "error", err)
 			} else {
-				w.hcl.Error("http server error","error", err)
+				w.log.Error("http server error", "error", err)
 			}
 		}
 	}()
@@ -97,9 +98,9 @@ func (w *WebServer) Start() {
 
 // Stop the webserver
 func (w *WebServer) Stop() {
-	w.hcl.Warn("Stopping web server")
+	w.log.Warn("Stopping web server")
 	if err := w.srv.Shutdown(context.Background()); err != nil {
-		w.hcl.Warn("cannot shutdown webserver", "error",err)
+		w.log.Warn("cannot shutdown webserver", "error", err)
 	}
 }
 

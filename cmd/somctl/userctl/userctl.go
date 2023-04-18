@@ -10,6 +10,7 @@ import (
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 )
@@ -83,7 +84,7 @@ var userAdd = &cobra.Command{
 		name := term.ReadOrArgs("username", args, 0, defaultValue)
 		existUser, err := user.Store.Get(name)
 		if err != nil {
-			core.Get().HCL().Debugf("User %s not found in backend: %v\n", name, err)
+			core.Get().HCL().Debug("User not found in backend", log.User, name, log.Error, err)
 		}
 		if existUser != nil {
 			fmt.Printf("Found existing user %s empty input will be filled with values from this user...\n", existUser.Name())

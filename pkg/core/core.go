@@ -6,10 +6,11 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
+	"golang.org/x/exp/slog"
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 
 // Core is the central structure
 type Core struct {
-	hcl   hcl.Logger
+	log   *slog.Logger
 	szCfg *szenario.Config
 	name  string
 
@@ -36,7 +37,7 @@ func New(name string, opts ...Option) (*Core, func()) {
 	if c == nil {
 		newCore = true
 		c = &Core{
-			hcl:  hcl.New(hcl.WithName(name), cfg.HclOptions()),
+			log:  log.New("som"),
 			name: name,
 			web: &WebServer{
 				port:     viper.GetInt(cfg.WebPort),
@@ -47,20 +48,20 @@ func New(name string, opts ...Option) (*Core, func()) {
 			},
 		}
 	} else if c.name != name {
-		c.hcl.Error("Cannot have two cores of different names", "name", c.name, "new_name", name)
+		c.log.Error("Cannot have two cores of different names", "name", c.name, "new_name", name)
 	}
 	for _, o := range opts {
 		o(c)
 	}
 	if newCore {
-		c.hcl.Warn("SOM starting...", "version", som.Version)
+		c.log.Warn("SOM starting...", "version", som.Version)
 		c.web.init(c)
 		c.bus.init(c)
 		c.web.Start()
 	}
 
 	waitDuration := viper.GetDuration(cfg.CoreStartdelay)
-	c.hcl.Info("Waiting for the core to get started up", "duration", waitDuration)
+	c.log.Info("Waiting for the core to get started up", "duration", waitDuration)
 	<-time.After(waitDuration)
 	return c, c.cleanup
 }
@@ -79,8 +80,8 @@ func (c *Core) Bus() *Bus {
 }
 
 // HCL returns the logger or panics if Core not Initialised with New
-func (c *Core) HCL() hcl.Logger {
-	return c.hcl
+func (c *Core) HCL() *slog.Logger {
+	return c.log
 }
 
 // WebServer returns the webserver

@@ -21,8 +21,8 @@ var cleanupMutex sync.Mutex
 
 // ThinOutIncidents removes multiple incident entries
 func (c *Client) ThinOutIncidents(ctx context.Context) error {
-	c.hcl.Info("Starting thin out")
-	defer c.hcl.Info("Finish thin out")
+	c.log.Info("Starting thin out")
+	defer c.log.Info("Finish thin out")
 	cleanupMutex.Lock()
 	defer cleanupMutex.Unlock()
 	incidents, err := c.IncidentSummary.Query().All(ctx)
@@ -51,7 +51,7 @@ func (c *Client) ThinOutIncidents(ctx context.Context) error {
 
 func (c *Client) thinoutIncident(ctx context.Context, incSum *IncidentSummary, maxIncidents int) error {
 	intervall := int(math.Ceil(float64(incSum.Total) / float64(maxIncidents)))
-	c.hcl.Info("Thining out", "incident", incSum.Name, "total_entries", incSum.Total, "intervall", intervall, "incident_id", incSum.IncidentID)
+	c.log.Info("Thining out", "incident", incSum.Name, "total_entries", incSum.Total, "intervall", intervall, "incident_id", incSum.IncidentID)
 	incidents, err := c.Incident.Query().Where(incident.IncidentIDEQ(incSum.IncidentID)).Order(ent.Asc(incident.FieldTime)).All(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot query incidents of %v: %w", incSum.IncidentID, err)
@@ -61,7 +61,7 @@ func (c *Client) thinoutIncident(ctx context.Context, incSum *IncidentSummary, m
 	for _, inc := range incidents {
 		fail, err := inc.QueryFailures().Order(ent.Desc(failure.FieldIdx)).First(ctx)
 		if err != nil {
-			c.hcl.Debug("cannot get failures","error", err)
+			c.log.Debug("cannot get failures", "error", err)
 			continue
 		}
 		lastFailure := thisFailure
