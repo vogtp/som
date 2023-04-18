@@ -3,12 +3,12 @@ package cdp
 import (
 	"time"
 
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/cmd/somctl/term"
+	"github.com/vogtp/som/pkg/env"
 )
 
 func (cdp *Engine) endStepActions() {
-	if cdp.stepBreakPoint != nil && hcl.IsGoRun() {
+	if cdp.stepBreakPoint != nil && env.IsGoRun() {
 		cdp.stepBreakPoint <- cdp.stepInfo.name
 		return
 	}
@@ -16,7 +16,7 @@ func (cdp *Engine) endStepActions() {
 }
 
 func (cdp *Engine) BreakWaitForUserInput() {
-	if !hcl.IsGoRun() {
+	if !env.IsGoRun() {
 		return
 	}
 	term.Read("Press any key to continue...\n")

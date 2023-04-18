@@ -8,9 +8,9 @@ import (
 	"github.com/suborbital/grav/grav"
 	"github.com/suborbital/grav/transport/websocket"
 	"github.com/suborbital/vektor/vlog"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
+	"github.com/vogtp/som/pkg/env"
 	"golang.org/x/exp/slog"
 )
 
@@ -33,7 +33,7 @@ func (e *Bus) initGrav(web *WebServer) {
 		opts = append(opts, grav.UseLogger(vlog))
 	}
 
-	if !hcl.IsGoTest() {
+	if !env.IsGoTest() {
 		e.log.Info("Starting local discovery")
 		locald := local.New()
 		opts = append(opts, grav.UseDiscovery(locald))

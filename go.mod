@@ -30,7 +30,6 @@ require (
 	github.com/suborbital/vektor v0.7.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
-	github.com/vogtp/go-hcl v0.3.0
 	github.com/vogtp/go-mesh v0.2.0
 	github.com/xiaoqidun/entps v0.0.0-20230328150929-94b1b92d8c03
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
@@ -60,7 +59,7 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hashicorp/hcl/v2 v2.16.2 // indirect
+	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect

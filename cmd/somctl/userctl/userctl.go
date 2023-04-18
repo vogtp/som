@@ -6,11 +6,11 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
+	"github.com/vogtp/som/pkg/env"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 )
@@ -148,14 +148,14 @@ var userShowPw = &cobra.Command{
 		}
 		fmt.Printf("\n%s: %s\n", name, u.String())
 		pw := u.Password()
-		if !hcl.IsGoRun() {
+		if !env.IsGoRun() {
 			// show password is only supported in debugging
 			pw = "********"
 		}
 		fmt.Printf("  %-20s (Created: %s LastUse: %s)\n", pw, u.PasswordCreated().Format(cfg.TimeFormatString), u.PasswordLastUse().Format(cfg.TimeFormatString))
 		fmt.Println("History:")
 		for pw := u.NextPassword(); pw != ""; pw = u.NextPassword() {
-			if !hcl.IsGoRun() {
+			if !env.IsGoRun() {
 				// show password is only supported in debugging
 				pw = "********"
 			}

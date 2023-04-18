@@ -198,8 +198,8 @@ github.com/hashicorp/golang-lru/v2 v2.0.2 h1:Dwmkdr5Nc/oBiXgJS3CDHNhJtIHkuZ3DZF5
 github.com/hashicorp/golang-lru/v2 v2.0.2/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
-github.com/hashicorp/hcl/v2 v2.16.2 h1:mpkHZh/Tv+xet3sy3F9Ld4FyI2tUpWe9x3XtPx9f1a0=
-github.com/hashicorp/hcl/v2 v2.16.2/go.mod h1:JRmR89jycNkrrqnMmvPDMd56n1rQJ2Q6KocSLCMCXng=
+github.com/hashicorp/hcl/v2 v2.13.0 h1:0Apadu1w6M11dyGFxWnmhhcMjkbAiKCv7G1r/2QgCNc=
+github.com/hashicorp/hcl/v2 v2.13.0/go.mod h1:e4z5nxYlWNPdDSNYX+ph14EvWYMFm3eP0zIUqPc2jr0=
 github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef h1:A9HsByNhogrvm9cWb28sjiS3i7tcKCkflWFEkHfuAgM=
 github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef/go.mod h1:lADxMC39cJJqL93Duh1xhAs4I2Zs8mKS89XWXFGp9cs=
 github.com/iancoleman/strcase v0.2.0 h1:05I4QRnGpI0m37iZQRuskXh+w77mr6Z41lwQzuHLwW0=
@@ -336,10 +336,8 @@ github.com/vmihailenco/msgpack/v5 v5.3.5 h1:5gO0H1iULLWGhs2H5tbAHIZTV8/cYafcFOr9
 github.com/vmihailenco/msgpack/v5 v5.3.5/go.mod h1:7xyJ9e+0+9SaZT0Wt1RGleJXzli6Q/V5KbhBonMG9jc=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
 github.com/vmihailenco/tagparser/v2 v2.0.0/go.mod h1:Wri+At7QHww0WTrCBeu4J6bNtoV6mEfg5OIWRZA9qds=
-github.com/vogtp/go-hcl v0.3.0 h1:U/y1TII41WLKgdI97Mp6LpC9EZoJ8T0BcPErjMV/tlM=
-github.com/vogtp/go-hcl v0.3.0/go.mod h1:qUvBzAg1znUiYqiR94w07MXpXs/McNDrA/XQXyRnfa0=
-github.com/vogtp/go-mesh v0.1.4 h1:S/2pUxODLbNxdICTTDZ3lt3mn3VV1I24pDVmwvmVK2A=
-github.com/vogtp/go-mesh v0.1.4/go.mod h1:QxqbLzhz4D/1+Qu3NnC90wNVNiqKJNaf5h4b4kfoA1o=
+github.com/vogtp/go-mesh v0.2.0 h1:XQzbUDt6st9ezY0sRGfWWs5Izzh0V/ebxIhcJy7Sxn0=
+github.com/vogtp/go-mesh v0.2.0/go.mod h1:qyovhWbmAZG9Nwztk7hFoclNyQ0TLqlmpXqdGeE1dOw=
 github.com/xiaoqidun/entps v0.0.0-20230328150929-94b1b92d8c03 h1:vlehC7KJYZsRIDiihYR6dE5rQ6UqcKIp+hmuQTxVWHI=
 github.com/xiaoqidun/entps v0.0.0-20230328150929-94b1b92d8c03/go.mod h1:yrX8Sw34syrIn4GxVsuDk21AicyB/wooQEUjmNj3wbE=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
