@@ -20,16 +20,16 @@ func (us *store) load() error {
 	defer f.Close()
 	r, err := EncryptedReader(string(core.Keystore.Key()), f)
 	if err != nil {
-		us.hcl.Errorf("EncryptedReader: %v", err)
+		us.hcl.Error("EncryptedReader", "error", err)
 		panic(err)
 	}
 
 	if err = gob.NewDecoder(r).Decode(&us.data); err != nil {
 		return fmt.Errorf("cannot decode users from gob: %v", err)
 	}
-	us.hcl.Infof("Loaded %d users from %s", len(us.data), dbFile)
+	us.hcl.Info("Loaded users from", "count", len(us.data), "file", dbFile)
 	if err := us.mirgrate(); err != nil {
-		us.hcl.Warnf("Cannot mirgrate %s: %v", dbFile, err)
+		us.hcl.Warn("Cannot mirgrate", "file", dbFile, "error", err)
 	}
 	return nil
 }
@@ -40,20 +40,20 @@ func (us *store) save() error {
 	us.cleanupPasswords()
 	f, err := os.OpenFile(dbFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
 	if err != nil {
-		us.hcl.Errorf("cannot open gob file %s: %v", dbFile, err)
+		us.hcl.Error("cannot open gob file", "file", dbFile, "error", err)
 		return fmt.Errorf("cannot open gob file %s: %v", dbFile, err)
 	}
 	defer f.Close()
 	w, err := EncryptedWriter(string(core.Keystore.Key()), f)
 	if err != nil {
-		us.hcl.Errorf("EncryptedWriter: %v", err)
+		us.hcl.Error("EncryptedWriter", "file", dbFile,"error", err)
 		panic(err)
 	}
 	if err = gob.NewEncoder(w).Encode(&us.data); err != nil {
-		us.hcl.Errorf("cannot encode users to gob: %v", err)
+		us.hcl.Error("cannot encode users to gob", "file", dbFile,"error", err)
 		return fmt.Errorf("cannot encode users to gob: %v", err)
 	}
-	us.hcl.Infof("Saved %d users to %s", len(us.data), dbFile)
+	us.hcl.Info("Saved users", "count", len(us.data), "file",dbFile)
 	return nil
 }
 

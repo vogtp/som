@@ -51,7 +51,7 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 	s.err = e.Err()
 	if oldErr == nil || e.Err() == nil {
 		// no alert the first time or alert was cleared
-		s.hcl.Debugf("Not alerting not a constant error: %v was %v", e.Err(), oldErr)
+		s.hcl.Debug("Not alerting not a constant error", "message", e.Err(), "old_message", oldErr)
 		return nil
 	}
 	lvl := statusGroup.Level()
@@ -59,7 +59,7 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 		s.Level >= lvl &&
 		s.LastUpdate.After(e.Time.Add(-1*s.am.alertIntervall)) {
 		// alread alerted
-		s.hcl.Debugf("Not alerting: %v -- last alert was %v (%s ago, not alerting more often than %v)", e.Err(), s.LastUpdate, e.Time.Sub(s.LastUpdate), s.am.alertIntervall)
+		s.hcl.Debug("Not alerting: not alerting too often", "message", e.Err(), "last", s.LastUpdate, "since", e.Time.Sub(s.LastUpdate), "min_intervall", s.am.alertIntervall)
 		return nil
 	}
 	if s.Alerted > 1 {
@@ -69,7 +69,7 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 		e.Errors = append([]string{fmt.Sprintf("Initial error: %v (%s)", oldErr, s.LastUpdate.Format(cfg.TimeFormatString))}, e.Errors...)
 	}
 	if time.Since(s.LastUpdate) < viper.GetDuration(cfg.AlertDelay) {
-		s.hcl.Infof("Not alerting %v alert is too young %v must be older than %v", e.Name, time.Since(e.Time), viper.GetDuration(cfg.AlertDelay))
+		s.hcl.Info("Not alerting: alert is too young", "message", e.Name, "age", time.Since(e.Time), "min_age", viper.GetDuration(cfg.AlertDelay))
 		return nil
 	}
 	s.Level = lvl
@@ -78,6 +78,6 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 	a := msg.NewAlert(e)
 	a.SetStatus(KeyTopology, statusGroup.String())
 	a.Level = lvl.String()
-	s.hcl.Infof("Generating %s alert for %s", a.Level, a.Name)
+	s.hcl.Info("Generating alert", "level", a.Level, "szenario", a.Name)
 	return a
 }

@@ -40,10 +40,10 @@ func (h *eventHandler[M]) Send(evt *M) error {
 	defer time.AfterFunc(100*time.Millisecond, h.wgMsg.Done)
 	b, err := json.Marshal(evt)
 	if err != nil {
-		h.hcl.Errorf("cannot marshal %+v: %v", evt, err)
+		h.hcl.Error("cannot marshal", "event", evt, "error", err)
 		return fmt.Errorf("cannot marshal %+v: %v", evt, err)
 	}
-	h.hcl.Tracef("Sending %s msg %+v", h.msgType, evt)
+	h.hcl.Trace("Sending msg", "type", h.msgType, "event", evt)
 	p := h.grav.Connect()
 	defer p.Disconnect()
 	p.Send(grav.NewMsg(h.msgType, b))
@@ -63,7 +63,7 @@ func (h *eventHandler[M]) Handle(f EventHandler[M]) {
 		evt := new(M)
 		err := json.Unmarshal(m.Data(), evt)
 		if err != nil {
-			h.hcl.Errorf("Could not unmarshal message %s: %v", string(m.Data()), err)
+			h.hcl.Error("Could not unmarshal message", "payload", string(m.Data()),"error", err)
 			// does not return an error the the program, just signals the grav
 			return fmt.Errorf("could not unmarshal message %s: %w", string(m.Data()), err)
 		}

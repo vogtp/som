@@ -26,19 +26,19 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		s.hcl.Warnf("ID is not a UUID %s: %v", idStr, err)
+		s.hcl.Warn("ID is not a UUID", "id", idStr, "error", err)
 		http.Error(w, "No such file", http.StatusBadRequest)
 		return
 	}
-	s.hcl.Debugf("file %s requested", idStr)
+	s.hcl.Debug("file requested", "file", idStr)
 
 	file, err := s.Ent().File.Query().Where(file.UUIDEQ(id)).First(r.Context())
 	if err != nil {
-		s.hcl.Warnf("No such file %s: %v", idStr, err)
+		s.hcl.Warn("No such file", "file", idStr, "error", err)
 		http.Error(w, "No such file", http.StatusNotFound)
 		return
 	}
-	s.hcl.Debugf("Serving file: %s.%s", file.Name, file.Ext)
+	s.hcl.Debug("Serving file", "file", file.Name, "extention", file.Ext)
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Add("Content-Type", file.Type)
@@ -46,7 +46,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 	reader := strings.NewReader(string(file.Payload))
 	_, err = io.Copy(w, reader)
 	if err != nil {
-		s.hcl.Warnf("Cannot write file %s: %v", file, err)
+		s.hcl.Warn("Cannot write file", "file", file, "error", err)
 	}
 
 }

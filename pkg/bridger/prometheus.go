@@ -88,7 +88,7 @@ func (p *prometheusBackend) saveCounter(e *msg.SzenarioEvtMsg, counterName strin
 
 	m, err := gvPwAge.GetMetricWithLabelValues(PrometheusName(e.Name), promLabel, PrometheusName(e.Region))
 	if err != nil {
-		p.hcl.Warnf("GaugeVec %s: %v", counterName, err)
+		p.hcl.Warn("GaugeVec error", "counter", counterName, "error", err)
 	}
 	if m == nil {
 		return
@@ -107,10 +107,10 @@ func (p *prometheusBackend) setGaugeVec(e *msg.SzenarioEvtMsg) {
 		}
 		m, err := gv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
 		if err != nil {
-			p.hcl.Warnf("GaugeVec: %v", err)
+			p.hcl.Warn("GaugeVec error", "error", err, "counter", n, "szenario", e.Name)
 		}
 		if m == nil {
-			p.hcl.Warnf("GaugeVec %s is nil", n)
+			p.hcl.Warn("GaugeVec is nil", "counter", n, "szenario", e.Name)
 			continue
 		}
 		if errors.Is(e.Err(), szenario.TimeoutError{}) {
@@ -128,7 +128,7 @@ func (p *prometheusBackend) getGaugeVec(e *msg.SzenarioEvtMsg) *prometheus.Gauge
 func (p *prometheusBackend) getGaugeVecByName(name string) *prometheus.GaugeVec {
 	gv := p.gaugeVec[name]
 	if gv == nil {
-		p.hcl.Infof("Creating GaugeVec %v ", name)
+		p.hcl.Info("Creating GaugeVec", "counter", name)
 		gv = promauto.NewGaugeVec(prometheus.GaugeOpts{
 			//Namespace: PrometheusName(e.Name),
 			Name: PrometheusName(name),
@@ -206,10 +206,10 @@ func (p *prometheusBackend) setHistogramVec(e *msg.SzenarioEvtMsg) {
 		}
 		m, err := hv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
 		if err != nil {
-			p.hcl.Warnf("GaugeVec: %v", err)
+			p.hcl.Warn("HistogramVec error", "error", err, "counter", n, "szenario", e.Name)
 		}
 		if m == nil {
-			p.hcl.Warnf("GaugeVec %s is nil", n)
+			p.hcl.Warn("HistogramVec is nil", "counter", n, "szenario", e.Name)
 			continue
 		}
 		if errors.Is(e.Err(), szenario.TimeoutError{}) {
@@ -232,7 +232,7 @@ func (p *prometheusBackend) getHistogramVec(e *msg.SzenarioEvtMsg) *prometheus.H
 		},
 			[]string{"step", "user", "region"},
 		)
-		p.hcl.Infof("Creating HistogramVec %v ", name)
+		p.hcl.Info("Creating HistogramVec", "counter", name)
 		p.histoVec[name] = hv
 	}
 	return hv

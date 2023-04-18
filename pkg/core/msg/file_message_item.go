@@ -43,7 +43,7 @@ func idFromMD5(d []byte) uuid.UUID {
 	id, err := uuid.FromBytes(h)
 	if err != nil {
 		// should never been reacht md5 and uuid both have a size of 16
-		hcl.Warnf("Cannot create uuid from MD5: %v", err)
+		hcl.Warn("Cannot create uuid from MD5", "error", err, "uuid_bytes", string(h))
 	}
 	if id == uuid.Nil {
 		hcl.Warn("Generating non hash based id")

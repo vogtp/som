@@ -51,7 +51,6 @@ func (am *AlertMgr) wirteJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot write file %s: %w", jsonDBFile, err)
 	}
-	am.hcl.Tracef("Saved %v alertmgr datasets to %s", len(am.basicStates), jsonDBFile)
 	return nil
 }
 
@@ -72,7 +71,7 @@ func (am *AlertMgr) readJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("error loading json from %v: %w", jsonDBFile, err)
 	}
-	am.hcl.Infof("Loaded %v alertmgr datasets from %s", len(am.basicStates), fi.Name())
+	am.hcl.Info("Loaded alertmgr datasets", "count", len(am.basicStates), "file", fi.Name())
 	am.hcl.Debug(am.status.String())
 	return nil
 }

@@ -109,7 +109,7 @@ func initEnv(t *testing.T) (*core.Bus, []cdp.Option, func()) {
 
 func cleanupOutFolder() {
 	if err := os.RemoveAll(testOutFolder); err != nil {
-		hcl.Warnf("Cannot remove %s: %v", testOutFolder, err)
+		hcl.Warn("Cannot remove folder", "folder", testOutFolder, "error", err)
 	}
 }
 

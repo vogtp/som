@@ -51,7 +51,7 @@ func (c *Client) ThinOutIncidents(ctx context.Context) error {
 
 func (c *Client) thinoutIncident(ctx context.Context, incSum *IncidentSummary, maxIncidents int) error {
 	intervall := int(math.Ceil(float64(incSum.Total) / float64(maxIncidents)))
-	c.hcl.Infof("Thining out: %s %v (every %v) %v", incSum.Name, incSum.Total, intervall, incSum.IncidentID)
+	c.hcl.Info("Thining out", "incident", incSum.Name, "total_entries", incSum.Total, "intervall", intervall, "incident_id", incSum.IncidentID)
 	incidents, err := c.Incident.Query().Where(incident.IncidentIDEQ(incSum.IncidentID)).Order(ent.Asc(incident.FieldTime)).All(ctx)
 	if err != nil {
 		return fmt.Errorf("cannot query incidents of %v: %w", incSum.IncidentID, err)
@@ -61,13 +61,12 @@ func (c *Client) thinoutIncident(ctx context.Context, incSum *IncidentSummary, m
 	for _, inc := range incidents {
 		fail, err := inc.QueryFailures().Order(ent.Desc(failure.FieldIdx)).First(ctx)
 		if err != nil {
-			c.hcl.Debugf("cannot get failures: %v", err)
+			c.hcl.Debug("cannot get failures","error", err)
 			continue
 		}
 		lastFailure := thisFailure
 		thisFailure = fail.Error
 		if lastFailure != thisFailure {
-			c.hcl.Tracef("%q != %q", thisFailure, lastFailure)
 			continue
 		}
 		i--

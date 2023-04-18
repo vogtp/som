@@ -47,22 +47,21 @@ func New(name string, opts ...Option) (*Core, func()) {
 			},
 		}
 	} else if c.name != name {
-		c.hcl.Errorf("Cannot have two cores of different names: %s != %s", c.name, name)
+		c.hcl.Error("Cannot have two cores of different names", "name", c.name, "new_name", name)
 	}
 	for _, o := range opts {
 		o(c)
 	}
 	if newCore {
-		c.hcl.Warnf("SOM %s starting...", som.Version)
+		c.hcl.Warn("SOM starting...", "version", som.Version)
 		c.web.init(c)
 		c.bus.init(c)
 		c.web.Start()
 	}
 
 	waitDuration := viper.GetDuration(cfg.CoreStartdelay)
-	c.hcl.Infof("Waiting %v for the core to get started up", waitDuration)
+	c.hcl.Info("Waiting for the core to get started up", "duration", waitDuration)
 	<-time.After(waitDuration)
-	hcl.Debugf("Waited %v hopefully the bus is up and running", waitDuration)
 	return c, c.cleanup
 }
 

@@ -34,7 +34,7 @@ func New() *WebStatus {
 	s.data = newSzenarioData(s.hcl)
 
 	if err := s.data.load(); err != nil {
-		s.hcl.Errorf("Cannot load config: %v", err)
+		s.hcl.Error("Cannot load config", "error", err)
 	}
 	c.Bus().Szenario.Handle(s.handleSzenarioEvt)
 	c.Bus().Alert.Handle(s.handleAlert)
@@ -45,13 +45,13 @@ func New() *WebStatus {
 }
 
 func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
-	s.hcl.Debugf("Webstatus got %s event", e.Name)
+	s.hcl.Debug("Webstatus got event", "szenario", e.Name)
 	s.data.mu.Lock()
 	defer func() {
 		s.data.mu.Unlock()
 		go func() {
 			if err := s.data.save(); err != nil {
-				s.hcl.Errorf("Cannot save config: %v", err)
+				s.hcl.Error("Cannot save config", "error", err)
 			}
 		}()
 	}()
@@ -70,21 +70,21 @@ func (s *WebStatus) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 			continue
 		}
 		s.data.Availabilites[e.Name] = (avail + curAvail) / 2
-		s.hcl.Debugf("%s availability (%v + %v)/2 = %v", e.Name, avail, curAvail, s.data.Availabilites[e.Name])
+		s.hcl.Debug("Update availability", "szenario", e.Name, "old_availability", avail, "run_availability", curAvail, "new_availability", s.data.Availabilites[e.Name])
 	}
 }
 
 func (s *WebStatus) handleAlert(a *msg.AlertMsg) {
-	s.hcl.Debugf("Webstatus got %s alert", a.Name)
+	s.hcl.Debug("Webstatus got alert", "szenario", a.Name)
 	if err := s.Ent().Alert.Save(context.Background(), a); err != nil {
-		s.hcl.Errorf("Cannot save alert to DB: %v", err)
+		s.hcl.Error("Cannot save alert to DB", "error", err)
 	}
 }
 
 func (s *WebStatus) handleIncident(i *msg.IncidentMsg) {
-	s.hcl.Infof("Webstatus got  %s %s (%s - %s) ", i.Type.String(), i.Name, i.Start.Format(cfg.TimeFormatString), i.End.Format(cfg.TimeFormatString))
+	s.hcl.Info("Webstatus got incident", "msg_type", i.Type.String(), "szenario", i.Name, "start", i.Start.Format(cfg.TimeFormatString), "end", i.End.Format(cfg.TimeFormatString))
 	if err := s.Ent().Incident.Save(context.Background(), i); err != nil {
-		s.hcl.Errorf("Cannot save %s incident %s to DB: %v", i.Name, i.ID, err)
+		s.hcl.Error("Cannot save incident to DB", "szenario", i.Name, "incident_id", i.ID, "error", err)
 	}
 }
 
@@ -93,7 +93,7 @@ func (s *WebStatus) Ent() *db.Client {
 	if s.dbAccess == nil {
 		entAccess, err := db.New()
 		if err != nil {
-			s.hcl.Errorf("Cannot connect to DB: %v", err)
+			s.hcl.Error("Cannot connect to DB", "error", err)
 		}
 		s.dbAccess = entAccess
 	}

@@ -36,13 +36,13 @@ func (pa *promAvail) updateSzenario(sz SzenarioGroup) {
 	gv := pa.getAvailGaugeVec(sz)
 	gvAvail, err := gv.GetMetricWithLabelValues("availability")
 	if err != nil {
-		hcl.Warnf("Cannot get avail gauge vec: %v", err)
+		hcl.Warn("Cannot get gauge vec", "error", err, "counter", "availability", "key", sz.Key())
 		return
 	}
 	gvAvail.Set(avail * 100)
 	gvTotal, err := gv.GetMetricWithLabelValues("check_time")
 	if err != nil {
-		hcl.Warnf("Cannot get total gauge vec: %v", err)
+		hcl.Warn("Cannot get gauge vec: %v", "error", err, "counter", "check_time", "key", sz.Key())
 		return
 	}
 	gvTotal.Set(sz.LastTotal())

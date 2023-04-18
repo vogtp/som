@@ -21,7 +21,7 @@ func (ks *keyStore) Add(k []byte) {
 func (ks *keyStore) Key() []byte {
 	if len(ks.data) < 10 {
 		hcl := hcl.Named("som.keystore")
-		hcl.Errorf("Keystore is not initialised! Key len: %v", len(ks.data))
+		hcl.Error("Keystore is not initialised!", "key_len", len(ks.data))
 		hcl.Error("Use core.Keystore.Add(...)")
 		panic("No store key")
 	}

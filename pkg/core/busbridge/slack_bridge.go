@@ -35,10 +35,10 @@ func NewSlack(ctx context.Context, hcl hcl.Logger, oAuth string, appLevelToken s
 	)
 	auth, err := client.AuthTestContext(ctx)
 	if err != nil {
-		hcl.Errorf("Cannot login: %v", err)
+		hcl.Error("Cannot login", "error", err)
 		return nil, err
 	}
-	hcl.Infof("connected to slack as: %s (%s) - botID: %s", auth.User, auth.UserID, auth.BotID)
+	hcl.Info("connected to slack", "user", auth.User, "user_id", auth.UserID, "bot_id", auth.BotID)
 	s := &Slack{
 		hcl:     hcl,
 		client:  client,
@@ -75,16 +75,16 @@ func (s Slack) start() {
 	//s.say("listening") // TODO should say something more meaningfull here
 
 	if err := s.client.Run(); err != nil {
-		s.hcl.Errorf("could not connect to slack: %v", err)
+		s.hcl.Error("could not connect to slack", "error", err)
 	}
 }
 
 // Send messge to the bridge
 func (s Slack) Send(evt *msg.SzenarioEvtMsg) error {
-	s.hcl.Warnf("Sending message: %v", reflect.TypeOf(evt))
+	s.hcl.Warn("Sending message", "type", reflect.TypeOf(evt))
 	b, err := ToBridgePayload(evt)
 	if err != nil {
-		s.hcl.Warnf("bridge payload: %v", err)
+		s.hcl.Warn("bridge payload", "error", err)
 	}
 	chanID, ts, err := s.client.PostMessage(
 		s.channel,
@@ -109,14 +109,14 @@ func (s Slack) say(txt string) error {
 }
 
 func (s Slack) handleEvents() {
-	s.hcl.Infof("Handling slack events in %s", s.channel)
+	s.hcl.Info("Handling slack events", "channel", s.channel)
 	for {
 		select {
 		case <-s.ctx.Done():
 			s.hcl.Warn("Shutting down socketmode listener: %v", s.ctx.Err())
 			return
 		case event := <-s.client.Events:
-			s.hcl.Tracef("Slack Event %v(%T): %v", event.Type, event.Type, event)
+			s.hcl.Trace("Slack Event", "event_type", event.Type, "type", reflect.TypeOf(event.Type), "evnt", event)
 
 			switch event.Type {
 			case socketmode.EventTypeEventsAPI:
@@ -130,7 +130,7 @@ func (s Slack) handleEvents() {
 
 				err := s.handleEventMessage(s.ctx, eventsAPIEvent)
 				if err != nil {
-					s.hcl.Warnf("handle message: %v", err)
+					s.hcl.Warn("handle message error", "error", err)
 				}
 			case socketmode.EventTypeSlashCommand:
 				cmdEvt, ok := event.Data.(slack.SlashCommand)
@@ -139,10 +139,10 @@ func (s Slack) handleEvents() {
 					continue
 				}
 				s.client.Ack(*event.Request)
-				s.hcl.Infof("Command: %v", cmdEvt)
+				s.hcl.Info("socket mode command", "command", cmdEvt)
 				//go s.handleCommand(ctx, &cmdEvt)
 			default:
-				s.hcl.Infof("Unsupported eventtype %v: %T", event.Type, event.Data)
+				s.hcl.Info("Unsupported eventtype", "type", event.Type, "data", event.Data)
 			}
 
 		}
@@ -155,7 +155,7 @@ func (s Slack) handleEventMessage(ctx context.Context, event slackevents.EventsA
 		innerEvent := event.InnerEvent
 		switch ev := innerEvent.Data.(type) {
 		case *slackevents.AppMentionEvent:
-			s.hcl.Debugf("Mention: %v", ev.Text)
+			s.hcl.Debug("Mention", "text", ev.Text)
 			// if err := s.client.AddReactionContext(ctx, "eyes", slack.NewRefToMessage(ev.Channel, ev.TimeStamp)); err != nil {
 			// 	s.hcl.Infof("Adding readtion: %v", err)
 			// }
@@ -165,14 +165,14 @@ func (s Slack) handleEventMessage(ctx context.Context, event slackevents.EventsA
 			// }
 		case *slackevents.MessageEvent:
 			if ev.BotID == s.auth.BotID {
-				s.hcl.Errorf("There is a BOT with the same ID probably missing messages")
+				s.hcl.Error("There is a BOT with the same ID probably missing messages")
 				//FIXME send a alert message
 			}
 			busMsg, err := FromBridgePayload(ev.Text)
 			if err != nil {
 				return fmt.Errorf("could not process msg: %w %s", err, ev.Text)
 			}
-			s.hcl.Infof("GOT MESSAGE: %v %+v ", busMsg.Name, busMsg)
+			s.hcl.Info("GOT MESSAGE", "name", busMsg.Name, "message", busMsg)
 			// go handleGeneralMessage(ctx, ev, client)
 
 		default:

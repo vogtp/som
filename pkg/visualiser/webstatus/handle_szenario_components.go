@@ -26,7 +26,7 @@ func (s *WebStatus) handleSzenarioComponent(w http.ResponseWriter, r *http.Reque
 		szName = szName[:idx]
 	}
 	accept := r.Header.Get("Accept")
-	s.hcl.Infof("Showing compoment for %s ext: %s accept: %s", szName, ext, accept)
+	s.hcl.Info("Showing szenario compoment", "szenario", szName, "extention", ext, "accept_header", accept)
 	// FIXME handle mimetypes and extentions
 	// browser: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
 	// img tag: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
@@ -38,7 +38,7 @@ func (s *WebStatus) handleSzenarioComponent(w http.ResponseWriter, r *http.Reque
 		file := fmt.Sprintf("static/status/%s.png", stat.Level().Img())
 		data, err := assetData.ReadFile(file)
 		if err != nil {
-			s.hcl.Warnf("cannot load status image for %s: %v", szName, err)
+			s.hcl.Warn("cannot load status image for", "szenario", szName, "error", err)
 			http.Error(w, err.Error(), http.StatusNotFound)
 		}
 		w.WriteHeader(http.StatusOK)
@@ -46,7 +46,7 @@ func (s *WebStatus) handleSzenarioComponent(w http.ResponseWriter, r *http.Reque
 		//	w.Header().Add("Content-Type", "image/svg+xml")
 		_, err = w.Write(data)
 		if err != nil {
-			s.hcl.Warnf("Cannot write file %s: %v", file, err)
+			s.hcl.Warn("Cannot write file", "file", file, "error", err)
 		}
 		return
 	}

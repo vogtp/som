@@ -9,11 +9,11 @@ import (
 
 func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName string, data any) {
 	ah := r.Header.Get("Accept")
-	s.hcl.Debugf("Accept header: %s", ah)
+	s.hcl.Debug("Render page", "accept_header", ah)
 
 	if strings.Contains(ah, "html") {
 		if err := templates.ExecuteTemplate(w, templateName, data); err != nil {
-			s.hcl.Errorf("cannot render template %s: %v", templateName, err)
+			s.hcl.Error("cannot render template", "template", templateName, "error", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -23,7 +23,7 @@ func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName 
 	if strings.Contains(ah, "application/json") {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		if err := json.NewEncoder(w).Encode(data); err != nil {
-			s.hcl.Errorf("cannot encode data of %s to json: %v", templateName, err)
+			s.hcl.Error("cannot encode data to json", "template", templateName, "error", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -42,7 +42,7 @@ func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName 
 	// }
 
 	err := fmt.Errorf("unsupported content-type: %v", ah)
-	s.hcl.Warnf("Cannot render %s: %v", templateName, err)
+	s.hcl.Warn("Cannot render", "template", templateName, "error", err)
 	http.Error(w, err.Error(), http.StatusBadRequest)
 
 }

@@ -132,7 +132,7 @@ func (u *User) deleteOldPasswords() {
 	if len(hist) < u.pwIdx+1 || len(hist) < 5 || len(hist) >= len(u.History) {
 		return
 	}
-	hcl.Infof("%s deleted old passwords: %v -> %v", u.Name(), len(u.History), len(hist))
+	hcl.Info("deleted old passwords", "user", u.Name(), "user_history_count", len(u.History), "history_count", len(hist))
 	u.History = hist
 }
 
@@ -146,7 +146,7 @@ func (u *User) SetPassword(pw string) {
 	if len(u.History) < 1 || string(u.History[0].Passwd) != string(pe.Passwd) {
 		u.History = append([]*PwEntry{&pe}, u.History...)
 	}
-	core.Get().HCL().Warnf("Change password of user %s", u.Name())
+	core.Get().HCL().Warn("Change password of user", "user", u.Name())
 }
 
 // Save the user to the store

@@ -29,13 +29,13 @@ func (w *WebServer) init(c *Core) {
 	w.hcl = c.hcl.Named("web")
 
 	if !IsFreePort(w.port) {
-		w.hcl.Warnf("Port %v is not free, using a random port", w.port)
+		w.hcl.Warn("Port is not free, using a random port", "port", w.port)
 		w.port = 0
 	}
 
 	if w.port < 1 {
 		p, err := GetFreePort()
-		w.hcl.Warnf("Found free port to run on: %d", p)
+		w.hcl.Warn("Found free port", "port", p)
 		if err != nil {
 			panic(err)
 		}
@@ -78,7 +78,8 @@ func (w *WebServer) Start() {
 		return
 	}
 	w.started = true
-	w.hcl.Warnf("Webserver listen on %s", w.url)
+	w.hcl = w.hcl.With("listen_adr", w.url)
+	w.hcl.Warn("Webserver starting")
 	go func() {
 		err := w.srv.ListenAndServe()
 		w.mu.Lock()
@@ -86,9 +87,9 @@ func (w *WebServer) Start() {
 		w.started = false
 		if err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
-				w.hcl.Warnf("http server stopped: %v", err)
+				w.hcl.Warn("http server stopped", "error",err)
 			} else {
-				w.hcl.Errorf("http server error: %v", err)
+				w.hcl.Error("http server error","error", err)
 			}
 		}
 	}()
@@ -98,7 +99,7 @@ func (w *WebServer) Start() {
 func (w *WebServer) Stop() {
 	w.hcl.Warn("Stopping web server")
 	if err := w.srv.Shutdown(context.Background()); err != nil {
-		w.hcl.Warnf("cannot shutdown webserver: %v", err)
+		w.hcl.Warn("cannot shutdown webserver", "error",err)
 	}
 }
 

@@ -91,10 +91,10 @@ func getNames(szenarios []szenario.Szenario) string {
 }
 
 func runSzenorios(user *user.User, szenarios []szenario.Szenario) {
-	hcl.Warnf("Running szenarios: %v", getNames(szenarios))
+	hcl.Warn("Running szenarios", "szenarios", getNames(szenarios))
 
 	for _, s := range szenarios {
-		hcl.Infof("Starting szenario %s with user %s", s.Name(), user.Name())
+		hcl.Info("Starting szenario", "szenario", s.Name(), "user", user.Name())
 		s.SetUser(user)
 	}
 	opts := make([]cdp.Option, 0)

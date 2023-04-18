@@ -31,7 +31,7 @@ type store struct {
 func IntialiseStore() {
 	backend.setup()
 	backend.start()
-	hcl.Warnf("Userstore backend started (key length: %v)", len(core.Keystore.Key()))
+	hcl.Warn("Userstore backend started", "key_len", len(core.Keystore.Key()))
 }
 
 // createBackend creates a new UserStore
@@ -46,14 +46,14 @@ func (us *store) setup() {
 	c := core.Get()
 	us.hcl = c.HCL().Named("user.store.backend")
 	if err := us.load(); err != nil {
-		us.hcl.Errorf("Cannot load users: %v", err)
+		us.hcl.Error("Cannot load users", "error", err)
 	}
 }
 
 func (us *store) start() {
 	us.handlerPod = core.Get().Bus().Connect()
 	us.handlerPod.On(func(m grav.Message) error {
-		us.hcl.Tracef("user backend got message: %s %s ID: %v", m.Type(), string(m.Data()), m.UUID())
+		us.hcl.Trace("user backend got message", "type", m.Type(), "data", string(m.Data()), "uuid", m.UUID())
 		switch m.Type() {
 		case msgtype.UserRequest:
 			return us.getUser(m)
@@ -69,12 +69,12 @@ func (us *store) start() {
 			return nil
 		default:
 			if strings.HasPrefix(m.Type(), "user") {
-				us.hcl.Warnf("unhandled user message type: %s -> %v", m.Type(), string(m.Data()))
+				us.hcl.Warn("unhandled user message type", "type", m.Type(), "data", string(m.Data()))
 			}
 			return nil
 		}
 	})
-	us.hcl.Tracef("Userstore pod for msg handling: %+v", us.handlerPod)
+	us.hcl.Trace("Userstore pod for msg handling", "pod", us.handlerPod)
 }
 
 func (us *store) addUser(m grav.Message) error {
@@ -82,7 +82,7 @@ func (us *store) addUser(m grav.Message) error {
 	_, err := us.storeUserFromMsg(m)
 	var s string
 	if err != nil {
-		us.hcl.Warnf("adding user: %v", err)
+		us.hcl.Warn("adding user", "error", err)
 		s = err.Error()
 	}
 	msg := grav.NewMsg(msgtype.UserResponse, []byte(s))
@@ -96,7 +96,7 @@ func (us *store) addUser(m grav.Message) error {
 
 func (us *store) deleteUser(m grav.Message) error {
 	name := string(m.Data())
-	us.hcl.Warnf("Deleting user %s from store", name)
+	us.hcl.Warn("Deleting user from store", "user", name)
 
 	var msgTxt string
 	msgType := msgtype.UserError
@@ -105,7 +105,7 @@ func (us *store) deleteUser(m grav.Message) error {
 		delete(us.data, name)
 		us.mu.Unlock()
 		if err := us.save(); err != nil {
-			us.hcl.Warnf("Cannot save store to delete user %v: %v", name, err)
+			us.hcl.Warn("Cannot save store to delete user", "user", name, "error", err)
 			msgTxt = fmt.Sprintf("Cannot save store to delete user %v: %v", name, err)
 		} else {
 			msgTxt = fmt.Sprintf("Deleted %s", name)
@@ -150,13 +150,13 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 	}
 	us.data[u.Name()] = *u
 	us.mu.Unlock()
-	us.hcl.Infof("Added user %s to store", u.Name())
+	us.hcl.Info("Added user to store", "user", u.Name())
 	return u, us.save()
 }
 
 func (us *store) getUser(m grav.Message) error {
 	name := string(m.Data())
-	us.hcl.Debugf("Looking up user %s in store", name)
+	us.hcl.Debug("Looking up user in store", "user", name)
 
 	msg, err := us.buildUserMsg(name)
 
@@ -174,7 +174,7 @@ func (us *store) buildUserMsg(name string) (grav.Message, error) {
 		b, err := json.Marshal(u)
 		if err != nil {
 			err = fmt.Errorf("cannot marshall user %s: %v", name, err)
-			us.hcl.Errorf(err.Error())
+			us.hcl.Error("cannot marshall user", "error", err.Error(), "user", name)
 			return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
 		}
 		return grav.NewMsg(msgtype.UserResponse, b), nil
@@ -203,7 +203,7 @@ func (us *store) buildUserlistMsg() (grav.Message, error) {
 	b, err := json.Marshal(users)
 	if err != nil {
 		err = fmt.Errorf("cannot marshall userlist: %v", err)
-		us.hcl.Errorf(err.Error())
+		us.hcl.Error("Cannot marshall user list", "error", err.Error())
 		return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
 	}
 	return grav.NewMsg(msgtype.UserResponse, b), nil
@@ -221,18 +221,18 @@ func (us *store) Get(name string) *User {
 func (us *store) Add(u User, password string) {
 	pw := encrypt([]byte(password), core.Keystore.Key())
 	us.AddRaw(u, pw)
-	hcl.Errorf("Replace with AddRaw(%#v, %#v)\n", u, pw)
+	fmt.Printf("Replace with AddRaw(%#v, %#v)\n", u, pw)
 }
 
 // AddRaw adds a user with its already encrypted password
 func (us *store) AddRaw(u User, password []byte) {
 	if len(u.Name()) < 1 {
-		us.hcl.Warnf("User must have a name: %v", u)
+		us.hcl.Warn("User must have a name", "user", u)
 		return
 	}
 	defer func() {
 		if err := us.save(); err != nil {
-			backend.hcl.Warnf("cannot save user store: %v", err)
+			backend.hcl.Warn("cannot save user store","error", err)
 		}
 	}()
 	us.mu.Lock()

@@ -34,19 +34,19 @@ func (s *WebStatus) cleanup() {
 
 func (s *WebStatus) thinOutIncidents(ctx context.Context) {
 	if err := s.dbAccess.ThinOutIncidents(ctx); err != nil {
-		s.hcl.Warnf("thining out incidents failed: %v", err)
+		s.hcl.Warn("thining out incidents failed", "error", err)
 	}
 }
 func (s *WebStatus) cleanupIncidents(ctx context.Context) {
 	incidentSummary := s.Ent().IncidentSummary
 	all, err := incidentSummary.Query().All(ctx)
 	if err != nil {
-		s.hcl.Warnf("Cannot close stale incidents: %v", err)
+		s.hcl.Warn("Cannot close stale incidents", "error", err)
 		return
 	}
 
 	autocloseDuration := 2 * viper.GetDuration(cfg.AlertIncidentCorrelationReopenTime)
-	s.hcl.Infof("Cleaning up stale incidents.  (Autoclosing after %v)", autocloseDuration)
+	s.hcl.Info("Cleaning up stale incidents", "autoclose", autocloseDuration)
 	for _, is := range all {
 		if !is.End.IsZero() {
 			continue
@@ -59,10 +59,10 @@ func (s *WebStatus) cleanupIncidents(ctx context.Context) {
 			// not cleaning up since status is not OK or UNKNOWN
 			continue
 		}
-		s.hcl.Infof("Closing incident: %v -> %s\n", is.Name, lvl)
+		s.hcl.Info("Closing incident", "szenario", is.Name, "level", lvl)
 		err := incidentSummary.CloseIncident(ctx, is, "Cleanup Job", lvl, fmt.Sprintf("%s (Stale incident: autoclosed)", is.Error))
 		if err != nil {
-			s.hcl.Warnf("Cannot save incident %s %v: %v", is.Name, is.IncidentID, err)
+			s.hcl.Warn("Cannot save incident %s %v: %v", "szenario", is.Name, "incident_id", is.IncidentID, "error", err)
 		}
 	}
 }

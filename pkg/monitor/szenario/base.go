@@ -21,19 +21,19 @@ func (c Config) Add(name string, s Szenario, ut []*UserType) Szenario {
 	if len(s.Name()) < 1 {
 		panic(fmt.Errorf("Szenaio (%T) must have a name", s))
 	}
-	hcl.Tracef("Initialising szenario %s", s.Name())
+	hcl.Trace("Initialising szenario","szenario", s.Name())
 	for _, sz := range c.userTypes[c.allSz.Name].Szenarios {
 		if sz.Name() == s.Name() {
-			hcl.Errorf("Szenario %s already exists", s.Name())
+			hcl.Error("Szenario already exists","szenario", s.Name())
 			//return sz
 		}
 	}
 	if err := c.addUserType(c.allSz, s); err != nil {
-		hcl.Errorf("Cannot add szenario %s to usertype all: %v", s.Name(), err)
+		hcl.Error("Cannot add szenario to usertype all: %v", "szenario",s.Name(),"error", err)
 	}
 	for _, t := range ut {
 		if err := c.addUserType(t, s); err != nil {
-			hcl.Errorf("Adding usertype %s to szenario %s: %v", t, s.Name(), err)
+			hcl.Error("Adding usertype to szenario", "szenario", s.Name(),"user_type",t, "error", err)
 		}
 	}
 	return s

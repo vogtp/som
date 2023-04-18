@@ -33,14 +33,13 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 }
 
 func loop(c *core.Core, username string) {
-	hcl := c.HCL()
+	hcl := c.HCL().With("user", username)
 	err := fmt.Errorf("Start")
 	for err != nil {
 		err = run(c, username)
 		if err != nil {
-			hcl.Errorf("Szenario run: %v", err)
 			wait := 30 * time.Second
-			hcl.Errorf("Waiting %v", wait)
+			hcl.Error("Szenario run error", "error", err, "next_run_in", wait)
 			time.Sleep(wait)
 		}
 	}

@@ -23,7 +23,7 @@ func (s *WebStatus) Error(w http.ResponseWriter, r *http.Request,
 	}
 	err2 := templates.ExecuteTemplate(w, "error.gohtml", data)
 	if err2 != nil {
-		s.hcl.Errorf("error Template error %v", err)
+		s.hcl.Error("template error", "error", err)
 		http.Error(w, fmt.Errorf("%v: %w", err, err2).Error(), http.StatusInternalServerError)
 		return
 	}

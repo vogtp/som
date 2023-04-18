@@ -47,7 +47,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 			avail = stat.Availability()
 		}
 
-		s.hcl.Debugf("Displaying %s in index", szName)
+		s.hcl.Debug("Displaying index", "szenario", szName)
 		iv := indexValue{
 			Name:            szName,
 			PromName:        bridger.PrometheusName(szName),
@@ -81,7 +81,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 			iv.IncidentCount = len(cnt)
 		} else {
 			iv.IncidentCount = -1
-			s.hcl.Warnf("Cannot count incidents of %s: %v", szName, err)
+			s.hcl.Warn("Cannot count incidents of %s: %v", "szenario", szName, "error", err)
 		}
 		data.Szenarios = append(data.Szenarios, iv)
 	}

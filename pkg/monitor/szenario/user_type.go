@@ -26,7 +26,7 @@ type UserType struct {
 func (c Config) ByUser(u User) ([]Szenario, error) {
 	ut, ok := c.userTypes[u.Type()]
 	if !ok {
-		return nil, fmt.Errorf("No such usertype: " + u.Type())
+		return nil, fmt.Errorf("No such usertype: %s", u.Type())
 
 	}
 	szs := make([]Szenario, len(ut.Szenarios))
@@ -35,7 +35,7 @@ func (c Config) ByUser(u User) ([]Szenario, error) {
 		szs[i] = s
 	}
 	if len(szs) < 1 {
-		hcl.Warnf("No szenario found for usertype %s", u.Type())
+		hcl.Warn("No szenario found for usertype","user_type", u.Type())
 	}
 	return szs, nil
 }

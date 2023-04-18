@@ -51,6 +51,6 @@ func (s *WebStatus) reportRequest(f http.HandlerFunc) http.HandlerFunc {
 		if d > 100*time.Millisecond {
 			d = d.Truncate(10 * time.Millisecond)
 		}
-		s.hcl.Infof("Request (%v): %v", d, r.URL.String())
+		s.hcl.Info("Request finished", "duration", d, "url", r.URL.String())
 	}
 }

@@ -392,7 +392,7 @@ func (cdp *Engine) dumpHTML(name string) {
 		cdp.hcl.Debug("Context is gone not dumping HTML")
 		return
 	}
-	cdp.hcl.Infof("Dumping HTML of %s", name)
+	cdp.hcl.Info("Dumping HTML", "szenario", name)
 	var html string
 
 	err := chromedp.Run(cdp.browser, chromedp.ActionFunc(func(ctx context.Context) error {

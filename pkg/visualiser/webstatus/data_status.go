@@ -69,7 +69,7 @@ func (sz *szenarioData) wirteJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot write file %s: %w", jsonDBFile, err)
 	}
-	sz.hcl.Debugf("Saved %v szenario datasets to %s", len(sz.Status.Szenarios()), jsonDBFile)
+	sz.hcl.Debug("Saved szenario datasets", "count", len(sz.Status.Szenarios()), "file", jsonDBFile)
 	return nil
 }
 
@@ -85,6 +85,6 @@ func (sz *szenarioData) readJSONFile() error {
 	if err != nil {
 		return fmt.Errorf("error loading json from %v: %w", jsonDBFile, err)
 	}
-	sz.hcl.Debugf("Loaded %v szenario datasets from %s", len(sz.Status.Szenarios()), fi.Name())
+	sz.hcl.Debug("Loaded szenario datasets", "count", len(sz.Status.Szenarios()), "file", fi.Name())
 	return nil
 }

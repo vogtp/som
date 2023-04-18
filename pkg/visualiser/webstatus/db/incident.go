@@ -29,7 +29,7 @@ func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error 
 	if incID, err := uuid.Parse(msg.IncidentID); err == nil {
 		i.SetIncidentID(incID)
 	}else{
-		ic.client.hcl.Errorf("Cannot parse incident ID: %v",err)
+		ic.client.hcl.Error("Cannot parse incident ID","error",err, "szenario", msg.Name)
 	}
 	i.SetName(msg.Name)
 	i.SetTime(msg.Time)
@@ -52,22 +52,22 @@ func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error 
 	if errs, err := ic.client.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFailures(errs...)
 	} else {
-		ic.client.hcl.Warnf("Getting errors: %v", err)
+		ic.client.hcl.Warn("Getting errors","error", err)
 	}
 	if stati, err := ic.client.getStati(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddStati(stati...)
 	} else {
-		ic.client.hcl.Warnf("Getting stari: %v", err)
+		ic.client.hcl.Warn("Getting stari", "error",err)
 	}
 	if cntrs, err := ic.client.getCounter(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddCounters(cntrs...)
 	} else {
-		ic.client.hcl.Warnf("Getting counters: %v", err)
+		ic.client.hcl.Warn("Getting counters","error", err)
 	}
 	if fils, err := ic.client.getFiles(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFiles(fils...)
 	} else {
-		ic.client.hcl.Warnf("Getting files: %v", err)
+		ic.client.hcl.Warn("Getting files","error", err)
 	}
 
 	return i.Exec(ctx)

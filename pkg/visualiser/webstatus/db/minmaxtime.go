@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
@@ -31,7 +32,7 @@ func (mmt *MinMaxTime) Scan(value interface{}) error {
 	// }
 	t, err := time.Parse(format, s)
 	if err != nil {
-		fmt.Printf("Cannot parse time: %v", s)
+		hcl.Error("Cannot parse time", "error", s)
 	}
 	mmt.t = t
 	return err

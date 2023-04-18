@@ -49,7 +49,7 @@ func (e *Bus) init(c *Core) {
 		msgtype.Incident,
 	)
 	e.endpointURL = fmt.Sprintf("%s%s", c.web.url, viper.GetString(cfg.BusWsPath))
-	e.hcl.Infof("Bus started: %s", e.endpointURL)
+	e.hcl.Info("Bus started", "endpoint", e.endpointURL)
 	e.mesh = mesh.New(e.bus, &mesh.NodeConfig{
 		Name:     c.name,
 		Endpoint: e.endpointURL,
@@ -67,10 +67,10 @@ func (e *Bus) cleanup() {
 	e.Alert.cleanup()
 	e.mesh.Stop()
 	if err := e.bus.Withdraw(); err != nil {
-		e.hcl.Warnf("cannot withdraw from bus: %v", err)
+		e.hcl.Warn("cannot withdraw from bus", "error", err)
 	}
 	if err := e.bus.Stop(); err != nil {
-		e.hcl.Warnf("cannot stop bus: %v", err)
+		e.hcl.Warn("cannot stop bus","error", err)
 	}
 }
 

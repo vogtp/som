@@ -2,6 +2,7 @@ package status
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/vogtp/go-hcl"
 )
@@ -17,7 +18,7 @@ type grpReg struct {
 
 // Add a group (best in init())
 func (r *grpReg) Add(g Grouper) {
-	hcl.Debugf("Adding group to registry: %T\n", g)
+	hcl.Debug("Adding group to registry", "type", reflect.TypeOf(g))
 	r.grps[fmt.Sprintf("%T", g)] = g
 }
 

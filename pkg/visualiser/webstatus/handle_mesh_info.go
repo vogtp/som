@@ -22,14 +22,14 @@ func (s *WebStatus) handleMeshInfo(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := http.Get(fmt.Sprintf("%s/%s", core.Get().WebServer().URL(), "bus"))
 	if err != nil {
-		s.hcl.Errorf("Mesh info request error %v", err)
+		s.hcl.Error("Mesh info request error", "error", err)
 		s.Error(w, r, "Cannot request mesh info", err, http.StatusInternalServerError)
 		return
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		s.hcl.Errorf("Cannot read Mesh info body %v", err)
+		s.hcl.Error("Cannot read Mesh info body", "error", err)
 		s.Error(w, r, "Cannot read mesh info", err, http.StatusInternalServerError)
 		return
 	}

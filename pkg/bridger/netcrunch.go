@@ -32,7 +32,7 @@ func registerNetCrunchWebMessage(name string, nc *ncConfig) {
 	if len(nc.srv) < 1 || len(nc.id) < 1 {
 		return
 	}
-	bus.GetLogger().Infof("Got NC backend: %v", nc)
+	bus.GetLogger().Info("Got NC backend", "backend", nc)
 	ncb := ncBackend{
 		hcl:  bus.GetLogger().Named("nc"),
 		name: name,
@@ -78,15 +78,14 @@ func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(data); err != nil {
-		hcl.Warnf("Cannot encode netcrunch: %v", err)
+		hcl.Warn("Cannot encode netcrunch json", "error", err)
 	}
-	hcl.Infof("NC Json: %s to %s", buf.String(), nc.srv)
 	req, err := http.NewRequest(http.MethodPost,
 		fmt.Sprintf("https://%s/api/rest/1/sensors/%s/update", nc.srv, nc.id),
 		&buf,
 	)
 	if err != nil {
-		hcl.Errorf("Error creating netcrunch request: %v", err)
+		hcl.Error("Error creating netcrunch request", "error", err)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -95,8 +94,8 @@ func (nc ncBackend) handleEventBus(e *msg.SzenarioEvtMsg) {
 	req = req.WithContext(reqCtx)
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		hcl.Errorf("Error sending to netcrunch: %v", err)
+		hcl.Error("Error sending to netcrunch", "error", err)
 		return
 	}
-	hcl.Infof("Sending to %v: %v", nc.srv, resp.Status)
+	hcl.Info("Sent to netcrunch", "host", nc.srv, "status", resp.Status)
 }

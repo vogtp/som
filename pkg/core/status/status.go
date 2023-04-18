@@ -124,7 +124,7 @@ func (sg statusGroup) JSONBySzenario(n string) []byte {
 	}
 	d, err := g.MarshalJSON()
 	if err != nil {
-		hcl.Warnf("Cannot marshal JSONBySzenario: %v", err)
+		hcl.Warn("Cannot marshal JSONBySzenario", "key", n, "error", err)
 	}
 	return d
 }

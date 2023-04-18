@@ -25,7 +25,7 @@ func Parse() {
 	pflag.Parse()
 
 	if err := viper.BindPFlags(pflag.CommandLine); err != nil {
-		hcl.Errorf("cannot bin flags: %v", err)
+		hcl.Error("cannot bin flags", "error", err)
 	}
 	viper.SetConfigType("yaml")
 	viper.SetConfigName(viper.GetString(CfgFile))
@@ -52,9 +52,9 @@ func Parse() {
 func processConfigFile() {
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			hcl.Debugf("config not found: %v", err)
+			hcl.Debug("config not found", "error", err)
 		} else {
-			hcl.Warnf("config error: %v", err)
+			hcl.Warn("config error", "error", err)
 		}
 	}
 	if viper.GetBool(CfgSave) {
@@ -69,7 +69,7 @@ func processConfigFile() {
 				// should we write it regular and overwrite?
 				hcl.Info("Writing config")
 				if err := viper.WriteConfigAs(viper.GetString(CfgFile)); err != nil {
-					hcl.Warnf("Could not write config: %v", err)
+					hcl.Warn("Could not write config", "error", err)
 				}
 				time.Sleep(time.Hour)
 			}
@@ -84,7 +84,7 @@ func HclOptions() hcl.LoggerOpt {
 	if logLvl != "" {
 		lvl := hclog.LevelFromString(logLvl)
 		if lvl == hclog.NoLevel {
-			hcl.Errorf("Unrecoginsed loglevel: %s", logLvl)
+			hcl.Error("Unrecoginsed loglevel", "level", logLvl)
 		} else {
 			return hcl.WithLevel(lvl)
 		}

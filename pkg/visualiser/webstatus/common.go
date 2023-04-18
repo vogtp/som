@@ -29,7 +29,7 @@ type commonData struct {
 
 func common(t string, r *http.Request) *commonData {
 	if err := r.ParseForm(); err != nil {
-		hcl.Warnf("Cannot parse form: %v", err)
+		hcl.Warn("Cannot parse form", "error", err)
 	}
 	q := ""
 	if len(r.URL.RawQuery) > 0 {
