@@ -8,6 +8,7 @@ import (
 
 	proto "github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
@@ -21,7 +22,7 @@ func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan a
 		go func(o szenario.EitherOption) {
 			err := chromedp.Run(cdp.browser, o.Action)
 			if err != nil {
-				cdp.log.Debug("Unmached Option", "either", name, "option", o.ID, "error", err)
+				cdp.log.Debug("Unmached Option", "either", name, "option", o.ID, log.Error, err)
 				res <- err
 				return
 			}

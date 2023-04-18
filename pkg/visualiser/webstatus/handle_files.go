@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
 )
 
@@ -26,7 +27,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 
 	id, err := uuid.Parse(idStr)
 	if err != nil {
-		s.log.Warn("ID is not a UUID", "id", idStr, "error", err)
+		s.log.Warn("ID is not a UUID", "id", idStr, log.Error, err)
 		http.Error(w, "No such file", http.StatusBadRequest)
 		return
 	}
@@ -34,7 +35,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 
 	file, err := s.Ent().File.Query().Where(file.UUIDEQ(id)).First(r.Context())
 	if err != nil {
-		s.log.Warn("No such file", "file", idStr, "error", err)
+		s.log.Warn("No such file", "file", idStr, log.Error, err)
 		http.Error(w, "No such file", http.StatusNotFound)
 		return
 	}
@@ -46,7 +47,7 @@ func (s *WebStatus) handleFiles(w http.ResponseWriter, r *http.Request) {
 	reader := strings.NewReader(string(file.Payload))
 	_, err = io.Copy(w, reader)
 	if err != nil {
-		s.log.Warn("Cannot write file", "file", file, "error", err)
+		s.log.Warn("Cannot write file", "file", file, log.Error, err)
 	}
 
 }

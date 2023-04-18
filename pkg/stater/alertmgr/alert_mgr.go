@@ -65,7 +65,7 @@ func New(options ...Option) {
 		panic(fmt.Sprintf("Unknown %s: %s", cfg.AlertLevel, viper.GetString(cfg.AlertLevel)))
 	}
 	if err := am.load(); err != nil {
-		am.log.Error("Cannot read state", "error", err)
+		am.log.Error("Cannot read state", log.Error, err)
 	}
 	am.Configure(options...)
 	bus.Szenario.Handle(am.handle)
@@ -84,15 +84,15 @@ func (am *AlertMgr) handle(e *msg.SzenarioEvtMsg) {
 	defer func() {
 		go func() {
 			if err := am.save(); err != nil {
-				am.log.Warn("Cannot save alertmgr", "error", err)
+				am.log.Warn("Cannot save alertmgr", log.Error, err)
 			}
 		}()
 	}()
-	am.log.Debug("Got event", "szenario", e.Name, "message", e.Err())
+	am.log.Debug("Got event", log.Szenario, e.Name, "message", e.Err())
 	if a := am.checkEvent(e); a != nil {
 		am.log.Warn("Generating alert for %v: %v (%v, %v)", e.Name, e.Err(), e.Time, e.ID)
 		if err := am.bus.Alert.Send(a); err != nil {
-			am.log.Warn("Cannot send alert", "error", err)
+			am.log.Warn("Cannot send alert", log.Error, err)
 		}
 	}
 }
@@ -114,9 +114,9 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 	if lvl == status.OK {
 		if found {
 			diff := e.Time.Sub(szState.End)
-			am.log.Info("Close incident", "szenario", e.Name, "start", szState.Start, "end", szState.End, "duration", diff)
+			am.log.Info("Close incident", log.Szenario, e.Name, "start", szState.Start, "end", szState.End, "duration", diff)
 			if diff > am.reopenTime {
-				am.log.Info("Clear old incident", "szenario", e.Name, "state", szState)
+				am.log.Info("Clear old incident", log.Szenario, e.Name, "state", szState)
 				delete(am.basicStates, e.Name)
 			}
 			szState.End = e.Time
@@ -125,7 +125,7 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 			i.IntLevel = int(szStatusGroup.Level())
 			i.ByteState = am.status.JSONBySzenario(e.Name)
 			if err := core.Get().Bus().Incident.Send(i); err != nil {
-				am.log.Warn("Cannot send incident", "error", err)
+				am.log.Warn("Cannot send incident", log.Error, err)
 			}
 		}
 		return nil
@@ -136,9 +136,9 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		i.IntLevel = int(szStatusGroup.Level())
 		i.ByteState = am.status.JSONBySzenario(e.Name)
 		if err := core.Get().Bus().Incident.Send(i); err != nil {
-			am.log.Warn("Cannot send incident", "error", err, "szenario", e.Name, "message", e.Err())
+			am.log.Warn("Cannot send incident", log.Error, err, log.Szenario, e.Name, "message", e.Err())
 		}
-		am.log.Debug("Not alerting: first alert", "szenario", e.Name, "message", e.Err())
+		am.log.Debug("Not alerting: first alert", log.Szenario, e.Name, "message", e.Err())
 		return nil
 	}
 	szState.End = time.Time{}
@@ -148,11 +148,11 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		i.IntLevel = int(lvl)
 		i.ByteState = am.status.JSONBySzenario(e.Name)
 		if err := core.Get().Bus().Incident.Send(i); err != nil {
-			am.log.Warn("Cannot send incident", err, "szenario", e.Name, "message", e.Err())
+			am.log.Warn("Cannot send incident", err, log.Szenario, e.Name, "message", e.Err())
 		}
 	}
 	if lvl < am.alertLevel {
-		am.log.Info("NOT alerting level to low", "szenario", e.Name, "message", e.Err(), "min_level", lvl, "level", szStatusGroup.StringInt(2))
+		am.log.Info("NOT alerting level to low", log.Szenario, e.Name, "message", e.Err(), "min_level", lvl, "level", szStatusGroup.StringInt(2))
 		return nil
 	}
 	return szState.GetAlert(e, szStatusGroup)

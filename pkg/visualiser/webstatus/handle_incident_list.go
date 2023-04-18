@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
@@ -36,7 +37,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	if len(name) < 1 {
 		name = "All Szenarios"
 	}
-	s.log.Debug("incidents requested", "szenario", sz)
+	s.log.Debug("incidents requested", log.Szenario, sz)
 	common := common("SOM Incidents", r)
 	ctx := r.Context()
 	q := s.Ent().IncidentSummary.Query()
@@ -47,14 +48,14 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	summary, err := q.All(ctx)
 	if err != nil {
 		err = fmt.Errorf("Cannot load incidents from DB:\n %v", err)
-		s.log.Error("Failed loading incident list", "error", err)
+		s.log.Error("Failed loading incident list", log.Error, err)
 		s.Error(w, r, "Database error incident list", err, http.StatusInternalServerError)
 		return
 	}
 
 	szenarios, err := s.Ent().Incident.Szenarios(ctx)
 	if err != nil {
-		s.log.Warn("Cannot get list of szenarios", "error", err)
+		s.log.Warn("Cannot get list of szenarios", log.Error, err)
 		if szenarios == nil {
 			szenarios = make([]string, 0)
 		}
@@ -93,7 +94,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		if cnt, err := s.dbAccess.Alert.Query().Where(alert.IncidentIDEQ(sum.IncidentID)).Count(ctx); err == nil {
 			sumWeb.AlertCount = cnt
 		} else {
-			s.log.Warn("Cannot get alert count", "error", err)
+			s.log.Warn("Cannot get alert count", log.Error, err)
 		}
 		filtered = append(filtered, sumWeb)
 	}

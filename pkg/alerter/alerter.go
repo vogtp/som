@@ -77,16 +77,16 @@ func New(c *core.Core) *Alerter {
 
 func (a *Alerter) addDefaultComponents() {
 	if err := a.AddConditon(StatusCond{}); err != nil {
-		a.log.Warn("Cannot add status condition", "error", err)
+		a.log.Warn("Cannot add status condition", log.Error, err)
 	}
 	if err := a.AddConditon(SzenarioCond{}); err != nil {
-		a.log.Warn("Cannot add szenario condition", "error", err)
+		a.log.Warn("Cannot add szenario condition", log.Error, err)
 	}
 	if err := a.AddEngine(NewMailer()); err != nil {
-		a.log.Warn("Cannot create engine", "error", err)
+		a.log.Warn("Cannot create engine", log.Error, err)
 	}
 	if err := a.AddEngine(NewTeams()); err != nil {
-		a.log.Warn("Cannot create engine", "error", err)
+		a.log.Warn("Cannot create engine", log.Error, err)
 	}
 }
 
@@ -95,15 +95,15 @@ func (a *Alerter) Run() (ret error) {
 	a.parseConfig()
 	if err := a.initDests(); err != nil {
 		ret = err
-		a.log.Warn("problems initialising alerter destinations", "error", err)
+		a.log.Warn("problems initialising alerter destinations", log.Error, err)
 	}
 	if err := a.initRules(); err != nil {
 		ret = err
-		a.log.Warn("problems initialising alerter rules", "error", err)
+		a.log.Warn("problems initialising alerter rules", log.Error, err)
 	}
 	if err := a.initEgninges(); err != nil {
 		ret = err
-		a.log.Warn("problems initialising alerter engines", "error", err)
+		a.log.Warn("problems initialising alerter engines", log.Error, err)
 	}
 	a.c.Bus().Alert.Handle(a.handle)
 	return ret
@@ -112,7 +112,7 @@ func (a *Alerter) Run() (ret error) {
 func (a *Alerter) initEgninges() (ret error) {
 	for _, e := range a.engines {
 		if err := e.checkConfig(a); err != nil {
-			a.log.Warn("Engine has config errors", "engine", e.Kind(), "error", err)
+			a.log.Warn("Engine has config errors", "engine", e.Kind(), log.Error, err)
 			ret = err
 		}
 	}
@@ -122,7 +122,7 @@ func (a *Alerter) initEgninges() (ret error) {
 func (a *Alerter) handle(msg *msg.AlertMsg) {
 	for _, r := range a.rules {
 		if err := r.DoAlert(msg); err != nil {
-			a.log.Info("Not alerting", "alert", msg.Name, "error", err, "rule", r.name)
+			a.log.Info("Not alerting", "alert", msg.Name, log.Error, err, "rule", r.name)
 			continue
 		}
 		for _, d := range r.destinations {
@@ -131,7 +131,7 @@ func (a *Alerter) handle(msg *msg.AlertMsg) {
 				continue
 			}
 			if err := a.engines[d.kind].Send(msg, &r, &d); err != nil {
-				a.log.Error("Cannot send message", "engine", d.kind, "destination", d.name, "error", err, "rule", r.name)
+				a.log.Error("Cannot send message", "engine", d.kind, "destination", d.name, log.Error, err, "rule", r.name)
 			}
 		}
 	}

@@ -7,6 +7,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/bridger"
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 type promAvail struct {
@@ -36,13 +37,13 @@ func (pa *promAvail) updateSzenario(sz SzenarioGroup) {
 	gv := pa.getAvailGaugeVec(sz)
 	gvAvail, err := gv.GetMetricWithLabelValues("availability")
 	if err != nil {
-		hcl.Warn("Cannot get gauge vec", "error", err, "counter", "availability", "key", sz.Key())
+		hcl.Warn("Cannot get gauge vec", log.Error, err, "counter", "availability", "key", sz.Key())
 		return
 	}
 	gvAvail.Set(avail * 100)
 	gvTotal, err := gv.GetMetricWithLabelValues("check_time")
 	if err != nil {
-		hcl.Warn("Cannot get gauge vec: %v", "error", err, "counter", "check_time", "key", sz.Key())
+		hcl.Warn("Cannot get gauge vec: %v", log.Error, err, "counter", "check_time", "key", sz.Key())
 		return
 	}
 	gvTotal.Set(sz.LastTotal())

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
@@ -124,7 +125,7 @@ func (sg statusGroup) JSONBySzenario(n string) []byte {
 	}
 	d, err := g.MarshalJSON()
 	if err != nil {
-		hcl.Warn("Cannot marshal JSONBySzenario", "key", n, "error", err)
+		hcl.Warn("Cannot marshal JSONBySzenario", "key", n, log.Error, err)
 	}
 	return d
 }

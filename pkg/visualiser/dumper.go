@@ -26,7 +26,7 @@ func NewDumper() {
 		outFolder: fmt.Sprintf("%s/dump/", viper.GetString(cfg.DataDir)),
 	}
 	if err := core.EnsureOutFolder(d.outFolder); err != nil {
-		d.log.Warn("there is no outfolder", "error", err)
+		d.log.Warn("there is no outfolder", log.Error, err)
 	}
 	bus.Szenario.Handle(d.handleSzenarioEvt)
 	d.log.Info("Will save dumps to " + d.outFolder)
@@ -37,7 +37,7 @@ func (d *Dumper) handleSzenarioEvt(e *msg.SzenarioEvtMsg) {
 		name := fmt.Sprintf("%s/%s.%s", d.outFolder, f.Name, f.Type.Ext)
 		d.log.Info("Writing %s" + name)
 		if err := os.WriteFile(name, f.Payload, 0644); err != nil {
-			d.log.Warn("cannot write file", "error", err)
+			d.log.Warn("cannot write file", log.Error, err)
 		}
 	}
 	// TODO add time

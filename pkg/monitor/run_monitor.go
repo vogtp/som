@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
@@ -33,13 +34,13 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 }
 
 func loop(c *core.Core, username string) {
-	hcl := c.HCL().With("user", username)
+	hcl := c.HCL().With(log.User, username)
 	err := fmt.Errorf("Start")
 	for err != nil {
 		err = run(c, username)
 		if err != nil {
 			wait := 30 * time.Second
-			hcl.Error("Szenario run error", "error", err, "next_run_in", wait)
+			hcl.Error("Szenario run error", log.Error, err, "next_run_in", wait)
 			time.Sleep(wait)
 		}
 	}

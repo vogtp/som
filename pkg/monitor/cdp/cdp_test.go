@@ -15,6 +15,7 @@ import (
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
@@ -107,7 +108,7 @@ func initEnv(t *testing.T) (*core.Bus, []cdp.Option, func()) {
 
 func cleanupOutFolder() {
 	if err := os.RemoveAll(testOutFolder); err != nil {
-		hcl.Warn("Cannot remove folder", "folder", testOutFolder, "error", err)
+		hcl.Warn("Cannot remove folder", "folder", testOutFolder, log.Error, err)
 	}
 }
 

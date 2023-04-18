@@ -8,13 +8,14 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
-	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
+	"golang.org/x/exp/slog"
 )
 
 // Slack bridges the eventbus over slack
 type Slack struct {
-	hcl     hcl.Logger
+	log     *slog.Logger
 	ctx     context.Context
 	client  *socketmode.Client
 	auth    *slack.AuthTestResponse
@@ -22,8 +23,8 @@ type Slack struct {
 }
 
 // NewSlack creates a new slack event bridge
-func NewSlack(ctx context.Context, hcl hcl.Logger, oAuth string, appLevelToken string) (*Slack, error) {
-	hcl = hcl.Named("slack")
+func NewSlack(ctx context.Context, logger *slog.Logger, oAuth string, appLevelToken string) (*Slack, error) {
+	logger = logger.With(log.Component, "slack")
 	client := socketmode.New(
 		slack.New(
 			oAuth,
@@ -35,12 +36,12 @@ func NewSlack(ctx context.Context, hcl hcl.Logger, oAuth string, appLevelToken s
 	)
 	auth, err := client.AuthTestContext(ctx)
 	if err != nil {
-		hcl.Error("Cannot login", "error", err)
+		logger.Error("Cannot login", log.Error, err)
 		return nil, err
 	}
-	hcl.Info("connected to slack", "user", auth.User, "user_id", auth.UserID, "bot_id", auth.BotID)
+	logger.Info("connected to slack", log.User, auth.User, "user_id", auth.UserID, "bot_id", auth.BotID)
 	s := &Slack{
-		hcl:     hcl,
+		log:     logger,
 		client:  client,
 		auth:    auth,
 		channel: "#dev_event",
@@ -65,7 +66,7 @@ func NewSlack(ctx context.Context, hcl hcl.Logger, oAuth string, appLevelToken s
 	// for _, u := range users {
 	// 	s.hcl.Infof("user: %v", u)
 	// }
-	s.hcl.Info("Started bus handler")
+	s.log.Info("Started bus handler")
 	return s, nil
 }
 
@@ -75,16 +76,16 @@ func (s Slack) start() {
 	//s.say("listening") // TODO should say something more meaningfull here
 
 	if err := s.client.Run(); err != nil {
-		s.hcl.Error("could not connect to slack", "error", err)
+		s.log.Error("could not connect to slack", log.Error, err)
 	}
 }
 
 // Send messge to the bridge
 func (s Slack) Send(evt *msg.SzenarioEvtMsg) error {
-	s.hcl.Warn("Sending message", "type", reflect.TypeOf(evt))
+	s.log.Warn("Sending message", "type", reflect.TypeOf(evt))
 	b, err := ToBridgePayload(evt)
 	if err != nil {
-		s.hcl.Warn("bridge payload", "error", err)
+		s.log.Warn("bridge payload", log.Error, err)
 	}
 	chanID, ts, err := s.client.PostMessage(
 		s.channel,
@@ -109,20 +110,20 @@ func (s Slack) say(txt string) error {
 }
 
 func (s Slack) handleEvents() {
-	s.hcl.Info("Handling slack events", "channel", s.channel)
+	s.log.Info("Handling slack events", "channel", s.channel)
 	for {
 		select {
 		case <-s.ctx.Done():
-			s.hcl.Warn("Shutting down socketmode listener: %v", s.ctx.Err())
+			s.log.Warn("Shutting down socketmode listener: %v", s.ctx.Err())
 			return
 		case event := <-s.client.Events:
-			s.hcl.Trace("Slack Event", "event_type", event.Type, "type", reflect.TypeOf(event.Type), "evnt", event)
+			s.log.Debug("Slack Event", "event_type", event.Type, "type", reflect.TypeOf(event.Type), "evnt", event)
 
 			switch event.Type {
 			case socketmode.EventTypeEventsAPI:
 				eventsAPIEvent, ok := event.Data.(slackevents.EventsAPIEvent)
 				if !ok {
-					s.hcl.Warn("Could not type cast the event to the EventsAPIEvent: %v\n", event)
+					s.log.Warn("Could not type cast the event to the EventsAPIEvent: %v\n", event)
 					continue
 				}
 				// We need to send an Acknowledge to the slack server
@@ -130,19 +131,19 @@ func (s Slack) handleEvents() {
 
 				err := s.handleEventMessage(s.ctx, eventsAPIEvent)
 				if err != nil {
-					s.hcl.Warn("handle message error", "error", err)
+					s.log.Warn("handle message error", log.Error, err)
 				}
 			case socketmode.EventTypeSlashCommand:
 				cmdEvt, ok := event.Data.(slack.SlashCommand)
 				if !ok {
-					s.hcl.Warn("Could not cast the command event")
+					s.log.Warn("Could not cast the command event")
 					continue
 				}
 				s.client.Ack(*event.Request)
-				s.hcl.Info("socket mode command", "command", cmdEvt)
+				s.log.Info("socket mode command", "command", cmdEvt)
 				//go s.handleCommand(ctx, &cmdEvt)
 			default:
-				s.hcl.Info("Unsupported eventtype", "type", event.Type, "data", event.Data)
+				s.log.Info("Unsupported eventtype", "type", event.Type, "data", event.Data)
 			}
 
 		}
@@ -155,7 +156,7 @@ func (s Slack) handleEventMessage(ctx context.Context, event slackevents.EventsA
 		innerEvent := event.InnerEvent
 		switch ev := innerEvent.Data.(type) {
 		case *slackevents.AppMentionEvent:
-			s.hcl.Debug("Mention", "text", ev.Text)
+			s.log.Debug("Mention", "text", ev.Text)
 			// if err := s.client.AddReactionContext(ctx, "eyes", slack.NewRefToMessage(ev.Channel, ev.TimeStamp)); err != nil {
 			// 	s.hcl.Infof("Adding readtion: %v", err)
 			// }
@@ -165,14 +166,14 @@ func (s Slack) handleEventMessage(ctx context.Context, event slackevents.EventsA
 			// }
 		case *slackevents.MessageEvent:
 			if ev.BotID == s.auth.BotID {
-				s.hcl.Error("There is a BOT with the same ID probably missing messages")
+				s.log.Error("There is a BOT with the same ID probably missing messages")
 				//FIXME send a alert message
 			}
 			busMsg, err := FromBridgePayload(ev.Text)
 			if err != nil {
 				return fmt.Errorf("could not process msg: %w %s", err, ev.Text)
 			}
-			s.hcl.Info("GOT MESSAGE", "name", busMsg.Name, "message", busMsg)
+			s.log.Info("GOT MESSAGE", "name", busMsg.Name, "message", busMsg)
 			// go handleGeneralMessage(ctx, ev, client)
 
 		default:

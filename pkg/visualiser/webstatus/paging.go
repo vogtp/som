@@ -6,6 +6,8 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 const pageSize = 10
@@ -21,7 +23,7 @@ func (s *WebStatus) getPages(r *http.Request, total int) ([]pageInfo, int) {
 	var pages []pageInfo
 	page := 1
 	if err := r.ParseForm(); err != nil {
-		s.log.Warn("cannot parse form", "error", err)
+		s.log.Warn("cannot parse form", log.Error, err)
 	}
 	if str := r.Form.Get("page"); len(str) > 0 {
 		if p, err := strconv.Atoi(str); err == nil {

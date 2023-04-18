@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/failure"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
@@ -61,7 +62,7 @@ func (c *Client) thinoutIncident(ctx context.Context, incSum *IncidentSummary, m
 	for _, inc := range incidents {
 		fail, err := inc.QueryFailures().Order(ent.Desc(failure.FieldIdx)).First(ctx)
 		if err != nil {
-			c.log.Debug("cannot get failures", "error", err)
+			c.log.Debug("cannot get failures", log.Error, err)
 			continue
 		}
 		lastFailure := thisFailure

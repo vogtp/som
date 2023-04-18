@@ -88,9 +88,9 @@ func (w *WebServer) Start() {
 		w.started = false
 		if err != nil {
 			if errors.Is(err, http.ErrServerClosed) {
-				w.log.Warn("http server stopped", "error", err)
+				w.log.Warn("http server stopped", log.Error, err)
 			} else {
-				w.log.Error("http server error", "error", err)
+				w.log.Error("http server error", log.Error, err)
 			}
 		}
 	}()
@@ -100,7 +100,7 @@ func (w *WebServer) Start() {
 func (w *WebServer) Stop() {
 	w.log.Warn("Stopping web server")
 	if err := w.srv.Shutdown(context.Background()); err != nil {
-		w.log.Warn("cannot shutdown webserver", "error", err)
+		w.log.Warn("cannot shutdown webserver", log.Error, err)
 	}
 }
 

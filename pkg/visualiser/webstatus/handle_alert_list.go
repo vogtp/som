@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 )
@@ -35,12 +36,12 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 	if len(name) < 1 {
 		name = "All Szenarios"
 	}
-	s.log.Info("alerts  requested", "szenario", sz)
+	s.log.Info("alerts  requested", log.Szenario, sz)
 	common := common("SOM Alerts", r)
 	ctx := r.Context()
 	q := s.Ent().Alert.Query().Order(ent.Desc(alert.FieldTime))
 	if len(sz) > 0 {
-		s.log.Debug("Szenario filter", "szenario", sz)
+		s.log.Debug("Szenario filter", log.Szenario, sz)
 		q.Where(alert.NameEqualFold(sz))
 	}
 	q.Where(
@@ -66,7 +67,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 
 	szenarios, err := s.Ent().Alert.Szenarios(ctx)
 	if err != nil {
-		s.log.Warn("Cannot get list of szenarios", "error", err)
+		s.log.Warn("Cannot get list of szenarios", log.Error, err)
 		if szenarios == nil {
 			szenarios = make([]string, 0)
 		}

@@ -70,10 +70,10 @@ func (e *Bus) cleanup() {
 	e.Alert.cleanup()
 	e.mesh.Stop()
 	if err := e.bus.Withdraw(); err != nil {
-		e.log.Warn("cannot withdraw from bus", "error", err)
+		e.log.Warn("cannot withdraw from bus", log.Error, err)
 	}
 	if err := e.bus.Stop(); err != nil {
-		e.log.Warn("cannot stop bus", "error", err)
+		e.log.Warn("cannot stop bus", log.Error, err)
 	}
 }
 

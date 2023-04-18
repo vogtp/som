@@ -1,6 +1,6 @@
 package core
 
-import "github.com/vogtp/go-hcl"
+import "github.com/vogtp/som/pkg/core/log"
 
 var (
 	// Keystore stores the keys
@@ -20,9 +20,9 @@ func (ks *keyStore) Add(k []byte) {
 // Key retruns the key of the store
 func (ks *keyStore) Key() []byte {
 	if len(ks.data) < 10 {
-		hcl := hcl.Named("som.keystore")
-		hcl.Error("Keystore is not initialised!", "key_len", len(ks.data))
-		hcl.Error("Use core.Keystore.Add(...)")
+		log := log.New("som.keystore")
+		log.Error("Keystore is not initialised!", "key_len", len(ks.data))
+		log.Error("Use core.Keystore.Add(...)")
 		panic("No store key")
 	}
 	return ks.data

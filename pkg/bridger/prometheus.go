@@ -89,7 +89,7 @@ func (p *prometheusBackend) saveCounter(e *msg.SzenarioEvtMsg, counterName strin
 
 	m, err := gvPwAge.GetMetricWithLabelValues(PrometheusName(e.Name), promLabel, PrometheusName(e.Region))
 	if err != nil {
-		p.log.Warn("GaugeVec error", "counter", counterName, "error", err)
+		p.log.Warn("GaugeVec error", "counter", counterName, log.Error, err)
 	}
 	if m == nil {
 		return
@@ -108,10 +108,10 @@ func (p *prometheusBackend) setGaugeVec(e *msg.SzenarioEvtMsg) {
 		}
 		m, err := gv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
 		if err != nil {
-			p.log.Warn("GaugeVec error", "error", err, "counter", n, "szenario", e.Name)
+			p.log.Warn("GaugeVec error", log.Error, err, "counter", n, log.Szenario, e.Name)
 		}
 		if m == nil {
-			p.log.Warn("GaugeVec is nil", "counter", n, "szenario", e.Name)
+			p.log.Warn("GaugeVec is nil", "counter", n, log.Szenario, e.Name)
 			continue
 		}
 		if errors.Is(e.Err(), szenario.TimeoutError{}) {
@@ -207,10 +207,10 @@ func (p *prometheusBackend) setHistogramVec(e *msg.SzenarioEvtMsg) {
 		}
 		m, err := hv.GetMetricWithLabelValues(stepToLabel(n), PrometheusName(e.Username), PrometheusName(e.Region))
 		if err != nil {
-			p.log.Warn("HistogramVec error", "error", err, "counter", n, "szenario", e.Name)
+			p.log.Warn("HistogramVec error", log.Error, err, "counter", n, log.Szenario, e.Name)
 		}
 		if m == nil {
-			p.log.Warn("HistogramVec is nil", "counter", n, "szenario", e.Name)
+			p.log.Warn("HistogramVec is nil", "counter", n, log.Szenario, e.Name)
 			continue
 		}
 		if errors.Is(e.Err(), szenario.TimeoutError{}) {

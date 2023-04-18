@@ -33,7 +33,7 @@ func createClient() *client {
 // Get returns the requested user or nil
 func (us *client) Get(name string) (*User, error) {
 	hcl := core.Get().HCL().With(log.Component, "user.client")
-	hcl.Debug("Requesting user", "user", name)
+	hcl.Debug("Requesting user", log.User, name)
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	user := new(User)
@@ -50,20 +50,20 @@ func (us *client) Get(name string) (*User, error) {
 
 	})
 	if err != nil {
-		hcl.Warn("Failed to get user", "user", name, "error", err)
+		hcl.Warn("Failed to get user", log.User, name, log.Error, err)
 		if u, ok := backend.data[name]; ok {
-			hcl.Error("using local user", "user", name)
+			hcl.Error("using local user", log.User, name)
 			return &u, nil
 		}
 		return nil, err
 	}
-	hcl.Debug("Received user", "user", name)
+	hcl.Debug("Received user", log.User, name)
 	return user, nil
 }
 
 // Save a user to the store
 func (us *client) Save(u *User) error {
-	hcl := core.Get().HCL().With(log.Component, "user.client", "user", u.Name())
+	hcl := core.Get().HCL().With(log.Component, "user.client", log.User, u.Name())
 	if err := u.IsValid(); err != nil {
 		return fmt.Errorf("user is not valid: %w", err)
 	}
@@ -108,7 +108,7 @@ func (us *client) List() ([]User, error) {
 
 	})
 	if err != nil {
-		hcl.Error("Failed to get userlist", "error", err)
+		hcl.Error("Failed to get userlist", log.Error, err)
 		return nil, err
 	}
 	hcl.Debug("Received users", "users", users)
@@ -117,7 +117,7 @@ func (us *client) List() ([]User, error) {
 
 // Delete the user
 func (us *client) Delete(name string) (string, error) {
-	hcl := core.Get().HCL().With(log.Component, "user.client", "user", name)
+	hcl := core.Get().HCL().With(log.Component, "user.client", log.User, name)
 	hcl.Debug("Deleting user")
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()

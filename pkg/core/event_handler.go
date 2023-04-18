@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/suborbital/grav/grav"
+	"github.com/vogtp/som/pkg/core/log"
 	"golang.org/x/exp/slog"
 )
 
@@ -40,7 +41,7 @@ func (h *eventHandler[M]) Send(evt *M) error {
 	defer time.AfterFunc(100*time.Millisecond, h.wgMsg.Done)
 	b, err := json.Marshal(evt)
 	if err != nil {
-		h.log.Error("cannot marshal", "event", evt, "error", err)
+		h.log.Error("cannot marshal", "event", evt, log.Error, err)
 		return fmt.Errorf("cannot marshal %+v: %v", evt, err)
 	}
 	h.log.Debug("Sending msg", "type", h.msgType, "event", evt)
@@ -63,7 +64,7 @@ func (h *eventHandler[M]) Handle(f EventHandler[M]) {
 		evt := new(M)
 		err := json.Unmarshal(m.Data(), evt)
 		if err != nil {
-			h.log.Error("Could not unmarshal message", "payload", string(m.Data()), "error", err)
+			h.log.Error("Could not unmarshal message", "payload", string(m.Data()), log.Error, err)
 			// does not return an error the the program, just signals the grav
 			return fmt.Errorf("could not unmarshal message %s: %w", string(m.Data()), err)
 		}

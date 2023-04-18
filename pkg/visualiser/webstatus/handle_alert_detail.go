@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/stater/alertmgr"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
@@ -48,7 +49,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	if len(id) > 0 {
 		uid, err := uuid.Parse(id)
 		if err != nil {
-			s.log.Error("cannot parse as uuid", "uuid", id, "error", err)
+			s.log.Error("cannot parse as uuid", "uuid", id, log.Error, err)
 			s.Error(w, r, "Cannot parse UUID", err, http.StatusBadRequest)
 			return
 		}
@@ -90,7 +91,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 
 	for i, alert := range alerts {
 		if errors.Is(ctx.Err(), context.Canceled) {
-			s.log.Info("Incident alert context canceld", "error", ctx.Err())
+			s.log.Info("Incident alert context canceld", log.Error, ctx.Err())
 			return
 		}
 		alertDetail := alertDetailData{
@@ -103,7 +104,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 		if errs, err := alert.QueryFailures().All(ctx); err == nil {
 			alertDetail.Errors = errs
 		} else {
-			s.log.Warn("Failed loading errors", "error", err)
+			s.log.Warn("Failed loading errors", log.Error, err)
 		}
 		if stati, err := alert.QueryStati().All(ctx); err == nil {
 			for _, s := range stati {
@@ -113,7 +114,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 				alertDetail.Stati[s.Name] = s.Value
 			}
 		} else {
-			s.log.Warn("Failed loading stati", "error", err)
+			s.log.Warn("Failed loading stati", log.Error, err)
 		}
 		const stepPrefix = "step."
 		if ctrs, err := alert.QueryCounters().All(ctx); err == nil {
@@ -125,7 +126,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 				alertDetail.Counters[c.Name] = c.Value
 			}
 		} else {
-			s.log.Warn("Failed loading counters", "error", err)
+			s.log.Warn("Failed loading counters", log.Error, err)
 		}
 		if fils, err := alert.QueryFiles().All(ctx); err == nil {
 			alertDetail.Files = make([]msg.FileMsgItem, len(fils))
@@ -133,7 +134,7 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 				alertDetail.Files[i] = f.MsgItem()
 			}
 		} else {
-			s.log.Warn("Failed loading files", "error", err)
+			s.log.Warn("Failed loading files", log.Error, err)
 		}
 		data.Alerts[aCnt-i-1] = alertDetail
 		//s.hcl.Info("Region", "region", alert.Region)

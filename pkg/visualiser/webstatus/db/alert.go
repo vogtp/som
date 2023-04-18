@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
@@ -44,22 +45,22 @@ func (ac *AlertClient) Save(ctx context.Context, msg *msg.AlertMsg) error {
 	if errs, err := ac.client.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFailures(errs...)
 	} else {
-		ac.client.log.Warn("Getting errors", "error", err)
+		ac.client.log.Warn("Getting errors", log.Error, err)
 	}
 	if stati, err := ac.client.getStati(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddStati(stati...)
 	} else {
-		ac.client.log.Warn("Getting stari", "error", err)
+		ac.client.log.Warn("Getting stari", log.Error, err)
 	}
 	if cntrs, err := ac.client.getCounter(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddCounters(cntrs...)
 	} else {
-		ac.client.log.Warn("Getting counters", "error", err)
+		ac.client.log.Warn("Getting counters", log.Error, err)
 	}
 	if fils, err := ac.client.getFiles(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFiles(fils...)
 	} else {
-		ac.client.log.Warn("Getting files", "error", err)
+		ac.client.log.Warn("Getting files", log.Error, err)
 	}
 
 	return i.Exec(ctx)

@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/iancoleman/strcase"
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/mime"
 )
 
@@ -43,7 +44,7 @@ func idFromMD5(d []byte) uuid.UUID {
 	id, err := uuid.FromBytes(h)
 	if err != nil {
 		// should never been reacht md5 and uuid both have a size of 16
-		hcl.Warn("Cannot create uuid from MD5", "error", err, "uuid_bytes", string(h))
+		hcl.Warn("Cannot create uuid from MD5", log.Error, err, "uuid_bytes", string(h))
 	}
 	if id == uuid.Nil {
 		hcl.Warn("Generating non hash based id")

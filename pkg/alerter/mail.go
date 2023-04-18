@@ -10,6 +10,7 @@ import (
 	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"golang.org/x/exp/slog"
 	"gopkg.in/gomail.v2"
@@ -88,7 +89,7 @@ func (alt *Mail) attachFile(f *msg.FileMsgItem) gomail.FileSetting {
 	return gomail.SetCopyFunc(func(w io.Writer) error {
 		s, err := w.Write(f.Payload)
 		if err != nil {
-			alt.log.Warn("cannot attach file", "file", f.Name, "error", err)
+			alt.log.Warn("cannot attach file", "file", f.Name, log.Error, err)
 		}
 		if s != f.Size {
 			alt.log.Warn("not written enough", "file", f.Name, "bytes_wirtten", s, "bytes_total", f.Size)

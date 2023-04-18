@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/bridger"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
@@ -47,7 +48,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 			avail = stat.Availability()
 		}
 
-		s.log.Debug("Displaying index", "szenario", szName)
+		s.log.Debug("Displaying index", log.Szenario, szName)
 		iv := indexValue{
 			Name:            szName,
 			PromName:        bridger.PrometheusName(szName),
@@ -81,7 +82,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 			iv.IncidentCount = len(cnt)
 		} else {
 			iv.IncidentCount = -1
-			s.log.Warn("Cannot count incidents of %s: %v", "szenario", szName, "error", err)
+			s.log.Warn("Cannot count incidents of %s: %v", log.Szenario, szName, log.Error, err)
 		}
 		data.Szenarios = append(data.Szenarios, iv)
 	}

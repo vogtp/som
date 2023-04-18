@@ -153,7 +153,7 @@ func (cdp *Engine) Execute(szenarios ...szenario.Szenario) {
 func (cdp *Engine) schedule(szenarios ...szenario.Szenario) {
 	cdp.log.Info("Scheduling szenarios", "count", len(szenarios))
 	for _, sz := range szenarios {
-		cdp.log.Info("Scheduling szenario", "szenario", sz.Name())
+		cdp.log.Info("Scheduling szenario", log.Szenario, sz.Name())
 		cdp.runChan <- szenarionRunWrapper{sz: sz}
 	}
 }
@@ -161,7 +161,7 @@ func (cdp *Engine) schedule(szenarios ...szenario.Szenario) {
 // loop runs the szenarios and never returns
 func (cdp *Engine) loop() {
 	for srw := range cdp.runChan {
-		cdp.log = cdp.baseLogger.With("szenario", srw.sz.Name())
+		cdp.log = cdp.baseLogger.With(log.Szenario, srw.sz.Name())
 		cdp.szenario = srw.sz
 		cdp.stepInfo = newStepInfo(cdp.log)
 		srw.lastRunOk = cdp.run()
@@ -190,7 +190,7 @@ func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
 	}
 	delay /= 5
 	delay *= time.Duration(srw.retry)
-	cdp.baseLogger.Info("Szenario failed, reschedule faster", "szenario", srw.sz.Name(), "retry", srw.retry, "delay", delay)
+	cdp.baseLogger.Info("Szenario failed, reschedule faster", log.Szenario, srw.sz.Name(), "retry", srw.retry, "delay", delay)
 	return delay
 }
 
@@ -203,7 +203,7 @@ func (cdp *Engine) reschedule(srw szenarionRunWrapper) {
 		return
 	}
 	delay := cdp.rescheduleDelay(&srw)
-	cdp.baseLogger.Warn("Rescheduling", "szenario", srw.sz.Name(), "delay", delay)
+	cdp.baseLogger.Warn("Rescheduling", log.Szenario, srw.sz.Name(), "delay", delay)
 
 	ticker := time.NewTicker(delay)
 	for wait := true; wait; {
@@ -227,7 +227,7 @@ func (cdp *Engine) run() bool {
 	if cdp.szenario == nil {
 		panic("Szenario must not be nil")
 	}
-	cdp.log = cdp.log.With("user", cdp.szenario.User().Name())
+	cdp.log = cdp.log.With(log.User, cdp.szenario.User().Name())
 	cdp.evtMsg = msg.NewSzenarioEvtMsg(cdp.szenario.Name(), cdp.szenario.User().Name(), time.Now())
 	engineCancel := cdp.createEngine()
 	defer engineCancel()
@@ -238,12 +238,12 @@ func (cdp *Engine) run() bool {
 	cdp.szenario.User().ResetPasswordIndex()
 	defer func() {
 		if err := cdp.szenario.User().Save(); err != nil {
-			cdp.log.Error("Cannot save user after szenario run", "error", err)
+			cdp.log.Error("Cannot save user after szenario run", log.Error, err)
 		}
 	}()
 	defer cdp.reportResults(now) // catches the panic
 	if err := cdp.szenario.Execute(cdp); err != nil {
-		cdp.log.Error("Szenario returned error", "error", err)
+		cdp.log.Error("Szenario returned error", log.Error, err)
 		cdp.ErrorScreenshot(err)
 		cdp.evtMsg.SetStatus("URL", cdp.GetURL())
 		ok = false
@@ -293,11 +293,11 @@ func (cdp *Engine) SetStatus(key, val string) {
 // AddErr adds a error to the event
 func (cdp *Engine) AddErr(err error) {
 	if cdp.evtMsg == nil {
-		cdp.log.Warn("No event not adding error", "error", err)
+		cdp.log.Warn("No event not adding error", log.Error, err)
 		return
 	}
 	err = fmt.Errorf("%q step %q failed: %w", cdp.szenario.Name(), cdp.stepInfo.name, err)
-	cdp.log.Warn("Adding error to event", "error", err)
+	cdp.log.Warn("Adding error to event", log.Error, err)
 	cdp.evtMsg.AddErr(err)
 }
 
@@ -329,7 +329,7 @@ func (cdp *Engine) TimeOut(d time.Duration) context.CancelFunc {
 			cdp.evtMsg.SetStatus("URL", cdp.GetURL())
 			time.AfterFunc(500*time.Millisecond, func() {
 				if err := chromedp.Cancel(cdp.browser); err != nil {
-					cdp.log.Warn("cannot cancel for timeout", "error", err)
+					cdp.log.Warn("cannot cancel for timeout", log.Error, err)
 				}
 			})
 		case <-cncl:
@@ -345,11 +345,11 @@ func (cdp *Engine) TimeOut(d time.Duration) context.CancelFunc {
 
 func (cdp *Engine) addCtxErrs() {
 	if cdp.browser.Err() != nil {
-		cdp.log.Warn("Browser ctx error", "error", cdp.browser.Err())
+		cdp.log.Warn("Browser ctx error", log.Error, cdp.browser.Err())
 		cdp.AddErr(fmt.Errorf("Browser ctx: %w", cdp.browser.Err()))
 	}
 	if cdp.ctx.Err() != nil {
-		cdp.log.Warn("Ctx error", "error", cdp.ctx.Err())
+		cdp.log.Warn("Ctx error", log.Error, cdp.ctx.Err())
 		cdp.AddErr(fmt.Errorf("Ctx: %w", cdp.ctx.Err()))
 	}
 }
@@ -370,7 +370,7 @@ func (cdp *Engine) screenShot(name string) {
 	var payload []byte
 	if err := chromedp.Run(cdp.browser, chromedp.CaptureScreenshot(&payload)); err != nil {
 		cdp.addCtxErrs()
-		cdp.log.Warn("cannot get screenshot", "error", err)
+		cdp.log.Warn("cannot get screenshot", log.Error, err)
 		cdp.AddErr(fmt.Errorf("cannot get screenshot: %v", err))
 		return
 	}
@@ -393,7 +393,7 @@ func (cdp *Engine) dumpHTML(name string) {
 		cdp.log.Debug("Context is gone not dumping HTML")
 		return
 	}
-	cdp.log.Info("Dumping HTML", "szenario", name)
+	cdp.log.Info("Dumping HTML", log.Szenario, name)
 	var html string
 
 	err := chromedp.Run(cdp.browser, chromedp.ActionFunc(func(ctx context.Context) error {
@@ -407,7 +407,7 @@ func (cdp *Engine) dumpHTML(name string) {
 
 	if err != nil {
 		cdp.addCtxErrs()
-		cdp.log.Warn("cannot read dom to get html", "error", err)
+		cdp.log.Warn("cannot read dom to get html", log.Error, err)
 		cdp.AddErr(fmt.Errorf("cannot read dom to get html: %v", err))
 		return
 	}

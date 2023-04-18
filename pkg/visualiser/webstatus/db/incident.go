@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
@@ -29,7 +30,7 @@ func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error 
 	if incID, err := uuid.Parse(msg.IncidentID); err == nil {
 		i.SetIncidentID(incID)
 	} else {
-		ic.client.log.Error("Cannot parse incident ID", "error", err, "szenario", msg.Name)
+		ic.client.log.Error("Cannot parse incident ID", log.Error, err, log.Szenario, msg.Name)
 	}
 	i.SetName(msg.Name)
 	i.SetTime(msg.Time)
@@ -52,22 +53,22 @@ func (ic *IncidentClient) Save(ctx context.Context, msg *msg.IncidentMsg) error 
 	if errs, err := ic.client.getErrors(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFailures(errs...)
 	} else {
-		ic.client.log.Warn("Getting errors", "error", err)
+		ic.client.log.Warn("Getting errors", log.Error, err)
 	}
 	if stati, err := ic.client.getStati(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddStati(stati...)
 	} else {
-		ic.client.log.Warn("Getting stari", "error", err)
+		ic.client.log.Warn("Getting stari", log.Error, err)
 	}
 	if cntrs, err := ic.client.getCounter(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddCounters(cntrs...)
 	} else {
-		ic.client.log.Warn("Getting counters", "error", err)
+		ic.client.log.Warn("Getting counters", log.Error, err)
 	}
 	if fils, err := ic.client.getFiles(ctx, msg.SzenarioEvtMsg); err == nil {
 		i.AddFiles(fils...)
 	} else {
-		ic.client.log.Warn("Getting files", "error", err)
+		ic.client.log.Warn("Getting files", log.Error, err)
 	}
 
 	return i.Exec(ctx)

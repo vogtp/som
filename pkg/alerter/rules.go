@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
@@ -105,7 +106,7 @@ func (a *Alerter) parseRulesCfg() {
 			conditions: make([]condWrapper, 0),
 		}
 		if err := a.AddRule(r); err != nil {
-			a.log.Warn("Not adding rule", "rule", name, "error", err)
+			a.log.Warn("Not adding rule", "rule", name, log.Error, err)
 		}
 	}
 }
@@ -125,7 +126,7 @@ func (a *Alerter) parseConditions(r *Rule) {
 		}
 		cfg := r.cfg.Sub(fmt.Sprintf("%s.%v", cfgAlertRuleConditions, n))
 		if err := cond.CheckConfig(cfg); err != nil {
-			a.log.Warn("Condition %q of rule %q contains errors: %v", "condition", cond.Kind(), "rule", r.name, "error", err)
+			a.log.Warn("Condition of rule contains errors", "condition", cond.Kind(), "rule", r.name, log.Error, err)
 		}
 		r.conditions = append(r.conditions, condWrapper{
 			cond: cond,

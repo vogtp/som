@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName string, data any) {
@@ -13,7 +15,7 @@ func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName 
 
 	if strings.Contains(ah, "html") {
 		if err := templates.ExecuteTemplate(w, templateName, data); err != nil {
-			s.log.Error("cannot render template", "template", templateName, "error", err)
+			s.log.Error("cannot render template", "template", templateName, log.Error, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -23,7 +25,7 @@ func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName 
 	if strings.Contains(ah, "application/json") {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		if err := json.NewEncoder(w).Encode(data); err != nil {
-			s.log.Error("cannot encode data to json", "template", templateName, "error", err)
+			s.log.Error("cannot encode data to json", "template", templateName, log.Error, err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -42,7 +44,7 @@ func (s *WebStatus) render(w http.ResponseWriter, r *http.Request, templateName 
 	// }
 
 	err := fmt.Errorf("unsupported content-type: %v", ah)
-	s.log.Warn("Cannot render", "template", templateName, "error", err)
+	s.log.Warn("Cannot render", "template", templateName, log.Error, err)
 	http.Error(w, err.Error(), http.StatusBadRequest)
 
 }

@@ -2,6 +2,8 @@ package cdp
 
 import (
 	"time"
+
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 func (cdp *Engine) report(totalDuration time.Duration) {
@@ -34,7 +36,7 @@ func (cdp *Engine) report(totalDuration time.Duration) {
 		}
 	}
 	if err := cdp.bus.Szenario.Send(cdp.evtMsg); err != nil {
-		cdp.log.Warn("cannot send szenario message", "error", err)
+		cdp.log.Warn("cannot send szenario message", log.Error, err)
 	}
 	cdp.log.Info("Szenario status", status)
 }

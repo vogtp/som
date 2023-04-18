@@ -11,6 +11,7 @@ import (
 	"github.com/suborbital/vektor/vlog"
 	"github.com/vogtp/go-hcl"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 func (e *Bus) initGrav(web *WebServer) {
@@ -51,7 +52,7 @@ func (e *Bus) initGrav(web *WebServer) {
 	e.log.Info("Init grav", "endpoints", viper.GetStringSlice(cfg.BusEndpoints))
 	for _, ep := range viper.GetStringSlice(cfg.BusEndpoints) {
 		if err := e.bus.ConnectEndpoint(ep); err != nil {
-			e.log.Warn("Error connecting to endpoint", "endpoint", ep, "error", err)
+			e.log.Warn("Error connecting to endpoint", "endpoint", ep, log.Error, err)
 			continue
 		}
 		e.log.Info("Connected to peer", "endpoint", ep)

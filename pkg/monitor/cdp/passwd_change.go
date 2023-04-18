@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 )
@@ -25,22 +26,22 @@ type passwdChgSzenario struct {
 
 // Execute the szenario
 func (s *passwdChgSzenario) Execute(engine szenario.Engine) (err error) {
-	log := engine.Log()
+	slog := engine.Log()
 	engine.Step("Inital Check")
 	pwCheckInt := 24 * time.Hour
 	pwChgCnt := s.User().NumPasswdChg(pwCheckInt)
-	log.Info("Starting password change", "num_pw_chg", pwChgCnt, "interval", pwCheckInt)
+	slog.Info("Starting password change", "num_pw_chg", pwChgCnt, "interval", pwCheckInt)
 	if pwChgCnt >= viper.GetInt(cfg.PasswdChgMax) {
 		err := fmt.Errorf("changed %v/%v times in the last %v", pwChgCnt, viper.GetInt(cfg.PasswdChgMax), pwCheckInt)
-		log.Warn("Not changing passwords", "reson", err)
+		slog.Warn("Not changing passwords", "reson", err)
 		return err
 	}
 
-	log.Warn("Running password change")
+	slog.Warn("Running password change")
 	for _, sz := range s.szenarios {
-		log.Warn("Running password change szenario", "szenario", sz.Name())
+		slog.Warn("Running password change szenario", log.Szenario, sz.Name())
 		if err := sz.Execute(engine); err != nil {
-			log.Error("Password change szenario failed", "szenario", sz.Name(), "error", err)
+			slog.Error("Password change szenario failed", log.Szenario, sz.Name(), log.Error, err)
 			engine.AddErr(err)
 		}
 	}
@@ -53,7 +54,7 @@ func (cdp *Engine) passwordChangeLoop(user *user.User) {
 	}
 	hcl := cdp.baseLogger
 	delay := viper.GetDuration(cfg.PasswdChgIntervall)
-	hcl.Warn("Staring password change loop", "szenario", user.Name(), "repeat", delay)
+	hcl.Warn("Staring password change loop", log.Szenario, user.Name(), "repeat", delay)
 
 	pwChgSz := &passwdChgSzenario{
 		Base: &szenario.Base{
@@ -70,12 +71,12 @@ func (cdp *Engine) passwordChangeLoop(user *user.User) {
 	for _, szName := range szNames {
 		sz := szConfig.ByName(szName)
 		if sz == nil {
-			hcl.Error("Password change szenario not found", "szenario", szName)
+			hcl.Error("Password change szenario not found", log.Szenario, szName)
 			continue
 		}
 		sz.SetUser(user)
 		pwChgSz.szenarios = append(pwChgSz.szenarios, sz)
-		hcl.Warn("Added password change szenario", "szenario", sz.Name())
+		hcl.Warn("Added password change szenario", log.Szenario, sz.Name())
 	}
 	if len(pwChgSz.szenarios) < 1 {
 		hcl.Error("No password change szenarios found")

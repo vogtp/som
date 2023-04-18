@@ -48,7 +48,7 @@ func (us *store) setup() {
 	c := core.Get()
 	us.log = c.HCL().With(log.Component, "user.store.backend")
 	if err := us.load(); err != nil {
-		us.log.Error("Cannot load users", "error", err)
+		us.log.Error("Cannot load users", log.Error, err)
 	}
 }
 
@@ -84,7 +84,7 @@ func (us *store) addUser(m grav.Message) error {
 	_, err := us.storeUserFromMsg(m)
 	var s string
 	if err != nil {
-		us.log.Warn("adding user", "error", err)
+		us.log.Warn("adding user", log.Error, err)
 		s = err.Error()
 	}
 	msg := grav.NewMsg(msgtype.UserResponse, []byte(s))
@@ -98,7 +98,7 @@ func (us *store) addUser(m grav.Message) error {
 
 func (us *store) deleteUser(m grav.Message) error {
 	name := string(m.Data())
-	us.log.Warn("Deleting user from store", "user", name)
+	us.log.Warn("Deleting user from store", log.User, name)
 
 	var msgTxt string
 	msgType := msgtype.UserError
@@ -107,7 +107,7 @@ func (us *store) deleteUser(m grav.Message) error {
 		delete(us.data, name)
 		us.mu.Unlock()
 		if err := us.save(); err != nil {
-			us.log.Warn("Cannot save store to delete user", "user", name, "error", err)
+			us.log.Warn("Cannot save store to delete user", log.User, name, log.Error, err)
 			msgTxt = fmt.Sprintf("Cannot save store to delete user %v: %v", name, err)
 		} else {
 			msgTxt = fmt.Sprintf("Deleted %s", name)
@@ -152,13 +152,13 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 	}
 	us.data[u.Name()] = *u
 	us.mu.Unlock()
-	us.log.Info("Added user to store", "user", u.Name())
+	us.log.Info("Added user to store", log.User, u.Name())
 	return u, us.save()
 }
 
 func (us *store) getUser(m grav.Message) error {
 	name := string(m.Data())
-	us.log.Debug("Looking up user in store", "user", name)
+	us.log.Debug("Looking up user in store", log.User, name)
 
 	msg, err := us.buildUserMsg(name)
 
@@ -176,7 +176,7 @@ func (us *store) buildUserMsg(name string) (grav.Message, error) {
 		b, err := json.Marshal(u)
 		if err != nil {
 			err = fmt.Errorf("cannot marshall user %s: %v", name, err)
-			us.log.Error("cannot marshall user", "error", err.Error(), "user", name)
+			us.log.Error("cannot marshall user", log.Error, err.Error(), log.User, name)
 			return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
 		}
 		return grav.NewMsg(msgtype.UserResponse, b), nil
@@ -205,7 +205,7 @@ func (us *store) buildUserlistMsg() (grav.Message, error) {
 	b, err := json.Marshal(users)
 	if err != nil {
 		err = fmt.Errorf("cannot marshall userlist: %v", err)
-		us.log.Error("Cannot marshall user list", "error", err.Error())
+		us.log.Error("Cannot marshall user list", log.Error, err.Error())
 		return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
 	}
 	return grav.NewMsg(msgtype.UserResponse, b), nil
@@ -229,12 +229,12 @@ func (us *store) Add(u User, password string) {
 // AddRaw adds a user with its already encrypted password
 func (us *store) AddRaw(u User, password []byte) {
 	if len(u.Name()) < 1 {
-		us.log.Warn("User must have a name", "user", u)
+		us.log.Warn("User must have a name", log.User, u)
 		return
 	}
 	defer func() {
 		if err := us.save(); err != nil {
-			backend.log.Warn("cannot save user store", "error", err)
+			backend.log.Warn("cannot save user store", log.Error, err)
 		}
 	}()
 	us.mu.Lock()

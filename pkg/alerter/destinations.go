@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 // Destination is a endpoint for alerting (e.g. mail to a group)
@@ -48,7 +49,7 @@ func (a *Alerter) initDests() (ret error) {
 	a.dsts = validDst
 	if len(a.dsts) < 1 {
 		ret = errors.New("no valid alerting destinations")
-		a.log.Error("no valid alerting destinations", "error", ret.Error())
+		a.log.Error("no valid alerting destinations", log.Error, ret.Error())
 	}
 	a.log.Warn("Loaded alert destinations", "count", len(a.dsts))
 	return ret
@@ -82,7 +83,7 @@ func (a *Alerter) parseDestinationsCfg() {
 			}
 
 			if err := a.AddDestination(d); err != nil {
-				a.log.Warn("Cannot add destination", "name", name, "error", err)
+				a.log.Warn("Cannot add destination", "name", name, log.Error, err)
 			}
 		}
 	}

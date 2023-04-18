@@ -79,6 +79,6 @@ func (s *basicState) GetAlert(e *msg.SzenarioEvtMsg, statusGroup status.Szenario
 	a := msg.NewAlert(e)
 	a.SetStatus(KeyTopology, statusGroup.String())
 	a.Level = lvl.String()
-	s.log.Info("Generating alert", "level", a.Level, "szenario", a.Name)
+	s.log.Info("Generating alert", "level", a.Level, log.Szenario, a.Name)
 	return a
 }

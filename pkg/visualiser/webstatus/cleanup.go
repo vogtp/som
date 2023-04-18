@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/status"
 )
 
@@ -34,14 +35,14 @@ func (s *WebStatus) cleanup() {
 
 func (s *WebStatus) thinOutIncidents(ctx context.Context) {
 	if err := s.dbAccess.ThinOutIncidents(ctx); err != nil {
-		s.log.Warn("thining out incidents failed", "error", err)
+		s.log.Warn("thining out incidents failed", log.Error, err)
 	}
 }
 func (s *WebStatus) cleanupIncidents(ctx context.Context) {
 	incidentSummary := s.Ent().IncidentSummary
 	all, err := incidentSummary.Query().All(ctx)
 	if err != nil {
-		s.log.Warn("Cannot close stale incidents", "error", err)
+		s.log.Warn("Cannot close stale incidents", log.Error, err)
 		return
 	}
 
@@ -59,10 +60,10 @@ func (s *WebStatus) cleanupIncidents(ctx context.Context) {
 			// not cleaning up since status is not OK or UNKNOWN
 			continue
 		}
-		s.log.Info("Closing incident", "szenario", is.Name, "level", lvl)
+		s.log.Info("Closing incident", log.Szenario, is.Name, "level", lvl)
 		err := incidentSummary.CloseIncident(ctx, is, "Cleanup Job", lvl, fmt.Sprintf("%s (Stale incident: autoclosed)", is.Error))
 		if err != nil {
-			s.log.Warn("Cannot save incident %s %v: %v", "szenario", is.Name, "incident_id", is.IncidentID, "error", err)
+			s.log.Warn("Cannot save incident %s %v: %v", log.Szenario, is.Name, "incident_id", is.IncidentID, log.Error, err)
 		}
 	}
 }

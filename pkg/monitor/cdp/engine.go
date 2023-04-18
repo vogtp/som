@@ -6,6 +6,7 @@ import (
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/go-hcl"
+	"github.com/vogtp/som/pkg/core/log"
 	"golang.org/x/exp/slog"
 )
 
@@ -80,7 +81,7 @@ func (cdp *Engine) registerConsoleListener() {
 			// }
 		case *runtime.EventExceptionThrown:
 			cdp.consMsg["exception"] = cdp.consMsg["exception"] + 1
-			cdp.log.Debug("Console exception", "error", ev.ExceptionDetails.Text)
+			cdp.log.Debug("Console exception", log.Error, ev.ExceptionDetails.Text)
 
 		}
 	})
