@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/suborbital/grav/grav"
-	"github.com/vogtp/go-hcl"
 	mesh "github.com/vogtp/go-mesh"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
@@ -51,11 +50,11 @@ func (e *Bus) init(c *Core) {
 	)
 	e.endpointURL = fmt.Sprintf("%s%s", c.web.url, viper.GetString(cfg.BusWsPath))
 	e.log.Info("Bus started", "endpoint", e.endpointURL)
-	// FIXME remove hcl
+
 	e.mesh = mesh.New(e.bus, &mesh.NodeConfig{
 		Name:     c.name,
 		Endpoint: e.endpointURL,
-	}, mesh.Hcl(hcl.New()), mesh.ConnectPeers(true), mesh.BroadcastIntervall(5*time.Minute), mesh.Purge(5*time.Minute))
+	}, mesh.SLog(e.log), mesh.ConnectPeers(true), mesh.BroadcastIntervall(5*time.Minute), mesh.Purge(5*time.Minute))
 	c.web.HandleFunc("/bus", e.mesh.HandlerInfo)
 }
 

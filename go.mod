@@ -31,7 +31,7 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/vogtp/go-hcl v0.3.0
-	github.com/vogtp/go-mesh v0.1.4
+	github.com/vogtp/go-mesh v0.2.0
 	github.com/xiaoqidun/entps v0.0.0-20230328150929-94b1b92d8c03
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/sync v0.1.0
