@@ -63,7 +63,7 @@ option {
        {{ .AvgTime }}
     </td>
     <td> 
-        <iframe class="promGraph" name="{{.PromName}}" width="610" height="110" scrolling="no" frameborder="0"></iframe>
+        <iframe class="promGraph" name="{{.PromName}}" width="610" height="82" scrolling="no" frameborder="0"></iframe>
     </td>
 </tr>
 {{ end }}
@@ -101,7 +101,7 @@ function updateGraphs(graphType) {
   const collection = document.getElementsByClassName("promGraph");
   for (let i = 0; i < collection.length; i++) {
     let dur = {{ $.DatePicker.End.Unix }} - {{ $.DatePicker.Start.Unix }}
-    collection[i].src = "{{ $.PromURL }}/consoles/som_"+graphType+".html?szenario="+collection[i].name+"&duration="+dur+"&width=600&height=100&end={{ $.DatePicker.End.Unix }}"
+    collection[i].src = "{{ $.PromURL }}/consoles/som_"+graphType+".html?szenario="+collection[i].name+"&duration="+dur+"&width=600&height=80&end={{ $.DatePicker.End.Unix }}"
    // console.log(collection[i].name +" -> "+ collection[i].src)
   }
 }
