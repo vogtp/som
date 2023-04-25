@@ -203,6 +203,7 @@ The engine passed to the Execute method has the following methods:
 
 Method Signature                                              | Explaination
 --------------------------------------------------------------|----------------------------------------------------------------------------- 
+StepTimeout(name string, timeout time.Duration, actions ...chromedp.Action) error | StepTimeout executes a Step with an timeout
 Step(name string, actions ...chromedp.Action)                 | Step executes the actions given and records how long it takes
 IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool | IsPresent checks if something is present
 SetStatus(key, val string)                                    | SetStatus sets a status of the event
@@ -214,5 +215,8 @@ Bigger(i int) CheckFunc                                       | Bigger checks if
 Strings(html *string) CheckFunc                               | Strings gets the body as plaintext
 Headless() bool                                               | Headless indicates if the browser is headless (i.e. does not show on screen)
 WaitForEver()                                                 | WaitForEver blocks until the timeout is reached
+BreakWaitForUserInput()                                       | BreakWaitForUserInput waits until any key is clicked on the cmdlint
+AddErr(err error)                                             | AddErr adds a error to the event
+Log() *slog.Logger                                            | Log returns the logger
 Dump() CheckFunc                                              | Dump prints the body and its size to log
 
