@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/counter"
 )
@@ -21,6 +22,7 @@ type Counter struct {
 	Value             float64 `json:"Value,omitempty"`
 	alert_counters    *int
 	incident_counters *int
+	selectValues      sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -39,7 +41,7 @@ func (*Counter) scanValues(columns []string) ([]any, error) {
 		case counter.ForeignKeys[1]: // incident_counters
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Counter", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -85,16 +87,24 @@ func (c *Counter) assignValues(columns []string, values []any) error {
 				c.incident_counters = new(int)
 				*c.incident_counters = int(value.Int64)
 			}
+		default:
+			c.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// GetValue returns the ent.Value that was dynamically selected and assigned to the Counter.
+// This includes values selected through modifiers, order, etc.
+func (c *Counter) GetValue(name string) (ent.Value, error) {
+	return c.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Counter.
 // Note that you need to call Counter.Unwrap() before calling this method if this Counter
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (c *Counter) Update() *CounterUpdateOne {
-	return (&CounterClient{config: c.config}).UpdateOne(c)
+	return NewCounterClient(c.config).UpdateOne(c)
 }
 
 // Unwrap unwraps the Counter entity that was returned from a transaction after it was closed,
@@ -124,9 +134,3 @@ func (c *Counter) String() string {
 
 // Counters is a parsable slice of Counter.
 type Counters []*Counter
-
-func (c Counters) config(cfg config) {
-	for _i := range c {
-		c[_i].config = cfg
-	}
-}

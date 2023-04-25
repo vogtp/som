@@ -2,6 +2,10 @@
 
 package failure
 
+import (
+	"entgo.io/ent/dialect/sql"
+)
+
 const (
 	// Label holds the string label denoting the failure type in the database.
 	Label = "failure"
@@ -42,4 +46,22 @@ func ValidColumn(column string) bool {
 		}
 	}
 	return false
+}
+
+// OrderOption defines the ordering options for the Failure queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByError orders the results by the Error field.
+func ByError(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldError, opts...).ToFunc()
+}
+
+// ByIdx orders the results by the Idx field.
+func ByIdx(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIdx, opts...).ToFunc()
 }

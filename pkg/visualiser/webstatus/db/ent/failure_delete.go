@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"fmt"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -28,34 +27,7 @@ func (fd *FailureDelete) Where(ps ...predicate.Failure) *FailureDelete {
 
 // Exec executes the deletion query and returns how many vertices were deleted.
 func (fd *FailureDelete) Exec(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(fd.hooks) == 0 {
-		affected, err = fd.sqlExec(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*FailureMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			fd.mutation = mutation
-			affected, err = fd.sqlExec(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(fd.hooks) - 1; i >= 0; i-- {
-			if fd.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = fd.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, fd.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, FailureMutation](ctx, fd.sqlExec, fd.mutation, fd.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
@@ -68,15 +40,7 @@ func (fd *FailureDelete) ExecX(ctx context.Context) int {
 }
 
 func (fd *FailureDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := &sqlgraph.DeleteSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table: failure.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: failure.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewDeleteSpec(failure.Table, sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt))
 	if ps := fd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -88,12 +52,19 @@ func (fd *FailureDelete) sqlExec(ctx context.Context) (int, error) {
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
+	fd.mutation.done = true
 	return affected, err
 }
 
 // FailureDeleteOne is the builder for deleting a single Failure entity.
 type FailureDeleteOne struct {
 	fd *FailureDelete
+}
+
+// Where appends a list predicates to the FailureDelete builder.
+func (fdo *FailureDeleteOne) Where(ps ...predicate.Failure) *FailureDeleteOne {
+	fdo.fd.mutation.Where(ps...)
+	return fdo
 }
 
 // Exec executes the deletion query.
@@ -111,5 +82,7 @@ func (fdo *FailureDeleteOne) Exec(ctx context.Context) error {
 
 // ExecX is like Exec, but panics if an error occurs.
 func (fdo *FailureDeleteOne) ExecX(ctx context.Context) {
-	fdo.fd.ExecX(ctx)
+	if err := fdo.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

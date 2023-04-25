@@ -15,11 +15,10 @@ type AlertFunc func(context.Context, *ent.AlertMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
 func (f AlertFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.AlertMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertMutation", m)
+	if mv, ok := m.(*ent.AlertMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AlertMutation", m)
 }
 
 // The CounterFunc type is an adapter to allow the use of ordinary
@@ -28,11 +27,10 @@ type CounterFunc func(context.Context, *ent.CounterMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
 func (f CounterFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.CounterMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CounterMutation", m)
+	if mv, ok := m.(*ent.CounterMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CounterMutation", m)
 }
 
 // The FailureFunc type is an adapter to allow the use of ordinary
@@ -41,11 +39,10 @@ type FailureFunc func(context.Context, *ent.FailureMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
 func (f FailureFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.FailureMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FailureMutation", m)
+	if mv, ok := m.(*ent.FailureMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FailureMutation", m)
 }
 
 // The FileFunc type is an adapter to allow the use of ordinary
@@ -54,11 +51,10 @@ type FileFunc func(context.Context, *ent.FileMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
 func (f FileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.FileMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FileMutation", m)
+	if mv, ok := m.(*ent.FileMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.FileMutation", m)
 }
 
 // The IncidentFunc type is an adapter to allow the use of ordinary
@@ -67,11 +63,10 @@ type IncidentFunc func(context.Context, *ent.IncidentMutation) (ent.Value, error
 
 // Mutate calls f(ctx, m).
 func (f IncidentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.IncidentMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.IncidentMutation", m)
+	if mv, ok := m.(*ent.IncidentMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.IncidentMutation", m)
 }
 
 // The StatusFunc type is an adapter to allow the use of ordinary
@@ -80,11 +75,10 @@ type StatusFunc func(context.Context, *ent.StatusMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
 func (f StatusFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.StatusMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StatusMutation", m)
+	if mv, ok := m.(*ent.StatusMutation); ok {
+		return f(ctx, mv)
 	}
-	return f(ctx, mv)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.StatusMutation", m)
 }
 
 // Condition is a hook condition function.

@@ -10,16 +10,16 @@ import (
 
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/migrate"
 
+	"entgo.io/ent"
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/failure"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/status"
-
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
-	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -45,7 +45,7 @@ type Client struct {
 
 // NewClient creates a new client configured with the given options.
 func NewClient(opts ...Option) *Client {
-	cfg := config{log: log.Println, hooks: &hooks{}}
+	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
 	cfg.options(opts...)
 	client := &Client{config: cfg}
 	client.init()
@@ -60,6 +60,55 @@ func (c *Client) init() {
 	c.File = NewFileClient(c.config)
 	c.Incident = NewIncidentClient(c.config)
 	c.Status = NewStatusClient(c.config)
+}
+
+type (
+	// config is the configuration for the client and its builder.
+	config struct {
+		// driver used for executing database requests.
+		driver dialect.Driver
+		// debug enable a debug logging.
+		debug bool
+		// log used for logging on debug mode.
+		log func(...any)
+		// hooks to execute on mutations.
+		hooks *hooks
+		// interceptors to execute on queries.
+		inters *inters
+	}
+	// Option function to configure the client.
+	Option func(*config)
+)
+
+// options applies the options on the config object.
+func (c *config) options(opts ...Option) {
+	for _, opt := range opts {
+		opt(c)
+	}
+	if c.debug {
+		c.driver = dialect.Debug(c.driver, c.log)
+	}
+}
+
+// Debug enables debug logging on the ent.Driver.
+func Debug() Option {
+	return func(c *config) {
+		c.debug = true
+	}
+}
+
+// Log sets the logging function for debug mode.
+func Log(fn func(...any)) Option {
+	return func(c *config) {
+		c.log = fn
+	}
+}
+
+// Driver configures the client driver.
+func Driver(driver dialect.Driver) Option {
+	return func(c *config) {
+		c.driver = driver
+	}
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -152,12 +201,41 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Alert.Use(hooks...)
-	c.Counter.Use(hooks...)
-	c.Failure.Use(hooks...)
-	c.File.Use(hooks...)
-	c.Incident.Use(hooks...)
-	c.Status.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Alert, c.Counter, c.Failure, c.File, c.Incident, c.Status,
+	} {
+		n.Use(hooks...)
+	}
+}
+
+// Intercept adds the query interceptors to all the entity clients.
+// In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
+func (c *Client) Intercept(interceptors ...Interceptor) {
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Alert, c.Counter, c.Failure, c.File, c.Incident, c.Status,
+	} {
+		n.Intercept(interceptors...)
+	}
+}
+
+// Mutate implements the ent.Mutator interface.
+func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
+	switch m := m.(type) {
+	case *AlertMutation:
+		return c.Alert.mutate(ctx, m)
+	case *CounterMutation:
+		return c.Counter.mutate(ctx, m)
+	case *FailureMutation:
+		return c.Failure.mutate(ctx, m)
+	case *FileMutation:
+		return c.File.mutate(ctx, m)
+	case *IncidentMutation:
+		return c.Incident.mutate(ctx, m)
+	case *StatusMutation:
+		return c.Status.mutate(ctx, m)
+	default:
+		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
 }
 
 // AlertClient is a client for the Alert schema.
@@ -174,6 +252,12 @@ func NewAlertClient(c config) *AlertClient {
 // A call to `Use(f, g, h)` equals to `alert.Hooks(f(g(h())))`.
 func (c *AlertClient) Use(hooks ...Hook) {
 	c.hooks.Alert = append(c.hooks.Alert, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `alert.Intercept(f(g(h())))`.
+func (c *AlertClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Alert = append(c.inters.Alert, interceptors...)
 }
 
 // Create returns a builder for creating a Alert entity.
@@ -228,6 +312,8 @@ func (c *AlertClient) DeleteOneID(id int) *AlertDeleteOne {
 func (c *AlertClient) Query() *AlertQuery {
 	return &AlertQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeAlert},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -247,7 +333,7 @@ func (c *AlertClient) GetX(ctx context.Context, id int) *Alert {
 
 // QueryCounters queries the Counters edge of a Alert.
 func (c *AlertClient) QueryCounters(a *Alert) *CounterQuery {
-	query := &CounterQuery{config: c.config}
+	query := (&CounterClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
@@ -263,7 +349,7 @@ func (c *AlertClient) QueryCounters(a *Alert) *CounterQuery {
 
 // QueryStati queries the Stati edge of a Alert.
 func (c *AlertClient) QueryStati(a *Alert) *StatusQuery {
-	query := &StatusQuery{config: c.config}
+	query := (&StatusClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
@@ -279,7 +365,7 @@ func (c *AlertClient) QueryStati(a *Alert) *StatusQuery {
 
 // QueryFailures queries the Failures edge of a Alert.
 func (c *AlertClient) QueryFailures(a *Alert) *FailureQuery {
-	query := &FailureQuery{config: c.config}
+	query := (&FailureClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
@@ -295,7 +381,7 @@ func (c *AlertClient) QueryFailures(a *Alert) *FailureQuery {
 
 // QueryFiles queries the Files edge of a Alert.
 func (c *AlertClient) QueryFiles(a *Alert) *FileQuery {
-	query := &FileQuery{config: c.config}
+	query := (&FileClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := a.ID
 		step := sqlgraph.NewStep(
@@ -314,6 +400,26 @@ func (c *AlertClient) Hooks() []Hook {
 	return c.hooks.Alert
 }
 
+// Interceptors returns the client interceptors.
+func (c *AlertClient) Interceptors() []Interceptor {
+	return c.inters.Alert
+}
+
+func (c *AlertClient) mutate(ctx context.Context, m *AlertMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AlertCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AlertUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AlertUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AlertDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Alert mutation op: %q", m.Op())
+	}
+}
+
 // CounterClient is a client for the Counter schema.
 type CounterClient struct {
 	config
@@ -328,6 +434,12 @@ func NewCounterClient(c config) *CounterClient {
 // A call to `Use(f, g, h)` equals to `counter.Hooks(f(g(h())))`.
 func (c *CounterClient) Use(hooks ...Hook) {
 	c.hooks.Counter = append(c.hooks.Counter, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `counter.Intercept(f(g(h())))`.
+func (c *CounterClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Counter = append(c.inters.Counter, interceptors...)
 }
 
 // Create returns a builder for creating a Counter entity.
@@ -382,6 +494,8 @@ func (c *CounterClient) DeleteOneID(id int) *CounterDeleteOne {
 func (c *CounterClient) Query() *CounterQuery {
 	return &CounterQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeCounter},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -404,6 +518,26 @@ func (c *CounterClient) Hooks() []Hook {
 	return c.hooks.Counter
 }
 
+// Interceptors returns the client interceptors.
+func (c *CounterClient) Interceptors() []Interceptor {
+	return c.inters.Counter
+}
+
+func (c *CounterClient) mutate(ctx context.Context, m *CounterMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&CounterCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&CounterUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&CounterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&CounterDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Counter mutation op: %q", m.Op())
+	}
+}
+
 // FailureClient is a client for the Failure schema.
 type FailureClient struct {
 	config
@@ -418,6 +552,12 @@ func NewFailureClient(c config) *FailureClient {
 // A call to `Use(f, g, h)` equals to `failure.Hooks(f(g(h())))`.
 func (c *FailureClient) Use(hooks ...Hook) {
 	c.hooks.Failure = append(c.hooks.Failure, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `failure.Intercept(f(g(h())))`.
+func (c *FailureClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Failure = append(c.inters.Failure, interceptors...)
 }
 
 // Create returns a builder for creating a Failure entity.
@@ -472,6 +612,8 @@ func (c *FailureClient) DeleteOneID(id int) *FailureDeleteOne {
 func (c *FailureClient) Query() *FailureQuery {
 	return &FailureQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeFailure},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -494,6 +636,26 @@ func (c *FailureClient) Hooks() []Hook {
 	return c.hooks.Failure
 }
 
+// Interceptors returns the client interceptors.
+func (c *FailureClient) Interceptors() []Interceptor {
+	return c.inters.Failure
+}
+
+func (c *FailureClient) mutate(ctx context.Context, m *FailureMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FailureCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FailureUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FailureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FailureDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Failure mutation op: %q", m.Op())
+	}
+}
+
 // FileClient is a client for the File schema.
 type FileClient struct {
 	config
@@ -508,6 +670,12 @@ func NewFileClient(c config) *FileClient {
 // A call to `Use(f, g, h)` equals to `file.Hooks(f(g(h())))`.
 func (c *FileClient) Use(hooks ...Hook) {
 	c.hooks.File = append(c.hooks.File, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `file.Intercept(f(g(h())))`.
+func (c *FileClient) Intercept(interceptors ...Interceptor) {
+	c.inters.File = append(c.inters.File, interceptors...)
 }
 
 // Create returns a builder for creating a File entity.
@@ -562,6 +730,8 @@ func (c *FileClient) DeleteOneID(id int) *FileDeleteOne {
 func (c *FileClient) Query() *FileQuery {
 	return &FileQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeFile},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -584,6 +754,26 @@ func (c *FileClient) Hooks() []Hook {
 	return c.hooks.File
 }
 
+// Interceptors returns the client interceptors.
+func (c *FileClient) Interceptors() []Interceptor {
+	return c.inters.File
+}
+
+func (c *FileClient) mutate(ctx context.Context, m *FileMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&FileCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&FileUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&FileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&FileDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown File mutation op: %q", m.Op())
+	}
+}
+
 // IncidentClient is a client for the Incident schema.
 type IncidentClient struct {
 	config
@@ -598,6 +788,12 @@ func NewIncidentClient(c config) *IncidentClient {
 // A call to `Use(f, g, h)` equals to `incident.Hooks(f(g(h())))`.
 func (c *IncidentClient) Use(hooks ...Hook) {
 	c.hooks.Incident = append(c.hooks.Incident, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `incident.Intercept(f(g(h())))`.
+func (c *IncidentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Incident = append(c.inters.Incident, interceptors...)
 }
 
 // Create returns a builder for creating a Incident entity.
@@ -652,6 +848,8 @@ func (c *IncidentClient) DeleteOneID(id int) *IncidentDeleteOne {
 func (c *IncidentClient) Query() *IncidentQuery {
 	return &IncidentQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeIncident},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -671,7 +869,7 @@ func (c *IncidentClient) GetX(ctx context.Context, id int) *Incident {
 
 // QueryCounters queries the Counters edge of a Incident.
 func (c *IncidentClient) QueryCounters(i *Incident) *CounterQuery {
-	query := &CounterQuery{config: c.config}
+	query := (&CounterClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
@@ -687,7 +885,7 @@ func (c *IncidentClient) QueryCounters(i *Incident) *CounterQuery {
 
 // QueryStati queries the Stati edge of a Incident.
 func (c *IncidentClient) QueryStati(i *Incident) *StatusQuery {
-	query := &StatusQuery{config: c.config}
+	query := (&StatusClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
@@ -703,7 +901,7 @@ func (c *IncidentClient) QueryStati(i *Incident) *StatusQuery {
 
 // QueryFailures queries the Failures edge of a Incident.
 func (c *IncidentClient) QueryFailures(i *Incident) *FailureQuery {
-	query := &FailureQuery{config: c.config}
+	query := (&FailureClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
@@ -719,7 +917,7 @@ func (c *IncidentClient) QueryFailures(i *Incident) *FailureQuery {
 
 // QueryFiles queries the Files edge of a Incident.
 func (c *IncidentClient) QueryFiles(i *Incident) *FileQuery {
-	query := &FileQuery{config: c.config}
+	query := (&FileClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := i.ID
 		step := sqlgraph.NewStep(
@@ -738,6 +936,26 @@ func (c *IncidentClient) Hooks() []Hook {
 	return c.hooks.Incident
 }
 
+// Interceptors returns the client interceptors.
+func (c *IncidentClient) Interceptors() []Interceptor {
+	return c.inters.Incident
+}
+
+func (c *IncidentClient) mutate(ctx context.Context, m *IncidentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&IncidentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&IncidentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&IncidentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&IncidentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Incident mutation op: %q", m.Op())
+	}
+}
+
 // StatusClient is a client for the Status schema.
 type StatusClient struct {
 	config
@@ -752,6 +970,12 @@ func NewStatusClient(c config) *StatusClient {
 // A call to `Use(f, g, h)` equals to `status.Hooks(f(g(h())))`.
 func (c *StatusClient) Use(hooks ...Hook) {
 	c.hooks.Status = append(c.hooks.Status, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `status.Intercept(f(g(h())))`.
+func (c *StatusClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Status = append(c.inters.Status, interceptors...)
 }
 
 // Create returns a builder for creating a Status entity.
@@ -806,6 +1030,8 @@ func (c *StatusClient) DeleteOneID(id int) *StatusDeleteOne {
 func (c *StatusClient) Query() *StatusQuery {
 	return &StatusQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeStatus},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -827,3 +1053,33 @@ func (c *StatusClient) GetX(ctx context.Context, id int) *Status {
 func (c *StatusClient) Hooks() []Hook {
 	return c.hooks.Status
 }
+
+// Interceptors returns the client interceptors.
+func (c *StatusClient) Interceptors() []Interceptor {
+	return c.inters.Status
+}
+
+func (c *StatusClient) mutate(ctx context.Context, m *StatusMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&StatusCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&StatusUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&StatusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&StatusDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Status mutation op: %q", m.Op())
+	}
+}
+
+// hooks and interceptors per client, for fast access.
+type (
+	hooks struct {
+		Alert, Counter, Failure, File, Incident, Status []ent.Hook
+	}
+	inters struct {
+		Alert, Counter, Failure, File, Incident, Status []ent.Interceptor
+	}
+)

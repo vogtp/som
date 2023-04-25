@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
@@ -39,7 +40,8 @@ type Alert struct {
 	Error string `json:"Error,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AlertQuery when eager-loading is set.
-	Edges AlertEdges `json:"edges"`
+	Edges        AlertEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // AlertEdges holds the relations/edges for other nodes in the graph.
@@ -114,7 +116,7 @@ func (*Alert) scanValues(columns []string) ([]any, error) {
 		case alert.FieldUUID, alert.FieldIncidentID:
 			values[i] = new(uuid.UUID)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Alert", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -194,36 +196,44 @@ func (a *Alert) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				a.Error = value.String
 			}
+		default:
+			a.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
 }
 
+// Value returns the ent.Value that was dynamically selected and assigned to the Alert.
+// This includes values selected through modifiers, order, etc.
+func (a *Alert) Value(name string) (ent.Value, error) {
+	return a.selectValues.Get(name)
+}
+
 // QueryCounters queries the "Counters" edge of the Alert entity.
 func (a *Alert) QueryCounters() *CounterQuery {
-	return (&AlertClient{config: a.config}).QueryCounters(a)
+	return NewAlertClient(a.config).QueryCounters(a)
 }
 
 // QueryStati queries the "Stati" edge of the Alert entity.
 func (a *Alert) QueryStati() *StatusQuery {
-	return (&AlertClient{config: a.config}).QueryStati(a)
+	return NewAlertClient(a.config).QueryStati(a)
 }
 
 // QueryFailures queries the "Failures" edge of the Alert entity.
 func (a *Alert) QueryFailures() *FailureQuery {
-	return (&AlertClient{config: a.config}).QueryFailures(a)
+	return NewAlertClient(a.config).QueryFailures(a)
 }
 
 // QueryFiles queries the "Files" edge of the Alert entity.
 func (a *Alert) QueryFiles() *FileQuery {
-	return (&AlertClient{config: a.config}).QueryFiles(a)
+	return NewAlertClient(a.config).QueryFiles(a)
 }
 
 // Update returns a builder for updating this Alert.
 // Note that you need to call Alert.Unwrap() before calling this method if this Alert
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (a *Alert) Update() *AlertUpdateOne {
-	return (&AlertClient{config: a.config}).UpdateOne(a)
+	return NewAlertClient(a.config).UpdateOne(a)
 }
 
 // Unwrap unwraps the Alert entity that was returned from a transaction after it was closed,
@@ -373,9 +383,3 @@ func (a *Alert) appendNamedFiles(name string, edges ...*File) {
 
 // Alerts is a parsable slice of Alert.
 type Alerts []*Alert
-
-func (a Alerts) config(cfg config) {
-	for _i := range a {
-		a[_i].config = cfg
-	}
-}

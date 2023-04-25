@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/failure"
 )
@@ -21,6 +22,7 @@ type Failure struct {
 	Idx               int `json:"Idx,omitempty"`
 	alert_failures    *int
 	incident_failures *int
+	selectValues      sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -37,7 +39,7 @@ func (*Failure) scanValues(columns []string) ([]any, error) {
 		case failure.ForeignKeys[1]: // incident_failures
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Failure", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -83,16 +85,24 @@ func (f *Failure) assignValues(columns []string, values []any) error {
 				f.incident_failures = new(int)
 				*f.incident_failures = int(value.Int64)
 			}
+		default:
+			f.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the Failure.
+// This includes values selected through modifiers, order, etc.
+func (f *Failure) Value(name string) (ent.Value, error) {
+	return f.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Failure.
 // Note that you need to call Failure.Unwrap() before calling this method if this Failure
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (f *Failure) Update() *FailureUpdateOne {
-	return (&FailureClient{config: f.config}).UpdateOne(f)
+	return NewFailureClient(f.config).UpdateOne(f)
 }
 
 // Unwrap unwraps the Failure entity that was returned from a transaction after it was closed,
@@ -122,9 +132,3 @@ func (f *Failure) String() string {
 
 // Failures is a parsable slice of Failure.
 type Failures []*Failure
-
-func (f Failures) config(cfg config) {
-	for _i := range f {
-		f[_i].config = cfg
-	}
-}

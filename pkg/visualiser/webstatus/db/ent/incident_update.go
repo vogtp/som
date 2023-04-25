@@ -311,34 +311,7 @@ func (iu *IncidentUpdate) RemoveFiles(f ...*File) *IncidentUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (iu *IncidentUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(iu.hooks) == 0 {
-		affected, err = iu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*IncidentMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			iu.mutation = mutation
-			affected, err = iu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(iu.hooks) - 1; i >= 0; i-- {
-			if iu.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = iu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, iu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, IncidentMutation](ctx, iu.sqlSave, iu.mutation, iu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -364,16 +337,7 @@ func (iu *IncidentUpdate) ExecX(ctx context.Context) {
 }
 
 func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   incident.Table,
-			Columns: incident.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: incident.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(incident.Table, incident.Columns, sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt))
 	if ps := iu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -440,10 +404,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.CountersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: counter.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -456,10 +417,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.CountersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: counter.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -475,10 +433,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.CountersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: counter.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -494,10 +449,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.StatiColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: status.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -510,10 +462,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.StatiColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: status.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -529,10 +478,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.StatiColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: status.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -548,10 +494,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.FailuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: failure.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -564,10 +507,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.FailuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: failure.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -583,10 +523,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.FailuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: failure.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -602,10 +539,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.FilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: file.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -618,10 +552,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.FilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: file.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -637,10 +568,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{incident.FilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: file.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -656,6 +584,7 @@ func (iu *IncidentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
+	iu.mutation.done = true
 	return n, nil
 }
 
@@ -943,6 +872,12 @@ func (iuo *IncidentUpdateOne) RemoveFiles(f ...*File) *IncidentUpdateOne {
 	return iuo.RemoveFileIDs(ids...)
 }
 
+// Where appends a list predicates to the IncidentUpdate builder.
+func (iuo *IncidentUpdateOne) Where(ps ...predicate.Incident) *IncidentUpdateOne {
+	iuo.mutation.Where(ps...)
+	return iuo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (iuo *IncidentUpdateOne) Select(field string, fields ...string) *IncidentUpdateOne {
@@ -952,40 +887,7 @@ func (iuo *IncidentUpdateOne) Select(field string, fields ...string) *IncidentUp
 
 // Save executes the query and returns the updated Incident entity.
 func (iuo *IncidentUpdateOne) Save(ctx context.Context) (*Incident, error) {
-	var (
-		err  error
-		node *Incident
-	)
-	if len(iuo.hooks) == 0 {
-		node, err = iuo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*IncidentMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			iuo.mutation = mutation
-			node, err = iuo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(iuo.hooks) - 1; i >= 0; i-- {
-			if iuo.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = iuo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, iuo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Incident)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from IncidentMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Incident, IncidentMutation](ctx, iuo.sqlSave, iuo.mutation, iuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -1011,16 +913,7 @@ func (iuo *IncidentUpdateOne) ExecX(ctx context.Context) {
 }
 
 func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   incident.Table,
-			Columns: incident.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: incident.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(incident.Table, incident.Columns, sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt))
 	id, ok := iuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Incident.id" for update`)}
@@ -1104,10 +997,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.CountersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: counter.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1120,10 +1010,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.CountersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: counter.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1139,10 +1026,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.CountersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: counter.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1158,10 +1042,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.StatiColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: status.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1174,10 +1055,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.StatiColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: status.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1193,10 +1071,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.StatiColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: status.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1212,10 +1087,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.FailuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: failure.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1228,10 +1100,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.FailuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: failure.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1247,10 +1116,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.FailuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: failure.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1266,10 +1132,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.FilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: file.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -1282,10 +1145,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.FilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: file.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1301,10 +1161,7 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 			Columns: []string{incident.FilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: file.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -1323,5 +1180,6 @@ func (iuo *IncidentUpdateOne) sqlSave(ctx context.Context) (_node *Incident, err
 		}
 		return nil, err
 	}
+	iuo.mutation.done = true
 	return _node, nil
 }

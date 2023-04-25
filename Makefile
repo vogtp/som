@@ -13,7 +13,7 @@ install_stinger:
 
 .PHONY: generate
 generate: install_stinger
-	$(GO_CMD) generate ./...
+	go generate ./...
 
 .PHONY: build-somctl
 build-somctl:

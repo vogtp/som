@@ -53,34 +53,7 @@ func (fu *FailureUpdate) Mutation() *FailureMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (fu *FailureUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(fu.hooks) == 0 {
-		affected, err = fu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*FailureMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			fu.mutation = mutation
-			affected, err = fu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(fu.hooks) - 1; i >= 0; i-- {
-			if fu.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = fu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, fu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, FailureMutation](ctx, fu.sqlSave, fu.mutation, fu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -106,16 +79,7 @@ func (fu *FailureUpdate) ExecX(ctx context.Context) {
 }
 
 func (fu *FailureUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   failure.Table,
-			Columns: failure.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: failure.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(failure.Table, failure.Columns, sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt))
 	if ps := fu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -140,6 +104,7 @@ func (fu *FailureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
+	fu.mutation.done = true
 	return n, nil
 }
 
@@ -175,6 +140,12 @@ func (fuo *FailureUpdateOne) Mutation() *FailureMutation {
 	return fuo.mutation
 }
 
+// Where appends a list predicates to the FailureUpdate builder.
+func (fuo *FailureUpdateOne) Where(ps ...predicate.Failure) *FailureUpdateOne {
+	fuo.mutation.Where(ps...)
+	return fuo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (fuo *FailureUpdateOne) Select(field string, fields ...string) *FailureUpdateOne {
@@ -184,40 +155,7 @@ func (fuo *FailureUpdateOne) Select(field string, fields ...string) *FailureUpda
 
 // Save executes the query and returns the updated Failure entity.
 func (fuo *FailureUpdateOne) Save(ctx context.Context) (*Failure, error) {
-	var (
-		err  error
-		node *Failure
-	)
-	if len(fuo.hooks) == 0 {
-		node, err = fuo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*FailureMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			fuo.mutation = mutation
-			node, err = fuo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(fuo.hooks) - 1; i >= 0; i-- {
-			if fuo.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = fuo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, fuo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Failure)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from FailureMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Failure, FailureMutation](ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -243,16 +181,7 @@ func (fuo *FailureUpdateOne) ExecX(ctx context.Context) {
 }
 
 func (fuo *FailureUpdateOne) sqlSave(ctx context.Context) (_node *Failure, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   failure.Table,
-			Columns: failure.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: failure.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(failure.Table, failure.Columns, sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt))
 	id, ok := fuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Failure.id" for update`)}
@@ -297,5 +226,6 @@ func (fuo *FailureUpdateOne) sqlSave(ctx context.Context) (_node *Failure, err e
 		}
 		return nil, err
 	}
+	fuo.mutation.done = true
 	return _node, nil
 }

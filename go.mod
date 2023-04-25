@@ -29,7 +29,6 @@ require (
 	github.com/suborbital/grav v0.5.2
 	github.com/suborbital/vektor v0.7.0
 	github.com/vektah/gqlparser/v2 v2.5.1
-	github.com/vmihailenco/msgpack/v5 v5.3.5
 	github.com/vogtp/go-mesh v0.2.0
 	github.com/xiaoqidun/entps v0.0.0-20230328150929-94b1b92d8c03
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
@@ -86,6 +85,7 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.11 // indirect
 	github.com/tklauser/numcpus v0.6.0 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/zclconf/go-cty v1.13.1 // indirect

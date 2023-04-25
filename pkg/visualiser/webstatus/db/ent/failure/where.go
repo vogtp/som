@@ -9,250 +9,162 @@ import (
 
 // ID filters vertices based on their ID field.
 func ID(id int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.Failure(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
 func IDEQ(id int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.Failure(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
 func IDNEQ(id int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldID), id))
-	})
+	return predicate.Failure(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
 func IDIn(ids ...int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.In(s.C(FieldID), v...))
-	})
+	return predicate.Failure(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
 func IDNotIn(ids ...int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.NotIn(s.C(FieldID), v...))
-	})
+	return predicate.Failure(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
 func IDGT(id int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldID), id))
-	})
+	return predicate.Failure(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
 func IDGTE(id int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldID), id))
-	})
+	return predicate.Failure(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
 func IDLT(id int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldID), id))
-	})
+	return predicate.Failure(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
 func IDLTE(id int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldID), id))
-	})
+	return predicate.Failure(sql.FieldLTE(FieldID, id))
 }
 
 // Error applies equality check predicate on the "Error" field. It's identical to ErrorEQ.
 func Error(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldEQ(FieldError, v))
 }
 
 // Idx applies equality check predicate on the "Idx" field. It's identical to IdxEQ.
 func Idx(v int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldIdx), v))
-	})
+	return predicate.Failure(sql.FieldEQ(FieldIdx, v))
 }
 
 // ErrorEQ applies the EQ predicate on the "Error" field.
 func ErrorEQ(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldEQ(FieldError, v))
 }
 
 // ErrorNEQ applies the NEQ predicate on the "Error" field.
 func ErrorNEQ(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldNEQ(FieldError, v))
 }
 
 // ErrorIn applies the In predicate on the "Error" field.
 func ErrorIn(vs ...string) predicate.Failure {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldError), v...))
-	})
+	return predicate.Failure(sql.FieldIn(FieldError, vs...))
 }
 
 // ErrorNotIn applies the NotIn predicate on the "Error" field.
 func ErrorNotIn(vs ...string) predicate.Failure {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldError), v...))
-	})
+	return predicate.Failure(sql.FieldNotIn(FieldError, vs...))
 }
 
 // ErrorGT applies the GT predicate on the "Error" field.
 func ErrorGT(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldGT(FieldError, v))
 }
 
 // ErrorGTE applies the GTE predicate on the "Error" field.
 func ErrorGTE(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldGTE(FieldError, v))
 }
 
 // ErrorLT applies the LT predicate on the "Error" field.
 func ErrorLT(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldLT(FieldError, v))
 }
 
 // ErrorLTE applies the LTE predicate on the "Error" field.
 func ErrorLTE(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldLTE(FieldError, v))
 }
 
 // ErrorContains applies the Contains predicate on the "Error" field.
 func ErrorContains(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldContains(FieldError, v))
 }
 
 // ErrorHasPrefix applies the HasPrefix predicate on the "Error" field.
 func ErrorHasPrefix(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldHasPrefix(FieldError, v))
 }
 
 // ErrorHasSuffix applies the HasSuffix predicate on the "Error" field.
 func ErrorHasSuffix(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldHasSuffix(FieldError, v))
 }
 
 // ErrorEqualFold applies the EqualFold predicate on the "Error" field.
 func ErrorEqualFold(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldEqualFold(FieldError, v))
 }
 
 // ErrorContainsFold applies the ContainsFold predicate on the "Error" field.
 func ErrorContainsFold(v string) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldError), v))
-	})
+	return predicate.Failure(sql.FieldContainsFold(FieldError, v))
 }
 
 // IdxEQ applies the EQ predicate on the "Idx" field.
 func IdxEQ(v int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldIdx), v))
-	})
+	return predicate.Failure(sql.FieldEQ(FieldIdx, v))
 }
 
 // IdxNEQ applies the NEQ predicate on the "Idx" field.
 func IdxNEQ(v int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldIdx), v))
-	})
+	return predicate.Failure(sql.FieldNEQ(FieldIdx, v))
 }
 
 // IdxIn applies the In predicate on the "Idx" field.
 func IdxIn(vs ...int) predicate.Failure {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldIdx), v...))
-	})
+	return predicate.Failure(sql.FieldIn(FieldIdx, vs...))
 }
 
 // IdxNotIn applies the NotIn predicate on the "Idx" field.
 func IdxNotIn(vs ...int) predicate.Failure {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldIdx), v...))
-	})
+	return predicate.Failure(sql.FieldNotIn(FieldIdx, vs...))
 }
 
 // IdxGT applies the GT predicate on the "Idx" field.
 func IdxGT(v int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldIdx), v))
-	})
+	return predicate.Failure(sql.FieldGT(FieldIdx, v))
 }
 
 // IdxGTE applies the GTE predicate on the "Idx" field.
 func IdxGTE(v int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldIdx), v))
-	})
+	return predicate.Failure(sql.FieldGTE(FieldIdx, v))
 }
 
 // IdxLT applies the LT predicate on the "Idx" field.
 func IdxLT(v int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldIdx), v))
-	})
+	return predicate.Failure(sql.FieldLT(FieldIdx, v))
 }
 
 // IdxLTE applies the LTE predicate on the "Idx" field.
 func IdxLTE(v int) predicate.Failure {
-	return predicate.Failure(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldIdx), v))
-	})
+	return predicate.Failure(sql.FieldLTE(FieldIdx, v))
 }
 
 // And groups predicates with the AND operator between them.

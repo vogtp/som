@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
@@ -45,7 +46,8 @@ type Incident struct {
 	State []byte `json:"State,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the IncidentQuery when eager-loading is set.
-	Edges IncidentEdges `json:"edges"`
+	Edges        IncidentEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // IncidentEdges holds the relations/edges for other nodes in the graph.
@@ -122,7 +124,7 @@ func (*Incident) scanValues(columns []string) ([]any, error) {
 		case incident.FieldUUID, incident.FieldIncidentID:
 			values[i] = new(uuid.UUID)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Incident", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -220,36 +222,44 @@ func (i *Incident) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				i.State = *value
 			}
+		default:
+			i.selectValues.Set(columns[j], values[j])
 		}
 	}
 	return nil
 }
 
+// Value returns the ent.Value that was dynamically selected and assigned to the Incident.
+// This includes values selected through modifiers, order, etc.
+func (i *Incident) Value(name string) (ent.Value, error) {
+	return i.selectValues.Get(name)
+}
+
 // QueryCounters queries the "Counters" edge of the Incident entity.
 func (i *Incident) QueryCounters() *CounterQuery {
-	return (&IncidentClient{config: i.config}).QueryCounters(i)
+	return NewIncidentClient(i.config).QueryCounters(i)
 }
 
 // QueryStati queries the "Stati" edge of the Incident entity.
 func (i *Incident) QueryStati() *StatusQuery {
-	return (&IncidentClient{config: i.config}).QueryStati(i)
+	return NewIncidentClient(i.config).QueryStati(i)
 }
 
 // QueryFailures queries the "Failures" edge of the Incident entity.
 func (i *Incident) QueryFailures() *FailureQuery {
-	return (&IncidentClient{config: i.config}).QueryFailures(i)
+	return NewIncidentClient(i.config).QueryFailures(i)
 }
 
 // QueryFiles queries the "Files" edge of the Incident entity.
 func (i *Incident) QueryFiles() *FileQuery {
-	return (&IncidentClient{config: i.config}).QueryFiles(i)
+	return NewIncidentClient(i.config).QueryFiles(i)
 }
 
 // Update returns a builder for updating this Incident.
 // Note that you need to call Incident.Unwrap() before calling this method if this Incident
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (i *Incident) Update() *IncidentUpdateOne {
-	return (&IncidentClient{config: i.config}).UpdateOne(i)
+	return NewIncidentClient(i.config).UpdateOne(i)
 }
 
 // Unwrap unwraps the Incident entity that was returned from a transaction after it was closed,
@@ -408,9 +418,3 @@ func (i *Incident) appendNamedFiles(name string, edges ...*File) {
 
 // Incidents is a parsable slice of Incident.
 type Incidents []*Incident
-
-func (i Incidents) config(cfg config) {
-	for _i := range i {
-		i[_i].config = cfg
-	}
-}

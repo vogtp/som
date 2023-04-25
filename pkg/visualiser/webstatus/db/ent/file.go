@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
@@ -30,6 +31,7 @@ type File struct {
 	Payload        []byte `json:"payload,omitempty"`
 	alert_files    *int
 	incident_files *int
+	selectValues   sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -50,7 +52,7 @@ func (*File) scanValues(columns []string) ([]any, error) {
 		case file.ForeignKeys[1]: // incident_files
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type File", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -120,16 +122,24 @@ func (f *File) assignValues(columns []string, values []any) error {
 				f.incident_files = new(int)
 				*f.incident_files = int(value.Int64)
 			}
+		default:
+			f.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// Value returns the ent.Value that was dynamically selected and assigned to the File.
+// This includes values selected through modifiers, order, etc.
+func (f *File) Value(name string) (ent.Value, error) {
+	return f.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this File.
 // Note that you need to call File.Unwrap() before calling this method if this File
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (f *File) Update() *FileUpdateOne {
-	return (&FileClient{config: f.config}).UpdateOne(f)
+	return NewFileClient(f.config).UpdateOne(f)
 }
 
 // Unwrap unwraps the File entity that was returned from a transaction after it was closed,
@@ -171,9 +181,3 @@ func (f *File) String() string {
 
 // Files is a parsable slice of File.
 type Files []*File
-
-func (f Files) config(cfg config) {
-	for _i := range f {
-		f[_i].config = cfg
-	}
-}

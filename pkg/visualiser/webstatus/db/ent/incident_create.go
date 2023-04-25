@@ -196,49 +196,7 @@ func (ic *IncidentCreate) Mutation() *IncidentMutation {
 
 // Save creates the Incident in the database.
 func (ic *IncidentCreate) Save(ctx context.Context) (*Incident, error) {
-	var (
-		err  error
-		node *Incident
-	)
-	if len(ic.hooks) == 0 {
-		if err = ic.check(); err != nil {
-			return nil, err
-		}
-		node, err = ic.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*IncidentMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = ic.check(); err != nil {
-				return nil, err
-			}
-			ic.mutation = mutation
-			if node, err = ic.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(ic.hooks) - 1; i >= 0; i-- {
-			if ic.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = ic.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, ic.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Incident)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from IncidentMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Incident, IncidentMutation](ctx, ic.sqlSave, ic.mutation, ic.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -299,6 +257,9 @@ func (ic *IncidentCreate) check() error {
 }
 
 func (ic *IncidentCreate) sqlSave(ctx context.Context) (*Incident, error) {
+	if err := ic.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := ic.createSpec()
 	if err := sqlgraph.CreateNode(ctx, ic.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -308,19 +269,15 @@ func (ic *IncidentCreate) sqlSave(ctx context.Context) (*Incident, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	ic.mutation.id = &_node.ID
+	ic.mutation.done = true
 	return _node, nil
 }
 
 func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Incident{config: ic.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: incident.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: incident.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(incident.Table, sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = ic.conflict
 	if value, ok := ic.mutation.UUID(); ok {
@@ -383,10 +340,7 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 			Columns: []string{incident.CountersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: counter.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -402,10 +356,7 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 			Columns: []string{incident.StatiColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: status.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -421,10 +372,7 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 			Columns: []string{incident.FailuresColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: failure.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -440,10 +388,7 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 			Columns: []string{incident.FilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: file.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -990,8 +935,8 @@ func (icb *IncidentCreateBulk) Save(ctx context.Context) ([]*Incident, error) {
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, icb.builders[i+1].mutation)
 				} else {

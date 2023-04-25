@@ -53,34 +53,7 @@ func (cu *CounterUpdate) Mutation() *CounterMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CounterUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(cu.hooks) == 0 {
-		affected, err = cu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*CounterMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			cu.mutation = mutation
-			affected, err = cu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(cu.hooks) - 1; i >= 0; i-- {
-			if cu.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = cu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, cu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, CounterMutation](ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -106,16 +79,7 @@ func (cu *CounterUpdate) ExecX(ctx context.Context) {
 }
 
 func (cu *CounterUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   counter.Table,
-			Columns: counter.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: counter.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(counter.Table, counter.Columns, sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt))
 	if ps := cu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -140,6 +104,7 @@ func (cu *CounterUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
+	cu.mutation.done = true
 	return n, nil
 }
 
@@ -175,6 +140,12 @@ func (cuo *CounterUpdateOne) Mutation() *CounterMutation {
 	return cuo.mutation
 }
 
+// Where appends a list predicates to the CounterUpdate builder.
+func (cuo *CounterUpdateOne) Where(ps ...predicate.Counter) *CounterUpdateOne {
+	cuo.mutation.Where(ps...)
+	return cuo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (cuo *CounterUpdateOne) Select(field string, fields ...string) *CounterUpdateOne {
@@ -184,40 +155,7 @@ func (cuo *CounterUpdateOne) Select(field string, fields ...string) *CounterUpda
 
 // Save executes the query and returns the updated Counter entity.
 func (cuo *CounterUpdateOne) Save(ctx context.Context) (*Counter, error) {
-	var (
-		err  error
-		node *Counter
-	)
-	if len(cuo.hooks) == 0 {
-		node, err = cuo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*CounterMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			cuo.mutation = mutation
-			node, err = cuo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(cuo.hooks) - 1; i >= 0; i-- {
-			if cuo.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = cuo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, cuo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Counter)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from CounterMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Counter, CounterMutation](ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -243,16 +181,7 @@ func (cuo *CounterUpdateOne) ExecX(ctx context.Context) {
 }
 
 func (cuo *CounterUpdateOne) sqlSave(ctx context.Context) (_node *Counter, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   counter.Table,
-			Columns: counter.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: counter.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(counter.Table, counter.Columns, sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt))
 	id, ok := cuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Counter.id" for update`)}
@@ -297,5 +226,6 @@ func (cuo *CounterUpdateOne) sqlSave(ctx context.Context) (_node *Counter, err e
 		}
 		return nil, err
 	}
+	cuo.mutation.done = true
 	return _node, nil
 }

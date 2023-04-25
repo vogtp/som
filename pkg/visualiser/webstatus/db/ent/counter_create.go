@@ -40,49 +40,7 @@ func (cc *CounterCreate) Mutation() *CounterMutation {
 
 // Save creates the Counter in the database.
 func (cc *CounterCreate) Save(ctx context.Context) (*Counter, error) {
-	var (
-		err  error
-		node *Counter
-	)
-	if len(cc.hooks) == 0 {
-		if err = cc.check(); err != nil {
-			return nil, err
-		}
-		node, err = cc.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*CounterMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = cc.check(); err != nil {
-				return nil, err
-			}
-			cc.mutation = mutation
-			if node, err = cc.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(cc.hooks) - 1; i >= 0; i-- {
-			if cc.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = cc.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, cc.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Counter)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from CounterMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Counter, CounterMutation](ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -119,6 +77,9 @@ func (cc *CounterCreate) check() error {
 }
 
 func (cc *CounterCreate) sqlSave(ctx context.Context) (*Counter, error) {
+	if err := cc.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := cc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, cc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -128,19 +89,15 @@ func (cc *CounterCreate) sqlSave(ctx context.Context) (*Counter, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	cc.mutation.id = &_node.ID
+	cc.mutation.done = true
 	return _node, nil
 }
 
 func (cc *CounterCreate) createSpec() (*Counter, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Counter{config: cc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: counter.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: counter.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(counter.Table, sqlgraph.NewFieldSpec(counter.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = cc.conflict
 	if value, ok := cc.mutation.Name(); ok {
@@ -365,8 +322,8 @@ func (ccb *CounterCreateBulk) Save(ctx context.Context) ([]*Counter, error) {
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, ccb.builders[i+1].mutation)
 				} else {

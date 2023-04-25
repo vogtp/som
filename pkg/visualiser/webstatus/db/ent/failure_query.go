@@ -17,11 +17,9 @@ import (
 // FailureQuery is the builder for querying Failure entities.
 type FailureQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
-	order      []OrderFunc
-	fields     []string
+	ctx        *QueryContext
+	order      []failure.OrderOption
+	inters     []Interceptor
 	predicates []predicate.Failure
 	withFKs    bool
 	modifiers  []func(*sql.Selector)
@@ -37,27 +35,27 @@ func (fq *FailureQuery) Where(ps ...predicate.Failure) *FailureQuery {
 	return fq
 }
 
-// Limit adds a limit step to the query.
+// Limit the number of records to be returned by this query.
 func (fq *FailureQuery) Limit(limit int) *FailureQuery {
-	fq.limit = &limit
+	fq.ctx.Limit = &limit
 	return fq
 }
 
-// Offset adds an offset step to the query.
+// Offset to start from.
 func (fq *FailureQuery) Offset(offset int) *FailureQuery {
-	fq.offset = &offset
+	fq.ctx.Offset = &offset
 	return fq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
 func (fq *FailureQuery) Unique(unique bool) *FailureQuery {
-	fq.unique = &unique
+	fq.ctx.Unique = &unique
 	return fq
 }
 
-// Order adds an order step to the query.
-func (fq *FailureQuery) Order(o ...OrderFunc) *FailureQuery {
+// Order specifies how the records should be ordered.
+func (fq *FailureQuery) Order(o ...failure.OrderOption) *FailureQuery {
 	fq.order = append(fq.order, o...)
 	return fq
 }
@@ -65,7 +63,7 @@ func (fq *FailureQuery) Order(o ...OrderFunc) *FailureQuery {
 // First returns the first Failure entity from the query.
 // Returns a *NotFoundError when no Failure was found.
 func (fq *FailureQuery) First(ctx context.Context) (*Failure, error) {
-	nodes, err := fq.Limit(1).All(ctx)
+	nodes, err := fq.Limit(1).All(setContextOp(ctx, fq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +86,7 @@ func (fq *FailureQuery) FirstX(ctx context.Context) *Failure {
 // Returns a *NotFoundError when no Failure ID was found.
 func (fq *FailureQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = fq.Limit(1).IDs(ctx); err != nil {
+	if ids, err = fq.Limit(1).IDs(setContextOp(ctx, fq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -111,7 +109,7 @@ func (fq *FailureQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one Failure entity is found.
 // Returns a *NotFoundError when no Failure entities are found.
 func (fq *FailureQuery) Only(ctx context.Context) (*Failure, error) {
-	nodes, err := fq.Limit(2).All(ctx)
+	nodes, err := fq.Limit(2).All(setContextOp(ctx, fq.ctx, "Only"))
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +137,7 @@ func (fq *FailureQuery) OnlyX(ctx context.Context) *Failure {
 // Returns a *NotFoundError when no entities are found.
 func (fq *FailureQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = fq.Limit(2).IDs(ctx); err != nil {
+	if ids, err = fq.Limit(2).IDs(setContextOp(ctx, fq.ctx, "OnlyID")); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -164,10 +162,12 @@ func (fq *FailureQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of Failures.
 func (fq *FailureQuery) All(ctx context.Context) ([]*Failure, error) {
+	ctx = setContextOp(ctx, fq.ctx, "All")
 	if err := fq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	return fq.sqlAll(ctx)
+	qr := querierAll[[]*Failure, *FailureQuery]()
+	return withInterceptors[[]*Failure](ctx, fq, qr, fq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
@@ -180,9 +180,12 @@ func (fq *FailureQuery) AllX(ctx context.Context) []*Failure {
 }
 
 // IDs executes the query and returns a list of Failure IDs.
-func (fq *FailureQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
-	if err := fq.Select(failure.FieldID).Scan(ctx, &ids); err != nil {
+func (fq *FailureQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if fq.ctx.Unique == nil && fq.path != nil {
+		fq.Unique(true)
+	}
+	ctx = setContextOp(ctx, fq.ctx, "IDs")
+	if err = fq.Select(failure.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
@@ -199,10 +202,11 @@ func (fq *FailureQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (fq *FailureQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, fq.ctx, "Count")
 	if err := fq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return fq.sqlCount(ctx)
+	return withInterceptors[int](ctx, fq, querierCount[*FailureQuery](), fq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
@@ -216,10 +220,15 @@ func (fq *FailureQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (fq *FailureQuery) Exist(ctx context.Context) (bool, error) {
-	if err := fq.prepareQuery(ctx); err != nil {
-		return false, err
+	ctx = setContextOp(ctx, fq.ctx, "Exist")
+	switch _, err := fq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
+		return false, fmt.Errorf("ent: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return fq.sqlExist(ctx)
 }
 
 // ExistX is like Exist, but panics if an error occurs.
@@ -239,14 +248,13 @@ func (fq *FailureQuery) Clone() *FailureQuery {
 	}
 	return &FailureQuery{
 		config:     fq.config,
-		limit:      fq.limit,
-		offset:     fq.offset,
-		order:      append([]OrderFunc{}, fq.order...),
+		ctx:        fq.ctx.Clone(),
+		order:      append([]failure.OrderOption{}, fq.order...),
+		inters:     append([]Interceptor{}, fq.inters...),
 		predicates: append([]predicate.Failure{}, fq.predicates...),
 		// clone intermediate query.
-		sql:    fq.sql.Clone(),
-		path:   fq.path,
-		unique: fq.unique,
+		sql:  fq.sql.Clone(),
+		path: fq.path,
 	}
 }
 
@@ -265,16 +273,11 @@ func (fq *FailureQuery) Clone() *FailureQuery {
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (fq *FailureQuery) GroupBy(field string, fields ...string) *FailureGroupBy {
-	grbuild := &FailureGroupBy{config: fq.config}
-	grbuild.fields = append([]string{field}, fields...)
-	grbuild.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := fq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return fq.sqlQuery(ctx), nil
-	}
+	fq.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &FailureGroupBy{build: fq}
+	grbuild.flds = &fq.ctx.Fields
 	grbuild.label = failure.Label
-	grbuild.flds, grbuild.scan = &grbuild.fields, grbuild.Scan
+	grbuild.scan = grbuild.Scan
 	return grbuild
 }
 
@@ -291,11 +294,11 @@ func (fq *FailureQuery) GroupBy(field string, fields ...string) *FailureGroupBy 
 //		Select(failure.FieldError).
 //		Scan(ctx, &v)
 func (fq *FailureQuery) Select(fields ...string) *FailureSelect {
-	fq.fields = append(fq.fields, fields...)
-	selbuild := &FailureSelect{FailureQuery: fq}
-	selbuild.label = failure.Label
-	selbuild.flds, selbuild.scan = &fq.fields, selbuild.Scan
-	return selbuild
+	fq.ctx.Fields = append(fq.ctx.Fields, fields...)
+	sbuild := &FailureSelect{FailureQuery: fq}
+	sbuild.label = failure.Label
+	sbuild.flds, sbuild.scan = &fq.ctx.Fields, sbuild.Scan
+	return sbuild
 }
 
 // Aggregate returns a FailureSelect configured with the given aggregations.
@@ -304,7 +307,17 @@ func (fq *FailureQuery) Aggregate(fns ...AggregateFunc) *FailureSelect {
 }
 
 func (fq *FailureQuery) prepareQuery(ctx context.Context) error {
-	for _, f := range fq.fields {
+	for _, inter := range fq.inters {
+		if inter == nil {
+			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
+		}
+		if trv, ok := inter.(Traverser); ok {
+			if err := trv.Traverse(ctx, fq); err != nil {
+				return err
+			}
+		}
+	}
+	for _, f := range fq.ctx.Fields {
 		if !failure.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
@@ -361,41 +374,22 @@ func (fq *FailureQuery) sqlCount(ctx context.Context) (int, error) {
 	if len(fq.modifiers) > 0 {
 		_spec.Modifiers = fq.modifiers
 	}
-	_spec.Node.Columns = fq.fields
-	if len(fq.fields) > 0 {
-		_spec.Unique = fq.unique != nil && *fq.unique
+	_spec.Node.Columns = fq.ctx.Fields
+	if len(fq.ctx.Fields) > 0 {
+		_spec.Unique = fq.ctx.Unique != nil && *fq.ctx.Unique
 	}
 	return sqlgraph.CountNodes(ctx, fq.driver, _spec)
 }
 
-func (fq *FailureQuery) sqlExist(ctx context.Context) (bool, error) {
-	switch _, err := fq.FirstID(ctx); {
-	case IsNotFound(err):
-		return false, nil
-	case err != nil:
-		return false, fmt.Errorf("ent: check existence: %w", err)
-	default:
-		return true, nil
-	}
-}
-
 func (fq *FailureQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := &sqlgraph.QuerySpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   failure.Table,
-			Columns: failure.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: failure.FieldID,
-			},
-		},
-		From:   fq.sql,
-		Unique: true,
-	}
-	if unique := fq.unique; unique != nil {
+	_spec := sqlgraph.NewQuerySpec(failure.Table, failure.Columns, sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt))
+	_spec.From = fq.sql
+	if unique := fq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
+	} else if fq.path != nil {
+		_spec.Unique = true
 	}
-	if fields := fq.fields; len(fields) > 0 {
+	if fields := fq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, failure.FieldID)
 		for i := range fields {
@@ -411,10 +405,10 @@ func (fq *FailureQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if limit := fq.limit; limit != nil {
+	if limit := fq.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := fq.offset; offset != nil {
+	if offset := fq.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
 	if ps := fq.order; len(ps) > 0 {
@@ -430,7 +424,7 @@ func (fq *FailureQuery) querySpec() *sqlgraph.QuerySpec {
 func (fq *FailureQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(fq.driver.Dialect())
 	t1 := builder.Table(failure.Table)
-	columns := fq.fields
+	columns := fq.ctx.Fields
 	if len(columns) == 0 {
 		columns = failure.Columns
 	}
@@ -439,7 +433,7 @@ func (fq *FailureQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector = fq.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if fq.unique != nil && *fq.unique {
+	if fq.ctx.Unique != nil && *fq.ctx.Unique {
 		selector.Distinct()
 	}
 	for _, p := range fq.predicates {
@@ -448,12 +442,12 @@ func (fq *FailureQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	for _, p := range fq.order {
 		p(selector)
 	}
-	if offset := fq.offset; offset != nil {
+	if offset := fq.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := fq.limit; limit != nil {
+	if limit := fq.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -461,13 +455,8 @@ func (fq *FailureQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // FailureGroupBy is the group-by builder for Failure entities.
 type FailureGroupBy struct {
-	config
 	selector
-	fields []string
-	fns    []AggregateFunc
-	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	build *FailureQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
@@ -476,58 +465,46 @@ func (fgb *FailureGroupBy) Aggregate(fns ...AggregateFunc) *FailureGroupBy {
 	return fgb
 }
 
-// Scan applies the group-by query and scans the result into the given value.
+// Scan applies the selector query and scans the result into the given value.
 func (fgb *FailureGroupBy) Scan(ctx context.Context, v any) error {
-	query, err := fgb.path(ctx)
-	if err != nil {
+	ctx = setContextOp(ctx, fgb.build.ctx, "GroupBy")
+	if err := fgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	fgb.sql = query
-	return fgb.sqlScan(ctx, v)
+	return scanWithInterceptors[*FailureQuery, *FailureGroupBy](ctx, fgb.build, fgb, fgb.build.inters, v)
 }
 
-func (fgb *FailureGroupBy) sqlScan(ctx context.Context, v any) error {
-	for _, f := range fgb.fields {
-		if !failure.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
-		}
+func (fgb *FailureGroupBy) sqlScan(ctx context.Context, root *FailureQuery, v any) error {
+	selector := root.sqlQuery(ctx).Select()
+	aggregation := make([]string, 0, len(fgb.fns))
+	for _, fn := range fgb.fns {
+		aggregation = append(aggregation, fn(selector))
 	}
-	selector := fgb.sqlQuery()
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(*fgb.flds)+len(fgb.fns))
+		for _, f := range *fgb.flds {
+			columns = append(columns, selector.C(f))
+		}
+		columns = append(columns, aggregation...)
+		selector.Select(columns...)
+	}
+	selector.GroupBy(selector.Columns(*fgb.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := fgb.driver.Query(ctx, query, args, rows); err != nil {
+	if err := fgb.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
 }
 
-func (fgb *FailureGroupBy) sqlQuery() *sql.Selector {
-	selector := fgb.sql.Select()
-	aggregation := make([]string, 0, len(fgb.fns))
-	for _, fn := range fgb.fns {
-		aggregation = append(aggregation, fn(selector))
-	}
-	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(fgb.fields)+len(fgb.fns))
-		for _, f := range fgb.fields {
-			columns = append(columns, selector.C(f))
-		}
-		columns = append(columns, aggregation...)
-		selector.Select(columns...)
-	}
-	return selector.GroupBy(selector.Columns(fgb.fields...)...)
-}
-
 // FailureSelect is the builder for selecting fields of Failure entities.
 type FailureSelect struct {
 	*FailureQuery
 	selector
-	// intermediate query (i.e. traversal path).
-	sql *sql.Selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
@@ -538,26 +515,27 @@ func (fs *FailureSelect) Aggregate(fns ...AggregateFunc) *FailureSelect {
 
 // Scan applies the selector query and scans the result into the given value.
 func (fs *FailureSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, fs.ctx, "Select")
 	if err := fs.prepareQuery(ctx); err != nil {
 		return err
 	}
-	fs.sql = fs.FailureQuery.sqlQuery(ctx)
-	return fs.sqlScan(ctx, v)
+	return scanWithInterceptors[*FailureQuery, *FailureSelect](ctx, fs.FailureQuery, fs, fs.inters, v)
 }
 
-func (fs *FailureSelect) sqlScan(ctx context.Context, v any) error {
+func (fs *FailureSelect) sqlScan(ctx context.Context, root *FailureQuery, v any) error {
+	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(fs.fns))
 	for _, fn := range fs.fns {
-		aggregation = append(aggregation, fn(fs.sql))
+		aggregation = append(aggregation, fn(selector))
 	}
 	switch n := len(*fs.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
-		fs.sql.Select(aggregation...)
+		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
-		fs.sql.AppendSelect(aggregation...)
+		selector.AppendSelect(aggregation...)
 	}
 	rows := &sql.Rows{}
-	query, args := fs.sql.Query()
+	query, args := selector.Query()
 	if err := fs.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}

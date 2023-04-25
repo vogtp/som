@@ -40,49 +40,7 @@ func (sc *StatusCreate) Mutation() *StatusMutation {
 
 // Save creates the Status in the database.
 func (sc *StatusCreate) Save(ctx context.Context) (*Status, error) {
-	var (
-		err  error
-		node *Status
-	)
-	if len(sc.hooks) == 0 {
-		if err = sc.check(); err != nil {
-			return nil, err
-		}
-		node, err = sc.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*StatusMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = sc.check(); err != nil {
-				return nil, err
-			}
-			sc.mutation = mutation
-			if node, err = sc.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(sc.hooks) - 1; i >= 0; i-- {
-			if sc.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = sc.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, sc.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Status)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from StatusMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Status, StatusMutation](ctx, sc.sqlSave, sc.mutation, sc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -119,6 +77,9 @@ func (sc *StatusCreate) check() error {
 }
 
 func (sc *StatusCreate) sqlSave(ctx context.Context) (*Status, error) {
+	if err := sc.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := sc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, sc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -128,19 +89,15 @@ func (sc *StatusCreate) sqlSave(ctx context.Context) (*Status, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	sc.mutation.id = &_node.ID
+	sc.mutation.done = true
 	return _node, nil
 }
 
 func (sc *StatusCreate) createSpec() (*Status, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Status{config: sc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: status.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: status.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(status.Table, sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = sc.conflict
 	if value, ok := sc.mutation.Name(); ok {
@@ -352,8 +309,8 @@ func (scb *StatusCreateBulk) Save(ctx context.Context) ([]*Status, error) {
 					return nil, err
 				}
 				builder.mutation = mutation
-				nodes[i], specs[i] = builder.createSpec()
 				var err error
+				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
 					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
 				} else {

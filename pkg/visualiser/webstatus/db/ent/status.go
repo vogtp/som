@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/status"
 )
@@ -21,6 +22,7 @@ type Status struct {
 	Value          string `json:"Value,omitempty"`
 	alert_stati    *int
 	incident_stati *int
+	selectValues   sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -37,7 +39,7 @@ func (*Status) scanValues(columns []string) ([]any, error) {
 		case status.ForeignKeys[1]: // incident_stati
 			values[i] = new(sql.NullInt64)
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Status", columns[i])
+			values[i] = new(sql.UnknownType)
 		}
 	}
 	return values, nil
@@ -83,16 +85,24 @@ func (s *Status) assignValues(columns []string, values []any) error {
 				s.incident_stati = new(int)
 				*s.incident_stati = int(value.Int64)
 			}
+		default:
+			s.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
+}
+
+// GetValue returns the ent.Value that was dynamically selected and assigned to the Status.
+// This includes values selected through modifiers, order, etc.
+func (s *Status) GetValue(name string) (ent.Value, error) {
+	return s.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Status.
 // Note that you need to call Status.Unwrap() before calling this method if this Status
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (s *Status) Update() *StatusUpdateOne {
-	return (&StatusClient{config: s.config}).UpdateOne(s)
+	return NewStatusClient(s.config).UpdateOne(s)
 }
 
 // Unwrap unwraps the Status entity that was returned from a transaction after it was closed,
@@ -122,9 +132,3 @@ func (s *Status) String() string {
 
 // StatusSlice is a parsable slice of Status.
 type StatusSlice []*Status
-
-func (s StatusSlice) config(cfg config) {
-	for _i := range s {
-		s[_i].config = cfg
-	}
-}

@@ -2,6 +2,11 @@
 
 package incident
 
+import (
+	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+)
+
 const (
 	// Label holds the string label denoting the incident type in the database.
 	Label = "incident"
@@ -99,4 +104,156 @@ func ValidColumn(column string) bool {
 		}
 	}
 	return false
+}
+
+// OrderOption defines the ordering options for the Incident queries.
+type OrderOption func(*sql.Selector)
+
+// ByID orders the results by the id field.
+func ByID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByUUID orders the results by the UUID field.
+func ByUUID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUUID, opts...).ToFunc()
+}
+
+// ByIncidentID orders the results by the IncidentID field.
+func ByIncidentID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIncidentID, opts...).ToFunc()
+}
+
+// ByName orders the results by the Name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByTime orders the results by the Time field.
+func ByTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTime, opts...).ToFunc()
+}
+
+// ByIntLevel orders the results by the IntLevel field.
+func ByIntLevel(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIntLevel, opts...).ToFunc()
+}
+
+// ByUsername orders the results by the Username field.
+func ByUsername(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUsername, opts...).ToFunc()
+}
+
+// ByRegion orders the results by the Region field.
+func ByRegion(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRegion, opts...).ToFunc()
+}
+
+// ByProbeOS orders the results by the ProbeOS field.
+func ByProbeOS(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProbeOS, opts...).ToFunc()
+}
+
+// ByProbeHost orders the results by the ProbeHost field.
+func ByProbeHost(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldProbeHost, opts...).ToFunc()
+}
+
+// ByError orders the results by the Error field.
+func ByError(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldError, opts...).ToFunc()
+}
+
+// ByStart orders the results by the Start field.
+func ByStart(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldStart, opts...).ToFunc()
+}
+
+// ByEnd orders the results by the End field.
+func ByEnd(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEnd, opts...).ToFunc()
+}
+
+// ByCountersCount orders the results by Counters count.
+func ByCountersCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newCountersStep(), opts...)
+	}
+}
+
+// ByCounters orders the results by Counters terms.
+func ByCounters(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCountersStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByStatiCount orders the results by Stati count.
+func ByStatiCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newStatiStep(), opts...)
+	}
+}
+
+// ByStati orders the results by Stati terms.
+func ByStati(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newStatiStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByFailuresCount orders the results by Failures count.
+func ByFailuresCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newFailuresStep(), opts...)
+	}
+}
+
+// ByFailures orders the results by Failures terms.
+func ByFailures(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFailuresStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByFilesCount orders the results by Files count.
+func ByFilesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newFilesStep(), opts...)
+	}
+}
+
+// ByFiles orders the results by Files terms.
+func ByFiles(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newFilesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newCountersStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CountersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, CountersTable, CountersColumn),
+	)
+}
+func newStatiStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(StatiInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, StatiTable, StatiColumn),
+	)
+}
+func newFailuresStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FailuresInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, FailuresTable, FailuresColumn),
+	)
+}
+func newFilesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(FilesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+	)
 }

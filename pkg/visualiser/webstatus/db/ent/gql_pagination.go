@@ -4,18 +4,14 @@ package ent
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
-	"fmt"
-	"io"
-	"strconv"
-	"strings"
 
+	"entgo.io/contrib/entgql"
+	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/errcode"
 	"github.com/vektah/gqlparser/v2/gqlerror"
-	"github.com/vmihailenco/msgpack/v5"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/counter"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/failure"
@@ -24,160 +20,18 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/status"
 )
 
-// OrderDirection defines the directions in which to order a list of items.
-type OrderDirection string
-
-const (
-	// OrderDirectionAsc specifies an ascending order.
-	OrderDirectionAsc OrderDirection = "ASC"
-	// OrderDirectionDesc specifies a descending order.
-	OrderDirectionDesc OrderDirection = "DESC"
+// Common entgql types.
+type (
+	Cursor         = entgql.Cursor[int]
+	PageInfo       = entgql.PageInfo[int]
+	OrderDirection = entgql.OrderDirection
 )
 
-// Validate the order direction value.
-func (o OrderDirection) Validate() error {
-	if o != OrderDirectionAsc && o != OrderDirectionDesc {
-		return fmt.Errorf("%s is not a valid OrderDirection", o)
-	}
-	return nil
-}
-
-// String implements fmt.Stringer interface.
-func (o OrderDirection) String() string {
-	return string(o)
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (o OrderDirection) MarshalGQL(w io.Writer) {
-	io.WriteString(w, strconv.Quote(o.String()))
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (o *OrderDirection) UnmarshalGQL(val interface{}) error {
-	str, ok := val.(string)
-	if !ok {
-		return fmt.Errorf("order direction %T must be a string", val)
-	}
-	*o = OrderDirection(str)
-	return o.Validate()
-}
-
-func (o OrderDirection) reverse() OrderDirection {
-	if o == OrderDirectionDesc {
-		return OrderDirectionAsc
-	}
-	return OrderDirectionDesc
-}
-
-func (o OrderDirection) orderFunc(field string) OrderFunc {
-	if o == OrderDirectionDesc {
+func orderFunc(o OrderDirection, field string) func(*sql.Selector) {
+	if o == entgql.OrderDirectionDesc {
 		return Desc(field)
 	}
 	return Asc(field)
-}
-
-func cursorsToPredicates(direction OrderDirection, after, before *Cursor, field, idField string) []func(s *sql.Selector) {
-	var predicates []func(s *sql.Selector)
-	if after != nil {
-		if after.Value != nil {
-			var predicate func([]string, ...interface{}) *sql.Predicate
-			if direction == OrderDirectionAsc {
-				predicate = sql.CompositeGT
-			} else {
-				predicate = sql.CompositeLT
-			}
-			predicates = append(predicates, func(s *sql.Selector) {
-				s.Where(predicate(
-					s.Columns(field, idField),
-					after.Value, after.ID,
-				))
-			})
-		} else {
-			var predicate func(string, interface{}) *sql.Predicate
-			if direction == OrderDirectionAsc {
-				predicate = sql.GT
-			} else {
-				predicate = sql.LT
-			}
-			predicates = append(predicates, func(s *sql.Selector) {
-				s.Where(predicate(
-					s.C(idField),
-					after.ID,
-				))
-			})
-		}
-	}
-	if before != nil {
-		if before.Value != nil {
-			var predicate func([]string, ...interface{}) *sql.Predicate
-			if direction == OrderDirectionAsc {
-				predicate = sql.CompositeLT
-			} else {
-				predicate = sql.CompositeGT
-			}
-			predicates = append(predicates, func(s *sql.Selector) {
-				s.Where(predicate(
-					s.Columns(field, idField),
-					before.Value, before.ID,
-				))
-			})
-		} else {
-			var predicate func(string, interface{}) *sql.Predicate
-			if direction == OrderDirectionAsc {
-				predicate = sql.LT
-			} else {
-				predicate = sql.GT
-			}
-			predicates = append(predicates, func(s *sql.Selector) {
-				s.Where(predicate(
-					s.C(idField),
-					before.ID,
-				))
-			})
-		}
-	}
-	return predicates
-}
-
-// PageInfo of a connection type.
-type PageInfo struct {
-	HasNextPage     bool    `json:"hasNextPage"`
-	HasPreviousPage bool    `json:"hasPreviousPage"`
-	StartCursor     *Cursor `json:"startCursor"`
-	EndCursor       *Cursor `json:"endCursor"`
-}
-
-// Cursor of an edge type.
-type Cursor struct {
-	ID    int   `msgpack:"i"`
-	Value Value `msgpack:"v,omitempty"`
-}
-
-// MarshalGQL implements graphql.Marshaler interface.
-func (c Cursor) MarshalGQL(w io.Writer) {
-	quote := []byte{'"'}
-	w.Write(quote)
-	defer w.Write(quote)
-	wc := base64.NewEncoder(base64.RawStdEncoding, w)
-	defer wc.Close()
-	_ = msgpack.NewEncoder(wc).Encode(c)
-}
-
-// UnmarshalGQL implements graphql.Unmarshaler interface.
-func (c *Cursor) UnmarshalGQL(v interface{}) error {
-	s, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("%T is not a string", v)
-	}
-	if err := msgpack.NewDecoder(
-		base64.NewDecoder(
-			base64.RawStdEncoding,
-			strings.NewReader(s),
-		),
-	).Decode(c); err != nil {
-		return fmt.Errorf("cannot decode cursor: %w", err)
-	}
-	return nil
 }
 
 const errInvalidPagination = "INVALID_PAGINATION"
@@ -330,12 +184,13 @@ func WithAlertFilter(filter func(*AlertQuery) (*AlertQuery, error)) AlertPaginat
 }
 
 type alertPager struct {
-	order  *AlertOrder
-	filter func(*AlertQuery) (*AlertQuery, error)
+	reverse bool
+	order   *AlertOrder
+	filter  func(*AlertQuery) (*AlertQuery, error)
 }
 
-func newAlertPager(opts []AlertPaginateOption) (*alertPager, error) {
-	pager := &alertPager{}
+func newAlertPager(opts []AlertPaginateOption, reverse bool) (*alertPager, error) {
+	pager := &alertPager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
@@ -358,37 +213,38 @@ func (p *alertPager) toCursor(a *Alert) Cursor {
 	return p.order.Field.toCursor(a)
 }
 
-func (p *alertPager) applyCursors(query *AlertQuery, after, before *Cursor) *AlertQuery {
-	for _, predicate := range cursorsToPredicates(
-		p.order.Direction, after, before,
-		p.order.Field.field, DefaultAlertOrder.Field.field,
-	) {
+func (p *alertPager) applyCursors(query *AlertQuery, after, before *Cursor) (*AlertQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultAlertOrder.Field.column, p.order.Field.column, direction) {
 		query = query.Where(predicate)
 	}
-	return query
+	return query, nil
 }
 
-func (p *alertPager) applyOrder(query *AlertQuery, reverse bool) *AlertQuery {
+func (p *alertPager) applyOrder(query *AlertQuery) *AlertQuery {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
-	query = query.Order(direction.orderFunc(p.order.Field.field))
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
 	if p.order.Field != DefaultAlertOrder.Field {
-		query = query.Order(direction.orderFunc(DefaultAlertOrder.Field.field))
+		query = query.Order(DefaultAlertOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	return query
 }
 
-func (p *alertPager) orderExpr(reverse bool) sql.Querier {
+func (p *alertPager) orderExpr(query *AlertQuery) sql.Querier {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
 	return sql.ExprFunc(func(b *sql.Builder) {
-		b.Ident(p.order.Field.field).Pad().WriteString(string(direction))
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
 		if p.order.Field != DefaultAlertOrder.Field {
-			b.Comma().Ident(DefaultAlertOrder.Field.field).Pad().WriteString(string(direction))
+			b.Comma().Ident(DefaultAlertOrder.Field.column).Pad().WriteString(string(direction))
 		}
 	})
 }
@@ -401,7 +257,7 @@ func (a *AlertQuery) Paginate(
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newAlertPager(opts)
+	pager, err := newAlertPager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
@@ -413,7 +269,7 @@ func (a *AlertQuery) Paginate(
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
 		if hasPagination || ignoredEdges {
-			if conn.TotalCount, err = a.Count(ctx); err != nil {
+			if conn.TotalCount, err = a.Clone().Count(ctx); err != nil {
 				return nil, err
 			}
 			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
@@ -424,8 +280,10 @@ func (a *AlertQuery) Paginate(
 		return conn, nil
 	}
 
-	a = pager.applyCursors(a, after, before)
-	a = pager.applyOrder(a, last != nil)
+	if a, err = pager.applyCursors(a, after, before); err != nil {
+		return nil, err
+	}
+	a = pager.applyOrder(a)
 	if limit := paginateLimit(first, last); limit != 0 {
 		a.Limit(limit)
 	}
@@ -445,7 +303,10 @@ func (a *AlertQuery) Paginate(
 
 // AlertOrderField defines the ordering field of Alert.
 type AlertOrderField struct {
-	field    string
+	// Value extracts the ordering value from the given Alert.
+	Value    func(*Alert) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) alert.OrderOption
 	toCursor func(*Alert) Cursor
 }
 
@@ -457,9 +318,13 @@ type AlertOrder struct {
 
 // DefaultAlertOrder is the default ordering of Alert.
 var DefaultAlertOrder = &AlertOrder{
-	Direction: OrderDirectionAsc,
+	Direction: entgql.OrderDirectionAsc,
 	Field: &AlertOrderField{
-		field: alert.FieldID,
+		Value: func(a *Alert) (ent.Value, error) {
+			return a.ID, nil
+		},
+		column: alert.FieldID,
+		toTerm: alert.ByID,
 		toCursor: func(a *Alert) Cursor {
 			return Cursor{ID: a.ID}
 		},
@@ -561,12 +426,13 @@ func WithCounterFilter(filter func(*CounterQuery) (*CounterQuery, error)) Counte
 }
 
 type counterPager struct {
-	order  *CounterOrder
-	filter func(*CounterQuery) (*CounterQuery, error)
+	reverse bool
+	order   *CounterOrder
+	filter  func(*CounterQuery) (*CounterQuery, error)
 }
 
-func newCounterPager(opts []CounterPaginateOption) (*counterPager, error) {
-	pager := &counterPager{}
+func newCounterPager(opts []CounterPaginateOption, reverse bool) (*counterPager, error) {
+	pager := &counterPager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
@@ -589,37 +455,38 @@ func (p *counterPager) toCursor(c *Counter) Cursor {
 	return p.order.Field.toCursor(c)
 }
 
-func (p *counterPager) applyCursors(query *CounterQuery, after, before *Cursor) *CounterQuery {
-	for _, predicate := range cursorsToPredicates(
-		p.order.Direction, after, before,
-		p.order.Field.field, DefaultCounterOrder.Field.field,
-	) {
+func (p *counterPager) applyCursors(query *CounterQuery, after, before *Cursor) (*CounterQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultCounterOrder.Field.column, p.order.Field.column, direction) {
 		query = query.Where(predicate)
 	}
-	return query
+	return query, nil
 }
 
-func (p *counterPager) applyOrder(query *CounterQuery, reverse bool) *CounterQuery {
+func (p *counterPager) applyOrder(query *CounterQuery) *CounterQuery {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
-	query = query.Order(direction.orderFunc(p.order.Field.field))
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
 	if p.order.Field != DefaultCounterOrder.Field {
-		query = query.Order(direction.orderFunc(DefaultCounterOrder.Field.field))
+		query = query.Order(DefaultCounterOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	return query
 }
 
-func (p *counterPager) orderExpr(reverse bool) sql.Querier {
+func (p *counterPager) orderExpr(query *CounterQuery) sql.Querier {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
 	return sql.ExprFunc(func(b *sql.Builder) {
-		b.Ident(p.order.Field.field).Pad().WriteString(string(direction))
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
 		if p.order.Field != DefaultCounterOrder.Field {
-			b.Comma().Ident(DefaultCounterOrder.Field.field).Pad().WriteString(string(direction))
+			b.Comma().Ident(DefaultCounterOrder.Field.column).Pad().WriteString(string(direction))
 		}
 	})
 }
@@ -632,7 +499,7 @@ func (c *CounterQuery) Paginate(
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newCounterPager(opts)
+	pager, err := newCounterPager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
@@ -644,7 +511,7 @@ func (c *CounterQuery) Paginate(
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
 		if hasPagination || ignoredEdges {
-			if conn.TotalCount, err = c.Count(ctx); err != nil {
+			if conn.TotalCount, err = c.Clone().Count(ctx); err != nil {
 				return nil, err
 			}
 			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
@@ -655,8 +522,10 @@ func (c *CounterQuery) Paginate(
 		return conn, nil
 	}
 
-	c = pager.applyCursors(c, after, before)
-	c = pager.applyOrder(c, last != nil)
+	if c, err = pager.applyCursors(c, after, before); err != nil {
+		return nil, err
+	}
+	c = pager.applyOrder(c)
 	if limit := paginateLimit(first, last); limit != 0 {
 		c.Limit(limit)
 	}
@@ -676,7 +545,10 @@ func (c *CounterQuery) Paginate(
 
 // CounterOrderField defines the ordering field of Counter.
 type CounterOrderField struct {
-	field    string
+	// Value extracts the ordering value from the given Counter.
+	Value    func(*Counter) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) counter.OrderOption
 	toCursor func(*Counter) Cursor
 }
 
@@ -688,9 +560,13 @@ type CounterOrder struct {
 
 // DefaultCounterOrder is the default ordering of Counter.
 var DefaultCounterOrder = &CounterOrder{
-	Direction: OrderDirectionAsc,
+	Direction: entgql.OrderDirectionAsc,
 	Field: &CounterOrderField{
-		field: counter.FieldID,
+		Value: func(c *Counter) (ent.Value, error) {
+			return c.ID, nil
+		},
+		column: counter.FieldID,
+		toTerm: counter.ByID,
 		toCursor: func(c *Counter) Cursor {
 			return Cursor{ID: c.ID}
 		},
@@ -792,12 +668,13 @@ func WithFailureFilter(filter func(*FailureQuery) (*FailureQuery, error)) Failur
 }
 
 type failurePager struct {
-	order  *FailureOrder
-	filter func(*FailureQuery) (*FailureQuery, error)
+	reverse bool
+	order   *FailureOrder
+	filter  func(*FailureQuery) (*FailureQuery, error)
 }
 
-func newFailurePager(opts []FailurePaginateOption) (*failurePager, error) {
-	pager := &failurePager{}
+func newFailurePager(opts []FailurePaginateOption, reverse bool) (*failurePager, error) {
+	pager := &failurePager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
@@ -820,37 +697,38 @@ func (p *failurePager) toCursor(f *Failure) Cursor {
 	return p.order.Field.toCursor(f)
 }
 
-func (p *failurePager) applyCursors(query *FailureQuery, after, before *Cursor) *FailureQuery {
-	for _, predicate := range cursorsToPredicates(
-		p.order.Direction, after, before,
-		p.order.Field.field, DefaultFailureOrder.Field.field,
-	) {
+func (p *failurePager) applyCursors(query *FailureQuery, after, before *Cursor) (*FailureQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultFailureOrder.Field.column, p.order.Field.column, direction) {
 		query = query.Where(predicate)
 	}
-	return query
+	return query, nil
 }
 
-func (p *failurePager) applyOrder(query *FailureQuery, reverse bool) *FailureQuery {
+func (p *failurePager) applyOrder(query *FailureQuery) *FailureQuery {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
-	query = query.Order(direction.orderFunc(p.order.Field.field))
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
 	if p.order.Field != DefaultFailureOrder.Field {
-		query = query.Order(direction.orderFunc(DefaultFailureOrder.Field.field))
+		query = query.Order(DefaultFailureOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	return query
 }
 
-func (p *failurePager) orderExpr(reverse bool) sql.Querier {
+func (p *failurePager) orderExpr(query *FailureQuery) sql.Querier {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
 	return sql.ExprFunc(func(b *sql.Builder) {
-		b.Ident(p.order.Field.field).Pad().WriteString(string(direction))
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
 		if p.order.Field != DefaultFailureOrder.Field {
-			b.Comma().Ident(DefaultFailureOrder.Field.field).Pad().WriteString(string(direction))
+			b.Comma().Ident(DefaultFailureOrder.Field.column).Pad().WriteString(string(direction))
 		}
 	})
 }
@@ -863,7 +741,7 @@ func (f *FailureQuery) Paginate(
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newFailurePager(opts)
+	pager, err := newFailurePager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
@@ -875,7 +753,7 @@ func (f *FailureQuery) Paginate(
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
 		if hasPagination || ignoredEdges {
-			if conn.TotalCount, err = f.Count(ctx); err != nil {
+			if conn.TotalCount, err = f.Clone().Count(ctx); err != nil {
 				return nil, err
 			}
 			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
@@ -886,8 +764,10 @@ func (f *FailureQuery) Paginate(
 		return conn, nil
 	}
 
-	f = pager.applyCursors(f, after, before)
-	f = pager.applyOrder(f, last != nil)
+	if f, err = pager.applyCursors(f, after, before); err != nil {
+		return nil, err
+	}
+	f = pager.applyOrder(f)
 	if limit := paginateLimit(first, last); limit != 0 {
 		f.Limit(limit)
 	}
@@ -907,7 +787,10 @@ func (f *FailureQuery) Paginate(
 
 // FailureOrderField defines the ordering field of Failure.
 type FailureOrderField struct {
-	field    string
+	// Value extracts the ordering value from the given Failure.
+	Value    func(*Failure) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) failure.OrderOption
 	toCursor func(*Failure) Cursor
 }
 
@@ -919,9 +802,13 @@ type FailureOrder struct {
 
 // DefaultFailureOrder is the default ordering of Failure.
 var DefaultFailureOrder = &FailureOrder{
-	Direction: OrderDirectionAsc,
+	Direction: entgql.OrderDirectionAsc,
 	Field: &FailureOrderField{
-		field: failure.FieldID,
+		Value: func(f *Failure) (ent.Value, error) {
+			return f.ID, nil
+		},
+		column: failure.FieldID,
+		toTerm: failure.ByID,
 		toCursor: func(f *Failure) Cursor {
 			return Cursor{ID: f.ID}
 		},
@@ -1023,12 +910,13 @@ func WithFileFilter(filter func(*FileQuery) (*FileQuery, error)) FilePaginateOpt
 }
 
 type filePager struct {
-	order  *FileOrder
-	filter func(*FileQuery) (*FileQuery, error)
+	reverse bool
+	order   *FileOrder
+	filter  func(*FileQuery) (*FileQuery, error)
 }
 
-func newFilePager(opts []FilePaginateOption) (*filePager, error) {
-	pager := &filePager{}
+func newFilePager(opts []FilePaginateOption, reverse bool) (*filePager, error) {
+	pager := &filePager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
@@ -1051,37 +939,38 @@ func (p *filePager) toCursor(f *File) Cursor {
 	return p.order.Field.toCursor(f)
 }
 
-func (p *filePager) applyCursors(query *FileQuery, after, before *Cursor) *FileQuery {
-	for _, predicate := range cursorsToPredicates(
-		p.order.Direction, after, before,
-		p.order.Field.field, DefaultFileOrder.Field.field,
-	) {
+func (p *filePager) applyCursors(query *FileQuery, after, before *Cursor) (*FileQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultFileOrder.Field.column, p.order.Field.column, direction) {
 		query = query.Where(predicate)
 	}
-	return query
+	return query, nil
 }
 
-func (p *filePager) applyOrder(query *FileQuery, reverse bool) *FileQuery {
+func (p *filePager) applyOrder(query *FileQuery) *FileQuery {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
-	query = query.Order(direction.orderFunc(p.order.Field.field))
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
 	if p.order.Field != DefaultFileOrder.Field {
-		query = query.Order(direction.orderFunc(DefaultFileOrder.Field.field))
+		query = query.Order(DefaultFileOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	return query
 }
 
-func (p *filePager) orderExpr(reverse bool) sql.Querier {
+func (p *filePager) orderExpr(query *FileQuery) sql.Querier {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
 	return sql.ExprFunc(func(b *sql.Builder) {
-		b.Ident(p.order.Field.field).Pad().WriteString(string(direction))
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
 		if p.order.Field != DefaultFileOrder.Field {
-			b.Comma().Ident(DefaultFileOrder.Field.field).Pad().WriteString(string(direction))
+			b.Comma().Ident(DefaultFileOrder.Field.column).Pad().WriteString(string(direction))
 		}
 	})
 }
@@ -1094,7 +983,7 @@ func (f *FileQuery) Paginate(
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newFilePager(opts)
+	pager, err := newFilePager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1106,7 +995,7 @@ func (f *FileQuery) Paginate(
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
 		if hasPagination || ignoredEdges {
-			if conn.TotalCount, err = f.Count(ctx); err != nil {
+			if conn.TotalCount, err = f.Clone().Count(ctx); err != nil {
 				return nil, err
 			}
 			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
@@ -1117,8 +1006,10 @@ func (f *FileQuery) Paginate(
 		return conn, nil
 	}
 
-	f = pager.applyCursors(f, after, before)
-	f = pager.applyOrder(f, last != nil)
+	if f, err = pager.applyCursors(f, after, before); err != nil {
+		return nil, err
+	}
+	f = pager.applyOrder(f)
 	if limit := paginateLimit(first, last); limit != 0 {
 		f.Limit(limit)
 	}
@@ -1138,7 +1029,10 @@ func (f *FileQuery) Paginate(
 
 // FileOrderField defines the ordering field of File.
 type FileOrderField struct {
-	field    string
+	// Value extracts the ordering value from the given File.
+	Value    func(*File) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) file.OrderOption
 	toCursor func(*File) Cursor
 }
 
@@ -1150,9 +1044,13 @@ type FileOrder struct {
 
 // DefaultFileOrder is the default ordering of File.
 var DefaultFileOrder = &FileOrder{
-	Direction: OrderDirectionAsc,
+	Direction: entgql.OrderDirectionAsc,
 	Field: &FileOrderField{
-		field: file.FieldID,
+		Value: func(f *File) (ent.Value, error) {
+			return f.ID, nil
+		},
+		column: file.FieldID,
+		toTerm: file.ByID,
 		toCursor: func(f *File) Cursor {
 			return Cursor{ID: f.ID}
 		},
@@ -1254,12 +1152,13 @@ func WithIncidentFilter(filter func(*IncidentQuery) (*IncidentQuery, error)) Inc
 }
 
 type incidentPager struct {
-	order  *IncidentOrder
-	filter func(*IncidentQuery) (*IncidentQuery, error)
+	reverse bool
+	order   *IncidentOrder
+	filter  func(*IncidentQuery) (*IncidentQuery, error)
 }
 
-func newIncidentPager(opts []IncidentPaginateOption) (*incidentPager, error) {
-	pager := &incidentPager{}
+func newIncidentPager(opts []IncidentPaginateOption, reverse bool) (*incidentPager, error) {
+	pager := &incidentPager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
@@ -1282,37 +1181,38 @@ func (p *incidentPager) toCursor(i *Incident) Cursor {
 	return p.order.Field.toCursor(i)
 }
 
-func (p *incidentPager) applyCursors(query *IncidentQuery, after, before *Cursor) *IncidentQuery {
-	for _, predicate := range cursorsToPredicates(
-		p.order.Direction, after, before,
-		p.order.Field.field, DefaultIncidentOrder.Field.field,
-	) {
+func (p *incidentPager) applyCursors(query *IncidentQuery, after, before *Cursor) (*IncidentQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultIncidentOrder.Field.column, p.order.Field.column, direction) {
 		query = query.Where(predicate)
 	}
-	return query
+	return query, nil
 }
 
-func (p *incidentPager) applyOrder(query *IncidentQuery, reverse bool) *IncidentQuery {
+func (p *incidentPager) applyOrder(query *IncidentQuery) *IncidentQuery {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
-	query = query.Order(direction.orderFunc(p.order.Field.field))
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
 	if p.order.Field != DefaultIncidentOrder.Field {
-		query = query.Order(direction.orderFunc(DefaultIncidentOrder.Field.field))
+		query = query.Order(DefaultIncidentOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	return query
 }
 
-func (p *incidentPager) orderExpr(reverse bool) sql.Querier {
+func (p *incidentPager) orderExpr(query *IncidentQuery) sql.Querier {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
 	return sql.ExprFunc(func(b *sql.Builder) {
-		b.Ident(p.order.Field.field).Pad().WriteString(string(direction))
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
 		if p.order.Field != DefaultIncidentOrder.Field {
-			b.Comma().Ident(DefaultIncidentOrder.Field.field).Pad().WriteString(string(direction))
+			b.Comma().Ident(DefaultIncidentOrder.Field.column).Pad().WriteString(string(direction))
 		}
 	})
 }
@@ -1325,7 +1225,7 @@ func (i *IncidentQuery) Paginate(
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newIncidentPager(opts)
+	pager, err := newIncidentPager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1337,7 +1237,7 @@ func (i *IncidentQuery) Paginate(
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
 		if hasPagination || ignoredEdges {
-			if conn.TotalCount, err = i.Count(ctx); err != nil {
+			if conn.TotalCount, err = i.Clone().Count(ctx); err != nil {
 				return nil, err
 			}
 			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
@@ -1348,8 +1248,10 @@ func (i *IncidentQuery) Paginate(
 		return conn, nil
 	}
 
-	i = pager.applyCursors(i, after, before)
-	i = pager.applyOrder(i, last != nil)
+	if i, err = pager.applyCursors(i, after, before); err != nil {
+		return nil, err
+	}
+	i = pager.applyOrder(i)
 	if limit := paginateLimit(first, last); limit != 0 {
 		i.Limit(limit)
 	}
@@ -1369,7 +1271,10 @@ func (i *IncidentQuery) Paginate(
 
 // IncidentOrderField defines the ordering field of Incident.
 type IncidentOrderField struct {
-	field    string
+	// Value extracts the ordering value from the given Incident.
+	Value    func(*Incident) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) incident.OrderOption
 	toCursor func(*Incident) Cursor
 }
 
@@ -1381,9 +1286,13 @@ type IncidentOrder struct {
 
 // DefaultIncidentOrder is the default ordering of Incident.
 var DefaultIncidentOrder = &IncidentOrder{
-	Direction: OrderDirectionAsc,
+	Direction: entgql.OrderDirectionAsc,
 	Field: &IncidentOrderField{
-		field: incident.FieldID,
+		Value: func(i *Incident) (ent.Value, error) {
+			return i.ID, nil
+		},
+		column: incident.FieldID,
+		toTerm: incident.ByID,
 		toCursor: func(i *Incident) Cursor {
 			return Cursor{ID: i.ID}
 		},
@@ -1485,12 +1394,13 @@ func WithStatusFilter(filter func(*StatusQuery) (*StatusQuery, error)) StatusPag
 }
 
 type statusPager struct {
-	order  *StatusOrder
-	filter func(*StatusQuery) (*StatusQuery, error)
+	reverse bool
+	order   *StatusOrder
+	filter  func(*StatusQuery) (*StatusQuery, error)
 }
 
-func newStatusPager(opts []StatusPaginateOption) (*statusPager, error) {
-	pager := &statusPager{}
+func newStatusPager(opts []StatusPaginateOption, reverse bool) (*statusPager, error) {
+	pager := &statusPager{reverse: reverse}
 	for _, opt := range opts {
 		if err := opt(pager); err != nil {
 			return nil, err
@@ -1513,37 +1423,38 @@ func (p *statusPager) toCursor(s *Status) Cursor {
 	return p.order.Field.toCursor(s)
 }
 
-func (p *statusPager) applyCursors(query *StatusQuery, after, before *Cursor) *StatusQuery {
-	for _, predicate := range cursorsToPredicates(
-		p.order.Direction, after, before,
-		p.order.Field.field, DefaultStatusOrder.Field.field,
-	) {
+func (p *statusPager) applyCursors(query *StatusQuery, after, before *Cursor) (*StatusQuery, error) {
+	direction := p.order.Direction
+	if p.reverse {
+		direction = direction.Reverse()
+	}
+	for _, predicate := range entgql.CursorsPredicate(after, before, DefaultStatusOrder.Field.column, p.order.Field.column, direction) {
 		query = query.Where(predicate)
 	}
-	return query
+	return query, nil
 }
 
-func (p *statusPager) applyOrder(query *StatusQuery, reverse bool) *StatusQuery {
+func (p *statusPager) applyOrder(query *StatusQuery) *StatusQuery {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
-	query = query.Order(direction.orderFunc(p.order.Field.field))
+	query = query.Order(p.order.Field.toTerm(direction.OrderTermOption()))
 	if p.order.Field != DefaultStatusOrder.Field {
-		query = query.Order(direction.orderFunc(DefaultStatusOrder.Field.field))
+		query = query.Order(DefaultStatusOrder.Field.toTerm(direction.OrderTermOption()))
 	}
 	return query
 }
 
-func (p *statusPager) orderExpr(reverse bool) sql.Querier {
+func (p *statusPager) orderExpr(query *StatusQuery) sql.Querier {
 	direction := p.order.Direction
-	if reverse {
-		direction = direction.reverse()
+	if p.reverse {
+		direction = direction.Reverse()
 	}
 	return sql.ExprFunc(func(b *sql.Builder) {
-		b.Ident(p.order.Field.field).Pad().WriteString(string(direction))
+		b.Ident(p.order.Field.column).Pad().WriteString(string(direction))
 		if p.order.Field != DefaultStatusOrder.Field {
-			b.Comma().Ident(DefaultStatusOrder.Field.field).Pad().WriteString(string(direction))
+			b.Comma().Ident(DefaultStatusOrder.Field.column).Pad().WriteString(string(direction))
 		}
 	})
 }
@@ -1556,7 +1467,7 @@ func (s *StatusQuery) Paginate(
 	if err := validateFirstLast(first, last); err != nil {
 		return nil, err
 	}
-	pager, err := newStatusPager(opts)
+	pager, err := newStatusPager(opts, last != nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1568,7 +1479,7 @@ func (s *StatusQuery) Paginate(
 	if hasCollectedField(ctx, totalCountField) || hasCollectedField(ctx, pageInfoField) {
 		hasPagination := after != nil || first != nil || before != nil || last != nil
 		if hasPagination || ignoredEdges {
-			if conn.TotalCount, err = s.Count(ctx); err != nil {
+			if conn.TotalCount, err = s.Clone().Count(ctx); err != nil {
 				return nil, err
 			}
 			conn.PageInfo.HasNextPage = first != nil && conn.TotalCount > 0
@@ -1579,8 +1490,10 @@ func (s *StatusQuery) Paginate(
 		return conn, nil
 	}
 
-	s = pager.applyCursors(s, after, before)
-	s = pager.applyOrder(s, last != nil)
+	if s, err = pager.applyCursors(s, after, before); err != nil {
+		return nil, err
+	}
+	s = pager.applyOrder(s)
 	if limit := paginateLimit(first, last); limit != 0 {
 		s.Limit(limit)
 	}
@@ -1600,7 +1513,10 @@ func (s *StatusQuery) Paginate(
 
 // StatusOrderField defines the ordering field of Status.
 type StatusOrderField struct {
-	field    string
+	// Value extracts the ordering value from the given Status.
+	Value    func(*Status) (ent.Value, error)
+	column   string // field or computed.
+	toTerm   func(...sql.OrderTermOption) status.OrderOption
 	toCursor func(*Status) Cursor
 }
 
@@ -1612,9 +1528,13 @@ type StatusOrder struct {
 
 // DefaultStatusOrder is the default ordering of Status.
 var DefaultStatusOrder = &StatusOrder{
-	Direction: OrderDirectionAsc,
+	Direction: entgql.OrderDirectionAsc,
 	Field: &StatusOrderField{
-		field: status.FieldID,
+		Value: func(s *Status) (ent.Value, error) {
+			return s.ID, nil
+		},
+		column: status.FieldID,
+		toTerm: status.ByID,
 		toCursor: func(s *Status) Cursor {
 			return Cursor{ID: s.ID}
 		},

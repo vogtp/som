@@ -7,6 +7,12 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/counter"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/failure"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/file"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
+	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/status"
 )
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
@@ -21,17 +27,22 @@ func (a *AlertQuery) CollectFields(ctx context.Context, satisfies ...string) (*A
 	return a, nil
 }
 
-func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
+func (a *AlertQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
-	for _, field := range graphql.CollectFields(op, field.Selections, satisfies) {
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(alert.Columns))
+		selectedFields = []string{alert.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
 		case "counters":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &CounterQuery{config: a.config}
+				query = (&CounterClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			a.WithNamedCounters(alias, func(wq *CounterQuery) {
@@ -41,9 +52,9 @@ func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationCont
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &StatusQuery{config: a.config}
+				query = (&StatusClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			a.WithNamedStati(alias, func(wq *StatusQuery) {
@@ -53,9 +64,9 @@ func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationCont
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &FailureQuery{config: a.config}
+				query = (&FailureClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			a.WithNamedFailures(alias, func(wq *FailureQuery) {
@@ -65,15 +76,70 @@ func (a *AlertQuery) collectField(ctx context.Context, op *graphql.OperationCont
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &FileQuery{config: a.config}
+				query = (&FileClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			a.WithNamedFiles(alias, func(wq *FileQuery) {
 				*wq = *query
 			})
+		case "uuid":
+			if _, ok := fieldSeen[alert.FieldUUID]; !ok {
+				selectedFields = append(selectedFields, alert.FieldUUID)
+				fieldSeen[alert.FieldUUID] = struct{}{}
+			}
+		case "incidentid":
+			if _, ok := fieldSeen[alert.FieldIncidentID]; !ok {
+				selectedFields = append(selectedFields, alert.FieldIncidentID)
+				fieldSeen[alert.FieldIncidentID] = struct{}{}
+			}
+		case "name":
+			if _, ok := fieldSeen[alert.FieldName]; !ok {
+				selectedFields = append(selectedFields, alert.FieldName)
+				fieldSeen[alert.FieldName] = struct{}{}
+			}
+		case "time":
+			if _, ok := fieldSeen[alert.FieldTime]; !ok {
+				selectedFields = append(selectedFields, alert.FieldTime)
+				fieldSeen[alert.FieldTime] = struct{}{}
+			}
+		case "intlevel":
+			if _, ok := fieldSeen[alert.FieldIntLevel]; !ok {
+				selectedFields = append(selectedFields, alert.FieldIntLevel)
+				fieldSeen[alert.FieldIntLevel] = struct{}{}
+			}
+		case "username":
+			if _, ok := fieldSeen[alert.FieldUsername]; !ok {
+				selectedFields = append(selectedFields, alert.FieldUsername)
+				fieldSeen[alert.FieldUsername] = struct{}{}
+			}
+		case "region":
+			if _, ok := fieldSeen[alert.FieldRegion]; !ok {
+				selectedFields = append(selectedFields, alert.FieldRegion)
+				fieldSeen[alert.FieldRegion] = struct{}{}
+			}
+		case "probeos":
+			if _, ok := fieldSeen[alert.FieldProbeOS]; !ok {
+				selectedFields = append(selectedFields, alert.FieldProbeOS)
+				fieldSeen[alert.FieldProbeOS] = struct{}{}
+			}
+		case "probehost":
+			if _, ok := fieldSeen[alert.FieldProbeHost]; !ok {
+				selectedFields = append(selectedFields, alert.FieldProbeHost)
+				fieldSeen[alert.FieldProbeHost] = struct{}{}
+			}
+		case "error":
+			if _, ok := fieldSeen[alert.FieldError]; !ok {
+				selectedFields = append(selectedFields, alert.FieldError)
+				fieldSeen[alert.FieldError] = struct{}{}
+			}
+		default:
+			unknownSeen = true
 		}
+	}
+	if !unknownSeen {
+		a.Select(selectedFields...)
 	}
 	return nil
 }
@@ -116,8 +182,32 @@ func (c *CounterQuery) CollectFields(ctx context.Context, satisfies ...string) (
 	return c, nil
 }
 
-func (c *CounterQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
+func (c *CounterQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(counter.Columns))
+		selectedFields = []string{counter.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+		case "name":
+			if _, ok := fieldSeen[counter.FieldName]; !ok {
+				selectedFields = append(selectedFields, counter.FieldName)
+				fieldSeen[counter.FieldName] = struct{}{}
+			}
+		case "value":
+			if _, ok := fieldSeen[counter.FieldValue]; !ok {
+				selectedFields = append(selectedFields, counter.FieldValue)
+				fieldSeen[counter.FieldValue] = struct{}{}
+			}
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		c.Select(selectedFields...)
+	}
 	return nil
 }
 
@@ -159,8 +249,32 @@ func (f *FailureQuery) CollectFields(ctx context.Context, satisfies ...string) (
 	return f, nil
 }
 
-func (f *FailureQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
+func (f *FailureQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(failure.Columns))
+		selectedFields = []string{failure.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+		case "error":
+			if _, ok := fieldSeen[failure.FieldError]; !ok {
+				selectedFields = append(selectedFields, failure.FieldError)
+				fieldSeen[failure.FieldError] = struct{}{}
+			}
+		case "idx":
+			if _, ok := fieldSeen[failure.FieldIdx]; !ok {
+				selectedFields = append(selectedFields, failure.FieldIdx)
+				fieldSeen[failure.FieldIdx] = struct{}{}
+			}
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		f.Select(selectedFields...)
+	}
 	return nil
 }
 
@@ -202,8 +316,52 @@ func (f *FileQuery) CollectFields(ctx context.Context, satisfies ...string) (*Fi
 	return f, nil
 }
 
-func (f *FileQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
+func (f *FileQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(file.Columns))
+		selectedFields = []string{file.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+		case "uuid":
+			if _, ok := fieldSeen[file.FieldUUID]; !ok {
+				selectedFields = append(selectedFields, file.FieldUUID)
+				fieldSeen[file.FieldUUID] = struct{}{}
+			}
+		case "name":
+			if _, ok := fieldSeen[file.FieldName]; !ok {
+				selectedFields = append(selectedFields, file.FieldName)
+				fieldSeen[file.FieldName] = struct{}{}
+			}
+		case "type":
+			if _, ok := fieldSeen[file.FieldType]; !ok {
+				selectedFields = append(selectedFields, file.FieldType)
+				fieldSeen[file.FieldType] = struct{}{}
+			}
+		case "ext":
+			if _, ok := fieldSeen[file.FieldExt]; !ok {
+				selectedFields = append(selectedFields, file.FieldExt)
+				fieldSeen[file.FieldExt] = struct{}{}
+			}
+		case "size":
+			if _, ok := fieldSeen[file.FieldSize]; !ok {
+				selectedFields = append(selectedFields, file.FieldSize)
+				fieldSeen[file.FieldSize] = struct{}{}
+			}
+		case "payload":
+			if _, ok := fieldSeen[file.FieldPayload]; !ok {
+				selectedFields = append(selectedFields, file.FieldPayload)
+				fieldSeen[file.FieldPayload] = struct{}{}
+			}
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		f.Select(selectedFields...)
+	}
 	return nil
 }
 
@@ -245,17 +403,22 @@ func (i *IncidentQuery) CollectFields(ctx context.Context, satisfies ...string) 
 	return i, nil
 }
 
-func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
+func (i *IncidentQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
-	for _, field := range graphql.CollectFields(op, field.Selections, satisfies) {
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(incident.Columns))
+		selectedFields = []string{incident.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
 		case "counters":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &CounterQuery{config: i.config}
+				query = (&CounterClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			i.WithNamedCounters(alias, func(wq *CounterQuery) {
@@ -265,9 +428,9 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &StatusQuery{config: i.config}
+				query = (&StatusClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			i.WithNamedStati(alias, func(wq *StatusQuery) {
@@ -277,9 +440,9 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &FailureQuery{config: i.config}
+				query = (&FailureClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			i.WithNamedFailures(alias, func(wq *FailureQuery) {
@@ -289,15 +452,85 @@ func (i *IncidentQuery) collectField(ctx context.Context, op *graphql.OperationC
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = &FileQuery{config: i.config}
+				query = (&FileClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, op, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
 				return err
 			}
 			i.WithNamedFiles(alias, func(wq *FileQuery) {
 				*wq = *query
 			})
+		case "uuid":
+			if _, ok := fieldSeen[incident.FieldUUID]; !ok {
+				selectedFields = append(selectedFields, incident.FieldUUID)
+				fieldSeen[incident.FieldUUID] = struct{}{}
+			}
+		case "incidentid":
+			if _, ok := fieldSeen[incident.FieldIncidentID]; !ok {
+				selectedFields = append(selectedFields, incident.FieldIncidentID)
+				fieldSeen[incident.FieldIncidentID] = struct{}{}
+			}
+		case "name":
+			if _, ok := fieldSeen[incident.FieldName]; !ok {
+				selectedFields = append(selectedFields, incident.FieldName)
+				fieldSeen[incident.FieldName] = struct{}{}
+			}
+		case "time":
+			if _, ok := fieldSeen[incident.FieldTime]; !ok {
+				selectedFields = append(selectedFields, incident.FieldTime)
+				fieldSeen[incident.FieldTime] = struct{}{}
+			}
+		case "intlevel":
+			if _, ok := fieldSeen[incident.FieldIntLevel]; !ok {
+				selectedFields = append(selectedFields, incident.FieldIntLevel)
+				fieldSeen[incident.FieldIntLevel] = struct{}{}
+			}
+		case "username":
+			if _, ok := fieldSeen[incident.FieldUsername]; !ok {
+				selectedFields = append(selectedFields, incident.FieldUsername)
+				fieldSeen[incident.FieldUsername] = struct{}{}
+			}
+		case "region":
+			if _, ok := fieldSeen[incident.FieldRegion]; !ok {
+				selectedFields = append(selectedFields, incident.FieldRegion)
+				fieldSeen[incident.FieldRegion] = struct{}{}
+			}
+		case "probeos":
+			if _, ok := fieldSeen[incident.FieldProbeOS]; !ok {
+				selectedFields = append(selectedFields, incident.FieldProbeOS)
+				fieldSeen[incident.FieldProbeOS] = struct{}{}
+			}
+		case "probehost":
+			if _, ok := fieldSeen[incident.FieldProbeHost]; !ok {
+				selectedFields = append(selectedFields, incident.FieldProbeHost)
+				fieldSeen[incident.FieldProbeHost] = struct{}{}
+			}
+		case "error":
+			if _, ok := fieldSeen[incident.FieldError]; !ok {
+				selectedFields = append(selectedFields, incident.FieldError)
+				fieldSeen[incident.FieldError] = struct{}{}
+			}
+		case "start":
+			if _, ok := fieldSeen[incident.FieldStart]; !ok {
+				selectedFields = append(selectedFields, incident.FieldStart)
+				fieldSeen[incident.FieldStart] = struct{}{}
+			}
+		case "end":
+			if _, ok := fieldSeen[incident.FieldEnd]; !ok {
+				selectedFields = append(selectedFields, incident.FieldEnd)
+				fieldSeen[incident.FieldEnd] = struct{}{}
+			}
+		case "state":
+			if _, ok := fieldSeen[incident.FieldState]; !ok {
+				selectedFields = append(selectedFields, incident.FieldState)
+				fieldSeen[incident.FieldState] = struct{}{}
+			}
+		default:
+			unknownSeen = true
 		}
+	}
+	if !unknownSeen {
+		i.Select(selectedFields...)
 	}
 	return nil
 }
@@ -340,8 +573,32 @@ func (s *StatusQuery) CollectFields(ctx context.Context, satisfies ...string) (*
 	return s, nil
 }
 
-func (s *StatusQuery) collectField(ctx context.Context, op *graphql.OperationContext, field graphql.CollectedField, path []string, satisfies ...string) error {
+func (s *StatusQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
+	var (
+		unknownSeen    bool
+		fieldSeen      = make(map[string]struct{}, len(status.Columns))
+		selectedFields = []string{status.FieldID}
+	)
+	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
+		switch field.Name {
+		case "name":
+			if _, ok := fieldSeen[status.FieldName]; !ok {
+				selectedFields = append(selectedFields, status.FieldName)
+				fieldSeen[status.FieldName] = struct{}{}
+			}
+		case "value":
+			if _, ok := fieldSeen[status.FieldValue]; !ok {
+				selectedFields = append(selectedFields, status.FieldValue)
+				fieldSeen[status.FieldValue] = struct{}{}
+			}
+		default:
+			unknownSeen = true
+		}
+	}
+	if !unknownSeen {
+		s.Select(selectedFields...)
+	}
 	return nil
 }
 
