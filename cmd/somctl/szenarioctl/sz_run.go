@@ -34,7 +34,7 @@ var szenarioRun = &cobra.Command{
 	Long:    `run szenarios`,
 	Example: "run all or run owa intranet",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		viper.Set(cfg.BrowserShow, true)
+		viper.SetDefault(cfg.BrowserShow, true)
 		username := viper.GetString(cfg.CheckUser)
 		if len(username) < 1 {
 			return errors.New("No user given")
