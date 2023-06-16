@@ -24,6 +24,9 @@ type Engine interface {
 	StepTimeout(name string, timeout time.Duration, actions ...chromedp.Action) error
 	// Step executes the actions given and records how long it takes
 	Step(name string, actions ...chromedp.Action)
+
+	// SetInputField sets a HTML input field and validates that it has been set
+	SetInputField(stepName string, sel interface{}, value string, opts ...func(*chromedp.Selector)) error
 	// IsPresent checks if something is present
 	IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool
 	// Either wait for a list of options and sends the name of the first met option to the channel

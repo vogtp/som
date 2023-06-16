@@ -143,3 +143,26 @@ func (cdp *Engine) GetURL() string {
 	}
 	return href
 }
+
+// SetInputField sets a HTML input field and validates that it has been set
+func (cdp *Engine) SetInputField(stepName string, sel interface{}, value string, opts ...func(*chromedp.Selector)) error {
+	cdp.Step(stepName,
+		chromedp.WaitReady(sel, opts...),
+		chromedp.SendKeys(sel, value, opts...),
+	)
+	stepLabel := fmt.Sprintf("validating input of %q", stepName)
+	var checkVal string
+	for i := 0; i < 5; i++ {
+		err := cdp.StepTimeout(stepLabel, 10*time.Millisecond*time.Duration(i+1),
+			chromedp.Value(sel, &checkVal, opts...),
+		)
+		if err != nil {
+			cdp.log.Warn("Checking input value failed", "err", err, "step", stepName, "selector", sel)
+		}
+		fmt.Printf("%v Val: %v check val: %v err: %v\n", i, value, checkVal, err)
+		if value == checkVal {
+			return nil
+		}
+	}
+	return fmt.Errorf("step %s: failed to stet value of %v", stepName, sel)
+}
