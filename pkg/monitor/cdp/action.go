@@ -148,6 +148,7 @@ func (cdp *Engine) GetURL() string {
 func (cdp *Engine) SetInputField(stepName string, sel interface{}, value string, opts ...func(*chromedp.Selector)) error {
 	cdp.Step(stepName,
 		chromedp.WaitReady(sel, opts...),
+		chromedp.WaitEnabled(sel, opts...),
 		chromedp.SendKeys(sel, value, opts...),
 	)
 	stepLabel := fmt.Sprintf("validating input of %q", stepName)
