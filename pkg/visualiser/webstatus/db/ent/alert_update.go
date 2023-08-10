@@ -279,7 +279,7 @@ func (au *AlertUpdate) RemoveFiles(f ...*File) *AlertUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (au *AlertUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, AlertMutation](ctx, au.sqlSave, au.mutation, au.hooks)
+	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -811,7 +811,7 @@ func (auo *AlertUpdateOne) Select(field string, fields ...string) *AlertUpdateOn
 
 // Save executes the query and returns the updated Alert entity.
 func (auo *AlertUpdateOne) Save(ctx context.Context) (*Alert, error) {
-	return withHooks[*Alert, AlertMutation](ctx, auo.sqlSave, auo.mutation, auo.hooks)
+	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

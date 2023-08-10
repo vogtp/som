@@ -601,7 +601,7 @@ func (iq *IncidentQuery) loadCounters(ctx context.Context, query *CounterQuery, 
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "incident_counters" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "incident_counters" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -632,7 +632,7 @@ func (iq *IncidentQuery) loadStati(ctx context.Context, query *StatusQuery, node
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "incident_stati" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "incident_stati" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -663,7 +663,7 @@ func (iq *IncidentQuery) loadFailures(ctx context.Context, query *FailureQuery, 
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "incident_failures" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "incident_failures" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -694,7 +694,7 @@ func (iq *IncidentQuery) loadFiles(ctx context.Context, query *FileQuery, nodes 
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "incident_files" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "incident_files" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

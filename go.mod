@@ -3,8 +3,8 @@ module github.com/vogtp/som
 go 1.19
 
 require (
-	entgo.io/contrib v0.4.1
-	entgo.io/ent v0.12.1
+	entgo.io/contrib v0.4.5
+	entgo.io/ent v0.12.2
 	github.com/99designs/gqlgen v0.17.29
 	github.com/atc0005/go-teams-notify/v2 v2.7.0
 	github.com/chromedp/cdproto v0.0.0-20230413093208-7497fc11fc57

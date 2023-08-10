@@ -53,7 +53,7 @@ func (cu *CounterUpdate) Mutation() *CounterMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CounterUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, CounterMutation](ctx, cu.sqlSave, cu.mutation, cu.hooks)
+	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -155,7 +155,7 @@ func (cuo *CounterUpdateOne) Select(field string, fields ...string) *CounterUpda
 
 // Save executes the query and returns the updated Counter entity.
 func (cuo *CounterUpdateOne) Save(ctx context.Context) (*Counter, error) {
-	return withHooks[*Counter, CounterMutation](ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
+	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

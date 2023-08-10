@@ -601,7 +601,7 @@ func (aq *AlertQuery) loadCounters(ctx context.Context, query *CounterQuery, nod
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "alert_counters" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "alert_counters" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -632,7 +632,7 @@ func (aq *AlertQuery) loadStati(ctx context.Context, query *StatusQuery, nodes [
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "alert_stati" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "alert_stati" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -663,7 +663,7 @@ func (aq *AlertQuery) loadFailures(ctx context.Context, query *FailureQuery, nod
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "alert_failures" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "alert_failures" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
@@ -694,7 +694,7 @@ func (aq *AlertQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "alert_files" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "alert_files" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}

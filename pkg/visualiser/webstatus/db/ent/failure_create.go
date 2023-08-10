@@ -40,7 +40,7 @@ func (fc *FailureCreate) Mutation() *FailureMutation {
 
 // Save creates the Failure in the database.
 func (fc *FailureCreate) Save(ctx context.Context) (*Failure, error) {
-	return withHooks[*Failure, FailureMutation](ctx, fc.sqlSave, fc.mutation, fc.hooks)
+	return withHooks(ctx, fc.sqlSave, fc.mutation, fc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.

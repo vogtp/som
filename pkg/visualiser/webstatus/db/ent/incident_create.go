@@ -196,7 +196,7 @@ func (ic *IncidentCreate) Mutation() *IncidentMutation {
 
 // Save creates the Incident in the database.
 func (ic *IncidentCreate) Save(ctx context.Context) (*Incident, error) {
-	return withHooks[*Incident, IncidentMutation](ctx, ic.sqlSave, ic.mutation, ic.hooks)
+	return withHooks(ctx, ic.sqlSave, ic.mutation, ic.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.

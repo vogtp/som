@@ -53,7 +53,7 @@ func (fu *FailureUpdate) Mutation() *FailureMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (fu *FailureUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, FailureMutation](ctx, fu.sqlSave, fu.mutation, fu.hooks)
+	return withHooks(ctx, fu.sqlSave, fu.mutation, fu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -155,7 +155,7 @@ func (fuo *FailureUpdateOne) Select(field string, fields ...string) *FailureUpda
 
 // Save executes the query and returns the updated Failure entity.
 func (fuo *FailureUpdateOne) Save(ctx context.Context) (*Failure, error) {
-	return withHooks[*Failure, FailureMutation](ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
+	return withHooks(ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

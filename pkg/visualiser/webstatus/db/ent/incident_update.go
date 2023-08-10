@@ -311,7 +311,7 @@ func (iu *IncidentUpdate) RemoveFiles(f ...*File) *IncidentUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (iu *IncidentUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, IncidentMutation](ctx, iu.sqlSave, iu.mutation, iu.hooks)
+	return withHooks(ctx, iu.sqlSave, iu.mutation, iu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -887,7 +887,7 @@ func (iuo *IncidentUpdateOne) Select(field string, fields ...string) *IncidentUp
 
 // Save executes the query and returns the updated Incident entity.
 func (iuo *IncidentUpdateOne) Save(ctx context.Context) (*Incident, error) {
-	return withHooks[*Incident, IncidentMutation](ctx, iuo.sqlSave, iuo.mutation, iuo.hooks)
+	return withHooks(ctx, iuo.sqlSave, iuo.mutation, iuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
