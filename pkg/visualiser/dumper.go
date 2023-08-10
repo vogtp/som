@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"log/slog"
+
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
-	"golang.org/x/exp/slog"
 )
 
 // Dumper writes all files to disk

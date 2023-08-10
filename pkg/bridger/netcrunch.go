@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"time"
 
+	"log/slog"
+
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
-	"golang.org/x/exp/slog"
 )
 
 type ncConfig struct {

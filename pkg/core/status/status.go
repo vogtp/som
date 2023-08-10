@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
+	"log/slog"
+
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
-	"golang.org/x/exp/slog"
 )
 
 // Status correlates event messages

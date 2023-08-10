@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"io"
 
+	"log/slog"
+
 	"github.com/suborbital/vektor/vlog"
-	"golang.org/x/exp/slog"
 )
 
 func VlogCompat(l *slog.Logger) *vlog.Logger {

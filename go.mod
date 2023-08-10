@@ -29,9 +29,8 @@ require (
 	github.com/suborbital/grav v0.5.2
 	github.com/suborbital/vektor v0.7.0
 	github.com/vektah/gqlparser/v2 v2.5.1
-	github.com/vogtp/go-mesh v0.2.0
+	github.com/vogtp/go-mesh v0.2.1
 	github.com/xiaoqidun/entps v0.0.0-20230328150929-94b1b92d8c03
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/sync v0.1.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
@@ -90,6 +89,7 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	github.com/zclconf/go-cty v1.13.1 // indirect
 	golang.org/x/crypto v0.8.0 // indirect
+	golang.org/x/exp v0.0.0-20221230185412-738e83a70c30 // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect

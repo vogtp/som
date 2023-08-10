@@ -5,9 +5,10 @@ import (
 	"os"
 	"strings"
 
+	"log/slog"
+
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
-	"golang.org/x/exp/slog"
 )
 
 func New(name string) *slog.Logger {
@@ -31,9 +32,9 @@ func Create(name string, lvl slog.Level) *slog.Logger {
 	var logWriter io.Writer
 	logWriter = os.Stdout
 	var handler slog.Handler
-	handler = logOpts.NewTextHandler(logWriter)
+	handler = slog.NewTextHandler(logWriter, &logOpts)
 	if viper.GetBool(cfg.LogJson) {
-		handler = logOpts.NewJSONHandler(logWriter)
+		handler = slog.NewJSONHandler(logWriter, &logOpts)
 	}
 	log := slog.New(handler)
 	log = log.With(slog.String("app", name))

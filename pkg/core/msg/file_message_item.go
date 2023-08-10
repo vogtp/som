@@ -3,11 +3,12 @@ package msg
 import (
 	"crypto/md5"
 
+	"log/slog"
+
 	"github.com/google/uuid"
 	"github.com/iancoleman/strcase"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/mime"
-	"golang.org/x/exp/slog"
 )
 
 // FileMsgItem contains a file

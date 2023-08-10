@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // GrpReg holds all by json instanceble groups

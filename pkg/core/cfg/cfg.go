@@ -4,9 +4,10 @@ import (
 	"strings"
 	"time"
 
+	"log/slog"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"golang.org/x/exp/slog"
 )
 
 // SetConfigFileName sets the config file name

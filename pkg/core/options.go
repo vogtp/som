@@ -1,8 +1,9 @@
 package core
 
 import (
+	"log/slog"
+
 	"github.com/vogtp/som/pkg/monitor/szenario"
-	"golang.org/x/exp/slog"
 )
 
 // Option configures the core

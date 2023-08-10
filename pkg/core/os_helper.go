@@ -5,8 +5,9 @@ import (
 	"os"
 	"strings"
 
+	"log/slog"
+
 	"github.com/vogtp/som/pkg/core/log"
-	"golang.org/x/exp/slog"
 )
 
 // IsDockerContainer checks if running in a docker env

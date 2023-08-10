@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 
+	"log/slog"
+
 	"github.com/spf13/viper"
 	"github.com/suborbital/grav/discovery/local"
 	"github.com/suborbital/grav/grav"
@@ -11,7 +13,6 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/env"
-	"golang.org/x/exp/slog"
 )
 
 func (e *Bus) initGrav(web *WebServer) {

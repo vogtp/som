@@ -5,12 +5,13 @@ import (
 	"embed"
 	"html/template"
 
+	"log/slog"
+
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db"
-	"golang.org/x/exp/slog"
 )
 
 var (

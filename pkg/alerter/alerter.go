@@ -3,12 +3,13 @@ package alerter
 import (
 	"fmt"
 
+	"log/slog"
+
 	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
-	"golang.org/x/exp/slog"
 )
 
 const (

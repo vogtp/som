@@ -8,11 +8,12 @@ import (
 	"sync"
 	"time"
 
+	"log/slog"
+
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msgtype"
-	"golang.org/x/exp/slog"
 )
 
 var (

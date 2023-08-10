@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"log/slog"
+
 	"github.com/spf13/viper"
 	"github.com/suborbital/grav/grav"
 	mesh "github.com/vogtp/go-mesh"
@@ -11,7 +13,6 @@ import (
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/msgtype"
-	"golang.org/x/exp/slog"
 )
 
 // Bus is the event bus

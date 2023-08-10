@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"log/slog"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -16,7 +18,6 @@ import (
 	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
-	"golang.org/x/exp/slog"
 )
 
 const (
@@ -52,7 +53,7 @@ var szenarioRun = &cobra.Command{
 			if err == nil {
 				sz = append(sz, usz...)
 				continue
-			} 
+			}
 			name := strings.ToLower(n)
 
 			s := szConfig.ByName(name)

@@ -4,12 +4,13 @@ import (
 	"sync"
 	"time"
 
+	"log/slog"
+
 	"github.com/spf13/viper"
 	"github.com/vogtp/som"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
-	"golang.org/x/exp/slog"
 )
 
 var (

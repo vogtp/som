@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"log/slog"
+
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
-	"golang.org/x/exp/slog"
 )
 
 // MinMaxTime is a wrapper around time to support SQL max and min

@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"reflect"
 
+	"log/slog"
+
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 	"github.com/slack-go/slack/socketmode"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
-	"golang.org/x/exp/slog"
 )
 
 // Slack bridges the eventbus over slack

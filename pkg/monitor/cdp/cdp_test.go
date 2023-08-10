@@ -10,6 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"log/slog"
+
 	"github.com/chromedp/chromedp"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
@@ -20,7 +22,6 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 	"github.com/vogtp/som/pkg/visualiser"
-	"golang.org/x/exp/slog"
 )
 
 var (

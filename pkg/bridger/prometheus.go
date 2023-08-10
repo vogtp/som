@@ -5,6 +5,8 @@ import (
 	"strings"
 	"sync"
 
+	"log/slog"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -12,7 +14,6 @@ import (
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/monitor/szenario"
-	"golang.org/x/exp/slog"
 )
 
 const (

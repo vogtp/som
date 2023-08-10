@@ -3,11 +3,12 @@ package status
 import (
 	"fmt"
 
+	"log/slog"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/vogtp/som/pkg/bridger"
 	"github.com/vogtp/som/pkg/core/log"
-	"golang.org/x/exp/slog"
 )
 
 type promAvail struct {

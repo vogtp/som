@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"log/slog"
+
 	"github.com/chromedp/cdproto/dom"
 	"github.com/chromedp/chromedp"
 	"github.com/iancoleman/strcase"
@@ -22,7 +24,6 @@ import (
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
-	"golang.org/x/exp/slog"
 )
 
 // Option configures the Engine

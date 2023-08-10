@@ -9,8 +9,9 @@ import (
 	"sync"
 	"time"
 
+	"log/slog"
+
 	"github.com/vogtp/som/pkg/core/log"
-	"golang.org/x/exp/slog"
 )
 
 // WebServer is a wrapper for a webserver

@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	"log/slog"
+
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/status"
-	"golang.org/x/exp/slog"
 )
 
 type basicState struct {

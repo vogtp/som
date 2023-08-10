@@ -3,8 +3,9 @@ package cdp
 import (
 	"time"
 
+	"log/slog"
+
 	"github.com/iancoleman/strcase"
-	"golang.org/x/exp/slog"
 )
 
 type stepInfo struct {

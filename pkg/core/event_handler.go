@@ -6,9 +6,10 @@ import (
 	"sync"
 	"time"
 
+	"log/slog"
+
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core/log"
-	"golang.org/x/exp/slog"
 )
 
 type eventer interface {

@@ -8,6 +8,8 @@ import (
 	"image/png"
 	"sync"
 
+	"log/slog"
+
 	goteamsnotify "github.com/atc0005/go-teams-notify/v2"
 	"github.com/nfnt/resize"
 	"github.com/spf13/viper"
@@ -15,7 +17,6 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
-	"golang.org/x/exp/slog"
 )
 
 const (

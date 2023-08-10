@@ -3,8 +3,9 @@ package szenario
 import (
 	"time"
 
+	"log/slog"
+
 	"github.com/chromedp/chromedp"
-	"golang.org/x/exp/slog"
 )
 
 // JobFunc is the signature of a function that runs as job

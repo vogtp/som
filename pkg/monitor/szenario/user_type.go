@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // MustUserType panics if usertype creation returns an error

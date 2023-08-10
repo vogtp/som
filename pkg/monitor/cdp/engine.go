@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"log/slog"
+
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/som/pkg/core/log"
-	"golang.org/x/exp/slog"
 )
 
 // IsHeadless indicates if the browser is headless (i.e. does not show on screen)
