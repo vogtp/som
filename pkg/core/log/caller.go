@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"log/slog"
 	"runtime"
 	"strings"
 )
@@ -24,11 +25,30 @@ func init() {
 	srcPrefixLen = len(srcPrefix)
 }
 
-func TrimPackagePath(s string) string {
+func trimPackagePath(s string) string {
 	if len(s) > len(srcPrefix) && strings.HasPrefix(s, srcPrefix) {
 		return s[srcPrefixLen:]
 	}
 	return s
+}
+
+type source struct {
+	*slog.Source
+	Src string `json:"source"`
+}
+
+func ProcessSourceField(attr slog.Attr) slog.Attr {
+	src, ok := attr.Value.Any().(*slog.Source)
+	if !ok {
+		return attr
+	}
+	src.File = trimPackagePath(src.File)
+	ret := &source{
+		Source: src,
+		Src:    fmt.Sprintf("%s:%d", src.File, src.Line),
+	}
+	attr.Value = slog.AnyValue(ret)
+	return attr
 }
 
 func Caller(skip int) string {
@@ -36,5 +56,5 @@ func Caller(skip int) string {
 	if !ok {
 		return ""
 	}
-	return fmt.Sprintf("%s:%d", TrimPackagePath(filename), line)
+	return fmt.Sprintf("%s:%d", trimPackagePath(filename), line)
 }

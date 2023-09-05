@@ -24,11 +24,12 @@ func Create(name string, lvl slog.Level) *slog.Logger {
 	if logOpts.AddSource {
 		logOpts.ReplaceAttr = func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == slog.SourceKey && len(groups) == 0 {
-				a.Value = slog.StringValue(TrimPackagePath(a.Value.String()))
+				return ProcessSourceField(a)
 			}
 			return a
 		}
 	}
+	slog.Default()
 	var logWriter io.Writer
 	logWriter = os.Stdout
 	var handler slog.Handler
