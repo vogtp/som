@@ -40,7 +40,7 @@ func (cc *CounterCreate) Mutation() *CounterMutation {
 
 // Save creates the Counter in the database.
 func (cc *CounterCreate) Save(ctx context.Context) (*Counter, error) {
-	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
+	return withHooks[*Counter, CounterMutation](ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.

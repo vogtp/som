@@ -170,7 +170,7 @@ func (ac *AlertCreate) Mutation() *AlertMutation {
 
 // Save creates the Alert in the database.
 func (ac *AlertCreate) Save(ctx context.Context) (*Alert, error) {
-	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
+	return withHooks[*Alert, AlertMutation](ctx, ac.sqlSave, ac.mutation, ac.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.

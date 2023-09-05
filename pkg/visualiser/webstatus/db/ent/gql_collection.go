@@ -134,6 +134,8 @@ func (a *AlertQuery) collectField(ctx context.Context, opCtx *graphql.OperationC
 				selectedFields = append(selectedFields, alert.FieldError)
 				fieldSeen[alert.FieldError] = struct{}{}
 			}
+		case "id":
+		case "__typename":
 		default:
 			unknownSeen = true
 		}
@@ -150,7 +152,7 @@ type alertPaginateArgs struct {
 	opts          []AlertPaginateOption
 }
 
-func newAlertPaginateArgs(rv map[string]interface{}) *alertPaginateArgs {
+func newAlertPaginateArgs(rv map[string]any) *alertPaginateArgs {
 	args := &alertPaginateArgs{}
 	if rv == nil {
 		return args
@@ -201,6 +203,8 @@ func (c *CounterQuery) collectField(ctx context.Context, opCtx *graphql.Operatio
 				selectedFields = append(selectedFields, counter.FieldValue)
 				fieldSeen[counter.FieldValue] = struct{}{}
 			}
+		case "id":
+		case "__typename":
 		default:
 			unknownSeen = true
 		}
@@ -217,7 +221,7 @@ type counterPaginateArgs struct {
 	opts          []CounterPaginateOption
 }
 
-func newCounterPaginateArgs(rv map[string]interface{}) *counterPaginateArgs {
+func newCounterPaginateArgs(rv map[string]any) *counterPaginateArgs {
 	args := &counterPaginateArgs{}
 	if rv == nil {
 		return args
@@ -268,6 +272,8 @@ func (f *FailureQuery) collectField(ctx context.Context, opCtx *graphql.Operatio
 				selectedFields = append(selectedFields, failure.FieldIdx)
 				fieldSeen[failure.FieldIdx] = struct{}{}
 			}
+		case "id":
+		case "__typename":
 		default:
 			unknownSeen = true
 		}
@@ -284,7 +290,7 @@ type failurePaginateArgs struct {
 	opts          []FailurePaginateOption
 }
 
-func newFailurePaginateArgs(rv map[string]interface{}) *failurePaginateArgs {
+func newFailurePaginateArgs(rv map[string]any) *failurePaginateArgs {
 	args := &failurePaginateArgs{}
 	if rv == nil {
 		return args
@@ -355,6 +361,8 @@ func (f *FileQuery) collectField(ctx context.Context, opCtx *graphql.OperationCo
 				selectedFields = append(selectedFields, file.FieldPayload)
 				fieldSeen[file.FieldPayload] = struct{}{}
 			}
+		case "id":
+		case "__typename":
 		default:
 			unknownSeen = true
 		}
@@ -371,7 +379,7 @@ type filePaginateArgs struct {
 	opts          []FilePaginateOption
 }
 
-func newFilePaginateArgs(rv map[string]interface{}) *filePaginateArgs {
+func newFilePaginateArgs(rv map[string]any) *filePaginateArgs {
 	args := &filePaginateArgs{}
 	if rv == nil {
 		return args
@@ -525,6 +533,8 @@ func (i *IncidentQuery) collectField(ctx context.Context, opCtx *graphql.Operati
 				selectedFields = append(selectedFields, incident.FieldState)
 				fieldSeen[incident.FieldState] = struct{}{}
 			}
+		case "id":
+		case "__typename":
 		default:
 			unknownSeen = true
 		}
@@ -541,7 +551,7 @@ type incidentPaginateArgs struct {
 	opts          []IncidentPaginateOption
 }
 
-func newIncidentPaginateArgs(rv map[string]interface{}) *incidentPaginateArgs {
+func newIncidentPaginateArgs(rv map[string]any) *incidentPaginateArgs {
 	args := &incidentPaginateArgs{}
 	if rv == nil {
 		return args
@@ -592,6 +602,8 @@ func (s *StatusQuery) collectField(ctx context.Context, opCtx *graphql.Operation
 				selectedFields = append(selectedFields, status.FieldValue)
 				fieldSeen[status.FieldValue] = struct{}{}
 			}
+		case "id":
+		case "__typename":
 		default:
 			unknownSeen = true
 		}
@@ -608,7 +620,7 @@ type statusPaginateArgs struct {
 	opts          []StatusPaginateOption
 }
 
-func newStatusPaginateArgs(rv map[string]interface{}) *statusPaginateArgs {
+func newStatusPaginateArgs(rv map[string]any) *statusPaginateArgs {
 	args := &statusPaginateArgs{}
 	if rv == nil {
 		return args
@@ -639,35 +651,18 @@ const (
 	whereField     = "where"
 )
 
-func fieldArgs(ctx context.Context, whereInput interface{}, path ...string) map[string]interface{} {
-	fc := graphql.GetFieldContext(ctx)
-	if fc == nil {
+func fieldArgs(ctx context.Context, whereInput any, path ...string) map[string]any {
+	field := collectedField(ctx, path...)
+	if field == nil || field.Arguments == nil {
 		return nil
 	}
 	oc := graphql.GetOperationContext(ctx)
-	for _, name := range path {
-		var field *graphql.CollectedField
-		for _, f := range graphql.CollectFields(oc, fc.Field.Selections, nil) {
-			if f.Alias == name {
-				field = &f
-				break
-			}
-		}
-		if field == nil {
-			return nil
-		}
-		cf, err := fc.Child(ctx, *field)
-		if err != nil {
-			args := field.ArgumentMap(oc.Variables)
-			return unmarshalArgs(ctx, whereInput, args)
-		}
-		fc = cf
-	}
-	return fc.Args
+	args := field.ArgumentMap(oc.Variables)
+	return unmarshalArgs(ctx, whereInput, args)
 }
 
 // unmarshalArgs allows extracting the field arguments from their raw representation.
-func unmarshalArgs(ctx context.Context, whereInput interface{}, args map[string]interface{}) map[string]interface{} {
+func unmarshalArgs(ctx context.Context, whereInput any, args map[string]any) map[string]any {
 	for _, k := range []string{firstField, lastField} {
 		v, ok := args[k]
 		if !ok {
@@ -718,4 +713,18 @@ func limitRows(partitionBy string, limit int, orderBy ...sql.Querier) func(s *sq
 			Where(sql.LTE(t.C("row_number"), limit)).
 			Prefix(with)
 	}
+}
+
+// mayAddCondition appends another type condition to the satisfies list
+// if condition is enabled (Node/Nodes) and it does not exist in the list.
+func mayAddCondition(satisfies []string, typeCond string) []string {
+	if len(satisfies) == 0 {
+		return satisfies
+	}
+	for _, s := range satisfies {
+		if typeCond == s {
+			return satisfies
+		}
+	}
+	return append(satisfies, typeCond)
 }

@@ -40,7 +40,7 @@ func (sc *StatusCreate) Mutation() *StatusMutation {
 
 // Save creates the Status in the database.
 func (sc *StatusCreate) Save(ctx context.Context) (*Status, error) {
-	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
+	return withHooks[*Status, StatusMutation](ctx, sc.sqlSave, sc.mutation, sc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.

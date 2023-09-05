@@ -46,7 +46,7 @@ func (su *StatusUpdate) Mutation() *StatusMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (su *StatusUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, su.sqlSave, su.mutation, su.hooks)
+	return withHooks[int, StatusMutation](ctx, su.sqlSave, su.mutation, su.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -138,7 +138,7 @@ func (suo *StatusUpdateOne) Select(field string, fields ...string) *StatusUpdate
 
 // Save executes the query and returns the updated Status entity.
 func (suo *StatusUpdateOne) Save(ctx context.Context) (*Status, error) {
-	return withHooks(ctx, suo.sqlSave, suo.mutation, suo.hooks)
+	return withHooks[*Status, StatusMutation](ctx, suo.sqlSave, suo.mutation, suo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
