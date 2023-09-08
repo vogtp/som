@@ -216,7 +216,6 @@ Strings(html *string) CheckFunc                               | Strings gets the
 Headless() bool                                               | Headless indicates if the browser is headless (i.e. does not show on screen)
 WaitForEver()                                                 | WaitForEver blocks until the timeout is reached
 BreakWaitForUserInput()                                       | BreakWaitForUserInput waits until any key is clicked on the cmdlint
-AddErr(err error)                                             | AddErr adds a error to the event
 Log() *slog.Logger                                            | Log returns the logger
-Dump() CheckFunc                                              | Dump prints the body and its size to log
+Dump() CheckFunc                                              | Dump prints the body and its size to log (use with Body)
 
