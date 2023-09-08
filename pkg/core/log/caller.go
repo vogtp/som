@@ -37,17 +37,22 @@ type source struct {
 	Src string `json:"source"`
 }
 
-func ProcessSourceField(attr slog.Attr) slog.Attr {
+func ProcessSourceField(attr slog.Attr, json bool) slog.Attr {
 	src, ok := attr.Value.Any().(*slog.Source)
 	if !ok {
 		return attr
 	}
 	src.File = trimPackagePath(src.File)
-	ret := &source{
-		Source: src,
-		Src:    fmt.Sprintf("%s:%d", src.File, src.Line),
+	line := fmt.Sprintf("%s:%d", src.File, src.Line)
+	if json {
+		ret := &source{
+			Source: src,
+			Src:    line,
+		}
+		attr.Value = slog.AnyValue(ret)
+	} else {
+		attr.Value = slog.StringValue(line)
 	}
-	attr.Value = slog.AnyValue(ret)
 	return attr
 }
 
