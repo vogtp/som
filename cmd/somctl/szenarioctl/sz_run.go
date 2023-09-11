@@ -3,6 +3,7 @@ package szenarioctl
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
@@ -32,7 +33,7 @@ func init() {
 var szenarioRun = &cobra.Command{
 	Use:     "run",
 	Short:   "Run a SOM szenario",
-	Long:    `run szenarios`,
+	Long:    `run szenarios, the exit code is equal to the number of failed szenarios`,
 	Example: "run all or run owa intranet",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		viper.SetDefault(cfg.BrowserShow, true)
@@ -67,7 +68,9 @@ var szenarioRun = &cobra.Command{
 		if len(sz) < 1 {
 			return fmt.Errorf("no such szenario: %v\nPossible values: %s", strings.Join(args, " "), possibeSzenarioNames())
 		}
-		runSzenorios(user, sz)
+		if errCnt := runSzenorios(user, sz); errCnt != 0 {
+			os.Exit(errCnt)
+		}
 		return nil
 	},
 }
@@ -90,7 +93,7 @@ func getNames(szenarios []szenario.Szenario) string {
 	return l
 }
 
-func runSzenorios(user *user.User, szenarios []szenario.Szenario) {
+func runSzenorios(user *user.User, szenarios []szenario.Szenario) int {
 	slog.Warn("Running szenarios", "szenarios", getNames(szenarios))
 
 	for _, s := range szenarios {
@@ -111,5 +114,5 @@ func runSzenorios(user *user.User, szenarios []szenario.Szenario) {
 	}
 	cdp, cancel := cdp.New(opts...)
 	defer cancel()
-	cdp.Execute(szenarios...)
+	return cdp.Execute(szenarios...)
 }

@@ -145,9 +145,10 @@ func (cdp *Engine) RunUser(username string) error {
 }
 
 // Execute runs one or more szenarios
-func (cdp *Engine) Execute(szenarios ...szenario.Szenario) {
+// it returns the number of szenarios with errors or never returns
+func (cdp *Engine) Execute(szenarios ...szenario.Szenario) int {
 	cdp.schedule(szenarios...)
-	cdp.loop()
+	return cdp.loop()
 }
 
 // schedule one or more szenarios
@@ -159,21 +160,27 @@ func (cdp *Engine) schedule(szenarios ...szenario.Szenario) {
 	}
 }
 
-// loop runs the szenarios and never returns
-func (cdp *Engine) loop() {
+// loop runs the szenarios
+// it returns the number of szenarios with errors or never returns
+func (cdp *Engine) loop() int {
+	errCnt := 0
 	for srw := range cdp.runChan {
 		cdp.log = cdp.baseLogger.With(log.Szenario, srw.sz.Name())
 		cdp.szenario = srw.sz
 		cdp.stepInfo = newStepInfo(cdp.log)
 		srw.lastRunOk = cdp.run()
+		if !srw.lastRunOk {
+			errCnt++
+		}
 		cdp.log = cdp.baseLogger
 		go cdp.reschedule(srw)
 	}
 	cdp.log.Info("Finished main szenario loop")
 	if cdp.noClose {
 		<-cdp.browser.Done()
-		return
+		return errCnt
 	}
+	return errCnt
 }
 
 func (cdp *Engine) rescheduleDelay(srw *szenarionRunWrapper) time.Duration {
