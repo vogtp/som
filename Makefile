@@ -2,7 +2,7 @@
 build: generate build-stater build-monitor-cdp build-visualiser build-alerter build-somctl
 
 # add build date and time to version
-curdate=$(shell date -u +%Y%m%d-%H%M)
+curdate=$(shell date --iso-8601='minutes')
 build_flags = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
 
 GO_CMD=CGO_ENABLED=0 go
