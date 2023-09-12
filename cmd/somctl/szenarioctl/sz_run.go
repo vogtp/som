@@ -27,7 +27,7 @@ const (
 )
 
 func init() {
-	pflag.Bool(CheckStepBreak, false, "adds a breakpont after each step")
+	pflag.Bool(CheckStepBreak, false, "adds a breakpont after each step ")
 }
 
 var szenarioRun = &cobra.Command{

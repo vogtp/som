@@ -13,7 +13,8 @@ import (
 
 const (
 	// LogRawBus flag name to log the raw bus
-	LogRawBus = "bus.log.raw"
+	LogRawBus  = "bus.log.raw"
+	StandAlone = "standalone"
 )
 
 func init() {
@@ -27,6 +28,7 @@ func isCmdlineFlag(n string) bool {
 
 func processFlags() {
 	pflag.Bool(LogRawBus, false, "Log bus messages")
+	pflag.Bool(StandAlone, false, "Run in standalone mode, i.e. start a stater in the background.")
 	cfg.Parse()
 	// only set loglevel from cmd line
 	if !isCmdlineFlag(cfg.LogLevel) {

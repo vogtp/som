@@ -2,6 +2,7 @@ package root
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/hashicorp/go-hclog"
@@ -14,6 +15,7 @@ import (
 	"github.com/vogtp/som/cmd/somctl/userctl"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/monitor/szenario"
+	"github.com/vogtp/som/pkg/stater"
 )
 
 var (
@@ -29,7 +31,7 @@ func AddCommand(c *cobra.Command) {
 func Command(szCfg *szenario.Config) {
 	processFlags()
 
-	c, coreClose = core.New("somctl", core.Szenario(szCfg))
+	startCore(szCfg)
 
 	rootCtl.AddCommand(userctl.Command())
 	rootCtl.AddCommand(szenarioctl.Command())
@@ -39,6 +41,22 @@ func Command(szCfg *szenario.Config) {
 	if err := rootCtl.Execute(); err != nil {
 		fmt.Println(err)
 	}
+}
+
+func startCore(szCfg *szenario.Config) {
+	if !viper.GetBool(StandAlone) {
+		// normal mode: just start a core to connect to the mesh
+		c, coreClose = core.New("somctl", core.Szenario(szCfg))
+		return
+	}
+	//standalong mode: start a stater
+	var err error
+	coreClose, err = stater.Run("somctl", core.Szenario(szCfg))
+	if err != nil {
+		fmt.Printf("Cannot start core: %v", err)
+		os.Exit(-1)
+	}
+	c = core.Get()
 }
 
 var (
