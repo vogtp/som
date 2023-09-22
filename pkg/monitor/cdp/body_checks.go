@@ -41,9 +41,9 @@ func (cdp *Engine) NotContains(s string) szenario.CheckFunc {
 func (cdp *Engine) Bigger(i int) szenario.CheckFunc {
 	return func(body *string) error {
 		if len(*body) < i {
-			return fmt.Errorf("body is %v should be bigger %v", len(*body), i)
+			return fmt.Errorf("body should be bigger %v", len(*body), i)
 		}
-		cdp.log.Info("Body size OK: %v > %v", len(*body), i)
+		cdp.log.Info("Body size OK", "body_lenght", len(*body), "min_length", i)
 		return nil
 	}
 }
