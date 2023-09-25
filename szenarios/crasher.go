@@ -1,16 +1,13 @@
 package szenarios
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"html"
-	"image/png"
 
 	"github.com/chromedp/chromedp"
-	"github.com/nfnt/resize"
 	"github.com/vogtp/som/pkg/monitor/cdp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
@@ -29,7 +26,7 @@ func (CrasherSzenario) Execute(engine szenario.Engine) (err error) {
 			if cdpE, ok := engine.(*cdp.Engine); ok {
 				// print screenshot
 				if sc := cdpE.ScreenShot(); len(sc) > 0 {
-					printImage(sc, 500)
+					fmt.Printf("<img src='data:image/png;base64, %s' />\n", base64.StdEncoding.EncodeToString(sc))
 				}
 				// print html
 				if src := cdpE.GetHTML(); len(src) > 0 {
@@ -53,24 +50,4 @@ func (CrasherSzenario) Execute(engine szenario.Engine) (err error) {
 	}))
 
 	return nil
-}
-
-func printImage(img []byte, width int) {
-	image, err := png.Decode(bytes.NewReader(img))
-	if err != nil {
-		return
-	}
-
-	newImage := resize.Resize(uint(width), 0, image, resize.Lanczos3)
-
-	buf := new(bytes.Buffer)
-	enc := png.Encoder{CompressionLevel: png.BestCompression}
-	err = enc.Encode(buf, newImage)
-	if err != nil {
-		return
-	}
-
-	imgb64 := base64.StdEncoding.EncodeToString(buf.Bytes())
-
-	fmt.Printf("<img src='data:image/png;base64, %s' />\n", imgb64)
 }
