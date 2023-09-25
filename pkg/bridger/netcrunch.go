@@ -15,13 +15,14 @@ import (
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
-type ncConfig struct {
+// NcConfig is the basic configuration of the NetCrunch bridge connection
+type NcConfig struct {
 	srv, id string
 }
 
 // NewNetCrunchBackend creates a backend for NetCrunch Generic Messages
-func NewNetCrunchBackend(srv, id string) *ncConfig {
-	return &ncConfig{srv: srv, id: id}
+func NewNetCrunchBackend(srv, id string) *NcConfig {
+	return &NcConfig{srv: srv, id: id}
 }
 
 // RegisterNetCrunchWebMessage registers NetCrunch Messages on the eventbus
@@ -29,7 +30,7 @@ func RegisterNetCrunchWebMessage() {
 	registerNetCrunchWebMessage("OWA", NewNetCrunchBackend("netcrunch.example.com", "owa@1116"))
 }
 
-func registerNetCrunchWebMessage(name string, nc *ncConfig) {
+func registerNetCrunchWebMessage(name string, nc *NcConfig) {
 	bus := core.Get().Bus()
 	if len(nc.srv) < 1 || len(nc.id) < 1 {
 		return

@@ -122,7 +122,7 @@ type szenarionRunWrapper struct {
 	retry     int
 }
 
-// Execute runs one or more szenarios
+// RunUser runs one or more szenarios from the given user
 func (cdp *Engine) RunUser(username string) error {
 	user, err := user.Store.Get(username)
 	if err != nil {
@@ -130,7 +130,7 @@ func (cdp *Engine) RunUser(username string) error {
 	}
 	sc := core.Get().SzenaioConfig()
 	if sc == nil || sc == szenario.NoConfig {
-		return fmt.Errorf("No szenarion config loaded!")
+		return fmt.Errorf("no szenarion config loaded")
 	}
 	szs, err := sc.ByUser(user)
 	if err != nil {

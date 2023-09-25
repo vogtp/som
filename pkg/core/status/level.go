@@ -55,17 +55,17 @@ func (Level) FromString(lvl string) Level {
 }
 
 // UnmarshalGQL for graphql
-func (e *Level) UnmarshalGQL(v interface{}) error {
+func (l *Level) UnmarshalGQL(v interface{}) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
 	}
 
-	*e = Unknown.FromString(str)
+	*l = Unknown.FromString(str)
 	return nil
 }
 
 // MarshalGQL for graphql
-func (e Level) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+func (l Level) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(l.String()))
 }

@@ -37,7 +37,7 @@ type source struct {
 	Src string `json:"source"`
 }
 
-func ProcessSourceField(attr slog.Attr, json bool) slog.Attr {
+func processSourceField(attr slog.Attr, json bool) slog.Attr {
 	src, ok := attr.Value.Any().(*slog.Source)
 	if !ok {
 		return attr
@@ -56,6 +56,7 @@ func ProcessSourceField(attr slog.Attr, json bool) slog.Attr {
 	return attr
 }
 
+// Caller retruns the caller function
 func Caller(skip int) string {
 	_, filename, line, ok := runtime.Caller(skip + 1)
 	if !ok {

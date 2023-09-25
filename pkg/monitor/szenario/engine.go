@@ -14,6 +14,7 @@ type JobFunc func(Engine) error
 // CheckFunc is used to check the plaintext body content
 type CheckFunc func(*string) error
 
+// EitherOption options for either
 type EitherOption struct {
 	ID     any
 	Action chromedp.Action

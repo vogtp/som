@@ -6,5 +6,6 @@ import (
 
 var (
 	//go:embed README.md
+	// README to display on the visualiser
 	README []byte
 )

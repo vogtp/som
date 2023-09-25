@@ -11,21 +11,23 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
+// New creates a slog logger with the loglevel from the config
 func New(name string) *slog.Logger {
 	lvl := LevelFromString(viper.GetString(cfg.LogLevel))
 	return Create(name, lvl)
 }
 
+// Create a slog logger with the given level
 func Create(name string, lvl slog.Level) *slog.Logger {
 	logOpts := slog.HandlerOptions{
 		Level: lvl,
 	}
 	logOpts.AddSource = viper.GetBool(cfg.LogSource)
-	logJson := viper.GetBool(cfg.LogJson)
+	logJSON := viper.GetBool(cfg.LogJSON)
 	if logOpts.AddSource {
 		logOpts.ReplaceAttr = func(groups []string, a slog.Attr) slog.Attr {
 			if a.Key == slog.SourceKey && len(groups) == 0 {
-				return ProcessSourceField(a, logJson)
+				return processSourceField(a, logJSON)
 			}
 			return a
 		}
@@ -35,7 +37,7 @@ func Create(name string, lvl slog.Level) *slog.Logger {
 	logWriter = os.Stdout
 	var handler slog.Handler
 	handler = slog.NewTextHandler(logWriter, &logOpts)
-	if logJson {
+	if logJSON {
 		handler = slog.NewJSONHandler(logWriter, &logOpts)
 	}
 	log := slog.New(handler)
@@ -44,6 +46,7 @@ func Create(name string, lvl slog.Level) *slog.Logger {
 	return log
 }
 
+// LevelFromString parses a loglevel string
 func LevelFromString(levelStr string) slog.Level {
 	// We don't care about case. Accept both "INFO" and "info".
 	levelStr = strings.ToLower(strings.TrimSpace(levelStr))
