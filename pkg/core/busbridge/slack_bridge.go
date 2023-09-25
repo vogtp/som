@@ -124,7 +124,7 @@ func (s Slack) handleEvents() {
 			case socketmode.EventTypeEventsAPI:
 				eventsAPIEvent, ok := event.Data.(slackevents.EventsAPIEvent)
 				if !ok {
-					s.log.Warn("Could not type cast the event to the EventsAPIEvent: %v\n", event)
+					s.log.Warn("Could not type cast the event to the EventsAPIEvent: %v\n", "event", event)
 					continue
 				}
 				// We need to send an Acknowledge to the slack server

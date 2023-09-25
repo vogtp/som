@@ -91,7 +91,7 @@ func (am *AlertMgr) handle(e *msg.SzenarioEvtMsg) {
 	}()
 	am.log.Debug("Got event", log.Szenario, e.Name, "message", e.Err())
 	if a := am.checkEvent(e); a != nil {
-		am.log.Warn("Generating alert for %v: %v (%v, %v)", e.Name, e.Err(), e.Time, e.ID)
+		am.log.Warn("Generating alert for %v: %v (%v, %v)", e.Name, e.Err(), "time", e.Time, "eventID", e.ID)
 		if err := am.bus.Alert.Send(a); err != nil {
 			am.log.Warn("Cannot send alert", log.Error, err)
 		}
