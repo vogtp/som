@@ -122,11 +122,13 @@ func (a *Alerter) initEgninges() (ret error) {
 
 func (a *Alerter) handle(msg *msg.AlertMsg) {
 	for _, r := range a.rules {
+		r := r
 		if err := r.DoAlert(msg); err != nil {
 			a.log.Info("Not alerting", "alert", msg.Name, log.Error, err, "rule", r.name)
 			continue
 		}
 		for _, d := range r.destinations {
+			d := d
 			if !getCfgBool(cfgAlertEnabled, &r, &d) {
 				a.log.Warn("alerting is disabled", "alert", msg.Name, "destination", d.name, "rule", r.name)
 				continue

@@ -60,6 +60,7 @@ func (us *store) save() error {
 
 func (us *store) cleanupPasswords() {
 	for n, u := range us.data {
+		u := u
 		u.deleteOldPasswords()
 		us.data[n] = u
 	}

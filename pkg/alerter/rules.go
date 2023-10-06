@@ -51,6 +51,7 @@ func (a *Alerter) AddRule(r *Rule) error {
 func (a *Alerter) initRules() (ret error) {
 	validRules := make([]Rule, 0, len(a.rules))
 	for _, r := range a.rules {
+		r := r
 		if err := a.isValidRule(&r); err != nil {
 			ret = fmt.Errorf("rule %s is not valid: %v", r.name, err)
 			a.log.Warn(ret.Error())

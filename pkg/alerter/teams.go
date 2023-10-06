@@ -55,7 +55,9 @@ func (teams *Teams) Send(e *msg.AlertMsg, r *Rule, d *Destination) error {
 
 func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 	for _, r := range a.rules {
+		r := r
 		for _, d := range r.destinations {
+			d := d
 			if d.kind != teams.Kind() {
 				continue
 			}
