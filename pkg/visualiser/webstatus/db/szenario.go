@@ -69,6 +69,7 @@ func (client *Client) getFiles(ctx context.Context, msg *msg.SzenarioEvtMsg) ([]
 	var reterr error
 	fils := make([]*ent.File, len(msg.Files))
 	for i, f := range msg.Files {
+		f := f
 		f.CalculateID()
 		t, err := client.File.Create().
 			SetUUID(f.ID).SetName(f.Name).SetType(f.Type.MimeType).SetExt(f.Type.Ext).
