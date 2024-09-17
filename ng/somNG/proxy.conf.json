@@ -1,0 +1,10 @@
+{
+    "/som": {
+        "target": "https://its-som-master.its.unibas.ch/",
+        "secure": true,
+        "pathRewrite": {
+            "^/som": ""
+        },
+        "changeOrigin": true
+    }
+}

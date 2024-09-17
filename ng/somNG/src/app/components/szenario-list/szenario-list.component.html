@@ -1,0 +1,12 @@
+
+Szenarios:
+<table>
+    <tr *ngFor="let sz of json.Szenarios">
+        <td>{{ sz.Name }}</td>
+        <td>{{ sz.AvailabilityCur }}</td>
+    </tr>
+</table>
+
+Som Version: 
+<div *ngIf="json"> {{json.Version}}</div>
+<div *ngIf="json === undefined"> Development </div>
