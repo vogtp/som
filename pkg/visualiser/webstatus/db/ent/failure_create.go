@@ -40,7 +40,7 @@ func (fc *FailureCreate) Mutation() *FailureMutation {
 
 // Save creates the Failure in the database.
 func (fc *FailureCreate) Save(ctx context.Context) (*Failure, error) {
-	return withHooks[*Failure, FailureMutation](ctx, fc.sqlSave, fc.mutation, fc.hooks)
+	return withHooks(ctx, fc.sqlSave, fc.mutation, fc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -301,12 +301,16 @@ func (u *FailureUpsertOne) IDX(ctx context.Context) int {
 // FailureCreateBulk is the builder for creating many Failure entities in bulk.
 type FailureCreateBulk struct {
 	config
+	err      error
 	builders []*FailureCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the Failure entities in the database.
 func (fcb *FailureCreateBulk) Save(ctx context.Context) ([]*Failure, error) {
+	if fcb.err != nil {
+		return nil, fcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(fcb.builders))
 	nodes := make([]*Failure, len(fcb.builders))
 	mutators := make([]Mutator, len(fcb.builders))
@@ -501,6 +505,9 @@ func (u *FailureUpsertBulk) UpdateIdx() *FailureUpsertBulk {
 
 // Exec executes the query.
 func (u *FailureUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the FailureCreateBulk instead", i)

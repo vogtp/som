@@ -5,7 +5,6 @@ package ent
 import (
 	"context"
 
-	"entgo.io/ent/dialect/sql"
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/alert"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/counter"
@@ -21,13 +20,13 @@ func (a *AlertQuery) CollectFields(ctx context.Context, satisfies ...string) (*A
 	if fc == nil {
 		return a, nil
 	}
-	if err := a.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := a.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
 	return a, nil
 }
 
-func (a *AlertQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (a *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -36,49 +35,53 @@ func (a *AlertQuery) collectField(ctx context.Context, opCtx *graphql.OperationC
 	)
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
+
 		case "counters":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&CounterClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, counterImplementors)...); err != nil {
 				return err
 			}
 			a.WithNamedCounters(alias, func(wq *CounterQuery) {
 				*wq = *query
 			})
+
 		case "stati":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&StatusClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, statusImplementors)...); err != nil {
 				return err
 			}
 			a.WithNamedStati(alias, func(wq *StatusQuery) {
 				*wq = *query
 			})
+
 		case "failures":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&FailureClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, failureImplementors)...); err != nil {
 				return err
 			}
 			a.WithNamedFailures(alias, func(wq *FailureQuery) {
 				*wq = *query
 			})
+
 		case "files":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&FileClient{config: a.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, fileImplementors)...); err != nil {
 				return err
 			}
 			a.WithNamedFiles(alias, func(wq *FileQuery) {
@@ -178,13 +181,13 @@ func (c *CounterQuery) CollectFields(ctx context.Context, satisfies ...string) (
 	if fc == nil {
 		return c, nil
 	}
-	if err := c.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := c.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
 	return c, nil
 }
 
-func (c *CounterQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (c *CounterQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -247,13 +250,13 @@ func (f *FailureQuery) CollectFields(ctx context.Context, satisfies ...string) (
 	if fc == nil {
 		return f, nil
 	}
-	if err := f.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := f.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
 	return f, nil
 }
 
-func (f *FailureQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (f *FailureQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -316,13 +319,13 @@ func (f *FileQuery) CollectFields(ctx context.Context, satisfies ...string) (*Fi
 	if fc == nil {
 		return f, nil
 	}
-	if err := f.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := f.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
 	return f, nil
 }
 
-func (f *FileQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (f *FileQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -405,13 +408,13 @@ func (i *IncidentQuery) CollectFields(ctx context.Context, satisfies ...string) 
 	if fc == nil {
 		return i, nil
 	}
-	if err := i.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := i.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
 	return i, nil
 }
 
-func (i *IncidentQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (i *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -420,49 +423,53 @@ func (i *IncidentQuery) collectField(ctx context.Context, opCtx *graphql.Operati
 	)
 	for _, field := range graphql.CollectFields(opCtx, collected.Selections, satisfies) {
 		switch field.Name {
+
 		case "counters":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&CounterClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, counterImplementors)...); err != nil {
 				return err
 			}
 			i.WithNamedCounters(alias, func(wq *CounterQuery) {
 				*wq = *query
 			})
+
 		case "stati":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&StatusClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, statusImplementors)...); err != nil {
 				return err
 			}
 			i.WithNamedStati(alias, func(wq *StatusQuery) {
 				*wq = *query
 			})
+
 		case "failures":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&FailureClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, failureImplementors)...); err != nil {
 				return err
 			}
 			i.WithNamedFailures(alias, func(wq *FailureQuery) {
 				*wq = *query
 			})
+
 		case "files":
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
 				query = (&FileClient{config: i.config}).Query()
 			)
-			if err := query.collectField(ctx, opCtx, field, path, satisfies...); err != nil {
+			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, fileImplementors)...); err != nil {
 				return err
 			}
 			i.WithNamedFiles(alias, func(wq *FileQuery) {
@@ -577,13 +584,13 @@ func (s *StatusQuery) CollectFields(ctx context.Context, satisfies ...string) (*
 	if fc == nil {
 		return s, nil
 	}
-	if err := s.collectField(ctx, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := s.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
 	return s, nil
 }
 
-func (s *StatusQuery) collectField(ctx context.Context, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (s *StatusQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -692,39 +699,17 @@ func unmarshalArgs(ctx context.Context, whereInput any, args map[string]any) map
 	return args
 }
 
-func limitRows(partitionBy string, limit int, orderBy ...sql.Querier) func(s *sql.Selector) {
-	return func(s *sql.Selector) {
-		d := sql.Dialect(s.Dialect())
-		s.SetDistinct(false)
-		with := d.With("src_query").
-			As(s.Clone()).
-			With("limited_query").
-			As(
-				d.Select("*").
-					AppendSelectExprAs(
-						sql.RowNumber().PartitionBy(partitionBy).OrderExpr(orderBy...),
-						"row_number",
-					).
-					From(d.Table("src_query")),
-			)
-		t := d.Table("limited_query").As(s.TableName())
-		*s = *d.Select(s.UnqualifiedColumns()...).
-			From(t).
-			Where(sql.LTE(t.C("row_number"), limit)).
-			Prefix(with)
-	}
-}
-
 // mayAddCondition appends another type condition to the satisfies list
-// if condition is enabled (Node/Nodes) and it does not exist in the list.
-func mayAddCondition(satisfies []string, typeCond string) []string {
-	if len(satisfies) == 0 {
-		return satisfies
-	}
-	for _, s := range satisfies {
-		if typeCond == s {
-			return satisfies
+// if it does not exist in the list.
+func mayAddCondition(satisfies []string, typeCond []string) []string {
+Cond:
+	for _, c := range typeCond {
+		for _, s := range satisfies {
+			if c == s {
+				continue Cond
+			}
 		}
+		satisfies = append(satisfies, c)
 	}
-	return append(satisfies, typeCond)
+	return satisfies
 }

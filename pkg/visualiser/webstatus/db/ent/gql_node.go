@@ -28,23 +28,35 @@ type Noder interface {
 	IsNode()
 }
 
-// IsNode implements the Node interface check for GQLGen.
-func (n *Alert) IsNode() {}
+var alertImplementors = []string{"Alert", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
-func (n *Counter) IsNode() {}
+func (*Alert) IsNode() {}
+
+var counterImplementors = []string{"Counter", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
-func (n *Failure) IsNode() {}
+func (*Counter) IsNode() {}
+
+var failureImplementors = []string{"Failure", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
-func (n *File) IsNode() {}
+func (*Failure) IsNode() {}
+
+var fileImplementors = []string{"File", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
-func (n *Incident) IsNode() {}
+func (*File) IsNode() {}
+
+var incidentImplementors = []string{"Incident", "Node"}
 
 // IsNode implements the Node interface check for GQLGen.
-func (n *Status) IsNode() {}
+func (*Incident) IsNode() {}
+
+var statusImplementors = []string{"Status", "Node"}
+
+// IsNode implements the Node interface check for GQLGen.
+func (*Status) IsNode() {}
 
 var errNodeInvalidID = &NotFoundError{"node"}
 
@@ -107,75 +119,57 @@ func (c *Client) noder(ctx context.Context, table string, id int) (Noder, error)
 	case alert.Table:
 		query := c.Alert.Query().
 			Where(alert.ID(id))
-		query, err := query.CollectFields(ctx, "Alert")
-		if err != nil {
-			return nil, err
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, alertImplementors...); err != nil {
+				return nil, err
+			}
 		}
-		n, err := query.Only(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
+		return query.Only(ctx)
 	case counter.Table:
 		query := c.Counter.Query().
 			Where(counter.ID(id))
-		query, err := query.CollectFields(ctx, "Counter")
-		if err != nil {
-			return nil, err
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, counterImplementors...); err != nil {
+				return nil, err
+			}
 		}
-		n, err := query.Only(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
+		return query.Only(ctx)
 	case failure.Table:
 		query := c.Failure.Query().
 			Where(failure.ID(id))
-		query, err := query.CollectFields(ctx, "Failure")
-		if err != nil {
-			return nil, err
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, failureImplementors...); err != nil {
+				return nil, err
+			}
 		}
-		n, err := query.Only(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
+		return query.Only(ctx)
 	case file.Table:
 		query := c.File.Query().
 			Where(file.ID(id))
-		query, err := query.CollectFields(ctx, "File")
-		if err != nil {
-			return nil, err
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, fileImplementors...); err != nil {
+				return nil, err
+			}
 		}
-		n, err := query.Only(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
+		return query.Only(ctx)
 	case incident.Table:
 		query := c.Incident.Query().
 			Where(incident.ID(id))
-		query, err := query.CollectFields(ctx, "Incident")
-		if err != nil {
-			return nil, err
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, incidentImplementors...); err != nil {
+				return nil, err
+			}
 		}
-		n, err := query.Only(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
+		return query.Only(ctx)
 	case status.Table:
 		query := c.Status.Query().
 			Where(status.ID(id))
-		query, err := query.CollectFields(ctx, "Status")
-		if err != nil {
-			return nil, err
+		if fc := graphql.GetFieldContext(ctx); fc != nil {
+			if err := query.collectField(ctx, true, graphql.GetOperationContext(ctx), fc.Field, nil, statusImplementors...); err != nil {
+				return nil, err
+			}
 		}
-		n, err := query.Only(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return n, nil
+		return query.Only(ctx)
 	default:
 		return nil, fmt.Errorf("cannot resolve noder from table %q: %w", table, errNodeInvalidID)
 	}
@@ -252,7 +246,7 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 	case alert.Table:
 		query := c.Alert.Query().
 			Where(alert.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "Alert")
+		query, err := query.CollectFields(ctx, alertImplementors...)
 		if err != nil {
 			return nil, err
 		}
@@ -268,7 +262,7 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 	case counter.Table:
 		query := c.Counter.Query().
 			Where(counter.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "Counter")
+		query, err := query.CollectFields(ctx, counterImplementors...)
 		if err != nil {
 			return nil, err
 		}
@@ -284,7 +278,7 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 	case failure.Table:
 		query := c.Failure.Query().
 			Where(failure.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "Failure")
+		query, err := query.CollectFields(ctx, failureImplementors...)
 		if err != nil {
 			return nil, err
 		}
@@ -300,7 +294,7 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 	case file.Table:
 		query := c.File.Query().
 			Where(file.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "File")
+		query, err := query.CollectFields(ctx, fileImplementors...)
 		if err != nil {
 			return nil, err
 		}
@@ -316,7 +310,7 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 	case incident.Table:
 		query := c.Incident.Query().
 			Where(incident.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "Incident")
+		query, err := query.CollectFields(ctx, incidentImplementors...)
 		if err != nil {
 			return nil, err
 		}
@@ -332,7 +326,7 @@ func (c *Client) noders(ctx context.Context, table string, ids []int) ([]Noder, 
 	case status.Table:
 		query := c.Status.Query().
 			Where(status.IDIn(ids...))
-		query, err := query.CollectFields(ctx, "Status")
+		query, err := query.CollectFields(ctx, statusImplementors...)
 		if err != nil {
 			return nil, err
 		}

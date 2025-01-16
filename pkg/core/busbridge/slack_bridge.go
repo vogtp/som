@@ -49,10 +49,10 @@ func NewSlack(ctx context.Context, logger *slog.Logger, oAuth string, appLevelTo
 		ctx:     ctx,
 	}
 	go s.start()
-	_, err = client.CreateConversation(s.channel[1:], false)
-	if err != nil && err.Error() != "name_taken" {
-		panic(err)
-	}
+	// _, err = client.CreateConversation(s.channel[1:], false)
+	// if err != nil && err.Error() != "name_taken" {
+	// 	panic(err)
+	// }
 
 	// users, cursor, err := client.GetUsersInConversation(&slack.GetUsersInConversationParameters{
 	// 	ChannelID: s.channel,

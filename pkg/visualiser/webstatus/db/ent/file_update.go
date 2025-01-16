@@ -34,9 +34,25 @@ func (fu *FileUpdate) SetUUID(u uuid.UUID) *FileUpdate {
 	return fu
 }
 
+// SetNillableUUID sets the "UUID" field if the given value is not nil.
+func (fu *FileUpdate) SetNillableUUID(u *uuid.UUID) *FileUpdate {
+	if u != nil {
+		fu.SetUUID(*u)
+	}
+	return fu
+}
+
 // SetName sets the "Name" field.
 func (fu *FileUpdate) SetName(s string) *FileUpdate {
 	fu.mutation.SetName(s)
+	return fu
+}
+
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (fu *FileUpdate) SetNillableName(s *string) *FileUpdate {
+	if s != nil {
+		fu.SetName(*s)
+	}
 	return fu
 }
 
@@ -46,9 +62,25 @@ func (fu *FileUpdate) SetType(s string) *FileUpdate {
 	return fu
 }
 
+// SetNillableType sets the "Type" field if the given value is not nil.
+func (fu *FileUpdate) SetNillableType(s *string) *FileUpdate {
+	if s != nil {
+		fu.SetType(*s)
+	}
+	return fu
+}
+
 // SetExt sets the "Ext" field.
 func (fu *FileUpdate) SetExt(s string) *FileUpdate {
 	fu.mutation.SetExt(s)
+	return fu
+}
+
+// SetNillableExt sets the "Ext" field if the given value is not nil.
+func (fu *FileUpdate) SetNillableExt(s *string) *FileUpdate {
+	if s != nil {
+		fu.SetExt(*s)
+	}
 	return fu
 }
 
@@ -56,6 +88,14 @@ func (fu *FileUpdate) SetExt(s string) *FileUpdate {
 func (fu *FileUpdate) SetSize(i int) *FileUpdate {
 	fu.mutation.ResetSize()
 	fu.mutation.SetSize(i)
+	return fu
+}
+
+// SetNillableSize sets the "Size" field if the given value is not nil.
+func (fu *FileUpdate) SetNillableSize(i *int) *FileUpdate {
+	if i != nil {
+		fu.SetSize(*i)
+	}
 	return fu
 }
 
@@ -78,7 +118,7 @@ func (fu *FileUpdate) Mutation() *FileMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (fu *FileUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, FileMutation](ctx, fu.sqlSave, fu.mutation, fu.hooks)
+	return withHooks(ctx, fu.sqlSave, fu.mutation, fu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -159,9 +199,25 @@ func (fuo *FileUpdateOne) SetUUID(u uuid.UUID) *FileUpdateOne {
 	return fuo
 }
 
+// SetNillableUUID sets the "UUID" field if the given value is not nil.
+func (fuo *FileUpdateOne) SetNillableUUID(u *uuid.UUID) *FileUpdateOne {
+	if u != nil {
+		fuo.SetUUID(*u)
+	}
+	return fuo
+}
+
 // SetName sets the "Name" field.
 func (fuo *FileUpdateOne) SetName(s string) *FileUpdateOne {
 	fuo.mutation.SetName(s)
+	return fuo
+}
+
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (fuo *FileUpdateOne) SetNillableName(s *string) *FileUpdateOne {
+	if s != nil {
+		fuo.SetName(*s)
+	}
 	return fuo
 }
 
@@ -171,9 +227,25 @@ func (fuo *FileUpdateOne) SetType(s string) *FileUpdateOne {
 	return fuo
 }
 
+// SetNillableType sets the "Type" field if the given value is not nil.
+func (fuo *FileUpdateOne) SetNillableType(s *string) *FileUpdateOne {
+	if s != nil {
+		fuo.SetType(*s)
+	}
+	return fuo
+}
+
 // SetExt sets the "Ext" field.
 func (fuo *FileUpdateOne) SetExt(s string) *FileUpdateOne {
 	fuo.mutation.SetExt(s)
+	return fuo
+}
+
+// SetNillableExt sets the "Ext" field if the given value is not nil.
+func (fuo *FileUpdateOne) SetNillableExt(s *string) *FileUpdateOne {
+	if s != nil {
+		fuo.SetExt(*s)
+	}
 	return fuo
 }
 
@@ -181,6 +253,14 @@ func (fuo *FileUpdateOne) SetExt(s string) *FileUpdateOne {
 func (fuo *FileUpdateOne) SetSize(i int) *FileUpdateOne {
 	fuo.mutation.ResetSize()
 	fuo.mutation.SetSize(i)
+	return fuo
+}
+
+// SetNillableSize sets the "Size" field if the given value is not nil.
+func (fuo *FileUpdateOne) SetNillableSize(i *int) *FileUpdateOne {
+	if i != nil {
+		fuo.SetSize(*i)
+	}
 	return fuo
 }
 
@@ -216,7 +296,7 @@ func (fuo *FileUpdateOne) Select(field string, fields ...string) *FileUpdateOne 
 
 // Save executes the query and returns the updated File entity.
 func (fuo *FileUpdateOne) Save(ctx context.Context) (*File, error) {
-	return withHooks[*File, FileMutation](ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
+	return withHooks(ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

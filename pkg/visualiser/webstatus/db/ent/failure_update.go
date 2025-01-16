@@ -33,10 +33,26 @@ func (fu *FailureUpdate) SetError(s string) *FailureUpdate {
 	return fu
 }
 
+// SetNillableError sets the "Error" field if the given value is not nil.
+func (fu *FailureUpdate) SetNillableError(s *string) *FailureUpdate {
+	if s != nil {
+		fu.SetError(*s)
+	}
+	return fu
+}
+
 // SetIdx sets the "Idx" field.
 func (fu *FailureUpdate) SetIdx(i int) *FailureUpdate {
 	fu.mutation.ResetIdx()
 	fu.mutation.SetIdx(i)
+	return fu
+}
+
+// SetNillableIdx sets the "Idx" field if the given value is not nil.
+func (fu *FailureUpdate) SetNillableIdx(i *int) *FailureUpdate {
+	if i != nil {
+		fu.SetIdx(*i)
+	}
 	return fu
 }
 
@@ -53,7 +69,7 @@ func (fu *FailureUpdate) Mutation() *FailureMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (fu *FailureUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, FailureMutation](ctx, fu.sqlSave, fu.mutation, fu.hooks)
+	return withHooks(ctx, fu.sqlSave, fu.mutation, fu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -122,10 +138,26 @@ func (fuo *FailureUpdateOne) SetError(s string) *FailureUpdateOne {
 	return fuo
 }
 
+// SetNillableError sets the "Error" field if the given value is not nil.
+func (fuo *FailureUpdateOne) SetNillableError(s *string) *FailureUpdateOne {
+	if s != nil {
+		fuo.SetError(*s)
+	}
+	return fuo
+}
+
 // SetIdx sets the "Idx" field.
 func (fuo *FailureUpdateOne) SetIdx(i int) *FailureUpdateOne {
 	fuo.mutation.ResetIdx()
 	fuo.mutation.SetIdx(i)
+	return fuo
+}
+
+// SetNillableIdx sets the "Idx" field if the given value is not nil.
+func (fuo *FailureUpdateOne) SetNillableIdx(i *int) *FailureUpdateOne {
+	if i != nil {
+		fuo.SetIdx(*i)
+	}
 	return fuo
 }
 
@@ -155,7 +187,7 @@ func (fuo *FailureUpdateOne) Select(field string, fields ...string) *FailureUpda
 
 // Save executes the query and returns the updated Failure entity.
 func (fuo *FailureUpdateOne) Save(ctx context.Context) (*Failure, error) {
-	return withHooks[*Failure, FailureMutation](ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
+	return withHooks(ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

@@ -33,9 +33,25 @@ func (su *StatusUpdate) SetName(s string) *StatusUpdate {
 	return su
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (su *StatusUpdate) SetNillableName(s *string) *StatusUpdate {
+	if s != nil {
+		su.SetName(*s)
+	}
+	return su
+}
+
 // SetValue sets the "Value" field.
 func (su *StatusUpdate) SetValue(s string) *StatusUpdate {
 	su.mutation.SetValue(s)
+	return su
+}
+
+// SetNillableValue sets the "Value" field if the given value is not nil.
+func (su *StatusUpdate) SetNillableValue(s *string) *StatusUpdate {
+	if s != nil {
+		su.SetValue(*s)
+	}
 	return su
 }
 
@@ -46,7 +62,7 @@ func (su *StatusUpdate) Mutation() *StatusMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (su *StatusUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, StatusMutation](ctx, su.sqlSave, su.mutation, su.hooks)
+	return withHooks(ctx, su.sqlSave, su.mutation, su.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -112,9 +128,25 @@ func (suo *StatusUpdateOne) SetName(s string) *StatusUpdateOne {
 	return suo
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (suo *StatusUpdateOne) SetNillableName(s *string) *StatusUpdateOne {
+	if s != nil {
+		suo.SetName(*s)
+	}
+	return suo
+}
+
 // SetValue sets the "Value" field.
 func (suo *StatusUpdateOne) SetValue(s string) *StatusUpdateOne {
 	suo.mutation.SetValue(s)
+	return suo
+}
+
+// SetNillableValue sets the "Value" field if the given value is not nil.
+func (suo *StatusUpdateOne) SetNillableValue(s *string) *StatusUpdateOne {
+	if s != nil {
+		suo.SetValue(*s)
+	}
 	return suo
 }
 
@@ -138,7 +170,7 @@ func (suo *StatusUpdateOne) Select(field string, fields ...string) *StatusUpdate
 
 // Save executes the query and returns the updated Status entity.
 func (suo *StatusUpdateOne) Save(ctx context.Context) (*Status, error) {
-	return withHooks[*Status, StatusMutation](ctx, suo.sqlSave, suo.mutation, suo.hooks)
+	return withHooks(ctx, suo.sqlSave, suo.mutation, suo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
