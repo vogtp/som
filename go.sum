@@ -320,8 +320,8 @@ github.com/stretchr/testify v1.7.2/go.mod h1:R6va5+xMeoiuVRoj+gSkQ7d3FALtqAAGI1F
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
-github.com/suborbital/grav v0.5.2 h1:GWNU+0PoXGiGR9xvvcB2+tAtO5hwddYNhPVd3RTpJts=
-github.com/suborbital/grav v0.5.2/go.mod h1:Jqo0ER6Boe1vhZWI4mWfcrs6c7nlRsRMoFBRm4BB1qY=
+github.com/suborbital/e2core v0.5.1 h1:GRFbOjtu0atcPUqMLaPGZW6tyROtp8whYO2hW0Vtw5I=
+github.com/suborbital/e2core v0.5.1/go.mod h1:EV8Pm5WeeUjXi++cU2rYXrEZ0vITF3aILzsZTTYwVW4=
 github.com/suborbital/vektor v0.7.0 h1:EiDHDEuJvhX1ZxI5e4xGyvX/6CUCz1LmFPLm6Dzbx94=
 github.com/suborbital/vektor v0.7.0/go.mod h1:zLt1E0E1oe6iBnl4Y0ywC7LrtdCLO0di/CXw0HznHic=
 github.com/subosito/gotenv v1.4.2 h1:X1TuBLAMDFbaTAChgCBLu3DU3UPyELpnF2jjJ2cz/S8=

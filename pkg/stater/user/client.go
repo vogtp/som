@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/suborbital/grav/grav"
+	"github.com/suborbital/e2core/foundation/bus/bus"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msgtype"
@@ -18,7 +18,7 @@ type Access interface {
 var (
 	// Store is the userstore client
 	Store          = createClient()
-	defaultTimeout = grav.Timeout(15)
+	defaultTimeout = bus.Timeout(15)
 )
 
 type client struct {
@@ -37,7 +37,7 @@ func (us *client) Get(name string) (*User, error) {
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	user := new(User)
-	err := p.Send(grav.NewMsg(msgtype.UserRequest, []byte(name))).WaitUntil(defaultTimeout, func(m grav.Message) error {
+	err := p.Send(bus.NewMsg(msgtype.UserRequest, []byte(name))).WaitUntil(defaultTimeout, func(m bus.Message) error {
 
 		switch m.Type() {
 		case msgtype.UserResponse:
@@ -74,9 +74,9 @@ func (us *client) Save(u *User) error {
 	if err != nil {
 		return fmt.Errorf("cannot marshal user: %w", err)
 	}
-	msg := grav.NewMsg(msgtype.UserAdd, b)
+	msg := bus.NewMsg(msgtype.UserAdd, b)
 	var retErr error
-	err = p.Send(msg).WaitUntil(defaultTimeout, func(m grav.Message) error {
+	err = p.Send(msg).WaitUntil(defaultTimeout, func(m bus.Message) error {
 		if len(m.Data()) > 0 {
 			retErr = fmt.Errorf("server side error: %v", string(m.Data()))
 		}
@@ -95,7 +95,7 @@ func (us *client) List() ([]User, error) {
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	users := make([]User, 0)
-	err := p.Send(grav.NewMsg(msgtype.UserList, nil)).WaitUntil(defaultTimeout, func(m grav.Message) error {
+	err := p.Send(bus.NewMsg(msgtype.UserList, nil)).WaitUntil(defaultTimeout, func(m bus.Message) error {
 		//slog.Debug("Reply for userlist: %T %+v", m, string(m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:
@@ -122,7 +122,7 @@ func (us *client) Delete(name string) (string, error) {
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	msg := ""
-	err := p.Send(grav.NewMsg(msgtype.UserDelete, []byte(name))).WaitUntil(defaultTimeout, func(m grav.Message) error {
+	err := p.Send(bus.NewMsg(msgtype.UserDelete, []byte(name))).WaitUntil(defaultTimeout, func(m bus.Message) error {
 		//slog.Debug("Reply for user %s: %T %+v", name, m, string(m.Data()))
 		switch m.Type() {
 		case msgtype.UserResponse:

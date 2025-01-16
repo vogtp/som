@@ -5,7 +5,7 @@ go 1.19
 require (
 	entgo.io/contrib v0.4.5
 	entgo.io/ent v0.12.2
-	github.com/99designs/gqlgen v0.17.29
+	github.com/99designs/gqlgen v0.17.52
 	github.com/atc0005/go-teams-notify/v2 v2.7.0
 	github.com/chromedp/cdproto v0.0.0-20230413093208-7497fc11fc57
 	github.com/chromedp/chromedp v0.9.1
@@ -26,7 +26,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
-	github.com/suborbital/grav v0.5.2
+	github.com/suborbital/e2core v0.5.1
 	github.com/suborbital/vektor v0.7.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	github.com/vogtp/go-mesh v0.2.1
