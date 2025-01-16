@@ -10,7 +10,7 @@ import (
 
 	"log/slog"
 
-	"github.com/suborbital/grav/grav"
+	"github.com/suborbital/e2core/foundation/bus/bus"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msgtype"
@@ -23,7 +23,7 @@ var (
 // store stores users and their passwords
 type store struct {
 	log        *slog.Logger
-	handlerPod *grav.Pod
+	handlerPod *bus.Pod
 	mu         sync.RWMutex
 	data       map[string]User
 }
@@ -54,7 +54,7 @@ func (us *store) setup() {
 
 func (us *store) start() {
 	us.handlerPod = core.Get().Bus().Connect()
-	us.handlerPod.On(func(m grav.Message) error {
+	us.handlerPod.On(func(m bus.Message) error {
 		us.log.Debug("user backend got message", "type", m.Type(), "data", string(m.Data()), "uuid", m.UUID())
 		switch m.Type() {
 		case msgtype.UserRequest:
@@ -79,7 +79,7 @@ func (us *store) start() {
 	us.log.Debug("Userstore pod for msg handling", "pod", us.handlerPod)
 }
 
-func (us *store) addUser(m grav.Message) error {
+func (us *store) addUser(m bus.Message) error {
 	us.log.Debug("Requested to add a user")
 	_, err := us.storeUserFromMsg(m)
 	var s string
@@ -87,7 +87,7 @@ func (us *store) addUser(m grav.Message) error {
 		us.log.Warn("adding user", log.Error, err)
 		s = err.Error()
 	}
-	msg := grav.NewMsg(msgtype.UserResponse, []byte(s))
+	msg := bus.NewMsg(msgtype.UserResponse, []byte(s))
 	msg.SetReplyTo(m.UUID())
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
@@ -96,7 +96,7 @@ func (us *store) addUser(m grav.Message) error {
 	return err
 }
 
-func (us *store) deleteUser(m grav.Message) error {
+func (us *store) deleteUser(m bus.Message) error {
 	name := string(m.Data())
 	us.log.Warn("Deleting user from store", log.User, name)
 
@@ -117,7 +117,7 @@ func (us *store) deleteUser(m grav.Message) error {
 		msgTxt = fmt.Sprintf("No such user %s", name)
 	}
 
-	msg := grav.NewMsg(msgType, []byte(msgTxt))
+	msg := bus.NewMsg(msgType, []byte(msgTxt))
 	msg.SetReplyTo(m.UUID())
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
@@ -125,7 +125,7 @@ func (us *store) deleteUser(m grav.Message) error {
 	return nil
 }
 
-func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
+func (us *store) storeUserFromMsg(m bus.Message) (*User, error) {
 	u := &User{}
 	if err := json.Unmarshal(m.Data(), u); err != nil {
 		return nil, fmt.Errorf("adding user: %v", err)
@@ -156,7 +156,7 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 	return u, us.save()
 }
 
-func (us *store) getUser(m grav.Message) error {
+func (us *store) getUser(m bus.Message) error {
 	name := string(m.Data())
 	us.log.Debug("Looking up user in store", log.User, name)
 
@@ -169,7 +169,7 @@ func (us *store) getUser(m grav.Message) error {
 	return err
 }
 
-func (us *store) buildUserMsg(name string) (grav.Message, error) {
+func (us *store) buildUserMsg(name string) (bus.Message, error) {
 	us.mu.RLock()
 	defer us.mu.RUnlock()
 	if u, ok := us.data[name]; ok {
@@ -177,14 +177,14 @@ func (us *store) buildUserMsg(name string) (grav.Message, error) {
 		if err != nil {
 			err = fmt.Errorf("cannot marshall user %s: %v", name, err)
 			us.log.Error("cannot marshall user", log.Error, err.Error(), log.User, name)
-			return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
+			return bus.NewMsg(msgtype.UserError, []byte(err.Error())), err
 		}
-		return grav.NewMsg(msgtype.UserResponse, b), nil
+		return bus.NewMsg(msgtype.UserResponse, b), nil
 	}
-	return grav.NewMsg(msgtype.UserError, []byte("No such user")), errors.New("no such user")
+	return bus.NewMsg(msgtype.UserError, []byte("No such user")), errors.New("no such user")
 }
 
-func (us *store) getUserList(m grav.Message) error {
+func (us *store) getUserList(m bus.Message) error {
 	msg, err := us.buildUserlistMsg()
 
 	msg.SetReplyTo(m.UUID())
@@ -194,7 +194,7 @@ func (us *store) getUserList(m grav.Message) error {
 	return err
 }
 
-func (us *store) buildUserlistMsg() (grav.Message, error) {
+func (us *store) buildUserlistMsg() (bus.Message, error) {
 	us.mu.RLock()
 	defer us.mu.RUnlock()
 
@@ -206,9 +206,9 @@ func (us *store) buildUserlistMsg() (grav.Message, error) {
 	if err != nil {
 		err = fmt.Errorf("cannot marshall userlist: %v", err)
 		us.log.Error("Cannot marshall user list", log.Error, err.Error())
-		return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
+		return bus.NewMsg(msgtype.UserError, []byte(err.Error())), err
 	}
-	return grav.NewMsg(msgtype.UserResponse, b), nil
+	return bus.NewMsg(msgtype.UserResponse, b), nil
 }
 
 // Get returns the requested user or nil

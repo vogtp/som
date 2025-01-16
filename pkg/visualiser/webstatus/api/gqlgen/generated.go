@@ -6363,7 +6363,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6380,7 +6380,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6436,7 +6436,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6453,7 +6453,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6470,7 +6470,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6487,7 +6487,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6495,7 +6495,7 @@ func (ec *executionContext) _Alert(ctx context.Context, sel ast.SelectionSet, ob
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -6537,7 +6537,7 @@ func (ec *executionContext) _Counter(ctx context.Context, sel ast.SelectionSet, 
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -6579,7 +6579,7 @@ func (ec *executionContext) _Failure(ctx context.Context, sel ast.SelectionSet, 
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -6654,7 +6654,7 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6662,7 +6662,7 @@ func (ec *executionContext) _File(ctx context.Context, sel ast.SelectionSet, obj
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -6720,7 +6720,7 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6790,7 +6790,7 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6807,7 +6807,7 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6824,7 +6824,7 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6841,7 +6841,7 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6858,7 +6858,7 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6866,7 +6866,7 @@ func (ec *executionContext) _Incident(ctx context.Context, sel ast.SelectionSet,
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -6906,7 +6906,7 @@ func (ec *executionContext) _IncidentSummary(ctx context.Context, sel ast.Select
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6923,7 +6923,7 @@ func (ec *executionContext) _IncidentSummary(ctx context.Context, sel ast.Select
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6947,7 +6947,7 @@ func (ec *executionContext) _IncidentSummary(ctx context.Context, sel ast.Select
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6978,7 +6978,7 @@ func (ec *executionContext) _IncidentSummary(ctx context.Context, sel ast.Select
 				return res
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return innerFunc(ctx)
 
 			})
@@ -6986,7 +6986,7 @@ func (ec *executionContext) _IncidentSummary(ctx context.Context, sel ast.Select
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7029,7 +7029,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return rrm(innerCtx)
 			})
 		case "IncidentEntries":
@@ -7049,7 +7049,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return rrm(innerCtx)
 			})
 		case "Alerts":
@@ -7069,7 +7069,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
 			}
 
-			out.Concurrently(i, func() graphql.Marshaler {
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler {
 				return rrm(innerCtx)
 			})
 		case "__type":
@@ -7088,7 +7088,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7130,7 +7130,7 @@ func (ec *executionContext) _Status(ctx context.Context, sel ast.SelectionSet, o
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7205,7 +7205,7 @@ func (ec *executionContext) ___Directive(ctx context.Context, sel ast.SelectionS
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7248,7 +7248,7 @@ func (ec *executionContext) ___EnumValue(ctx context.Context, sel ast.SelectionS
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7305,7 +7305,7 @@ func (ec *executionContext) ___Field(ctx context.Context, sel ast.SelectionSet, 
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7348,7 +7348,7 @@ func (ec *executionContext) ___InputValue(ctx context.Context, sel ast.Selection
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7402,7 +7402,7 @@ func (ec *executionContext) ___Schema(ctx context.Context, sel ast.SelectionSet,
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
@@ -7466,7 +7466,7 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-	out.Dispatch()
+	out.Dispatch(ctx)
 	if invalids > 0 {
 		return graphql.Null
 	}
