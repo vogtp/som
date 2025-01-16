@@ -196,7 +196,7 @@ func (ic *IncidentCreate) Mutation() *IncidentMutation {
 
 // Save creates the Incident in the database.
 func (ic *IncidentCreate) Save(ctx context.Context) (*Incident, error) {
-	return withHooks[*Incident, IncidentMutation](ctx, ic.sqlSave, ic.mutation, ic.hooks)
+	return withHooks(ctx, ic.sqlSave, ic.mutation, ic.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -914,12 +914,16 @@ func (u *IncidentUpsertOne) IDX(ctx context.Context) int {
 // IncidentCreateBulk is the builder for creating many Incident entities in bulk.
 type IncidentCreateBulk struct {
 	config
+	err      error
 	builders []*IncidentCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the Incident entities in the database.
 func (icb *IncidentCreateBulk) Save(ctx context.Context) ([]*Incident, error) {
+	if icb.err != nil {
+		return nil, icb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(icb.builders))
 	nodes := make([]*Incident, len(icb.builders))
 	mutators := make([]Mutator, len(icb.builders))
@@ -1289,6 +1293,9 @@ func (u *IncidentUpsertBulk) UpdateState() *IncidentUpsertBulk {
 
 // Exec executes the query.
 func (u *IncidentUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the IncidentCreateBulk instead", i)

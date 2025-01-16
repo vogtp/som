@@ -39,6 +39,14 @@ func (iu *IncidentUpdate) SetUUID(u uuid.UUID) *IncidentUpdate {
 	return iu
 }
 
+// SetNillableUUID sets the "UUID" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableUUID(u *uuid.UUID) *IncidentUpdate {
+	if u != nil {
+		iu.SetUUID(*u)
+	}
+	return iu
+}
+
 // SetIncidentID sets the "IncidentID" field.
 func (iu *IncidentUpdate) SetIncidentID(u uuid.UUID) *IncidentUpdate {
 	iu.mutation.SetIncidentID(u)
@@ -65,9 +73,25 @@ func (iu *IncidentUpdate) SetName(s string) *IncidentUpdate {
 	return iu
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableName(s *string) *IncidentUpdate {
+	if s != nil {
+		iu.SetName(*s)
+	}
+	return iu
+}
+
 // SetTime sets the "Time" field.
 func (iu *IncidentUpdate) SetTime(t time.Time) *IncidentUpdate {
 	iu.mutation.SetTime(t)
+	return iu
+}
+
+// SetNillableTime sets the "Time" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableTime(t *time.Time) *IncidentUpdate {
+	if t != nil {
+		iu.SetTime(*t)
+	}
 	return iu
 }
 
@@ -75,6 +99,14 @@ func (iu *IncidentUpdate) SetTime(t time.Time) *IncidentUpdate {
 func (iu *IncidentUpdate) SetIntLevel(i int) *IncidentUpdate {
 	iu.mutation.ResetIntLevel()
 	iu.mutation.SetIntLevel(i)
+	return iu
+}
+
+// SetNillableIntLevel sets the "IntLevel" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableIntLevel(i *int) *IncidentUpdate {
+	if i != nil {
+		iu.SetIntLevel(*i)
+	}
 	return iu
 }
 
@@ -90,9 +122,25 @@ func (iu *IncidentUpdate) SetUsername(s string) *IncidentUpdate {
 	return iu
 }
 
+// SetNillableUsername sets the "Username" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableUsername(s *string) *IncidentUpdate {
+	if s != nil {
+		iu.SetUsername(*s)
+	}
+	return iu
+}
+
 // SetRegion sets the "Region" field.
 func (iu *IncidentUpdate) SetRegion(s string) *IncidentUpdate {
 	iu.mutation.SetRegion(s)
+	return iu
+}
+
+// SetNillableRegion sets the "Region" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableRegion(s *string) *IncidentUpdate {
+	if s != nil {
+		iu.SetRegion(*s)
+	}
 	return iu
 }
 
@@ -102,9 +150,25 @@ func (iu *IncidentUpdate) SetProbeOS(s string) *IncidentUpdate {
 	return iu
 }
 
+// SetNillableProbeOS sets the "ProbeOS" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableProbeOS(s *string) *IncidentUpdate {
+	if s != nil {
+		iu.SetProbeOS(*s)
+	}
+	return iu
+}
+
 // SetProbeHost sets the "ProbeHost" field.
 func (iu *IncidentUpdate) SetProbeHost(s string) *IncidentUpdate {
 	iu.mutation.SetProbeHost(s)
+	return iu
+}
+
+// SetNillableProbeHost sets the "ProbeHost" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableProbeHost(s *string) *IncidentUpdate {
+	if s != nil {
+		iu.SetProbeHost(*s)
+	}
 	return iu
 }
 
@@ -131,6 +195,14 @@ func (iu *IncidentUpdate) ClearError() *IncidentUpdate {
 // SetStart sets the "Start" field.
 func (iu *IncidentUpdate) SetStart(t time.Time) *IncidentUpdate {
 	iu.mutation.SetStart(t)
+	return iu
+}
+
+// SetNillableStart sets the "Start" field if the given value is not nil.
+func (iu *IncidentUpdate) SetNillableStart(t *time.Time) *IncidentUpdate {
+	if t != nil {
+		iu.SetStart(*t)
+	}
 	return iu
 }
 
@@ -311,7 +383,7 @@ func (iu *IncidentUpdate) RemoveFiles(f ...*File) *IncidentUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (iu *IncidentUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, IncidentMutation](ctx, iu.sqlSave, iu.mutation, iu.hooks)
+	return withHooks(ctx, iu.sqlSave, iu.mutation, iu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -602,6 +674,14 @@ func (iuo *IncidentUpdateOne) SetUUID(u uuid.UUID) *IncidentUpdateOne {
 	return iuo
 }
 
+// SetNillableUUID sets the "UUID" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableUUID(u *uuid.UUID) *IncidentUpdateOne {
+	if u != nil {
+		iuo.SetUUID(*u)
+	}
+	return iuo
+}
+
 // SetIncidentID sets the "IncidentID" field.
 func (iuo *IncidentUpdateOne) SetIncidentID(u uuid.UUID) *IncidentUpdateOne {
 	iuo.mutation.SetIncidentID(u)
@@ -628,9 +708,25 @@ func (iuo *IncidentUpdateOne) SetName(s string) *IncidentUpdateOne {
 	return iuo
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableName(s *string) *IncidentUpdateOne {
+	if s != nil {
+		iuo.SetName(*s)
+	}
+	return iuo
+}
+
 // SetTime sets the "Time" field.
 func (iuo *IncidentUpdateOne) SetTime(t time.Time) *IncidentUpdateOne {
 	iuo.mutation.SetTime(t)
+	return iuo
+}
+
+// SetNillableTime sets the "Time" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableTime(t *time.Time) *IncidentUpdateOne {
+	if t != nil {
+		iuo.SetTime(*t)
+	}
 	return iuo
 }
 
@@ -638,6 +734,14 @@ func (iuo *IncidentUpdateOne) SetTime(t time.Time) *IncidentUpdateOne {
 func (iuo *IncidentUpdateOne) SetIntLevel(i int) *IncidentUpdateOne {
 	iuo.mutation.ResetIntLevel()
 	iuo.mutation.SetIntLevel(i)
+	return iuo
+}
+
+// SetNillableIntLevel sets the "IntLevel" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableIntLevel(i *int) *IncidentUpdateOne {
+	if i != nil {
+		iuo.SetIntLevel(*i)
+	}
 	return iuo
 }
 
@@ -653,9 +757,25 @@ func (iuo *IncidentUpdateOne) SetUsername(s string) *IncidentUpdateOne {
 	return iuo
 }
 
+// SetNillableUsername sets the "Username" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableUsername(s *string) *IncidentUpdateOne {
+	if s != nil {
+		iuo.SetUsername(*s)
+	}
+	return iuo
+}
+
 // SetRegion sets the "Region" field.
 func (iuo *IncidentUpdateOne) SetRegion(s string) *IncidentUpdateOne {
 	iuo.mutation.SetRegion(s)
+	return iuo
+}
+
+// SetNillableRegion sets the "Region" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableRegion(s *string) *IncidentUpdateOne {
+	if s != nil {
+		iuo.SetRegion(*s)
+	}
 	return iuo
 }
 
@@ -665,9 +785,25 @@ func (iuo *IncidentUpdateOne) SetProbeOS(s string) *IncidentUpdateOne {
 	return iuo
 }
 
+// SetNillableProbeOS sets the "ProbeOS" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableProbeOS(s *string) *IncidentUpdateOne {
+	if s != nil {
+		iuo.SetProbeOS(*s)
+	}
+	return iuo
+}
+
 // SetProbeHost sets the "ProbeHost" field.
 func (iuo *IncidentUpdateOne) SetProbeHost(s string) *IncidentUpdateOne {
 	iuo.mutation.SetProbeHost(s)
+	return iuo
+}
+
+// SetNillableProbeHost sets the "ProbeHost" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableProbeHost(s *string) *IncidentUpdateOne {
+	if s != nil {
+		iuo.SetProbeHost(*s)
+	}
 	return iuo
 }
 
@@ -694,6 +830,14 @@ func (iuo *IncidentUpdateOne) ClearError() *IncidentUpdateOne {
 // SetStart sets the "Start" field.
 func (iuo *IncidentUpdateOne) SetStart(t time.Time) *IncidentUpdateOne {
 	iuo.mutation.SetStart(t)
+	return iuo
+}
+
+// SetNillableStart sets the "Start" field if the given value is not nil.
+func (iuo *IncidentUpdateOne) SetNillableStart(t *time.Time) *IncidentUpdateOne {
+	if t != nil {
+		iuo.SetStart(*t)
+	}
 	return iuo
 }
 
@@ -887,7 +1031,7 @@ func (iuo *IncidentUpdateOne) Select(field string, fields ...string) *IncidentUp
 
 // Save executes the query and returns the updated Incident entity.
 func (iuo *IncidentUpdateOne) Save(ctx context.Context) (*Incident, error) {
-	return withHooks[*Incident, IncidentMutation](ctx, iuo.sqlSave, iuo.mutation, iuo.hooks)
+	return withHooks(ctx, iuo.sqlSave, iuo.mutation, iuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

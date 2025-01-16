@@ -39,6 +39,14 @@ func (au *AlertUpdate) SetUUID(u uuid.UUID) *AlertUpdate {
 	return au
 }
 
+// SetNillableUUID sets the "UUID" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableUUID(u *uuid.UUID) *AlertUpdate {
+	if u != nil {
+		au.SetUUID(*u)
+	}
+	return au
+}
+
 // SetIncidentID sets the "IncidentID" field.
 func (au *AlertUpdate) SetIncidentID(u uuid.UUID) *AlertUpdate {
 	au.mutation.SetIncidentID(u)
@@ -65,9 +73,25 @@ func (au *AlertUpdate) SetName(s string) *AlertUpdate {
 	return au
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableName(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetName(*s)
+	}
+	return au
+}
+
 // SetTime sets the "Time" field.
 func (au *AlertUpdate) SetTime(t time.Time) *AlertUpdate {
 	au.mutation.SetTime(t)
+	return au
+}
+
+// SetNillableTime sets the "Time" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableTime(t *time.Time) *AlertUpdate {
+	if t != nil {
+		au.SetTime(*t)
+	}
 	return au
 }
 
@@ -75,6 +99,14 @@ func (au *AlertUpdate) SetTime(t time.Time) *AlertUpdate {
 func (au *AlertUpdate) SetIntLevel(i int) *AlertUpdate {
 	au.mutation.ResetIntLevel()
 	au.mutation.SetIntLevel(i)
+	return au
+}
+
+// SetNillableIntLevel sets the "IntLevel" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableIntLevel(i *int) *AlertUpdate {
+	if i != nil {
+		au.SetIntLevel(*i)
+	}
 	return au
 }
 
@@ -90,9 +122,25 @@ func (au *AlertUpdate) SetUsername(s string) *AlertUpdate {
 	return au
 }
 
+// SetNillableUsername sets the "Username" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableUsername(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetUsername(*s)
+	}
+	return au
+}
+
 // SetRegion sets the "Region" field.
 func (au *AlertUpdate) SetRegion(s string) *AlertUpdate {
 	au.mutation.SetRegion(s)
+	return au
+}
+
+// SetNillableRegion sets the "Region" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableRegion(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetRegion(*s)
+	}
 	return au
 }
 
@@ -102,9 +150,25 @@ func (au *AlertUpdate) SetProbeOS(s string) *AlertUpdate {
 	return au
 }
 
+// SetNillableProbeOS sets the "ProbeOS" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableProbeOS(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetProbeOS(*s)
+	}
+	return au
+}
+
 // SetProbeHost sets the "ProbeHost" field.
 func (au *AlertUpdate) SetProbeHost(s string) *AlertUpdate {
 	au.mutation.SetProbeHost(s)
+	return au
+}
+
+// SetNillableProbeHost sets the "ProbeHost" field if the given value is not nil.
+func (au *AlertUpdate) SetNillableProbeHost(s *string) *AlertUpdate {
+	if s != nil {
+		au.SetProbeHost(*s)
+	}
 	return au
 }
 
@@ -279,7 +343,7 @@ func (au *AlertUpdate) RemoveFiles(f ...*File) *AlertUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (au *AlertUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, AlertMutation](ctx, au.sqlSave, au.mutation, au.hooks)
+	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -558,6 +622,14 @@ func (auo *AlertUpdateOne) SetUUID(u uuid.UUID) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableUUID sets the "UUID" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableUUID(u *uuid.UUID) *AlertUpdateOne {
+	if u != nil {
+		auo.SetUUID(*u)
+	}
+	return auo
+}
+
 // SetIncidentID sets the "IncidentID" field.
 func (auo *AlertUpdateOne) SetIncidentID(u uuid.UUID) *AlertUpdateOne {
 	auo.mutation.SetIncidentID(u)
@@ -584,9 +656,25 @@ func (auo *AlertUpdateOne) SetName(s string) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableName(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetName(*s)
+	}
+	return auo
+}
+
 // SetTime sets the "Time" field.
 func (auo *AlertUpdateOne) SetTime(t time.Time) *AlertUpdateOne {
 	auo.mutation.SetTime(t)
+	return auo
+}
+
+// SetNillableTime sets the "Time" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableTime(t *time.Time) *AlertUpdateOne {
+	if t != nil {
+		auo.SetTime(*t)
+	}
 	return auo
 }
 
@@ -594,6 +682,14 @@ func (auo *AlertUpdateOne) SetTime(t time.Time) *AlertUpdateOne {
 func (auo *AlertUpdateOne) SetIntLevel(i int) *AlertUpdateOne {
 	auo.mutation.ResetIntLevel()
 	auo.mutation.SetIntLevel(i)
+	return auo
+}
+
+// SetNillableIntLevel sets the "IntLevel" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableIntLevel(i *int) *AlertUpdateOne {
+	if i != nil {
+		auo.SetIntLevel(*i)
+	}
 	return auo
 }
 
@@ -609,9 +705,25 @@ func (auo *AlertUpdateOne) SetUsername(s string) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableUsername sets the "Username" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableUsername(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetUsername(*s)
+	}
+	return auo
+}
+
 // SetRegion sets the "Region" field.
 func (auo *AlertUpdateOne) SetRegion(s string) *AlertUpdateOne {
 	auo.mutation.SetRegion(s)
+	return auo
+}
+
+// SetNillableRegion sets the "Region" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableRegion(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetRegion(*s)
+	}
 	return auo
 }
 
@@ -621,9 +733,25 @@ func (auo *AlertUpdateOne) SetProbeOS(s string) *AlertUpdateOne {
 	return auo
 }
 
+// SetNillableProbeOS sets the "ProbeOS" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableProbeOS(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetProbeOS(*s)
+	}
+	return auo
+}
+
 // SetProbeHost sets the "ProbeHost" field.
 func (auo *AlertUpdateOne) SetProbeHost(s string) *AlertUpdateOne {
 	auo.mutation.SetProbeHost(s)
+	return auo
+}
+
+// SetNillableProbeHost sets the "ProbeHost" field if the given value is not nil.
+func (auo *AlertUpdateOne) SetNillableProbeHost(s *string) *AlertUpdateOne {
+	if s != nil {
+		auo.SetProbeHost(*s)
+	}
 	return auo
 }
 
@@ -811,7 +939,7 @@ func (auo *AlertUpdateOne) Select(field string, fields ...string) *AlertUpdateOn
 
 // Save executes the query and returns the updated Alert entity.
 func (auo *AlertUpdateOne) Save(ctx context.Context) (*Alert, error) {
-	return withHooks[*Alert, AlertMutation](ctx, auo.sqlSave, auo.mutation, auo.hooks)
+	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

@@ -33,10 +33,26 @@ func (cu *CounterUpdate) SetName(s string) *CounterUpdate {
 	return cu
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (cu *CounterUpdate) SetNillableName(s *string) *CounterUpdate {
+	if s != nil {
+		cu.SetName(*s)
+	}
+	return cu
+}
+
 // SetValue sets the "Value" field.
 func (cu *CounterUpdate) SetValue(f float64) *CounterUpdate {
 	cu.mutation.ResetValue()
 	cu.mutation.SetValue(f)
+	return cu
+}
+
+// SetNillableValue sets the "Value" field if the given value is not nil.
+func (cu *CounterUpdate) SetNillableValue(f *float64) *CounterUpdate {
+	if f != nil {
+		cu.SetValue(*f)
+	}
 	return cu
 }
 
@@ -53,7 +69,7 @@ func (cu *CounterUpdate) Mutation() *CounterMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CounterUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks[int, CounterMutation](ctx, cu.sqlSave, cu.mutation, cu.hooks)
+	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -122,10 +138,26 @@ func (cuo *CounterUpdateOne) SetName(s string) *CounterUpdateOne {
 	return cuo
 }
 
+// SetNillableName sets the "Name" field if the given value is not nil.
+func (cuo *CounterUpdateOne) SetNillableName(s *string) *CounterUpdateOne {
+	if s != nil {
+		cuo.SetName(*s)
+	}
+	return cuo
+}
+
 // SetValue sets the "Value" field.
 func (cuo *CounterUpdateOne) SetValue(f float64) *CounterUpdateOne {
 	cuo.mutation.ResetValue()
 	cuo.mutation.SetValue(f)
+	return cuo
+}
+
+// SetNillableValue sets the "Value" field if the given value is not nil.
+func (cuo *CounterUpdateOne) SetNillableValue(f *float64) *CounterUpdateOne {
+	if f != nil {
+		cuo.SetValue(*f)
+	}
 	return cuo
 }
 
@@ -155,7 +187,7 @@ func (cuo *CounterUpdateOne) Select(field string, fields ...string) *CounterUpda
 
 // Save executes the query and returns the updated Counter entity.
 func (cuo *CounterUpdateOne) Save(ctx context.Context) (*Counter, error) {
-	return withHooks[*Counter, CounterMutation](ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
+	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.

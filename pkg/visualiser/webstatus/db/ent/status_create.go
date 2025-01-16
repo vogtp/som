@@ -40,7 +40,7 @@ func (sc *StatusCreate) Mutation() *StatusMutation {
 
 // Save creates the Status in the database.
 func (sc *StatusCreate) Save(ctx context.Context) (*Status, error) {
-	return withHooks[*Status, StatusMutation](ctx, sc.sqlSave, sc.mutation, sc.hooks)
+	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -288,12 +288,16 @@ func (u *StatusUpsertOne) IDX(ctx context.Context) int {
 // StatusCreateBulk is the builder for creating many Status entities in bulk.
 type StatusCreateBulk struct {
 	config
+	err      error
 	builders []*StatusCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the Status entities in the database.
 func (scb *StatusCreateBulk) Save(ctx context.Context) ([]*Status, error) {
+	if scb.err != nil {
+		return nil, scb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(scb.builders))
 	nodes := make([]*Status, len(scb.builders))
 	mutators := make([]Mutator, len(scb.builders))
@@ -481,6 +485,9 @@ func (u *StatusUpsertBulk) UpdateValue() *StatusUpsertBulk {
 
 // Exec executes the query.
 func (u *StatusUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the StatusCreateBulk instead", i)

@@ -40,7 +40,7 @@ func (cc *CounterCreate) Mutation() *CounterMutation {
 
 // Save creates the Counter in the database.
 func (cc *CounterCreate) Save(ctx context.Context) (*Counter, error) {
-	return withHooks[*Counter, CounterMutation](ctx, cc.sqlSave, cc.mutation, cc.hooks)
+	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -301,12 +301,16 @@ func (u *CounterUpsertOne) IDX(ctx context.Context) int {
 // CounterCreateBulk is the builder for creating many Counter entities in bulk.
 type CounterCreateBulk struct {
 	config
+	err      error
 	builders []*CounterCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the Counter entities in the database.
 func (ccb *CounterCreateBulk) Save(ctx context.Context) ([]*Counter, error) {
+	if ccb.err != nil {
+		return nil, ccb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(ccb.builders))
 	nodes := make([]*Counter, len(ccb.builders))
 	mutators := make([]Mutator, len(ccb.builders))
@@ -501,6 +505,9 @@ func (u *CounterUpsertBulk) UpdateValue() *CounterUpsertBulk {
 
 // Exec executes the query.
 func (u *CounterUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the CounterCreateBulk instead", i)
