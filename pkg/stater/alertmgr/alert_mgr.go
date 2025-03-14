@@ -153,7 +153,7 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		}
 	}
 	if lvl < am.alertLevel {
-		am.log.Info("NOT alerting level to low", log.Szenario, e.Name, "message", e.Err(), "min_level", lvl, "level", szStatusGroup.StringInt(2))
+		am.log.Info("NOT alerting level to low", log.Szenario, e.Name, "message", e.Err(), "min_level", lvl, "szenario_status", szStatusGroup.StringInt(2))
 		return nil
 	}
 	return szState.GetAlert(e, szStatusGroup)
