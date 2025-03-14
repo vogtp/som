@@ -160,7 +160,7 @@ func (cdp *Engine) SetInputField(stepName string, sel interface{}, value string,
 		if err != nil {
 			cdp.log.Warn("Checking input value failed", "err", err, "step", stepName, "selector", sel)
 		}
-		fmt.Printf("%v Val: %v check val: %v err: %v\n", i, value, checkVal, err)
+		cdp.log.Debug("SetInputField loop", "idx", i, "value", value, "checkVal", checkVal, "err", err)
 		if value == checkVal {
 			return nil
 		}
