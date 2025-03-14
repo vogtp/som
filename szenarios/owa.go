@@ -2,6 +2,7 @@ package szenarios
 
 import (
 	"errors"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/som/pkg/monitor/szenario"
@@ -45,15 +46,16 @@ func (s *OwaSzenario) login(engine szenario.Engine) (err error) {
 		chromedp.WaitVisible(`#userNameInput`, chromedp.ByID),
 		chromedp.SendKeys(`#userNameInput`, s.User().Name()+"\r", chromedp.ByID),
 	)
-	loadedID := `#O365_MainLink_NavMenu,#EndOfLifeMessageDiv,#lnkHdrcheckmessages`
+	loadedID := `#O365_MainLink_NavMenu,#EndOfLifeMessageDiv,#lnkHdrcheckmessages,#lnkNavMail`
 	errorClass := `#error`
-	submitBu := `#nextButton`
 
-	for i := 0; i < s.GetMaxLoginTry(); i++ {
+	for range s.GetMaxLoginTry() {
 		engine.Step("Login",
-			chromedp.WaitReady(`#passwordInput`, chromedp.ByID),
+			chromedp.WaitVisible(`#passwordInput`, chromedp.ByID),
+			chromedp.WaitEnabled(`#passwordInput`, chromedp.ByID),
 			chromedp.SendKeys(`#passwordInput`, s.User().Password()+"\r", chromedp.ByID),
 		)
+		_ = engine.StepTimeout("Wait loading", 5*time.Second, chromedp.WaitVisible(loadedID, chromedp.ByID))
 		option := <-engine.Either("Login Check",
 			szenario.EitherOption{ID: loadedID, Action: chromedp.WaitVisible(loadedID, chromedp.ByID)},
 			szenario.EitherOption{ID: errorClass, Action: chromedp.WaitVisible(errorClass, chromedp.ByID)},
@@ -62,10 +64,6 @@ func (s *OwaSzenario) login(engine szenario.Engine) (err error) {
 			s.User().LoginSuccessfull()
 			return nil
 		}
-		engine.Step("Login",
-			chromedp.WaitReady(submitBu, chromedp.ByID),
-			chromedp.Click(submitBu, chromedp.ByID),
-		)
 		pw := s.User().NextPassword()
 		if pw == "" {
 			break
