@@ -2,15 +2,18 @@ package status
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/vogtp/som/pkg/core/cfg"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
 // UserGroup correlates event messages
 type UserGroup interface {
 	EvtGroup
+	slog.LogValuer
 	String() string
 	StringInt(int) string
 	AddEvent(evt *msg.SzenarioEvtMsg)
@@ -66,6 +69,28 @@ func (ug usrGroup) StringInt(i int) string {
 		}
 	}
 	return str
+}
+
+// LogValue satisfies slog
+func (ug usrGroup) LogValue() slog.Value {
+	rv := make([]slog.Attr, 0, 3)
+	rv = append(rv, slog.String(log.Szenario, ug.Key()))
+	rv = append(rv, slog.String("alert_level", ug.Level().String()))
+	cld := ug.children
+	hist := make([]slog.Attr, 0, len(ug.children))
+	for i := len(cld) - 1; i >= 0; i-- {
+		c := cld[i]
+		if e, ok := c.(*evtWrapper); ok {
+			stat := e.Level().String()
+			if e.evt.Err() != nil {
+				stat = e.evt.Err().Error()
+			}
+			t := getEvtTot(e.evt)
+			hist = append(hist, slog.Group(fmt.Sprintf("%v",e.evt.Time.Unix()), slog.Time(slog.TimeKey, e.evt.Time), slog.Float64("duration", t), slog.String("status", stat)))
+		}
+	}
+	rv = append(rv, slog.Any("history", slog.GroupValue(hist...)))
+	return slog.GroupValue(rv...)
 }
 
 func (ug usrGroup) LastUpdate() time.Time {
