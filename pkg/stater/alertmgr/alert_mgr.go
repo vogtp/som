@@ -107,7 +107,6 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 	if szStatusGroup == nil {
 		panic("szenario status cannot be nil")
 	}
-	am.log.Info("TEXT GOURP LOG FIXME", log.Szenario, e.Name, "szenario_status", szStatusGroup)
 	lvl := szStatusGroup.Level()
 	szState, found := am.basicStates[e.Name]
 	if found {
