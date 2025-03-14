@@ -149,7 +149,7 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		i.IntLevel = int(lvl)
 		i.ByteState = am.status.JSONBySzenario(e.Name)
 		if err := core.Get().Bus().Incident.Send(i); err != nil {
-			am.log.Warn("Cannot send incident", err, log.Szenario, e.Name, "message", e.Err())
+			am.log.Warn("Cannot send incident", log.Error, err, log.Szenario, e.Name, "message", e.Err())
 		}
 	}
 	if lvl < am.alertLevel {
