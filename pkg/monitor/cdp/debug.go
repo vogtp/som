@@ -15,6 +15,7 @@ func (cdp *Engine) endStepActions() {
 	time.Sleep(cdp.stepDelay)
 }
 
+// BreakWaitForUserInput waits for the user to press a key bevore continuing
 func (cdp *Engine) BreakWaitForUserInput() {
 	if !env.IsGoRun() {
 		return

@@ -13,6 +13,7 @@ import (
 )
 
 const (
+	// PasswordChangeSzenarioName name of the password change szenario
 	PasswordChangeSzenarioName = "Passwd Change"
 )
 

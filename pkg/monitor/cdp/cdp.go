@@ -122,7 +122,7 @@ type szenarionRunWrapper struct {
 	retry     int
 }
 
-// Execute runs one or more szenarios
+// RunUser runs one or more szenarios from the given user
 func (cdp *Engine) RunUser(username string) error {
 	user, err := user.Store.Get(username)
 	if err != nil {
@@ -130,7 +130,7 @@ func (cdp *Engine) RunUser(username string) error {
 	}
 	sc := core.Get().SzenaioConfig()
 	if sc == nil || sc == szenario.NoConfig {
-		return fmt.Errorf("No szenarion config loaded!")
+		return fmt.Errorf("no szenarion config loaded")
 	}
 	szs, err := sc.ByUser(user)
 	if err != nil {
@@ -315,8 +315,8 @@ func (cdp *Engine) ErrorScreenshot(err error) {
 	defer cdp.mu.Unlock()
 	name := fmt.Sprintf("error_%s_%s_%s", cdp.szenario.Name(), cdp.stepInfo.name, strcase.ToLowerCamel(err.Error()))
 	cdp.log.Warn("Writing failure information", "screenshot", name)
-	cdp.dumpHTML(name)
-	cdp.screenShot(name)
+	cdp.addHTMLtoEvent(name)
+	cdp.addScreenShotToEvent(name)
 }
 
 // TimeOut registers a timeout after which the szenario is canceled
@@ -362,26 +362,28 @@ func (cdp *Engine) addCtxErrs() {
 	}
 }
 
-// ScreenShot saves a screenshot to the outFolder
-func (cdp *Engine) ScreenShot(name string) {
-	cdp.mu.Lock()
-	defer cdp.mu.Unlock()
-	cdp.screenShot(name)
-}
-
-func (cdp *Engine) screenShot(name string) {
+// ScreenShot takes a screenshot of the browser and returns it
+func (cdp *Engine) ScreenShot() []byte {
 	if cdp.browser.Err() != nil {
 		cdp.log.Debug("Context is gone not taking screenshot")
-		return
+		return nil
 	}
-	cdp.log.Info("Taking screenshot", "screenshot", name)
 	var payload []byte
 	if err := chromedp.Run(cdp.browser, chromedp.CaptureScreenshot(&payload)); err != nil {
 		cdp.addCtxErrs()
 		cdp.log.Warn("cannot get screenshot", log.Error, err)
 		cdp.AddErr(fmt.Errorf("cannot get screenshot: %v", err))
+		return nil
+	}
+	return payload
+}
+
+func (cdp *Engine) addScreenShotToEvent(name string) {
+	payload := cdp.ScreenShot()
+	if len(payload) < 1 {
 		return
 	}
+	cdp.log.Info("Taking screenshot", "screenshot", name)
 	cdp.evtMsg.AddFile(msg.NewFileMsgItem(
 		name,
 		mime.Png,
@@ -389,19 +391,12 @@ func (cdp *Engine) screenShot(name string) {
 	))
 }
 
-// DumpHTML saves the HTML to the outFolder
-func (cdp *Engine) DumpHTML(name string) {
-	cdp.mu.Lock()
-	defer cdp.mu.Unlock()
-	cdp.dumpHTML(name)
-}
-
-func (cdp *Engine) dumpHTML(name string) {
+// GetHTML returns the HTML
+func (cdp *Engine) GetHTML() string {
 	if cdp.browser.Err() != nil {
 		cdp.log.Debug("Context is gone not dumping HTML")
-		return
+		return ""
 	}
-	cdp.log.Info("Dumping HTML", log.Szenario, name)
 	var html string
 
 	err := chromedp.Run(cdp.browser, chromedp.ActionFunc(func(ctx context.Context) error {
@@ -417,13 +412,21 @@ func (cdp *Engine) dumpHTML(name string) {
 		cdp.addCtxErrs()
 		cdp.log.Warn("cannot read dom to get html", log.Error, err)
 		cdp.AddErr(fmt.Errorf("cannot read dom to get html: %v", err))
+		return ""
+	}
+	return html
+}
+
+func (cdp *Engine) addHTMLtoEvent(name string) {
+	html := cdp.GetHTML()
+	if len(html) < 1 {
 		return
 	}
+	cdp.log.Info("Dumping HTML", log.Szenario, name)
 	cdp.log.Debug("HTML:", "html", html)
 	cdp.evtMsg.AddFile(msg.NewFileMsgItem(
 		name,
 		mime.HTML,
 		[]byte(html),
 	))
-
 }

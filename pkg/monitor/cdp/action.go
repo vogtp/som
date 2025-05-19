@@ -12,6 +12,7 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
+// Either of the options muss be fullfilled to return
 func (cdp *Engine) Either(name string, option ...szenario.EitherOption) <-chan any {
 	cdp.muStep.Lock()
 	defer cdp.muStep.Unlock()

@@ -1,8 +1,12 @@
 package log
 
 const (
-	Error     = "error"
+	// Error keyword
+	Error = "error"
+	// Component keyword
 	Component = "component"
-	Szenario  = "szenario"
-	User      = "user"
+	// Szenario keyword
+	Szenario = "szenario"
+	// User keyword
+	User = "user"
 )

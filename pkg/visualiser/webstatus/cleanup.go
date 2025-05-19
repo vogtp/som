@@ -21,10 +21,12 @@ func (s *WebStatus) cleanup() {
 		ticker := time.NewTicker(6 * time.Hour)
 		go func() {
 			for {
-				ctx, cancel := context.WithTimeout(context.Background(), cleanupTimeout)
-				s.thinOutIncidents(ctx)
-				s.cleanupIncidents(ctx)
-				cancel()
+				if s.dbAccess != nil {
+					ctx, cancel := context.WithTimeout(context.Background(), cleanupTimeout)
+					s.thinOutIncidents(ctx)
+					s.cleanupIncidents(ctx)
+					cancel()
+				}
 				// cleanup every 6h
 				time.Sleep(cleanupIntervall)
 				<-ticker.C

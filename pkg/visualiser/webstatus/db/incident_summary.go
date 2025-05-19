@@ -80,6 +80,7 @@ func (isq *IncidentSummaryQuery) groupAndAggregate() *ent.IncidentGroupBy {
 		)
 }
 
+// CloseIncident close the incident
 func (isq IncidentSummaryQuery) CloseIncident(ctx context.Context, is *IncidentSummary, username string, statusLevel status.Level, failure string) error {
 	closer := isq.client.Incident.IncidentClient.Create()
 	closer.SetUUID(uuid.New())

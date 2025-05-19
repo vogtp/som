@@ -13,6 +13,7 @@ import (
 	"github.com/suborbital/vektor/vlog"
 )
 
+// VlogCompat returns a vlog logger backed by slog
 func VlogCompat(l *slog.Logger) *vlog.Logger {
 	p := vlogProducer{log: l}
 	return vlog.New(p, vlog.WithWriter(io.Discard))

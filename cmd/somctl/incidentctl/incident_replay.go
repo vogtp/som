@@ -1,4 +1,5 @@
 //nolint:all
+
 package incidentctl
 
 import (
@@ -42,7 +43,7 @@ var incidentReplay = &cobra.Command{
 			return nil
 		}
 
-		incidenId, err := uuid.Parse(args[0])
+		incidenID, err := uuid.Parse(args[0])
 		if err != nil {
 			return fmt.Errorf("%s is not a UUID: %w", args[0], err)
 		}
@@ -51,9 +52,9 @@ var incidentReplay = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("Cannot open DB: %w", err)
 		}
-		incidents, err := client.Incident.Query().Where(incident.IncidentID(incidenId)).All(cmd.Context())
+		incidents, err := client.Incident.Query().Where(incident.IncidentID(incidenID)).All(cmd.Context())
 		if err != nil {
-			return fmt.Errorf("Cannot query incident %s: %w", incidenId, err)
+			return fmt.Errorf("Cannot query incident %s: %w", incidenID, err)
 		}
 		if len(incidents) < 1 {
 			return fmt.Errorf("No such incident found")

@@ -13,7 +13,8 @@ import (
 
 const (
 	// LogRawBus flag name to log the raw bus
-	LogRawBus  = "bus.log.raw"
+	LogRawBus = "bus.log.raw"
+	// StandAlone flag to start a local stater in oder to work standalone
 	StandAlone = "standalone"
 )
 
