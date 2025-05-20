@@ -173,7 +173,6 @@ func (p *prometheusBackend) getPromSzenario(e *msg.SzenarioEvtMsg) *promSz {
 
 // PrometheusName converts a name to a name usable in prometheus
 func PrometheusName(s string) string {
-	s = strings.ToLower(s)
 	s = strings.ReplaceAll(s, ".", "_")
 	s = strings.ReplaceAll(s, " ", "_")
 	return strings.ToLower(s)

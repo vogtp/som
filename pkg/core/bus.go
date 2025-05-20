@@ -7,7 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/spf13/viper"
-	"github.com/suborbital/e2core/foundation/bus/bus"
+	"github.com/suborbital/grav/grav"
 	mesh "github.com/vogtp/go-mesh"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
@@ -18,7 +18,7 @@ import (
 // Bus is the event bus
 type Bus struct {
 	log  *slog.Logger
-	bus  *bus.Bus
+	bus  *grav.Grav
 	mesh *mesh.Mgr
 
 	endpointURL string
@@ -82,8 +82,8 @@ func (e *Bus) WaitMsgProcessed() {
 	e.Alert.WaitMsgProcessed()
 }
 
-// Connect to bus and return a pod
-func (e *Bus) Connect() *bus.Pod {
+// Connect to grav and return a pod
+func (e *Bus) Connect() *grav.Pod {
 	return e.bus.Connect()
 }
 

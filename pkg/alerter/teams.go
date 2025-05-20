@@ -65,9 +65,7 @@ func (teams *Teams) checkConfig(a *Alerter) (ret error) {
 
 			if err := goteamsnotify.NewClient().ValidateWebhook(url); err != nil {
 				teams.log.Warn("teams webhook URL not valid", "destination", d.name, "rule", r.name, "webhook", url, log.Error, err)
-				if err != nil {
-					ret = err
-				}
+				ret = err
 			}
 			if len(getCfgString(cfgAlertSubject, &r, &d)) < 1 {
 				teams.log.Warn("no subject for teams", "destination", d.name, "rule", r.name)

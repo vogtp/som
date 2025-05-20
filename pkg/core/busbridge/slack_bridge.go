@@ -115,7 +115,7 @@ func (s Slack) handleEvents() {
 	for {
 		select {
 		case <-s.ctx.Done():
-			s.log.Warn("Shutting down socketmode listener: %v", s.ctx.Err())
+			s.log.Warn("Shutting down socketmode listener", "err", s.ctx.Err())
 			return
 		case event := <-s.client.Events:
 			s.log.Debug("Slack Event", "event_type", event.Type, "type", reflect.TypeOf(event.Type), "evnt", event)

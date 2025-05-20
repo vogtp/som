@@ -25,7 +25,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
-	github.com/suborbital/e2core v0.5.1
+	github.com/suborbital/grav v0.5.2
 	github.com/suborbital/vektor v0.7.0
 	github.com/vektah/gqlparser/v2 v2.5.21
 	github.com/vogtp/go-mesh v0.3.2
@@ -82,6 +82,7 @@ require (
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
+	github.com/suborbital/e2core v0.5.1 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tklauser/go-sysconf v0.3.14 // indirect
 	github.com/tklauser/numcpus v0.9.0 // indirect

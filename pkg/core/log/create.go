@@ -1,7 +1,6 @@
 package log
 
 import (
-	"io"
 	"os"
 	"strings"
 
@@ -33,8 +32,8 @@ func Create(name string, lvl slog.Level) *slog.Logger {
 		}
 	}
 	slog.Default()
-	var logWriter io.Writer
-	logWriter = os.Stdout
+	// var logWriter io.Writer
+	logWriter := os.Stdout
 	var handler slog.Handler
 	handler = slog.NewTextHandler(logWriter, &logOpts)
 	if logJSON {

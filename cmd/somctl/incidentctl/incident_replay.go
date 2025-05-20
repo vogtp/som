@@ -74,7 +74,9 @@ var incidentReplay = &cobra.Command{
 			if err != nil {
 				return fmt.Errorf("cannot build msg from model: %v", err)
 			}
-			szBus.Send(m)
+			if err := szBus.Send(m); err != nil {
+				return fmt.Errorf("cannot send message to bus: %w", err)
+			}
 			select {
 			case <-ticker.C:
 			case <-cmd.Context().Done():
