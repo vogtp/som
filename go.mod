@@ -2,7 +2,7 @@ module github.com/vogtp/som
 
 go 1.24
 
-toolchain go1.24.1
+toolchain go1.24.2
 
 require (
 	entgo.io/contrib v0.6.0
@@ -80,7 +80,7 @@ require (
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/schollz/peerdiscovery v1.7.6 // indirect
-	github.com/sethvargo/go-envconfig v0.8.2 // indirect
+	github.com/sethvargo/go-envconfig v0.8.3 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
