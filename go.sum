@@ -217,8 +217,8 @@ github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IU
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
 github.com/vmihailenco/tagparser/v2 v2.0.0/go.mod h1:Wri+At7QHww0WTrCBeu4J6bNtoV6mEfg5OIWRZA9qds=
-github.com/vogtp/go-mesh v0.4.0 h1:EVz5fkaQuXcGqPWuHW8vz71gkupt8dreSyVpaRUz9u0=
-github.com/vogtp/go-mesh v0.4.0/go.mod h1:Ik0+nxc3sZ5dAqGMnOxNi0MyU69YuUfsqHVs/CmBRWw=
+github.com/vogtp/go-mesh v0.3.3 h1:gRXm8H90MmmReObHJ5jOhgs73v36JDSaTKF855MKtkE=
+github.com/vogtp/go-mesh v0.3.3/go.mod h1:9n/m/NrKzxkBXV+rQD5Ekx0BKsTBxxYncfxfWj5Bw+I=
 github.com/xiaoqidun/entps v1.34.4 h1:iGAMDhNv9d97/a7x/w8V5NaTTILAOETjz4NGlXE5fCQ=
 github.com/xiaoqidun/entps v1.34.4/go.mod h1:OTfbffX1m1H7tRehWoxUznal46U5HxsReuiusMYbBpA=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
