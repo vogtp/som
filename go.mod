@@ -1,8 +1,6 @@
 module github.com/vogtp/som
 
-go 1.24
-
-toolchain go1.24.2
+go 1.22
 
 require (
 	entgo.io/contrib v0.6.0
@@ -30,7 +28,7 @@ require (
 	github.com/suborbital/grav v0.5.2
 	github.com/suborbital/vektor v0.7.0
 	github.com/vektah/gqlparser/v2 v2.5.21
-	github.com/vogtp/go-mesh v0.4.0
+	github.com/vogtp/go-mesh v0.4.1
 	github.com/xiaoqidun/entps v1.34.4
 	golang.org/x/sync v0.10.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
