@@ -25,7 +25,7 @@ can be changed, but must be identical in both the package and the generator.
 
 custom/loader.go
 
-    //go:generate go run ../cmd/generate/ key custom ignore_key.go
+    //go:generate go run github.com/vogtp/som/cmd/generate/ key custom ignore_key.go
     package custom
 
 ##### Manual way
@@ -34,6 +34,7 @@ Create a go file to load key for the store. Example below.
 
 custom/ignore_key.go:
 
+    //go:generate go run github.com/vogtp/som/cmd/generate/ key custom ignore_key.go
     package custom
 
     import (

@@ -1,4 +1,4 @@
-//go:generate go run ../cmd/generate/ key szenarios ignore_key.go
+//go:generate go run github.com/vogtp/som/cmd/generate/ key custom ignore_key.go
 package szenarios
 
 import (
