@@ -1,3 +1,4 @@
+//go:generate go run ../cmd/generate/ key szenarios ignore_key.go
 package szenarios
 
 import (
