@@ -1,6 +1,7 @@
 package root
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -28,7 +29,7 @@ func AddCommand(c *cobra.Command) {
 }
 
 // Command adds the root command
-func Command(szCfg *szenario.Config) {
+func Command(ctx context.Context, szCfg *szenario.Config) {
 	processFlags()
 
 	startCore(szCfg)
@@ -38,7 +39,7 @@ func Command(szCfg *szenario.Config) {
 	rootCtl.AddCommand(incidentctl.Command())
 	rootCtl.AddCommand(dbctl.Command())
 
-	if err := rootCtl.Execute(); err != nil {
+	if err := rootCtl.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
 	}
 }
