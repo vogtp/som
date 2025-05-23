@@ -166,9 +166,10 @@ var userShowPw = &cobra.Command{
 }
 
 var userList = &cobra.Command{
-	Use:   "list",
-	Short: "List SOM users",
-	Long:  ``,
+	Use:     "list",
+	Short:   "List SOM users",
+	Long:    ``,
+	Aliases: []string{"ls"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Println("\nUsers:")
 		users, err := user.Store.List()
