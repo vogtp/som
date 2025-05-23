@@ -2,7 +2,6 @@ package env
 
 import (
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -22,9 +21,11 @@ func IsGoRun() bool {
 	if i1+i2 < 0 {
 		return false
 	}
-	s := string(a[i+len("go-build")])
-	_, err := strconv.Atoi(s)
-	return err == nil
+	return true
+	// s := string(a[i+len("go-build")])
+	// _, err := strconv.Atoi(s)
+	// slog.Info("go build", "s", s, "a", a, "err", err)
+	// return err == nil
 }
 
 // IsGoTest checks if run by go test
