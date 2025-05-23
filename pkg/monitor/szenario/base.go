@@ -64,6 +64,11 @@ func (s Base) Name() string {
 	return s.name
 }
 
+// String returns the string representation of the szenario
+func (s Base) String() string {
+	return s.name
+}
+
 // User returns the user the szenario runs with
 func (s *Base) User() User {
 	return s.user

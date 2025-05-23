@@ -57,6 +57,11 @@ func (s testSz) Name() string {
 	return s.name
 }
 
+// String returns the name
+func (s testSz) String() string {
+	return s.name
+}
+
 func (s testSz) SetName(string) {}
 
 // GetUser returns the user the szenario runs with
