@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
@@ -26,7 +25,7 @@ const (
 )
 
 func init() {
-	pflag.Duration(flagReplayDelay, time.Second, "Delay between events in replay")
+	incidentReplay.Flags().Duration(flagReplayDelay, time.Second, "Delay between events in replay")
 }
 
 var incidentReplay = &cobra.Command{

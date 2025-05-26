@@ -1,6 +1,7 @@
 package alerter
 
 import (
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -9,6 +10,8 @@ import (
 
 // Run the alerter
 func Run(name string, coreOpts ...core.Option) (func(), error) {
+	pflag.Bool(cfg.AlertEnabled, true, "Disable alerting")
+	cfg.Parse()
 	c, close := core.New(name, coreOpts...)
 	if !viper.GetBool(cfg.AlertEnabled) {
 		c.Log().Warn("Alerting is disabled!")

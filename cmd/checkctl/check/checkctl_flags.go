@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 )
@@ -20,7 +19,6 @@ func isCmdlineFlag(n string) bool {
 }
 
 func processFlags() {
-	pflag.String(cfg.CheckUser, "", "User name of the user to run the check with")
 	cfg.Parse()
 	// only set loglevel from cmd line
 	if !isCmdlineFlag(cfg.LogLevel) {

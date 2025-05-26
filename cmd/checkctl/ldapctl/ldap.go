@@ -2,6 +2,7 @@ package ldapctl
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -19,6 +20,9 @@ var ldapCtl = &cobra.Command{
 	Use:   "ldap",
 	Short: "Check a ldap",
 	Long:  ``,
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		slog.Info("PersistentPreRun", "cmd", cmd.Name())
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return LdapCheckCmd(cmd, args)
 	},

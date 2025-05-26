@@ -1,8 +1,6 @@
 package cfg
 
 import (
-	"time"
-
 	"github.com/spf13/pflag"
 )
 
@@ -53,23 +51,28 @@ const (
 	PasswdChangeInitalDelay = "password.delay"
 )
 
-func init() {
-	pflag.Bool(BrowserShow, false, "Show the browser window")
-	pflag.Bool(BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
-	pflag.Duration(CheckTimeout, 60*time.Second, "Check timeout")
-	pflag.Duration(CheckRepeat, 0, "Check intervall (e.g. 5m)")
-	pflag.Duration(CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
-	pflag.String(CheckRegion, "default", "The region the check runs in")
-	pflag.String(DataDir, "data", "Folder to save output like screenshots in")
-	pflag.String(LogLevel, "warn", "Set the loglevel: error warn info debug trace off")
+func defaultFlags() {
 	pflag.String(WebURLBasePath, "", "the base path of the URL")
 	pflag.Int(WebPort, 0, "Port the webserver runs on")
-	pflag.String(BusLogLevel, "off", "Log level of the bus")
 	pflag.Bool(LogSource, true, "Log the source line")
 	pflag.Bool(LogJSON, false, "Log in json")
 	pflag.Bool(CfgSave, false, "Should the configs be written to file periodically")
-	pflag.Bool(AlertEnabled, true, "Disable alerting")
+	_ = pflag.CommandLine.MarkHidden(CfgSave)
 	pflag.StringSlice(BusEndpoints, nil, "List of external endpoints (e.g. localhost:8080/meta/message) use multiple times to add multiple endpoints")
 	pflag.String(CfgFile, "som.yml", "File with the config to load")
-	pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
+
+	// The following flags have been moved to better locations 20250525
+	// TODO they can be deleted after testing
+
+	// pflag.Bool(BrowserShow, false, "Show the browser window")
+	// pflag.Bool(BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
+	// pflag.Duration(CheckTimeout, 60*time.Second, "Check timeout")
+	// pflag.Duration(CheckRepeat, 0, "Check intervall (e.g. 5m)")
+	// pflag.Duration(CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
+	// pflag.String(CheckRegion, "default", "The region the check runs in")
+	// pflag.String(DataDir, "data", "Folder to save output like screenshots in")
+	// pflag.String(LogLevel, "warn", "Set the loglevel: error warn info debug trace off")
+	//pflag.String(BusLogLevel, "off", "Log level of the bus")
+	//pflag.Bool(AlertEnabled, true, "Disable alerting")
+	//pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
 }

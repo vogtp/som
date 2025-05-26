@@ -14,11 +14,20 @@ import (
 )
 
 func init() {
-	pflag.String(cfg.CheckUser, "", "User name of the user to run the check with")
+
 }
 
 // Run the monitor
 func Run(name string, coreOpts ...core.Option) (func(), error) {
+	if pflag.Lookup(cfg.CheckUser) == nil {
+		pflag.String(cfg.CheckUser, "", "User name of the user to run the check with")
+	}
+	pflag.Bool(cfg.BrowserShow, false, "Show the browser window")
+	pflag.Bool(cfg.BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
+	pflag.Duration(cfg.CheckTimeout, 60*time.Second, "Check timeout")
+	pflag.Duration(cfg.CheckRepeat, 0, "Check intervall (e.g. 5m)")
+	pflag.Duration(cfg.CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
+	pflag.String(cfg.CheckRegion, "default", "The region the check runs in")
 	cfg.Parse()
 	username := viper.GetString(cfg.CheckUser)
 	if len(username) < 1 {

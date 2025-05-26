@@ -3,6 +3,7 @@ package check
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -15,12 +16,14 @@ import (
 
 // Command adds the root command
 func Command(ctx context.Context, szCfg *szenario.Config) {
-	processFlags()
+	// processFlags()
 
 	//startCore(szCfg)
 
 	checkCtl.AddCommand(ldapctl.Command())
 	checkCtl.AddCommand(debugctl.Command())
+	checkCtl.Flags().Bool("test", false, "zsage")
+	checkCtl.PersistentFlags().String("persistent", "probably", "some text")
 
 	if err := checkCtl.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
@@ -41,9 +44,11 @@ var (
 			//FIXME core.Get().Bus().WaitMsgProcessed()
 			// coreClose()
 		},
+		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+			slog.Info("PersistentPreRun", "cmd", cmd.Name())
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return ldapctl.LdapCheckCmd(cmd, args)
-			//return cmd.Help()
+			return cmd.Help()
 		},
 	}
 )

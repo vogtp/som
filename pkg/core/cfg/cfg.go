@@ -21,7 +21,7 @@ func Parse() {
 		slog.Debug("pflags already parsed")
 		return
 	}
-
+	defaultFlags()
 	pflag.Parse()
 
 	if err := viper.BindPFlags(pflag.CommandLine); err != nil {

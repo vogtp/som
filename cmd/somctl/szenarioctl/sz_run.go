@@ -10,7 +10,6 @@ import (
 	"log/slog"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
@@ -27,7 +26,15 @@ const (
 )
 
 func init() {
-	pflag.Bool(CheckStepBreak, false, "adds a breakpont after each step ")
+	szenarioRun.Flags().Bool(CheckStepBreak, false, "adds a breakpont after each step ")
+	szenarioRun.Flags().String(cfg.CheckUser, "", "User name of the user to run the check with")
+	szenarioRun.Flags().Bool(cfg.BrowserShow, false, "Show the browser window")
+	szenarioRun.Flags().Bool(cfg.BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
+	szenarioRun.Flags().Duration(cfg.CheckTimeout, 60*time.Second, "Check timeout")
+	szenarioRun.Flags().Duration(cfg.CheckRepeat, 0, "Check intervall (e.g. 5m)")
+	szenarioRun.Flags().Duration(cfg.CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
+	szenarioRun.Flags().String(cfg.CheckRegion, "default", "The region the check runs in")
+	szenarioRun.Flags().Duration(cfg.PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
 }
 
 var szenarioRun = &cobra.Command{

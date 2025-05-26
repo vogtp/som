@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 )
@@ -28,8 +27,10 @@ func isCmdlineFlag(n string) bool {
 }
 
 func processFlags() {
-	pflag.Bool(LogRawBus, false, "Log bus messages")
-	pflag.Bool(StandAlone, false, "Run in standalone mode, i.e. start a stater in the background.")
+	rootCtl.PersistentFlags().Bool(LogRawBus, false, "Log bus messages")
+	rootCtl.PersistentFlags().Bool(StandAlone, false, "Run in standalone mode, i.e. start a stater in the background.")
+	rootCtl.PersistentFlags().String(cfg.LogLevel, "warn", "Set the loglevel: error warn info debug trace off")
+	rootCtl.PersistentFlags().String(cfg.BusLogLevel, "off", "Log level of the bus")
 	cfg.Parse()
 	// only set loglevel from cmd line
 	if !isCmdlineFlag(cfg.LogLevel) {
