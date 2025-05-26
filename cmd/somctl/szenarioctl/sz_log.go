@@ -20,7 +20,11 @@ var szenarioLog = &cobra.Command{
 			}
 			fmt.Printf("%-20s %-10s %4.1f s %v\n", e.Name, e.Username, e.Counters["step.total"], err)
 		})
-
-		<-make(chan bool)
+		select {
+		case <-make(chan bool):
+			return
+		case <-cmd.Context().Done():
+			return
+		}
 	},
 }
