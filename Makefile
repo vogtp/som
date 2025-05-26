@@ -1,11 +1,15 @@
 .PHONY: build
-build: generate build-stater build-monitor-cdp build-visualiser build-alerter build-somctl
+build: generate build-stater build-monitor-cdp build-visualiser build-alerter build-somctl build-checkctl
 
 # add build date and time to version
 curdate=$(shell date --iso-8601='minutes')
 build_flags = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
 
 GO_CMD=CGO_ENABLED=0 go
+
+.PHONY: deploy-icinga
+deploy-icinga: build-checkctl
+	scp build/checkctl its-idf-mgnt-qm-1:/usr/lib64/nagios/plugins/
 
 .PHONY: install_stinger
 install_stinger:
@@ -18,6 +22,10 @@ generate: install_stinger
 .PHONY: build-somctl
 build-somctl:
 	$(GO_CMD) build $(build_flags) -tags prod -o ./build/ ./cmd/somctl/
+
+.PHONY: build-checkctl
+build-checkctl:
+	$(GO_CMD) build $(build_flags) -tags prod -o ./build/ ./cmd/checkctl/
 	
 build-%: 
 	$(GO_CMD) build $(build_flags) -tags prod -o ./build/ ./cmd/components/$*/
