@@ -2,17 +2,25 @@ package ldapctl
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 	"gopkg.in/ldap.v2"
 )
 
 // Command adds all ldap commands
 func Command() *cobra.Command {
+	ldapCtl.PersistentFlags().String("ldap.host", "", "FQDN of the ldap host")
+	ldapCtl.PersistentFlags().String("ldap.bind.account", "", "Account to bind to ldap with")
+	ldapCtl.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		if err := viper.BindPFlag(f.Name, f); err != nil {
+			panic(err)
+		}
+	})
 	return ldapCtl
 }
 
@@ -20,9 +28,7 @@ var ldapCtl = &cobra.Command{
 	Use:   "ldap",
 	Short: "Check a ldap",
 	Long:  ``,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		slog.Info("PersistentPreRun", "cmd", cmd.Name())
-	},
+
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return LdapCheckCmd(cmd, args)
 	},

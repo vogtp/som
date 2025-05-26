@@ -2,7 +2,6 @@ package debugctl
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -11,6 +10,7 @@ import (
 
 // Command adds all ldap commands
 func Command() *cobra.Command {
+	debugEnvCtl.AddCommand(debugEnvCMDCtl)
 	debugCtl.AddCommand(debugEnvCtl)
 	return debugCtl
 }
@@ -19,10 +19,6 @@ var debugCtl = &cobra.Command{
 	Use:   "debug",
 	Short: "debug stuff",
 	Long:  ``,
-
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		slog.Info("PersistentPreRun", "cmd", cmd.Name())
-	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// for _, f := range cmd.Flags() {
 
@@ -38,9 +34,6 @@ var debugEnvCtl = &cobra.Command{
 	Use:   "env",
 	Short: "Show Environment",
 	Long:  ``,
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		slog.Info("PersistentPreRun", "cmd", cmd.Name())
-	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fmt.Printf("Environment:\n")
 		for _, e := range os.Environ() {
@@ -52,4 +45,24 @@ var debugEnvCtl = &cobra.Command{
 		}
 		return nil
 	},
+}
+
+var debugEnvCMDCtl = &cobra.Command{
+	Use:   "cmd",
+	Short: "Show Environment",
+	Long:  ``,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Printf("%+v\n", getCmds(cmd))
+		return nil
+	},
+}
+
+func getCmds(cmd *cobra.Command) []string {
+	n := cmd.Name()
+	p := cmd.Parent()
+	if p == nil {
+		return []string{n}
+	}
+	cmds := getCmds(cmd.Parent())
+	return append(cmds, n)
 }

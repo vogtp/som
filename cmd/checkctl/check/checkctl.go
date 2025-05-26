@@ -3,10 +3,12 @@ package check
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"github.com/vogtp/go-icinga/pkg/director"
 	"github.com/vogtp/som/cmd/checkctl/debugctl"
 	"github.com/vogtp/som/cmd/checkctl/ldapctl"
 	"github.com/vogtp/som/pkg/core"
@@ -22,8 +24,12 @@ func Command(ctx context.Context, szCfg *szenario.Config) {
 
 	checkCtl.AddCommand(ldapctl.Command())
 	checkCtl.AddCommand(debugctl.Command())
-	checkCtl.Flags().Bool("test", false, "zsage")
-	checkCtl.PersistentFlags().String("persistent", "probably", "some text")
+	checkCtl.PersistentFlags().Bool(director.GenerateFlagName, false, "Generate a icinga director config")
+	checkCtl.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		if err := viper.BindPFlag(f.Name, f); err != nil {
+			panic(err)
+		}
+	})
 
 	if err := checkCtl.ExecuteContext(ctx); err != nil {
 		fmt.Println(err)
@@ -45,7 +51,16 @@ var (
 			// coreClose()
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			slog.Info("PersistentPreRun", "cmd", cmd.Name())
+			if director.ShouldGenerate() {
+
+				d := director.Generator{
+					NamePrefix: "293",
+					CobraCmd:   cmd,
+				}
+				d.Generate(os.Stdout)
+				os.Exit(0)
+			}
+
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
