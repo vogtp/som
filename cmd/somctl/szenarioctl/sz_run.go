@@ -10,6 +10,7 @@ import (
 	"log/slog"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/cmd/somctl/term"
 	"github.com/vogtp/som/pkg/core"
@@ -35,6 +36,11 @@ func init() {
 	szenarioRun.Flags().Duration(cfg.CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
 	szenarioRun.Flags().String(cfg.CheckRegion, "default", "The region the check runs in")
 	szenarioRun.Flags().Duration(cfg.PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
+	szenarioRun.Flags().VisitAll(func(f *pflag.Flag) {
+		if err := viper.BindPFlag(f.Name, f); err != nil {
+			panic(err)
+		}
+	})
 }
 
 var szenarioRun = &cobra.Command{

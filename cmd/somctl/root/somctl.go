@@ -73,6 +73,7 @@ var (
 				return
 			}
 			if viper.GetBool(LogRawBus) {
+				c.Log().Info("Logging raw bus")
 				c.Bus().Connect().On(func(m grav.Message) error {
 					fmt.Fprintf(cmd.OutOrStdout(), "Raw Bus: %s\n", string(m.Data()))
 					return nil

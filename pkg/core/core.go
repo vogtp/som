@@ -32,7 +32,6 @@ type Core struct {
 func New(name string, opts ...Option) (*Core, func()) {
 	muCreateCore.Lock()
 	defer muCreateCore.Unlock()
-	cfg.Parse()
 	newCore := false
 	if c == nil {
 		newCore = true

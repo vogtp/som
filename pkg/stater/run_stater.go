@@ -14,6 +14,7 @@ import (
 // Run the stater
 func Run(name string, coreOpts ...core.Option) (func(), error) {
 	viper.Set(cfg.CoreStartdelay, 100*time.Millisecond)
+	cfg.Parse()
 	c, close := core.New(name, coreOpts...)
 	user.IntialiseStore()
 
