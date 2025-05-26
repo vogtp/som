@@ -35,6 +35,7 @@ func Command() *cobra.Command {
 			szenarioRun.ValidArgs = append(szenarioRun.ValidArgs, strings.ToLower(sz.Name()))
 		}
 		szenarioCtl.AddCommand(szenarioRun)
+		szenarioCtl.AddCommand(szenarioList)
 	}
 	szenarioCtl.AddCommand(szenarioLog)
 	return szenarioCtl
