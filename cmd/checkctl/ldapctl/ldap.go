@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/vogtp/som"
 	"gopkg.in/ldap.v2"
 )
 
@@ -44,7 +45,7 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	// 	return fmt.Errorf("cannot get user %s: %v", name, err)
 	// }
 	timing, err := runLdap()
-	total := timing["total"].Milliseconds()
+	total := timing["total"].Microseconds()
 	ret := fmt.Sprintf("%s OK - duration %vms", strings.ToUpper(cmd.Name()), total)
 	if err != nil {
 		ret = fmt.Sprintf("%s CRITICAL - %v", strings.ToUpper(cmd.Name()), err)
@@ -52,10 +53,11 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	pref := ""
 	disp := ""
 	for n, t := range timing {
-		pref = fmt.Sprintf("%s%s_ms=%v ", pref, n, t.Milliseconds())
-		pref = fmt.Sprintf("%s%s=%vms ", pref, n, t.Milliseconds())
-		disp = fmt.Sprintf("%s%s\t%vms\n", disp, n, t.Milliseconds())
+		//	pref = fmt.Sprintf("%s%s_ms=%v ", pref, n, t.Milliseconds())
+		pref = fmt.Sprintf("%s%s=%vus ", pref, n, t.Microseconds())
+		disp = fmt.Sprintf("%s%s\t%vus\n", disp, n, t.Microseconds())
 	}
+	disp = fmt.Sprintf("%s\nVersion: %s\n", disp, som.Version)
 	// disp = fmt.Sprintf("%s%s\t%vms", disp, "total", total)
 	fmt.Printf("%s\n\n%s | %s", ret, disp, pref)
 	if err != nil {
@@ -122,8 +124,8 @@ func runLdap() (timing map[string]time.Duration, err error) {
 
 	//TODO ldap.NewSearchRequest()
 
-	delTestOU := ldap.NewDelRequest(testDN, nil)
 	stepStart = time.Now()
+	delTestOU := ldap.NewDelRequest(testDN, nil)
 	if err = lc.Del(delTestOU); err != nil {
 		return
 	}
