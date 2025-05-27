@@ -19,7 +19,6 @@ func isCmdlineFlag(n string) bool {
 }
 
 func processFlags() {
-	cfg.Parse()
 	// only set loglevel from cmd line
 	if !isCmdlineFlag(cfg.LogLevel) {
 		viper.Set(cfg.LogLevel, defaultLogLevel)
