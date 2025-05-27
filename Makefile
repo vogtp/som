@@ -7,10 +7,6 @@ build_flags = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
 
 GO_CMD=CGO_ENABLED=0 go
 
-.PHONY: deploy-icinga
-deploy-icinga: build-checkctl
-	scp build/checkctl its-idf-mgnt-qm-1:/usr/lib64/nagios/plugins/
-
 .PHONY: install_stinger
 install_stinger:
 	$(GO_CMD) install golang.org/x/tools/cmd/stringer@latest
