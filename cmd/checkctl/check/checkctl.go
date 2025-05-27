@@ -58,6 +58,7 @@ var (
 					DescriptionURL: "https://github.com/vogtp/som/",
 					CobraCmd:       cmd,
 					Output:         os.Stdout,
+					Criticality:    icinga.Criticality7x24,
 				}
 				if err := d.Generate(); err != nil {
 					return err
