@@ -18,13 +18,13 @@ import (
 
 // Command adds the root command
 func Command(ctx context.Context, szCfg *szenario.Config) {
-	// processFlags()
+	processFlags()
 
 	//startCore(szCfg)
 
 	checkCtl.AddCommand(ldapctl.Command())
 	checkCtl.AddCommand(debugctl.Command())
-	checkCtl.PersistentFlags().Bool(director.GenerateFlagName, false, "Generate a icinga director config")
+	director.GenerateDirectorConfigPFlag(checkCtl.PersistentFlags())
 	checkCtl.PersistentFlags().VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
 			panic(err)
