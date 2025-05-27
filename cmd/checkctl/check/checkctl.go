@@ -50,17 +50,21 @@ var (
 			//FIXME core.Get().Bus().WaitMsgProcessed()
 			// coreClose()
 		},
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if director.ShouldGenerate() {
-
 				d := director.Generator{
-					NamePrefix: "293",
-					CobraCmd:   cmd,
+					NamePrefix:     "293",
+					Description:    "CheckCtl: run Icinga2 commands",
+					DescriptionURL: "https://github.com/vogtp/som/",
+					CobraCmd:       cmd,
+					Output:         os.Stdout,
 				}
-				d.Generate(os.Stdout)
+				if err := d.Generate(); err != nil {
+					return err
+				}
 				os.Exit(0)
 			}
-
+			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
