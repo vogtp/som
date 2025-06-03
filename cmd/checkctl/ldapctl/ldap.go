@@ -1,6 +1,7 @@
 package ldapctl
 
 import (
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -46,9 +47,9 @@ var ldapCtl = &cobra.Command{
 
 func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 
-	// name := viper.GetString(cfg.CheckUser)
+	// name := viper.GetString(ldapBindAccount)
 	// if len(name) < 1 {
-	// 	return fmt.Errorf("no user given!  Use --%s", cfg.CheckUser)
+	// 	return fmt.Errorf("no user given!  Use --%s", ldapBindAccount)
 	// }
 	// u, err := user.Store.Get(name)
 	// if err != nil {
@@ -59,10 +60,17 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 		Prefix: "ldap",
 		Result: icinga.OK,
 		Stati:  make(map[string]any),
+		CounterFormater: func(name string, value any) string {
+			t, ok := value.(time.Duration)
+			if !ok {
+				return fmt.Sprintf("%v", value)
+			}
+			return fmt.Sprintf("%vµs", t.Microseconds())
+		},
 	}
-	timing, err := runLdap()
-	result.Total = timing["total"]
-	result.Timing = timing
+	start := time.Now()
+	err := runLdap(&result)
+	result.Total = time.Since(start)
 	if err != nil {
 		result.Err = err
 		result.Result = icinga.CRITICAL
@@ -83,29 +91,28 @@ Plugin Return Code	Service State	Host State
 3	UNKNOWN	DOWN/UNREACHABLE
 */
 
-func runLdap() (timing map[string]time.Duration, err error) {
-	timing = make(map[string]time.Duration)
+func runLdap(result *checks.Result) error {
+	result.Counter = make(map[string]any)
 	start := time.Now()
-	defer func() { timing["total"] = time.Since(start) }()
+	defer func() { result.Counter["total"] = time.Since(start) }()
 	lc := LDAPClient{
-		//BindDN: "uid=admin",
-		Host:               "its-ds-ngi-dev-1.its.unibas.ch",
+		Host:               viper.GetString(ldapHost),
 		Port:               10636,
 		UseSSL:             true,
 		InsecureSkipVerify: true,
 		BindDN:             ldap_user,
 		BindPassword:       ladp_password,
 	}
-	if err = lc.Connect(); err != nil {
-		return
+	if err := lc.Connect(); err != nil {
+		return err
 	}
 	defer lc.Close()
-	timing["connect"] = time.Since(start)
+	result.Counter["connect"] = time.Since(start)
 	stepStart := time.Now()
-	if err = lc.Bind(); err != nil {
-		return
+	if err := lc.Bind(); err != nil {
+		return err
 	}
-	timing["bind"] = time.Since(stepStart)
+	result.Counter["bind"] = time.Since(stepStart)
 	// slog.Info("Connected", "ldap", lc)
 
 	// ok, _, err := lc.Authenticate(ldap_user, ladp_password)
@@ -125,18 +132,18 @@ func runLdap() (timing map[string]time.Duration, err error) {
 	addTestOU.Attribute("description", []string{"Container for application monitoring objects"})
 
 	stepStart = time.Now()
-	if err = lc.Add(addTestOU); err != nil {
-		return
+	if err := lc.Add(addTestOU); err != nil {
+		return err
 	}
-	timing["add"] = time.Since(stepStart)
+	result.Counter["add"] = time.Since(stepStart)
 
 	//TODO ldap.NewSearchRequest()
 
 	stepStart = time.Now()
 	delTestOU := ldap.NewDelRequest(testDN, nil)
-	if err = lc.Del(delTestOU); err != nil {
-		return
+	if err := lc.Del(delTestOU); err != nil {
+		return err
 	}
-	timing["del"] = time.Since(stepStart)
-	return
+	result.Counter["del"] = time.Since(stepStart)
+	return nil
 }
