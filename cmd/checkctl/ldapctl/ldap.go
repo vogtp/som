@@ -1,23 +1,32 @@
 package ldapctl
 
 import (
-	"fmt"
-	"os"
-	"strings"
+	"log/slog"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/vogtp/go-icinga/pkg/checks"
+	"github.com/vogtp/go-icinga/pkg/icinga"
 	"github.com/vogtp/som"
 	"gopkg.in/ldap.v2"
 )
 
+const (
+	ldapHost        = "ldap.host"
+	ldapBindAccount = "ldap.bind.account"
+)
+
 // Command adds all ldap commands
 func Command() *cobra.Command {
-	ldapCtl.PersistentFlags().String("ldap.host", "", "FQDN of the ldap host")
-	ldapCtl.PersistentFlags().String("ldap.bind.account", "", "Account to bind to ldap with")
-	ldapCtl.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+	flags := ldapCtl.PersistentFlags()
+	flags.String(ldapHost, "$host.name$", "FQDN of the ldap host")
+	if err := cobra.MarkFlagRequired(flags, ldapHost); err != nil {
+		slog.Error("Cannot mark flag as mandatory", "flag", ldapHost, "err", err)
+	}
+	flags.String(ldapBindAccount, "", "Account to bind to ldap with")
+	flags.VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
 			panic(err)
 		}
@@ -36,6 +45,7 @@ var ldapCtl = &cobra.Command{
 }
 
 func LdapCheckCmd(cmd *cobra.Command, args []string) error {
+
 	// name := viper.GetString(cfg.CheckUser)
 	// if len(name) < 1 {
 	// 	return fmt.Errorf("no user given!  Use --%s", cfg.CheckUser)
@@ -44,25 +54,23 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	// if err != nil {
 	// 	return fmt.Errorf("cannot get user %s: %v", name, err)
 	// }
+	result := checks.Result{
+		Name:   cmd.Name(),
+		Prefix: "ldap",
+		Result: icinga.OK,
+		Stati:  make(map[string]any),
+	}
 	timing, err := runLdap()
-	total := timing["total"].Microseconds()
-	ret := fmt.Sprintf("%s OK - duration %vms", strings.ToUpper(cmd.Name()), total)
+	result.Total = timing["total"]
+	result.Timing = timing
 	if err != nil {
-		ret = fmt.Sprintf("%s CRITICAL - %v", strings.ToUpper(cmd.Name()), err)
+		result.Err = err
+		result.Result = icinga.CRITICAL
 	}
-	pref := ""
-	disp := ""
-	for n, t := range timing {
-		//	pref = fmt.Sprintf("%s%s_ms=%v ", pref, n, t.Milliseconds())
-		pref = fmt.Sprintf("%s%s=%vus ", pref, n, t.Microseconds())
-		disp = fmt.Sprintf("%s%s\t%vus\n", disp, n, t.Microseconds())
-	}
-	disp = fmt.Sprintf("%s\nVersion: %s\n", disp, som.Version)
-	// disp = fmt.Sprintf("%s%s\t%vms", disp, "total", total)
-	fmt.Printf("%s\n\n%s | %s", ret, disp, pref)
-	if err != nil {
-		os.Exit(2)
-	}
+	result.Stati[ldapHost] = viper.GetString(ldapHost)
+	result.Stati[ldapBindAccount] = viper.GetString(ldapBindAccount)
+	result.Stati["Version"] = som.Version
+	result.PrintExit()
 	return err
 }
 
