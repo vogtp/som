@@ -10,8 +10,8 @@ import (
 )
 
 func main() {
-	ctx, close:=signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
-	defer close()
+	ctx, stop:=signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer stop()
 	// szenarios.Load() has to be replace by ones own szenario config
 	root.Command(ctx, szenarios.Load())
 }
