@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"gopkg.in/ldap.v2"
 )
@@ -31,6 +32,7 @@ type LDAPClient struct {
 
 // Connect connects to the ldap backend.
 func (lc *LDAPClient) Connect() error {
+	ldap.DefaultTimeout = time.Second
 	if lc.Conn == nil {
 		var l *ldap.Conn
 		var err error
