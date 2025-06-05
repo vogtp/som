@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	ldapHost        = "ldap.host"
-	ldapBindAccount = "ldap.bind.account"
+	ldapHost         = "ldap.host"
+	ldapBindAccount  = "ldap.bind.account"
+	ldapMonitoringOU = "ldap.monitoring.ou"
 )
 
 // Command adds all ldap commands
@@ -27,6 +28,7 @@ func Command() *cobra.Command {
 		slog.Error("Cannot mark flag as mandatory", "flag", ldapHost, "err", err)
 	}
 	flags.String(ldapBindAccount, "", "Account to bind to ldap with")
+	flags.String(ldapMonitoringOU, "", "OU to use for monitoring stuff")
 	flags.VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
 			panic(err)
@@ -58,7 +60,6 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	result := checks.Result{
 		Name:   cmd.Name(),
 		Prefix: "ldap",
-		Result: icinga.OK,
 		Stati:  make(map[string]any),
 		CounterFormater: func(name string, value any) string {
 			t, ok := value.(time.Duration)
@@ -68,17 +69,18 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 			return fmt.Sprintf("%vµs", t.Microseconds())
 		},
 	}
+	defer result.PrintExit()
 	start := time.Now()
 	err := runLdap(&result)
 	result.Total = time.Since(start)
 	if err != nil {
 		result.Err = err
-		result.Result = icinga.CRITICAL
+		result.SetCode(icinga.CRITICAL)
 	}
 	result.Stati[ldapHost] = viper.GetString(ldapHost)
 	result.Stati[ldapBindAccount] = viper.GetString(ldapBindAccount)
+	result.Stati[ldapMonitoringOU] = viper.GetString(ldapMonitoringOU)
 	result.Stati["Version"] = som.Version
-	result.PrintExit()
 	return err
 }
 
@@ -124,26 +126,28 @@ func runLdap(result *checks.Result) error {
 	// 	t.Fatal("Not autheticated")
 	// }
 
-	testDN := "o=monitoring,dc=unibas,dc=ch"
-	addTestOU := ldap.NewAddRequest(testDN)
-	addTestOU.Attribute("objectClass", []string{"organization"})
-	addTestOU.Attribute("objectClass", []string{"top"})
-	addTestOU.Attribute("o", []string{"monitoring"})
-	addTestOU.Attribute("description", []string{"Container for application monitoring objects"})
+	testDN := viper.GetString(ldapMonitoringOU)
+	if len(testDN) > 0 {
+		addTestOU := ldap.NewAddRequest(testDN)
+		addTestOU.Attribute("objectClass", []string{"organization"})
+		addTestOU.Attribute("objectClass", []string{"top"})
+		addTestOU.Attribute("o", []string{"monitoring"})
+		addTestOU.Attribute("description", []string{"Container for application monitoring objects"})
 
-	stepStart = time.Now()
-	if err := lc.Add(addTestOU); err != nil {
-		return err
+		stepStart = time.Now()
+		if err := lc.Add(addTestOU); err != nil {
+			return err
+		}
+		result.Counter["add"] = time.Since(stepStart)
+
+		//TODO ldap.NewSearchRequest()
+
+		stepStart = time.Now()
+		delTestOU := ldap.NewDelRequest(testDN, nil)
+		if err := lc.Del(delTestOU); err != nil {
+			return err
+		}
+		result.Counter["del"] = time.Since(stepStart)
 	}
-	result.Counter["add"] = time.Since(stepStart)
-
-	//TODO ldap.NewSearchRequest()
-
-	stepStart = time.Now()
-	delTestOU := ldap.NewDelRequest(testDN, nil)
-	if err := lc.Del(delTestOU); err != nil {
-		return err
-	}
-	result.Counter["del"] = time.Since(stepStart)
 	return nil
 }
