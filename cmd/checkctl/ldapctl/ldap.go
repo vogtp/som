@@ -57,30 +57,18 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	// if err != nil {
 	// 	return fmt.Errorf("cannot get user %s: %v", name, err)
 	// }
-	result := checks.Result{
-		Name:   cmd.Name(),
-		Prefix: "ldap",
-		Stati:  make(map[string]any),
-		CounterFormater: func(name string, value any) string {
-			t, ok := value.(time.Duration)
-			if !ok {
-				return fmt.Sprintf("%v", value)
-			}
-			return fmt.Sprintf("%vµs", t.Microseconds())
-		},
-	}
+	result := checks.NewCheckResult(cmd.Name(), checks.CheckPrefix("ldap"), checks.CounterFormater(timeFormater))
 	defer result.PrintExit()
 	start := time.Now()
-	err := runLdap(&result)
+	err := runLdap(result)
 	result.Total = time.Since(start)
 	if err != nil {
-		result.Err = err
-		result.SetCode(icinga.CRITICAL)
+		result.SetError(err)
 	}
-	result.Stati[ldapHost] = viper.GetString(ldapHost)
-	result.Stati[ldapBindAccount] = viper.GetString(ldapBindAccount)
-	result.Stati[ldapMonitoringOU] = viper.GetString(ldapMonitoringOU)
-	result.Stati["Version"] = som.Version
+	result.SetStatus(ldapHost, viper.GetString(ldapHost))
+	result.SetStatus(ldapBindAccount, viper.GetString(ldapBindAccount))
+	result.SetStatus(ldapMonitoringOU, viper.GetString(ldapMonitoringOU))
+	result.SetStatus("Version", som.Version)
 	return err
 }
 
@@ -93,10 +81,17 @@ Plugin Return Code	Service State	Host State
 3	UNKNOWN	DOWN/UNREACHABLE
 */
 
+func timeFormater(name string, value any) string {
+	t, ok := value.(time.Duration)
+	if !ok {
+		return fmt.Sprintf("%v", value)
+	}
+	return fmt.Sprintf("%vus", t.Microseconds())
+}
+
 func runLdap(result *checks.Result) error {
-	result.Counter = make(map[string]any)
 	start := time.Now()
-	defer func() { result.Counter["total"] = time.Since(start) }()
+	defer func() { result.SetCounter("total", time.Since(start)) }()
 	lc := LDAPClient{
 		Host:               viper.GetString(ldapHost),
 		Port:               10636,
@@ -106,15 +101,17 @@ func runLdap(result *checks.Result) error {
 		BindPassword:       ladp_password,
 	}
 	if err := lc.Connect(); err != nil {
+		result.SetCode(icinga.CRITICAL)
 		return err
 	}
 	defer lc.Close()
-	result.Counter["connect"] = time.Since(start)
+	result.SetCounter("connect", time.Since(start))
 	stepStart := time.Now()
 	if err := lc.Bind(); err != nil {
+		result.SetCode(icinga.CRITICAL)
 		return err
 	}
-	result.Counter["bind"] = time.Since(stepStart)
+	result.SetCounter("bind", time.Since(stepStart))
 	// slog.Info("Connected", "ldap", lc)
 
 	// ok, _, err := lc.Authenticate(ldap_user, ladp_password)
@@ -138,7 +135,7 @@ func runLdap(result *checks.Result) error {
 		if err := lc.Add(addTestOU); err != nil {
 			return err
 		}
-		result.Counter["add"] = time.Since(stepStart)
+		result.SetCounter("add", time.Since(stepStart))
 
 		//TODO ldap.NewSearchRequest()
 
@@ -147,7 +144,7 @@ func runLdap(result *checks.Result) error {
 		if err := lc.Del(delTestOU); err != nil {
 			return err
 		}
-		result.Counter["del"] = time.Since(stepStart)
+		result.SetCounter("del", time.Since(stepStart))
 	}
 	return nil
 }
