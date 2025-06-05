@@ -22,13 +22,13 @@ require (
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/slack-go/slack v0.15.0
 	github.com/spf13/cast v1.7.1
-	github.com/spf13/cobra v1.8.1
+	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/spf13/viper v1.20.1
 	github.com/suborbital/grav v0.5.2
 	github.com/suborbital/vektor v0.7.0
 	github.com/vektah/gqlparser/v2 v2.5.21
-	github.com/vogtp/go-icinga v0.0.0-20250526181147-67a89bf66431
+	github.com/vogtp/go-icinga v0.0.0-20250605111408-34d8d504698e
 	github.com/vogtp/go-mesh v0.3.3
 	github.com/xiaoqidun/entps v1.34.4
 	golang.org/x/sync v0.10.0
