@@ -72,8 +72,9 @@ spec:
         - mean
         - max
         displayMode: table
-        placement: bottom
+        placement: right
         showLegend: true
+        #width: 300
       tooltip:
         mode: multi
         sort: none
