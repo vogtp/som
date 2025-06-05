@@ -16,7 +16,8 @@ import (
 
 const (
 	ldapHost         = "ldap.host"
-	ldapBindAccount  = "ldap.bind.account"
+	ldapBindDN       = "ldap.bind.DN"
+	ldapSearchFilter = "ldap.search.filter"
 	ldapMonitoringOU = "ldap.monitoring.ou"
 )
 
@@ -27,7 +28,8 @@ func Command() *cobra.Command {
 	if err := cobra.MarkFlagRequired(flags, ldapHost); err != nil {
 		slog.Error("Cannot mark flag as mandatory", "flag", ldapHost, "err", err)
 	}
-	flags.String(ldapBindAccount, "", "Account to bind to ldap with")
+	flags.String(ldapBindDN, "uid=admin", "Account DN to bind to ldap with")
+	flags.String(ldapSearchFilter, "(uid=vogtp)", "Searchfilter for the LDAP search")
 	flags.String(ldapMonitoringOU, "", "OU to use for monitoring stuff")
 	flags.VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
@@ -65,9 +67,9 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		result.SetError(err)
 	}
-	result.SetStatus(ldapHost, viper.GetString(ldapHost))
-	result.SetStatus(ldapBindAccount, viper.GetString(ldapBindAccount))
-	result.SetStatus(ldapMonitoringOU, viper.GetString(ldapMonitoringOU))
+	cmd.Flags().Visit(func(f *pflag.Flag) {
+		result.SetStatus(f.Name, f.Value)
+	})
 	result.SetStatus("Version", som.Version)
 	return err
 }
@@ -88,7 +90,7 @@ func runLdap(result *checks.Result) error {
 		Port:               10636,
 		UseSSL:             true,
 		InsecureSkipVerify: true,
-		BindDN:             ldap_user,
+		BindDN:             viper.GetString(ldapBindDN),
 		BindPassword:       ladp_password,
 	}
 	if err := lc.Connect(); err != nil {
@@ -104,11 +106,42 @@ func runLdap(result *checks.Result) error {
 	}
 	result.SetCounter("bind", time.Since(stepStart))
 
-	//TODO ldap.NewSearchRequest()
+	if err := search(lc, result); err != nil {
+		result.SetError(err)
+	}
 
 	if err := createAndDeleteOU(lc, result); err != nil {
 		result.SetError(err)
 	}
+
+	return nil
+}
+
+func search(l *LDAPClient, result *checks.Result) error {
+	filter := viper.GetString(ldapSearchFilter)
+	if len(filter) < 1 {
+		return nil
+	}
+	searchRequest := ldap.NewSearchRequest(
+		"",
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		filter,
+		// fmt.Sprintf("(&(objectClass=organizationalPerson)(uid=%s))", username),
+		[]string{"dn"},
+		nil,
+	)
+
+	stepStart := time.Now()
+	sr, err := l.Search(searchRequest)
+	if err != nil {
+		return fmt.Errorf("ldap search: %w", err)
+	}
+	result.SetCounter("search", time.Since(stepStart))
+
+	if len(sr.Entries) < 1 {
+		return fmt.Errorf("User does not exist")
+	}
+	slog.Info("LDAP search result", "filter", filter, "result", sr, "fist DN", sr.Entries[0].DN)
 
 	return nil
 }
