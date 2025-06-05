@@ -72,15 +72,6 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-/*
-https://assets.nagios.com/downloads/nagioscore/docs/nagioscore/3/en/pluginapi.html
-Plugin Return Code	Service State	Host State
-0	OK	UP
-1	WARNING	UP or DOWN/UNREACHABLE*
-2	CRITICAL	DOWN/UNREACHABLE
-3	UNKNOWN	DOWN/UNREACHABLE
-*/
-
 func timeFormater(name string, value any) string {
 	t, ok := value.(time.Duration)
 	if !ok {
@@ -92,7 +83,7 @@ func timeFormater(name string, value any) string {
 func runLdap(result *checks.Result) error {
 	start := time.Now()
 	defer func() { result.SetCounter("total", time.Since(start)) }()
-	lc := LDAPClient{
+	lc := &LDAPClient{
 		Host:               viper.GetString(ldapHost),
 		Port:               10636,
 		UseSSL:             true,
@@ -112,39 +103,38 @@ func runLdap(result *checks.Result) error {
 		return err
 	}
 	result.SetCounter("bind", time.Since(stepStart))
-	// slog.Info("Connected", "ldap", lc)
 
-	// ok, _, err := lc.Authenticate(ldap_user, ladp_password)
-	// if err != nil {
-	// 	t.Fatalf("Cannot auth: %v", err)
-	// }
+	//TODO ldap.NewSearchRequest()
 
-	// if !ok {
-	// 	t.Fatal("Not autheticated")
-	// }
-
-	testDN := viper.GetString(ldapMonitoringOU)
-	if len(testDN) > 0 {
-		addTestOU := ldap.NewAddRequest(testDN)
-		addTestOU.Attribute("objectClass", []string{"organization"})
-		addTestOU.Attribute("objectClass", []string{"top"})
-		addTestOU.Attribute("o", []string{"monitoring"})
-		addTestOU.Attribute("description", []string{"Container for application monitoring objects"})
-
-		stepStart = time.Now()
-		if err := lc.Add(addTestOU); err != nil {
-			return err
-		}
-		result.SetCounter("add", time.Since(stepStart))
-
-		//TODO ldap.NewSearchRequest()
-
-		stepStart = time.Now()
-		delTestOU := ldap.NewDelRequest(testDN, nil)
-		if err := lc.Del(delTestOU); err != nil {
-			return err
-		}
-		result.SetCounter("del", time.Since(stepStart))
+	if err := createAndDeleteOU(lc, result); err != nil {
+		result.SetError(err)
 	}
+
+	return nil
+}
+
+func createAndDeleteOU(lc *LDAPClient, result *checks.Result) error {
+	testDN := viper.GetString(ldapMonitoringOU)
+	if len(testDN) < -1 {
+		return nil
+	}
+	addTestOU := ldap.NewAddRequest(testDN)
+	addTestOU.Attribute("objectClass", []string{"organization"})
+	addTestOU.Attribute("objectClass", []string{"top"})
+	addTestOU.Attribute("o", []string{"monitoring"})
+	addTestOU.Attribute("description", []string{"Container for application monitoring objects"})
+
+	stepStart := time.Now()
+	if err := lc.Add(addTestOU); err != nil {
+		return err
+	}
+	result.SetCounter("add", time.Since(stepStart))
+
+	stepStart = time.Now()
+	delTestOU := ldap.NewDelRequest(testDN, nil)
+	if err := lc.Del(delTestOU); err != nil {
+		return err
+	}
+	result.SetCounter("del", time.Since(stepStart))
 	return nil
 }
