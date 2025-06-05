@@ -59,11 +59,11 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	// if err != nil {
 	// 	return fmt.Errorf("cannot get user %s: %v", name, err)
 	// }
-	result := checks.NewCheckResult(cmd.Name(), checks.CheckPrefix("ldap"), checks.CounterFormater(timeFormater))
+	result := checks.NewCheckResult(cmd.Name(), checks.CounterFormater(timeFormater))
 	defer result.PrintExit()
 	start := time.Now()
 	err := runLdap(result)
-	result.Total = time.Since(start)
+	result.SetHeader(fmt.Sprintf("Duration %v", timeFormater("total", time.Since(start))))
 	if err != nil {
 		result.SetError(err)
 	}
