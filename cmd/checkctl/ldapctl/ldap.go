@@ -107,11 +107,11 @@ func runLdap(result *checks.Result) error {
 	result.SetCounter("bind", time.Since(stepStart))
 
 	if err := search(lc, result); err != nil {
-		result.SetError(err)
+		result.SetError(fmt.Errorf("LDAP Search: %w", err))
 	}
 
 	if err := createAndDeleteOU(lc, result); err != nil {
-		result.SetError(err)
+		result.SetError(fmt.Errorf("Create/Delete OU: %w", err))
 	}
 
 	return nil
@@ -148,7 +148,7 @@ func search(l *LDAPClient, result *checks.Result) error {
 
 func createAndDeleteOU(lc *LDAPClient, result *checks.Result) error {
 	testDN := viper.GetString(ldapMonitoringOU)
-	if len(testDN) < -1 {
+	if len(testDN) < 1 {
 		return nil
 	}
 	addTestOU := ldap.NewAddRequest(testDN)

@@ -25,7 +25,7 @@ func Command(ctx context.Context, szCfg *szenario.Config) {
 
 	checkCtl.AddCommand(ldapctl.Command())
 	checkCtl.AddCommand(debugctl.Command())
-	director.GenerateDirectorConfigPFlag(checkCtl.PersistentFlags())
+	director.Flags(checkCtl.PersistentFlags())
 	checkCtl.PersistentFlags().VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
 			panic(err)
