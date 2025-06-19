@@ -3,12 +3,13 @@ package ldapctl
 import (
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"github.com/vogtp/go-icinga/pkg/checks"
+	"github.com/vogtp/go-icinga/pkg/check"
 	"github.com/vogtp/go-icinga/pkg/icinga"
 	"github.com/vogtp/som"
 	"gopkg.in/ldap.v2"
@@ -25,9 +26,6 @@ const (
 func Command() *cobra.Command {
 	flags := ldapCtl.PersistentFlags()
 	flags.String(ldapHost, "$host.name$", "FQDN of the ldap host")
-	if err := cobra.MarkFlagRequired(flags, ldapHost); err != nil {
-		slog.Error("Cannot mark flag as mandatory", "flag", ldapHost, "err", err)
-	}
 	flags.String(ldapBindDN, "uid=admin", "Account DN to bind to ldap with")
 	flags.String(ldapSearchFilter, "(uid=vogtp)", "Searchfilter for the LDAP search")
 	flags.String(ldapMonitoringOU, "", "OU to use for monitoring stuff")
@@ -59,15 +57,18 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	// if err != nil {
 	// 	return fmt.Errorf("cannot get user %s: %v", name, err)
 	// }
-	result := checks.NewCheckResult(cmd.Name(), checks.CounterFormater(timeFormater))
+	result := check.NewResult(cmd.Name(), check.CounterFormater(timeFormater))
 	defer result.PrintExit()
 	start := time.Now()
 	err := runLdap(result)
-	result.SetHeader(fmt.Sprintf("Duration %v", timeFormater("total", time.Since(start))))
+	result.SetHeader("%s", fmt.Sprintf("Duration %s", timeFormater("total", time.Since(start))))
 	if err != nil {
 		result.SetError(err)
 	}
 	cmd.Flags().Visit(func(f *pflag.Flag) {
+		if ! strings.HasPrefix(f.Name, "ldap"){
+			return
+		}
 		result.SetStatus(f.Name, f.Value)
 	})
 	result.SetStatus("Version", som.Version)
@@ -82,7 +83,7 @@ func timeFormater(name string, value any) string {
 	return fmt.Sprintf("%vus", t.Microseconds())
 }
 
-func runLdap(result *checks.Result) error {
+func runLdap(result *check.Result) error {
 	start := time.Now()
 	defer func() { result.SetCounter("total", time.Since(start)) }()
 	lc := &LDAPClient{
@@ -94,6 +95,7 @@ func runLdap(result *checks.Result) error {
 		BindPassword:       ladp_password,
 	}
 	if err := lc.Connect(); err != nil {
+		slog.Warn("Cannot connect to LDAP host", "host", lc.Host, "bindDB", lc.BindDN)
 		result.SetCode(icinga.CRITICAL)
 		return err
 	}
@@ -117,7 +119,7 @@ func runLdap(result *checks.Result) error {
 	return nil
 }
 
-func search(l *LDAPClient, result *checks.Result) error {
+func search(l *LDAPClient, result *check.Result) error {
 	filter := viper.GetString(ldapSearchFilter)
 	if len(filter) < 1 {
 		return nil
@@ -146,7 +148,7 @@ func search(l *LDAPClient, result *checks.Result) error {
 	return nil
 }
 
-func createAndDeleteOU(lc *LDAPClient, result *checks.Result) error {
+func createAndDeleteOU(lc *LDAPClient, result *check.Result) error {
 	testDN := viper.GetString(ldapMonitoringOU)
 	if len(testDN) < 1 {
 		return nil

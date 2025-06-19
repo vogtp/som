@@ -1,14 +1,11 @@
 package check
 
 import (
-	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-	"github.com/vogtp/go-icinga/pkg/director"
+	"github.com/vogtp/go-icinga/pkg/check"
 	"github.com/vogtp/go-icinga/pkg/icinga"
 	"github.com/vogtp/som/cmd/checkctl/debugctl"
 	"github.com/vogtp/som/cmd/checkctl/ldapctl"
@@ -18,21 +15,15 @@ import (
 )
 
 // Command adds the root command
-func Command(ctx context.Context, szCfg *szenario.Config) {
+func Command(szCfg *szenario.Config) {
 	processFlags()
 
 	//startCore(szCfg)
 
 	checkCtl.AddCommand(ldapctl.Command())
 	checkCtl.AddCommand(debugctl.Command())
-	director.Flags(checkCtl.PersistentFlags())
-	checkCtl.PersistentFlags().VisitAll(func(f *pflag.Flag) {
-		if err := viper.BindPFlag(f.Name, f); err != nil {
-			panic(err)
-		}
-	})
 
-	if err := checkCtl.ExecuteContext(ctx); err != nil {
+	if err := checkCtl.Execute(); err != nil {
 		fmt.Println(err)
 	}
 }
@@ -41,35 +32,21 @@ var (
 	c         *core.Core
 	coreClose func()
 
-	checkCtl = &cobra.Command{
-		Use:   "checkctl",
-		Short: "Run a check with a monitoring plugin interface",
-		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			if !cmd.IsAvailableCommand() {
-				return
-			}
-			//FIXME core.Get().Bus().WaitMsgProcessed()
-			// coreClose()
-		},
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if director.ShouldGenerate() {
-				d := director.Generator{
-					NamePrefix:     "293",
-					Description:    "CheckCtl: run Icinga2 commands",
-					DescriptionURL: "https://github.com/vogtp/som/",
-					CobraCmd:       cmd,
-					Output:         os.Stdout,
-					Criticality:    icinga.Criticality7x24,
+	checkCtl = &check.Command{
+		Use:            "checkctl",
+		Short:          "Run a check with a monitoring plugin interface",
+		NamePrefix:     "293",
+		DescriptionURL: "https://github.com/vogtp/som/",
+		Criticality:    icinga.Criticality7x24,
+
+		Command: &cobra.Command{
+			PersistentPostRun: func(cmd *cobra.Command, args []string) {
+				if !cmd.IsAvailableCommand() {
+					return
 				}
-				if err := d.Generate(); err != nil {
-					return err
-				}
-				os.Exit(0)
-			}
-			return nil
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return cmd.Help()
+				//FIXME core.Get().Bus().WaitMsgProcessed()
+				// coreClose()
+			},
 		},
 	}
 )
