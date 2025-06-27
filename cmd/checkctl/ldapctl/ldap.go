@@ -41,7 +41,11 @@ var ldapCtl = &cobra.Command{
 	Use:   "ldap",
 	Short: "Check a ldap",
 	Long:  ``,
-
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		check.SetWarningThresholdDefault("connect:20ms total:100ms")
+		check.SetCriticalThresholdDefault("connect:60ms total:300ms")
+		return nil
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return LdapCheckCmd(cmd, args)
 	},
@@ -61,12 +65,12 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	defer result.PrintExit()
 	start := time.Now()
 	err := runLdap(result)
-	result.SetHeader("%s", fmt.Sprintf("Duration %s", timeFormater("total", time.Since(start))))
+	result.SetHeader("%s", fmt.Sprintf("Duration %s", timeFormater("total", check.Value{Value: time.Since(start)})))
 	if err != nil {
 		result.SetError(err)
 	}
 	cmd.Flags().Visit(func(f *pflag.Flag) {
-		if ! strings.HasPrefix(f.Name, "ldap"){
+		if !strings.HasPrefix(f.Name, "ldap") {
 			return
 		}
 		result.SetStatus(f.Name, f.Value)
@@ -75,8 +79,8 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-func timeFormater(name string, value any) string {
-	t, ok := value.(time.Duration)
+func timeFormater(name string, value check.Value) string {
+	t, ok := value.Value.(time.Duration)
 	if !ok {
 		return fmt.Sprintf("%v", value)
 	}
@@ -94,6 +98,8 @@ func runLdap(result *check.Result) error {
 		BindDN:             viper.GetString(ldapBindDN),
 		BindPassword:       ladp_password,
 	}
+	slog:=slog.With(ldapHost, lc.Host, ldapBindDN, lc.BindDN)
+	slog.Debug("Connecting to LDAP host")
 	if err := lc.Connect(); err != nil {
 		slog.Warn("Cannot connect to LDAP host", "host", lc.Host, "bindDB", lc.BindDN)
 		result.SetCode(icinga.CRITICAL)
@@ -101,6 +107,10 @@ func runLdap(result *check.Result) error {
 	}
 	defer lc.Close()
 	result.SetCounter("connect", time.Since(start))
+	// if not user is give just check the connect
+	if len(lc.BindDN) < 1 {
+		return nil
+	}
 	stepStart := time.Now()
 	if err := lc.Bind(); err != nil {
 		result.SetCode(icinga.CRITICAL)
