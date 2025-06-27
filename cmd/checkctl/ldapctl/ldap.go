@@ -65,7 +65,7 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	defer result.PrintExit()
 	start := time.Now()
 	err := runLdap(result)
-	result.SetHeader("%s", fmt.Sprintf("Duration %s", timeFormater("total", check.Value{Value: time.Since(start)})))
+	result.SetHeader("%s", fmt.Sprintf("Duration %s", timeFormater("total", check.Data{Value: time.Since(start)})))
 	if err != nil {
 		result.SetError(err)
 	}
@@ -79,7 +79,7 @@ func LdapCheckCmd(cmd *cobra.Command, args []string) error {
 	return err
 }
 
-func timeFormater(name string, value check.Value) string {
+func timeFormater(name string, value check.Data) string {
 	t, ok := value.Value.(time.Duration)
 	if !ok {
 		return fmt.Sprintf("%v", value)
@@ -98,7 +98,7 @@ func runLdap(result *check.Result) error {
 		BindDN:             viper.GetString(ldapBindDN),
 		BindPassword:       ladp_password,
 	}
-	slog:=slog.With(ldapHost, lc.Host, ldapBindDN, lc.BindDN)
+	slog := slog.With(ldapHost, lc.Host, ldapBindDN, lc.BindDN)
 	slog.Debug("Connecting to LDAP host")
 	if err := lc.Connect(); err != nil {
 		slog.Warn("Cannot connect to LDAP host", "host", lc.Host, "bindDB", lc.BindDN)

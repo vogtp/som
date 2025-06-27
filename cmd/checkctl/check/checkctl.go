@@ -5,8 +5,10 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	goicinga "github.com/vogtp/go-icinga"
 	"github.com/vogtp/go-icinga/pkg/check"
 	"github.com/vogtp/go-icinga/pkg/icinga"
+	"github.com/vogtp/som"
 	"github.com/vogtp/som/cmd/checkctl/debugctl"
 	"github.com/vogtp/som/cmd/checkctl/ldapctl"
 	"github.com/vogtp/som/pkg/core"
@@ -16,6 +18,9 @@ import (
 
 // Command adds the root command
 func Command(szCfg *szenario.Config) {
+	goicinga.VersionMajor = som.VersionMajor
+	goicinga.VersionMinor = som.VersionMinor
+	goicinga.VersionPatch = som.VersionPatch
 	processFlags()
 
 	//startCore(szCfg)
