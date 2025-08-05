@@ -11,6 +11,7 @@ import (
 	"github.com/vogtp/som"
 	"github.com/vogtp/som/cmd/checkctl/debugctl"
 	"github.com/vogtp/som/cmd/checkctl/ldapctl"
+	"github.com/vogtp/som/cmd/checkctl/szenarioapi"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater"
@@ -27,6 +28,7 @@ func Command(szCfg *szenario.Config) {
 
 	checkCtl.AddCommand(ldapctl.Command())
 	checkCtl.AddCommand(debugctl.Command())
+	checkCtl.AddCommand(szenarioapi.Command())
 
 	if err := checkCtl.Execute(); err != nil {
 		fmt.Println(err)

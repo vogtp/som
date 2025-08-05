@@ -1,6 +1,6 @@
 module github.com/vogtp/som
 
-go 1.24.2
+go 1.24.5
 
 require (
 	entgo.io/contrib v0.6.0
