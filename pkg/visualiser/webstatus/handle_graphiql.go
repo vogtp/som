@@ -9,11 +9,11 @@ import (
 func (s *WebStatus) handleGraphiQL(w http.ResponseWriter, r *http.Request) {
 
 	var data = struct {
-		*commonData
+		*CommonData
 		TimeFormat string
 		MeshInfo   string
 	}{
-		commonData: common("", r),
+		CommonData: common("", r),
 		TimeFormat: cfg.TimeFormatString,
 	}
 	s.render(w, r, "graphiql.gohtml", data)

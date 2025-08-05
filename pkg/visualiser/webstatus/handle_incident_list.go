@@ -62,7 +62,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var data = struct {
-		*commonData
+		*CommonData
 		PromURL            string
 		Timeformat         string
 		IncidentListPath   string
@@ -71,7 +71,7 @@ func (s *WebStatus) handleIncidentList(w http.ResponseWriter, r *http.Request) {
 		Szenarios          []string
 		FilterName         string
 	}{
-		commonData:         common,
+		CommonData:         common,
 		FilterName:         name,
 		PromURL:            fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:         cfg.TimeFormatString,

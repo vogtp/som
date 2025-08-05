@@ -11,12 +11,12 @@ func (s *WebStatus) Error(w http.ResponseWriter, r *http.Request,
 	msg string, err error, status int) {
 	w.WriteHeader(status)
 	var data = struct {
-		*commonData
+		*CommonData
 		Error string
 		Msg   string
 		URL   string
 	}{
-		commonData: common("Something went wrong", r),
+		CommonData: common("Something went wrong", r),
 		Msg:        msg,
 		URL:        r.URL.String(),
 	}

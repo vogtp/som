@@ -53,13 +53,13 @@ func (sz *szenarioData) load() error {
 }
 
 func (sz *szenarioData) save() error {
-	if err := sz.wirteJSONFile(); err != nil {
+	if err := sz.writeJSONFile(); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (sz *szenarioData) wirteJSONFile() error {
+func (sz *szenarioData) writeJSONFile() error {
 	sz.mu.Lock()
 	defer sz.mu.Unlock()
 	b, err := json.MarshalIndent(sz, "", "  ")

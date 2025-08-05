@@ -58,11 +58,11 @@ func (s *WebStatus) handleSzenarioComponent(w http.ResponseWriter, r *http.Reque
 
 func (s *WebStatus) handleSzenarioComponentInfo(w http.ResponseWriter, r *http.Request) {
 	var data = struct {
-		*commonData
+		*CommonData
 		ImgPath   string
 		Szenarios []string
 	}{
-		commonData: common("Szenarios Components", r),
+		CommonData: common("Szenarios Components", r),
 		ImgPath:    szenarioComponentPath,
 		Szenarios:  make([]string, len(s.data.Status.Szenarios())),
 	}

@@ -18,7 +18,7 @@ const (
 	autoUpdate = "auto_update"
 )
 
-type commonData struct {
+type CommonData struct {
 	Title      string
 	TitleImage string
 	Baseurl    string
@@ -29,7 +29,7 @@ type commonData struct {
 	DatePicker datepicker
 }
 
-func common(t string, r *http.Request) *commonData {
+func common(t string, r *http.Request) *CommonData {
 	if err := r.ParseForm(); err != nil {
 		slog.Warn("Cannot parse form", log.Error, err)
 	}
@@ -37,7 +37,7 @@ func common(t string, r *http.Request) *commonData {
 	if len(r.URL.RawQuery) > 0 {
 		q = fmt.Sprintf("?%s", r.URL.RawQuery)
 	}
-	cd := &commonData{
+	cd := &CommonData{
 		Title:   t,
 		Baseurl: core.Get().WebServer().BasePath(),
 		Version: som.Version,
@@ -60,6 +60,6 @@ func common(t string, r *http.Request) *commonData {
 	return cd
 }
 
-func (commonData) Since(t db.MinMaxTime) time.Duration {
+func (CommonData) Since(t db.MinMaxTime) time.Duration {
 	return time.Since(t.Time()).Truncate(time.Second)
 }

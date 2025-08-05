@@ -14,7 +14,13 @@ import (
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
-type indexValue struct {
+type OverviewAPIResonse struct {
+	*CommonData
+	PromURL   string
+	Szenarios []SzenarioAPIResponse
+}
+
+type SzenarioAPIResponse struct {
 	Name            string
 	PromName        string
 	Img             string
@@ -29,12 +35,8 @@ type indexValue struct {
 }
 
 func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
-	var data = struct {
-		*commonData
-		PromURL   string
-		Szenarios []indexValue
-	}{
-		commonData: common("", r),
+	var data = OverviewAPIResonse{
+		CommonData: common("", r),
 		PromURL:    fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 	}
 
@@ -49,7 +51,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 		}
 
 		s.log.Debug("Displaying index", log.Szenario, szName)
-		iv := indexValue{
+		iv := SzenarioAPIResponse{
 			Name:            szName,
 			PromName:        bridger.PrometheusName(szName),
 			Status:          "\n" + stat.String(),

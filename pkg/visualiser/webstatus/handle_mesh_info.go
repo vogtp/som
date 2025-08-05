@@ -13,11 +13,11 @@ import (
 func (s *WebStatus) handleMeshInfo(w http.ResponseWriter, r *http.Request) {
 
 	var data = struct {
-		*commonData
+		*CommonData
 		TimeFormat string
 		MeshInfo   string
 	}{
-		commonData: common("SOM Mesh", r),
+		CommonData: common("SOM Mesh", r),
 		TimeFormat: cfg.TimeFormatString,
 	}
 

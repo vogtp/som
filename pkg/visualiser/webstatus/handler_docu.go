@@ -17,10 +17,10 @@ func (s *WebStatus) handleDocu(w http.ResponseWriter, r *http.Request) {
 	)
 	output := markdown.ToHTML(som.README, p, nil)
 	var data = struct {
-		*commonData
+		*CommonData
 		Docu template.HTML
 	}{
-		commonData: common("", r),
+		CommonData: common("", r),
 		Docu:       template.HTML(string(output)),
 	}
 	s.render(w, r, "docu.gohtml", data)

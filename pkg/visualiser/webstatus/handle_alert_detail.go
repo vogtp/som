@@ -73,14 +73,14 @@ func (s *WebStatus) handleAlertDetail(w http.ResponseWriter, r *http.Request) {
 	// 	url += "?"
 	// }
 	var data = struct {
-		*commonData
+		*CommonData
 		PromURL            string
 		Timeformat         string
 		FilesURL           string
 		IncidentDetailPath string
 		Alerts             []alertDetailData
 	}{
-		commonData: common("SOM Alert Details", r),
+		CommonData: common("SOM Alert Details", r),
 		PromURL:    fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 
 		Timeformat:         cfg.TimeFormatString,

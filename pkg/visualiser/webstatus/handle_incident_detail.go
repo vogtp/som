@@ -85,7 +85,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 	aCnt := len(incidents)
 
 	var data = struct {
-		*commonData
+		*CommonData
 		PromURL    string
 		Timeformat string
 		FilesURL   string
@@ -99,7 +99,7 @@ func (s *WebStatus) handleIncidentDetail(w http.ResponseWriter, r *http.Request)
 		AlertLink  string
 		Pages      []pageInfo
 	}{
-		commonData: common("SOM Incident", r),
+		CommonData: common("SOM Incident", r),
 		IncidentID: id,
 		Name:       incidentSummary.Name,
 		Start:      incidentSummary.Start.Time(),

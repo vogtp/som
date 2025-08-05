@@ -32,11 +32,11 @@ func (statusData) Since(t time.Time) time.Duration {
 func (s *WebStatus) handleTopology(w http.ResponseWriter, r *http.Request) {
 
 	var data = struct {
-		*commonData
+		*CommonData
 		TimeFormat string
 		Status     *statusData
 	}{
-		commonData: common("", r),
+		CommonData: common("", r),
 		TimeFormat: cfg.TimeFormatString,
 		Status:     prepaireStatus(s.data.Status),
 	}

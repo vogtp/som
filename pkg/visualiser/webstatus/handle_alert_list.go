@@ -75,7 +75,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 
 	common.Title = fmt.Sprintf("SOM Alerts: %s (%v)", name, len(alerts))
 	var data = struct {
-		*commonData
+		*CommonData
 		PromURL       string
 		Timeformat    string
 		AlertListPath string
@@ -83,7 +83,7 @@ func (s *WebStatus) handleAlertList(w http.ResponseWriter, r *http.Request) {
 		Szenarios     []string
 		FilterName    string
 	}{
-		commonData:    common,
+		CommonData:    common,
 		FilterName:    name,
 		PromURL:       fmt.Sprintf("%v/%v", viper.GetString(cfg.PromURL), viper.GetString(cfg.PromBasePath)),
 		Timeformat:    cfg.TimeFormatString,
