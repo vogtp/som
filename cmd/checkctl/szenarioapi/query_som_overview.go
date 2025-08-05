@@ -48,7 +48,7 @@ func querySomAPI(ctx context.Context, result *check.Result) error {
 		iList := fmt.Sprintf(`%s%s`, url, sz.IncidentList)
 		result.WriteHeader("Duration %s", last)
 		result.WriteHeader("Incident List: <a href='%s'>%s</a>", iList, "Link")
-		result.SetHeader(`%s\n\n<br><a href="%s">IncidenList</a>`, fmt.Sprintf("Duration %s", last), iList)
+		result.SetHeader(`%s\n\n<br>Incident List: <a href="%s">%s</a>`, fmt.Sprintf("Duration %s", last), iList, iList)
 		result.SetCounter("Response (current)", last)
 		result.SetCounter("Response (Average)", avg)
 		result.SetCounter("Availability (current)", sz.AvailabilityCur)
