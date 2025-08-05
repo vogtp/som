@@ -115,11 +115,11 @@ func runSzenorios(user *user.User, szenarios []szenario.Szenario) int {
 	}
 	opts := make([]cdp.Option, 0)
 	if viper.GetBool(CheckStepBreak) {
-		breackChan := make(chan any)
-		defer close(breackChan)
-		opts = append(opts, cdp.StepBreakPoint(breackChan))
+		breakChan := make(chan any)
+		defer close(breakChan)
+		opts = append(opts, cdp.StepBreakPoint(breakChan))
 		go func() {
-			for step := range breackChan {
+			for step := range breakChan {
 				time.Sleep(150 * time.Millisecond)
 				term.Read(fmt.Sprintf("Step %v finished\nAny key to continue...\n", step))
 			}
