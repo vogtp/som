@@ -72,5 +72,5 @@ func timeFormater(name string, value check.Data) string {
 	if !ok {
 		return fmt.Sprintf("%v", value)
 	}
-	return fmt.Sprintf("%vs", t.Seconds())
+	return fmt.Sprintf("%.2fs", t.Seconds())
 }

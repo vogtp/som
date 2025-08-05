@@ -55,7 +55,6 @@ func querySomAPI(ctx context.Context, result *check.Result) error {
 		result.SetCounter("Availability (average)", sz.AvailabilityAvg)
 		result.SetStatus("Status", strings.TrimSpace(sz.Status))
 		result.SetStatus("Incidents", sz.IncidentCount)
-		result.SetStatus("Url", iList)
 	}
 	return nil
 }
