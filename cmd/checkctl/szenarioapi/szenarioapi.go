@@ -40,8 +40,8 @@ var somApiCtl = &cobra.Command{
 	Long:    ``,
 	Aliases: []string{"sz"},
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		check.SetWarningThresholdDefault("5s 75%")
-		check.SetCriticalThresholdDefault("10s 50%")
+		check.SetWarningThresholdDefault("5s")
+		check.SetCriticalThresholdDefault("10s")
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {

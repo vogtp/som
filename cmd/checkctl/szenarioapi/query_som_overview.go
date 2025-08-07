@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/go-icinga/pkg/check"
+	"github.com/vogtp/go-icinga/pkg/icinga"
 	"github.com/vogtp/som/pkg/visualiser/webstatus"
 )
 
@@ -42,6 +43,7 @@ func querySomAPI(ctx context.Context, result *check.Result) error {
 		if !strings.EqualFold(sz.Name, szName) {
 			continue
 		}
+		result.SetCode(imgcolor2Resultcode(sz.Img))
 		slog.Debug("Szenaro response", "name", sz.Name, "data", sz)
 		last := timeFormater("total", check.Data{Value: parseTime(string(sz.LastTime))})
 		avg := timeFormater("total", check.Data{Value: parseTime(string(sz.AvgTime))})
@@ -51,12 +53,29 @@ func querySomAPI(ctx context.Context, result *check.Result) error {
 		result.SetHeader(`%s\n\n<br>Incident List: <a href="%s">%s</a>`, fmt.Sprintf("Duration %s", last), iList, iList)
 		result.SetCounter("Response (current)", last)
 		result.SetCounter("Response (Average)", avg)
-		result.SetCounter("Availability (current)", sz.AvailabilityCur)
-		result.SetCounter("Availability (average)", sz.AvailabilityAvg)
+		result.SetStatus("Availability (current)", sz.AvailabilityCur)
+		result.SetStatus("Availability (average)", sz.AvailabilityAvg)
 		result.SetStatus("Status", strings.TrimSpace(sz.Status))
 		result.SetStatus("Incidents", sz.IncidentCount)
 	}
 	return nil
+}
+
+func imgcolor2Resultcode(l string) icinga.ResultCode {
+	switch l {
+	case "darkgray": //Unknown:
+		return icinga.UNKNOWN
+	case "green": //OK:
+		return icinga.OK
+	case "yellow": // Issues:
+		return icinga.WARNING
+	case "orange": // Warning:
+		return icinga.WARNING
+	case "red": //Down:
+		return icinga.CRITICAL
+	default:
+		return icinga.UNKNOWN
+	}
 }
 
 func parseTime(s string) time.Duration {
