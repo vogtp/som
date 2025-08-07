@@ -11,6 +11,7 @@ import (
 	"github.com/vogtp/som/pkg/bridger"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
+	"github.com/vogtp/som/pkg/core/status"
 	"github.com/vogtp/som/pkg/visualiser/webstatus/db/ent/incident"
 )
 
@@ -23,6 +24,7 @@ type OverviewAPIResonse struct {
 type SzenarioAPIResponse struct {
 	Name            string
 	PromName        string
+	Level           status.Level
 	Img             string
 	Status          string
 	AvailabilityCur string
@@ -57,6 +59,7 @@ func (s *WebStatus) handleIndex(w http.ResponseWriter, r *http.Request) {
 			Status:          "\n" + stat.String(),
 			AvailabilityCur: avail.String(),
 			AvailabilityAvg: stat.Availability().String(),
+			Level:           stat.Level(),
 			Img:             stat.Level().Img(),
 
 			LastUpdate:   stat.LastUpdate().Format(cfg.TimeFormatString),
