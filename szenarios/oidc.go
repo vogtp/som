@@ -30,7 +30,7 @@ func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
 
 	ctx, stop := context.WithTimeout(context.Background(), 1*time.Minute)
 	defer stop()
-	if err := s.initRelyingPartyHttpsrv(ctx, engine); err != nil {
+	if err := s.initRelyingPartyHttpsrv(ctx); err != nil {
 		return fmt.Errorf("init relying party http servce: %w", err)
 	}
 	go s.startRelyingPartyHttpsrv(engine)
@@ -61,7 +61,7 @@ func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
 	return nil
 }
 
-func (s *OIDCSzenario) initRelyingPartyHttpsrv(ctx context.Context, engine szenario.Engine) error {
+func (s *OIDCSzenario) initRelyingPartyHttpsrv(ctx context.Context) error {
 	oidcUserApp, err := user.Store.Get(s.ClientID)
 	if err != nil {
 		return fmt.Errorf("loading user for OIDC secret: %w", err)
@@ -125,6 +125,6 @@ func (s OIDCSzenario) startRelyingPartyHttpsrv(engine szenario.Engine) {
 		if err == http.ErrServerClosed {
 			return
 		}
-		engine.Log().Warn("Could not close OIDC http server: %w", err)
+		engine.Log().Warn("Could not close OIDC http server", "err", err)
 	}
 }
