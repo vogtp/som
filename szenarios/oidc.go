@@ -19,21 +19,22 @@ import (
 // OIDCSzenario check a OIDC Relying Party
 type OIDCSzenario struct {
 	*szenario.Base
-	Issuer   string
-	ClientID string
-	Port     int
+	Issuer    string
+	ClientID  string
+	Port      int
+	rpHttpSrv *http.Server
 }
 
 // Execute the szenario
 func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
-	if s.Port < 1 {
-		s.Port = 4444
+
+	ctx, stop := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer stop()
+	if err := s.initRelyingPartyHttpsrv(ctx, engine); err != nil {
+		return fmt.Errorf("init relying party http servce: %w", err)
 	}
-	go func() {
-		if err := s.startRP(context.Background(), engine); err != nil {
-			fmt.Printf("starting rp: %w", err)
-		}
-	}()
+	go s.startRelyingPartyHttpsrv(engine)
+
 	engine.Step("Loading",
 		chromedp.Navigate(fmt.Sprintf("http://localhost:%v", s.Port)),
 	)
@@ -51,7 +52,6 @@ func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
 	}
 	var body string
 	engine.Step("Check if email is correct",
-		
 		chromedp.WaitReady("email", chromedp.ByID),
 		engine.Body(engine.Strings(&body)),
 	)
@@ -61,27 +61,27 @@ func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
 	return nil
 }
 
-func (s OIDCSzenario) startRP(ctx context.Context, engine szenario.Engine) error {
+func (s *OIDCSzenario) initRelyingPartyHttpsrv(ctx context.Context, engine szenario.Engine) error {
 	oidcUserApp, err := user.Store.Get(s.ClientID)
 	if err != nil {
 		return fmt.Errorf("loading user for OIDC secret: %w", err)
 	}
 	ClientSecret := oidcUserApp.Password()
-
-	port := s.Port
+	mux := http.NewServeMux()
 	callbackPath := "/auth/callback"
-	srv := &http.Server{
-		Addr:              fmt.Sprintf(":%v", port),
+	s.rpHttpSrv = &http.Server{
+		Addr:              fmt.Sprintf(":%v", s.Port),
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      30 * time.Second,
 		IdleTimeout:       30 * time.Second,
 		ReadHeaderTimeout: 1 * time.Second,
 		MaxHeaderBytes:    1 << 20,
+		Handler:           mux,
 	}
 	options := []rp.Option{
 		//rp.WithSigningAlgsFromDiscovery(),
 	}
-	RedirectURI := fmt.Sprintf("http://localhost:%v%s", port, callbackPath)
+	RedirectURI := fmt.Sprintf("http://localhost:%v%s", s.Port, callbackPath)
 	scopes := []string{"openid", "email"}
 	//responseMode := "code token id_token"
 
@@ -93,7 +93,7 @@ func (s OIDCSzenario) startRP(ctx context.Context, engine szenario.Engine) error
 	urlParam := []rp.URLParamOpt{
 		//rp.WithResponseModeURLParam(oidc.ResponseMode(responseMode))},
 	}
-	http.Handle("/", rp.AuthURLHandler(
+	mux.Handle("/", rp.AuthURLHandler(
 		uuid.NewString,
 		relyingParty,
 		urlParam...,
@@ -107,15 +107,24 @@ func (s OIDCSzenario) startRP(ctx context.Context, engine szenario.Engine) error
 		fmt.Fprintf(w, "<html><body><div id='email'>%s</div></body></html>", c.GetUserInfo().Email)
 	}
 
-	http.DefaultServeMux.Handle(callbackPath, rp.CodeExchangeHandler(rp.UserinfoCallback(callbackHandler), relyingParty))
+	mux.Handle(callbackPath, rp.CodeExchangeHandler(rp.UserinfoCallback(callbackHandler), relyingParty))
 	go func() {
 		<-ctx.Done()
 		sdCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		if err := srv.Shutdown(sdCtx); err != nil {
+		if err := s.rpHttpSrv.Shutdown(sdCtx); err != nil {
 			slog.Error("cannot shutdown the webserver", "err", err)
 		}
 	}()
+	return nil
+}
+
+func (s OIDCSzenario) startRelyingPartyHttpsrv(engine szenario.Engine) {
 	engine.Log().Info("Starting webserver for OIDC", "port", s.Port, "ClientID", s.ClientID)
-	return srv.ListenAndServe()
+	if err := s.rpHttpSrv.ListenAndServe(); err != nil {
+		if err == http.ErrServerClosed {
+			return
+		}
+		engine.Log().Warn("Could not close OIDC http server: %w", err)
+	}
 }
