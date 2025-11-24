@@ -16,9 +16,9 @@ type eventer interface {
 }
 
 type eventHandler[M eventer] struct {
-	wgMsg    sync.WaitGroup
-	mu       sync.Mutex
-	log      *slog.Logger
+	wgMsg sync.WaitGroup
+	mu    sync.Mutex
+	log   *slog.Logger
 	grav     *grav.Grav
 	handlers []*grav.Pod
 	msgType  string
