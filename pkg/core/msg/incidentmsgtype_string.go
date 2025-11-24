@@ -18,8 +18,9 @@ const _IncidentMsgType_name = "OpenIncidentUpdateIncidentCloseIncident"
 var _IncidentMsgType_index = [...]uint8{0, 12, 26, 39}
 
 func (i IncidentMsgType) String() string {
-	if i < 0 || i >= IncidentMsgType(len(_IncidentMsgType_index)-1) {
+	idx := int(i) - 0
+	if i < 0 || idx >= len(_IncidentMsgType_index)-1 {
 		return "IncidentMsgType(" + strconv.FormatInt(int64(i), 10) + ")"
 	}
-	return _IncidentMsgType_name[_IncidentMsgType_index[i]:_IncidentMsgType_index[i+1]]
+	return _IncidentMsgType_name[_IncidentMsgType_index[idx]:_IncidentMsgType_index[idx+1]]
 }
