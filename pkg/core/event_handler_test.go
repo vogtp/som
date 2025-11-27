@@ -1,6 +1,8 @@
 package core
 
 import (
+	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -18,30 +20,32 @@ func TestHandleMonEvt(t *testing.T) {
 	core, close := New("som-test")
 	bus := core.Bus()
 	defer close()
-	for _, tt := range tests {
-		var s *msg.SzenarioEvtMsg
-		bus.Szenario.Handle(func(e *msg.SzenarioEvtMsg) {
-			if tt.msg.Name != e.Name {
-				t.Errorf("got wrong message: %v", e.Name)
-			}
-			s = e
-		})
-		if err := bus.Szenario.Send(tt.msg); err != nil {
-			t.Fatal(err)
-		}
 
-		// for s == nil {
-		// 	time.Sleep(10 * time.Millisecond)
-		// }
-		bus.Szenario.WaitMsgProcessed()
-		if s == nil {
-			t.Error("no message")
-			continue
+	rec := make(map[string]msg.SzenarioEvtMsg)
+	snd := make(map[string]msg.SzenarioEvtMsg)
+
+	var wg sync.WaitGroup
+	wg.Add(len(tests))
+	bus.Szenario.Handle(func(e *msg.SzenarioEvtMsg) {
+		rec[e.Name] = *e
+		wg.Done()
+	})
+
+	bus.Alert.Handle(func(am *msg.AlertMsg) {
+		t.Errorf("Got an alert message: %v",am.Name)
+	})
+
+	for _, tt := range tests {
+		if err := bus.Szenario.Send(tt.msg); err != nil {
+			t.Fatalf("cannot send msg: %v", err)
 		}
-		if tt.msg.Name != s.Name {
-			t.Errorf("got wrong message: %v", s)
-		}
+		snd[tt.msg.Name] = *tt.msg
 	}
+	wg.Wait()
+	if !reflect.DeepEqual(snd, rec) {
+		t.Errorf("Send and receive not equal.\nrec: %+v\nsnd: %+v", rec, snd)
+	}
+
 }
 
 func TestMsgs(t *testing.T) {
