@@ -43,44 +43,44 @@ type IncidentQuery struct {
 }
 
 // Where adds a new predicate for the IncidentQuery builder.
-func (iq *IncidentQuery) Where(ps ...predicate.Incident) *IncidentQuery {
-	iq.predicates = append(iq.predicates, ps...)
-	return iq
+func (_q *IncidentQuery) Where(ps ...predicate.Incident) *IncidentQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (iq *IncidentQuery) Limit(limit int) *IncidentQuery {
-	iq.ctx.Limit = &limit
-	return iq
+func (_q *IncidentQuery) Limit(limit int) *IncidentQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (iq *IncidentQuery) Offset(offset int) *IncidentQuery {
-	iq.ctx.Offset = &offset
-	return iq
+func (_q *IncidentQuery) Offset(offset int) *IncidentQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (iq *IncidentQuery) Unique(unique bool) *IncidentQuery {
-	iq.ctx.Unique = &unique
-	return iq
+func (_q *IncidentQuery) Unique(unique bool) *IncidentQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (iq *IncidentQuery) Order(o ...incident.OrderOption) *IncidentQuery {
-	iq.order = append(iq.order, o...)
-	return iq
+func (_q *IncidentQuery) Order(o ...incident.OrderOption) *IncidentQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryCounters chains the current query on the "Counters" edge.
-func (iq *IncidentQuery) QueryCounters() *CounterQuery {
-	query := (&CounterClient{config: iq.config}).Query()
+func (_q *IncidentQuery) QueryCounters() *CounterQuery {
+	query := (&CounterClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := iq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := iq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -89,20 +89,20 @@ func (iq *IncidentQuery) QueryCounters() *CounterQuery {
 			sqlgraph.To(counter.Table, counter.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.CountersTable, incident.CountersColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryStati chains the current query on the "Stati" edge.
-func (iq *IncidentQuery) QueryStati() *StatusQuery {
-	query := (&StatusClient{config: iq.config}).Query()
+func (_q *IncidentQuery) QueryStati() *StatusQuery {
+	query := (&StatusClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := iq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := iq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -111,20 +111,20 @@ func (iq *IncidentQuery) QueryStati() *StatusQuery {
 			sqlgraph.To(status.Table, status.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.StatiTable, incident.StatiColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryFailures chains the current query on the "Failures" edge.
-func (iq *IncidentQuery) QueryFailures() *FailureQuery {
-	query := (&FailureClient{config: iq.config}).Query()
+func (_q *IncidentQuery) QueryFailures() *FailureQuery {
+	query := (&FailureClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := iq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := iq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -133,20 +133,20 @@ func (iq *IncidentQuery) QueryFailures() *FailureQuery {
 			sqlgraph.To(failure.Table, failure.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.FailuresTable, incident.FailuresColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryFiles chains the current query on the "Files" edge.
-func (iq *IncidentQuery) QueryFiles() *FileQuery {
-	query := (&FileClient{config: iq.config}).Query()
+func (_q *IncidentQuery) QueryFiles() *FileQuery {
+	query := (&FileClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := iq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := iq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -155,7 +155,7 @@ func (iq *IncidentQuery) QueryFiles() *FileQuery {
 			sqlgraph.To(file.Table, file.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.FilesTable, incident.FilesColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(iq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -163,8 +163,8 @@ func (iq *IncidentQuery) QueryFiles() *FileQuery {
 
 // First returns the first Incident entity from the query.
 // Returns a *NotFoundError when no Incident was found.
-func (iq *IncidentQuery) First(ctx context.Context) (*Incident, error) {
-	nodes, err := iq.Limit(1).All(setContextOp(ctx, iq.ctx, ent.OpQueryFirst))
+func (_q *IncidentQuery) First(ctx context.Context) (*Incident, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +175,8 @@ func (iq *IncidentQuery) First(ctx context.Context) (*Incident, error) {
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (iq *IncidentQuery) FirstX(ctx context.Context) *Incident {
-	node, err := iq.First(ctx)
+func (_q *IncidentQuery) FirstX(ctx context.Context) *Incident {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -185,9 +185,9 @@ func (iq *IncidentQuery) FirstX(ctx context.Context) *Incident {
 
 // FirstID returns the first Incident ID from the query.
 // Returns a *NotFoundError when no Incident ID was found.
-func (iq *IncidentQuery) FirstID(ctx context.Context) (id int, err error) {
+func (_q *IncidentQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = iq.Limit(1).IDs(setContextOp(ctx, iq.ctx, ent.OpQueryFirstID)); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -198,8 +198,8 @@ func (iq *IncidentQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (iq *IncidentQuery) FirstIDX(ctx context.Context) int {
-	id, err := iq.FirstID(ctx)
+func (_q *IncidentQuery) FirstIDX(ctx context.Context) int {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -209,8 +209,8 @@ func (iq *IncidentQuery) FirstIDX(ctx context.Context) int {
 // Only returns a single Incident entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one Incident entity is found.
 // Returns a *NotFoundError when no Incident entities are found.
-func (iq *IncidentQuery) Only(ctx context.Context) (*Incident, error) {
-	nodes, err := iq.Limit(2).All(setContextOp(ctx, iq.ctx, ent.OpQueryOnly))
+func (_q *IncidentQuery) Only(ctx context.Context) (*Incident, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -225,8 +225,8 @@ func (iq *IncidentQuery) Only(ctx context.Context) (*Incident, error) {
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (iq *IncidentQuery) OnlyX(ctx context.Context) *Incident {
-	node, err := iq.Only(ctx)
+func (_q *IncidentQuery) OnlyX(ctx context.Context) *Incident {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -236,9 +236,9 @@ func (iq *IncidentQuery) OnlyX(ctx context.Context) *Incident {
 // OnlyID is like Only, but returns the only Incident ID in the query.
 // Returns a *NotSingularError when more than one Incident ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (iq *IncidentQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *IncidentQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = iq.Limit(2).IDs(setContextOp(ctx, iq.ctx, ent.OpQueryOnlyID)); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -253,8 +253,8 @@ func (iq *IncidentQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (iq *IncidentQuery) OnlyIDX(ctx context.Context) int {
-	id, err := iq.OnlyID(ctx)
+func (_q *IncidentQuery) OnlyIDX(ctx context.Context) int {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -262,18 +262,18 @@ func (iq *IncidentQuery) OnlyIDX(ctx context.Context) int {
 }
 
 // All executes the query and returns a list of Incidents.
-func (iq *IncidentQuery) All(ctx context.Context) ([]*Incident, error) {
-	ctx = setContextOp(ctx, iq.ctx, ent.OpQueryAll)
-	if err := iq.prepareQuery(ctx); err != nil {
+func (_q *IncidentQuery) All(ctx context.Context) ([]*Incident, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*Incident, *IncidentQuery]()
-	return withInterceptors[[]*Incident](ctx, iq, qr, iq.inters)
+	return withInterceptors[[]*Incident](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (iq *IncidentQuery) AllX(ctx context.Context) []*Incident {
-	nodes, err := iq.All(ctx)
+func (_q *IncidentQuery) AllX(ctx context.Context) []*Incident {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -281,20 +281,20 @@ func (iq *IncidentQuery) AllX(ctx context.Context) []*Incident {
 }
 
 // IDs executes the query and returns a list of Incident IDs.
-func (iq *IncidentQuery) IDs(ctx context.Context) (ids []int, err error) {
-	if iq.ctx.Unique == nil && iq.path != nil {
-		iq.Unique(true)
+func (_q *IncidentQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, iq.ctx, ent.OpQueryIDs)
-	if err = iq.Select(incident.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(incident.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (iq *IncidentQuery) IDsX(ctx context.Context) []int {
-	ids, err := iq.IDs(ctx)
+func (_q *IncidentQuery) IDsX(ctx context.Context) []int {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -302,17 +302,17 @@ func (iq *IncidentQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (iq *IncidentQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, iq.ctx, ent.OpQueryCount)
-	if err := iq.prepareQuery(ctx); err != nil {
+func (_q *IncidentQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, iq, querierCount[*IncidentQuery](), iq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*IncidentQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (iq *IncidentQuery) CountX(ctx context.Context) int {
-	count, err := iq.Count(ctx)
+func (_q *IncidentQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -320,9 +320,9 @@ func (iq *IncidentQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (iq *IncidentQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, iq.ctx, ent.OpQueryExist)
-	switch _, err := iq.FirstID(ctx); {
+func (_q *IncidentQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -333,8 +333,8 @@ func (iq *IncidentQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (iq *IncidentQuery) ExistX(ctx context.Context) bool {
-	exist, err := iq.Exist(ctx)
+func (_q *IncidentQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -343,68 +343,68 @@ func (iq *IncidentQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the IncidentQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (iq *IncidentQuery) Clone() *IncidentQuery {
-	if iq == nil {
+func (_q *IncidentQuery) Clone() *IncidentQuery {
+	if _q == nil {
 		return nil
 	}
 	return &IncidentQuery{
-		config:       iq.config,
-		ctx:          iq.ctx.Clone(),
-		order:        append([]incident.OrderOption{}, iq.order...),
-		inters:       append([]Interceptor{}, iq.inters...),
-		predicates:   append([]predicate.Incident{}, iq.predicates...),
-		withCounters: iq.withCounters.Clone(),
-		withStati:    iq.withStati.Clone(),
-		withFailures: iq.withFailures.Clone(),
-		withFiles:    iq.withFiles.Clone(),
+		config:       _q.config,
+		ctx:          _q.ctx.Clone(),
+		order:        append([]incident.OrderOption{}, _q.order...),
+		inters:       append([]Interceptor{}, _q.inters...),
+		predicates:   append([]predicate.Incident{}, _q.predicates...),
+		withCounters: _q.withCounters.Clone(),
+		withStati:    _q.withStati.Clone(),
+		withFailures: _q.withFailures.Clone(),
+		withFiles:    _q.withFiles.Clone(),
 		// clone intermediate query.
-		sql:  iq.sql.Clone(),
-		path: iq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithCounters tells the query-builder to eager-load the nodes that are connected to
 // the "Counters" edge. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithCounters(opts ...func(*CounterQuery)) *IncidentQuery {
-	query := (&CounterClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithCounters(opts ...func(*CounterQuery)) *IncidentQuery {
+	query := (&CounterClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	iq.withCounters = query
-	return iq
+	_q.withCounters = query
+	return _q
 }
 
 // WithStati tells the query-builder to eager-load the nodes that are connected to
 // the "Stati" edge. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithStati(opts ...func(*StatusQuery)) *IncidentQuery {
-	query := (&StatusClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithStati(opts ...func(*StatusQuery)) *IncidentQuery {
+	query := (&StatusClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	iq.withStati = query
-	return iq
+	_q.withStati = query
+	return _q
 }
 
 // WithFailures tells the query-builder to eager-load the nodes that are connected to
 // the "Failures" edge. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithFailures(opts ...func(*FailureQuery)) *IncidentQuery {
-	query := (&FailureClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithFailures(opts ...func(*FailureQuery)) *IncidentQuery {
+	query := (&FailureClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	iq.withFailures = query
-	return iq
+	_q.withFailures = query
+	return _q
 }
 
 // WithFiles tells the query-builder to eager-load the nodes that are connected to
 // the "Files" edge. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithFiles(opts ...func(*FileQuery)) *IncidentQuery {
-	query := (&FileClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithFiles(opts ...func(*FileQuery)) *IncidentQuery {
+	query := (&FileClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	iq.withFiles = query
-	return iq
+	_q.withFiles = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -421,10 +421,10 @@ func (iq *IncidentQuery) WithFiles(opts ...func(*FileQuery)) *IncidentQuery {
 //		GroupBy(incident.FieldUUID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (iq *IncidentQuery) GroupBy(field string, fields ...string) *IncidentGroupBy {
-	iq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &IncidentGroupBy{build: iq}
-	grbuild.flds = &iq.ctx.Fields
+func (_q *IncidentQuery) GroupBy(field string, fields ...string) *IncidentGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &IncidentGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = incident.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -442,142 +442,142 @@ func (iq *IncidentQuery) GroupBy(field string, fields ...string) *IncidentGroupB
 //	client.Incident.Query().
 //		Select(incident.FieldUUID).
 //		Scan(ctx, &v)
-func (iq *IncidentQuery) Select(fields ...string) *IncidentSelect {
-	iq.ctx.Fields = append(iq.ctx.Fields, fields...)
-	sbuild := &IncidentSelect{IncidentQuery: iq}
+func (_q *IncidentQuery) Select(fields ...string) *IncidentSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &IncidentSelect{IncidentQuery: _q}
 	sbuild.label = incident.Label
-	sbuild.flds, sbuild.scan = &iq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a IncidentSelect configured with the given aggregations.
-func (iq *IncidentQuery) Aggregate(fns ...AggregateFunc) *IncidentSelect {
-	return iq.Select().Aggregate(fns...)
+func (_q *IncidentQuery) Aggregate(fns ...AggregateFunc) *IncidentSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (iq *IncidentQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range iq.inters {
+func (_q *IncidentQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, iq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range iq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !incident.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if iq.path != nil {
-		prev, err := iq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		iq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (iq *IncidentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Incident, error) {
+func (_q *IncidentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Incident, error) {
 	var (
 		nodes       = []*Incident{}
-		_spec       = iq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [4]bool{
-			iq.withCounters != nil,
-			iq.withStati != nil,
-			iq.withFailures != nil,
-			iq.withFiles != nil,
+			_q.withCounters != nil,
+			_q.withStati != nil,
+			_q.withFailures != nil,
+			_q.withFiles != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Incident).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Incident{config: iq.config}
+		node := &Incident{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(iq.modifiers) > 0 {
-		_spec.Modifiers = iq.modifiers
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, iq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := iq.withCounters; query != nil {
-		if err := iq.loadCounters(ctx, query, nodes,
+	if query := _q.withCounters; query != nil {
+		if err := _q.loadCounters(ctx, query, nodes,
 			func(n *Incident) { n.Edges.Counters = []*Counter{} },
 			func(n *Incident, e *Counter) { n.Edges.Counters = append(n.Edges.Counters, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := iq.withStati; query != nil {
-		if err := iq.loadStati(ctx, query, nodes,
+	if query := _q.withStati; query != nil {
+		if err := _q.loadStati(ctx, query, nodes,
 			func(n *Incident) { n.Edges.Stati = []*Status{} },
 			func(n *Incident, e *Status) { n.Edges.Stati = append(n.Edges.Stati, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := iq.withFailures; query != nil {
-		if err := iq.loadFailures(ctx, query, nodes,
+	if query := _q.withFailures; query != nil {
+		if err := _q.loadFailures(ctx, query, nodes,
 			func(n *Incident) { n.Edges.Failures = []*Failure{} },
 			func(n *Incident, e *Failure) { n.Edges.Failures = append(n.Edges.Failures, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := iq.withFiles; query != nil {
-		if err := iq.loadFiles(ctx, query, nodes,
+	if query := _q.withFiles; query != nil {
+		if err := _q.loadFiles(ctx, query, nodes,
 			func(n *Incident) { n.Edges.Files = []*File{} },
 			func(n *Incident, e *File) { n.Edges.Files = append(n.Edges.Files, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range iq.withNamedCounters {
-		if err := iq.loadCounters(ctx, query, nodes,
+	for name, query := range _q.withNamedCounters {
+		if err := _q.loadCounters(ctx, query, nodes,
 			func(n *Incident) { n.appendNamedCounters(name) },
 			func(n *Incident, e *Counter) { n.appendNamedCounters(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range iq.withNamedStati {
-		if err := iq.loadStati(ctx, query, nodes,
+	for name, query := range _q.withNamedStati {
+		if err := _q.loadStati(ctx, query, nodes,
 			func(n *Incident) { n.appendNamedStati(name) },
 			func(n *Incident, e *Status) { n.appendNamedStati(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range iq.withNamedFailures {
-		if err := iq.loadFailures(ctx, query, nodes,
+	for name, query := range _q.withNamedFailures {
+		if err := _q.loadFailures(ctx, query, nodes,
 			func(n *Incident) { n.appendNamedFailures(name) },
 			func(n *Incident, e *Failure) { n.appendNamedFailures(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range iq.withNamedFiles {
-		if err := iq.loadFiles(ctx, query, nodes,
+	for name, query := range _q.withNamedFiles {
+		if err := _q.loadFiles(ctx, query, nodes,
 			func(n *Incident) { n.appendNamedFiles(name) },
 			func(n *Incident, e *File) { n.appendNamedFiles(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for i := range iq.loadTotal {
-		if err := iq.loadTotal[i](ctx, nodes); err != nil {
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (iq *IncidentQuery) loadCounters(ctx context.Context, query *CounterQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *Counter)) error {
+func (_q *IncidentQuery) loadCounters(ctx context.Context, query *CounterQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *Counter)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Incident)
 	for i := range nodes {
@@ -608,7 +608,7 @@ func (iq *IncidentQuery) loadCounters(ctx context.Context, query *CounterQuery, 
 	}
 	return nil
 }
-func (iq *IncidentQuery) loadStati(ctx context.Context, query *StatusQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *Status)) error {
+func (_q *IncidentQuery) loadStati(ctx context.Context, query *StatusQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *Status)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Incident)
 	for i := range nodes {
@@ -639,7 +639,7 @@ func (iq *IncidentQuery) loadStati(ctx context.Context, query *StatusQuery, node
 	}
 	return nil
 }
-func (iq *IncidentQuery) loadFailures(ctx context.Context, query *FailureQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *Failure)) error {
+func (_q *IncidentQuery) loadFailures(ctx context.Context, query *FailureQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *Failure)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Incident)
 	for i := range nodes {
@@ -670,7 +670,7 @@ func (iq *IncidentQuery) loadFailures(ctx context.Context, query *FailureQuery, 
 	}
 	return nil
 }
-func (iq *IncidentQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *File)) error {
+func (_q *IncidentQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*Incident, init func(*Incident), assign func(*Incident, *File)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Incident)
 	for i := range nodes {
@@ -702,27 +702,27 @@ func (iq *IncidentQuery) loadFiles(ctx context.Context, query *FileQuery, nodes 
 	return nil
 }
 
-func (iq *IncidentQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := iq.querySpec()
-	if len(iq.modifiers) > 0 {
-		_spec.Modifiers = iq.modifiers
+func (_q *IncidentQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
 	}
-	_spec.Node.Columns = iq.ctx.Fields
-	if len(iq.ctx.Fields) > 0 {
-		_spec.Unique = iq.ctx.Unique != nil && *iq.ctx.Unique
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, iq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (iq *IncidentQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *IncidentQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(incident.Table, incident.Columns, sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt))
-	_spec.From = iq.sql
-	if unique := iq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if iq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := iq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, incident.FieldID)
 		for i := range fields {
@@ -731,20 +731,20 @@ func (iq *IncidentQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := iq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := iq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := iq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := iq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -754,33 +754,33 @@ func (iq *IncidentQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (iq *IncidentQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(iq.driver.Dialect())
+func (_q *IncidentQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(incident.Table)
-	columns := iq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = incident.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if iq.sql != nil {
-		selector = iq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if iq.ctx.Unique != nil && *iq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range iq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range iq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := iq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := iq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -788,58 +788,58 @@ func (iq *IncidentQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // WithNamedCounters tells the query-builder to eager-load the nodes that are connected to the "Counters"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithNamedCounters(name string, opts ...func(*CounterQuery)) *IncidentQuery {
-	query := (&CounterClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithNamedCounters(name string, opts ...func(*CounterQuery)) *IncidentQuery {
+	query := (&CounterClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if iq.withNamedCounters == nil {
-		iq.withNamedCounters = make(map[string]*CounterQuery)
+	if _q.withNamedCounters == nil {
+		_q.withNamedCounters = make(map[string]*CounterQuery)
 	}
-	iq.withNamedCounters[name] = query
-	return iq
+	_q.withNamedCounters[name] = query
+	return _q
 }
 
 // WithNamedStati tells the query-builder to eager-load the nodes that are connected to the "Stati"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithNamedStati(name string, opts ...func(*StatusQuery)) *IncidentQuery {
-	query := (&StatusClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithNamedStati(name string, opts ...func(*StatusQuery)) *IncidentQuery {
+	query := (&StatusClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if iq.withNamedStati == nil {
-		iq.withNamedStati = make(map[string]*StatusQuery)
+	if _q.withNamedStati == nil {
+		_q.withNamedStati = make(map[string]*StatusQuery)
 	}
-	iq.withNamedStati[name] = query
-	return iq
+	_q.withNamedStati[name] = query
+	return _q
 }
 
 // WithNamedFailures tells the query-builder to eager-load the nodes that are connected to the "Failures"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithNamedFailures(name string, opts ...func(*FailureQuery)) *IncidentQuery {
-	query := (&FailureClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithNamedFailures(name string, opts ...func(*FailureQuery)) *IncidentQuery {
+	query := (&FailureClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if iq.withNamedFailures == nil {
-		iq.withNamedFailures = make(map[string]*FailureQuery)
+	if _q.withNamedFailures == nil {
+		_q.withNamedFailures = make(map[string]*FailureQuery)
 	}
-	iq.withNamedFailures[name] = query
-	return iq
+	_q.withNamedFailures[name] = query
+	return _q
 }
 
 // WithNamedFiles tells the query-builder to eager-load the nodes that are connected to the "Files"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (iq *IncidentQuery) WithNamedFiles(name string, opts ...func(*FileQuery)) *IncidentQuery {
-	query := (&FileClient{config: iq.config}).Query()
+func (_q *IncidentQuery) WithNamedFiles(name string, opts ...func(*FileQuery)) *IncidentQuery {
+	query := (&FileClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if iq.withNamedFiles == nil {
-		iq.withNamedFiles = make(map[string]*FileQuery)
+	if _q.withNamedFiles == nil {
+		_q.withNamedFiles = make(map[string]*FileQuery)
 	}
-	iq.withNamedFiles[name] = query
-	return iq
+	_q.withNamedFiles[name] = query
+	return _q
 }
 
 // IncidentGroupBy is the group-by builder for Incident entities.
@@ -849,41 +849,41 @@ type IncidentGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (igb *IncidentGroupBy) Aggregate(fns ...AggregateFunc) *IncidentGroupBy {
-	igb.fns = append(igb.fns, fns...)
-	return igb
+func (_g *IncidentGroupBy) Aggregate(fns ...AggregateFunc) *IncidentGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (igb *IncidentGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, igb.build.ctx, ent.OpQueryGroupBy)
-	if err := igb.build.prepareQuery(ctx); err != nil {
+func (_g *IncidentGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*IncidentQuery, *IncidentGroupBy](ctx, igb.build, igb, igb.build.inters, v)
+	return scanWithInterceptors[*IncidentQuery, *IncidentGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (igb *IncidentGroupBy) sqlScan(ctx context.Context, root *IncidentQuery, v any) error {
+func (_g *IncidentGroupBy) sqlScan(ctx context.Context, root *IncidentQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(igb.fns))
-	for _, fn := range igb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*igb.flds)+len(igb.fns))
-		for _, f := range *igb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*igb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := igb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -897,27 +897,27 @@ type IncidentSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (is *IncidentSelect) Aggregate(fns ...AggregateFunc) *IncidentSelect {
-	is.fns = append(is.fns, fns...)
-	return is
+func (_s *IncidentSelect) Aggregate(fns ...AggregateFunc) *IncidentSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (is *IncidentSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, is.ctx, ent.OpQuerySelect)
-	if err := is.prepareQuery(ctx); err != nil {
+func (_s *IncidentSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*IncidentQuery, *IncidentSelect](ctx, is.IncidentQuery, is, is.inters, v)
+	return scanWithInterceptors[*IncidentQuery, *IncidentSelect](ctx, _s.IncidentQuery, _s, _s.inters, v)
 }
 
-func (is *IncidentSelect) sqlScan(ctx context.Context, root *IncidentQuery, v any) error {
+func (_s *IncidentSelect) sqlScan(ctx context.Context, root *IncidentQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(is.fns))
-	for _, fn := range is.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*is.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -925,7 +925,7 @@ func (is *IncidentSelect) sqlScan(ctx context.Context, root *IncidentQuery, v an
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := is.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

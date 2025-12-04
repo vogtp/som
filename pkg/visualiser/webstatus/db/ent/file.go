@@ -60,7 +60,7 @@ func (*File) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the File fields.
-func (f *File) assignValues(columns []string, values []any) error {
+func (_m *File) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -71,59 +71,59 @@ func (f *File) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			f.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case file.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field UUID", values[i])
 			} else if value != nil {
-				f.UUID = *value
+				_m.UUID = *value
 			}
 		case file.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Name", values[i])
 			} else if value.Valid {
-				f.Name = value.String
+				_m.Name = value.String
 			}
 		case file.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Type", values[i])
 			} else if value.Valid {
-				f.Type = value.String
+				_m.Type = value.String
 			}
 		case file.FieldExt:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Ext", values[i])
 			} else if value.Valid {
-				f.Ext = value.String
+				_m.Ext = value.String
 			}
 		case file.FieldSize:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field Size", values[i])
 			} else if value.Valid {
-				f.Size = int(value.Int64)
+				_m.Size = int(value.Int64)
 			}
 		case file.FieldPayload:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field payload", values[i])
 			} else if value != nil {
-				f.Payload = *value
+				_m.Payload = *value
 			}
 		case file.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field alert_files", value)
 			} else if value.Valid {
-				f.alert_files = new(int)
-				*f.alert_files = int(value.Int64)
+				_m.alert_files = new(int)
+				*_m.alert_files = int(value.Int64)
 			}
 		case file.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field incident_files", value)
 			} else if value.Valid {
-				f.incident_files = new(int)
-				*f.incident_files = int(value.Int64)
+				_m.incident_files = new(int)
+				*_m.incident_files = int(value.Int64)
 			}
 		default:
-			f.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -131,50 +131,50 @@ func (f *File) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the File.
 // This includes values selected through modifiers, order, etc.
-func (f *File) Value(name string) (ent.Value, error) {
-	return f.selectValues.Get(name)
+func (_m *File) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this File.
 // Note that you need to call File.Unwrap() before calling this method if this File
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (f *File) Update() *FileUpdateOne {
-	return NewFileClient(f.config).UpdateOne(f)
+func (_m *File) Update() *FileUpdateOne {
+	return NewFileClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the File entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (f *File) Unwrap() *File {
-	_tx, ok := f.config.driver.(*txDriver)
+func (_m *File) Unwrap() *File {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: File is not a transactional entity")
 	}
-	f.config.driver = _tx.drv
-	return f
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (f *File) String() string {
+func (_m *File) String() string {
 	var builder strings.Builder
 	builder.WriteString("File(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", f.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("UUID=")
-	builder.WriteString(fmt.Sprintf("%v", f.UUID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UUID))
 	builder.WriteString(", ")
 	builder.WriteString("Name=")
-	builder.WriteString(f.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("Type=")
-	builder.WriteString(f.Type)
+	builder.WriteString(_m.Type)
 	builder.WriteString(", ")
 	builder.WriteString("Ext=")
-	builder.WriteString(f.Ext)
+	builder.WriteString(_m.Ext)
 	builder.WriteString(", ")
 	builder.WriteString("Size=")
-	builder.WriteString(fmt.Sprintf("%v", f.Size))
+	builder.WriteString(fmt.Sprintf("%v", _m.Size))
 	builder.WriteString(", ")
 	builder.WriteString("payload=")
-	builder.WriteString(fmt.Sprintf("%v", f.Payload))
+	builder.WriteString(fmt.Sprintf("%v", _m.Payload))
 	builder.WriteByte(')')
 	return builder.String()
 }

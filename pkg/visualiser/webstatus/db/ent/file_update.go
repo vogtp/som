@@ -23,107 +23,107 @@ type FileUpdate struct {
 }
 
 // Where appends a list predicates to the FileUpdate builder.
-func (fu *FileUpdate) Where(ps ...predicate.File) *FileUpdate {
-	fu.mutation.Where(ps...)
-	return fu
+func (_u *FileUpdate) Where(ps ...predicate.File) *FileUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUUID sets the "UUID" field.
-func (fu *FileUpdate) SetUUID(u uuid.UUID) *FileUpdate {
-	fu.mutation.SetUUID(u)
-	return fu
+func (_u *FileUpdate) SetUUID(v uuid.UUID) *FileUpdate {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "UUID" field if the given value is not nil.
-func (fu *FileUpdate) SetNillableUUID(u *uuid.UUID) *FileUpdate {
-	if u != nil {
-		fu.SetUUID(*u)
+func (_u *FileUpdate) SetNillableUUID(v *uuid.UUID) *FileUpdate {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetName sets the "Name" field.
-func (fu *FileUpdate) SetName(s string) *FileUpdate {
-	fu.mutation.SetName(s)
-	return fu
+func (_u *FileUpdate) SetName(v string) *FileUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "Name" field if the given value is not nil.
-func (fu *FileUpdate) SetNillableName(s *string) *FileUpdate {
-	if s != nil {
-		fu.SetName(*s)
+func (_u *FileUpdate) SetNillableName(v *string) *FileUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetType sets the "Type" field.
-func (fu *FileUpdate) SetType(s string) *FileUpdate {
-	fu.mutation.SetType(s)
-	return fu
+func (_u *FileUpdate) SetType(v string) *FileUpdate {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "Type" field if the given value is not nil.
-func (fu *FileUpdate) SetNillableType(s *string) *FileUpdate {
-	if s != nil {
-		fu.SetType(*s)
+func (_u *FileUpdate) SetNillableType(v *string) *FileUpdate {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetExt sets the "Ext" field.
-func (fu *FileUpdate) SetExt(s string) *FileUpdate {
-	fu.mutation.SetExt(s)
-	return fu
+func (_u *FileUpdate) SetExt(v string) *FileUpdate {
+	_u.mutation.SetExt(v)
+	return _u
 }
 
 // SetNillableExt sets the "Ext" field if the given value is not nil.
-func (fu *FileUpdate) SetNillableExt(s *string) *FileUpdate {
-	if s != nil {
-		fu.SetExt(*s)
+func (_u *FileUpdate) SetNillableExt(v *string) *FileUpdate {
+	if v != nil {
+		_u.SetExt(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetSize sets the "Size" field.
-func (fu *FileUpdate) SetSize(i int) *FileUpdate {
-	fu.mutation.ResetSize()
-	fu.mutation.SetSize(i)
-	return fu
+func (_u *FileUpdate) SetSize(v int) *FileUpdate {
+	_u.mutation.ResetSize()
+	_u.mutation.SetSize(v)
+	return _u
 }
 
 // SetNillableSize sets the "Size" field if the given value is not nil.
-func (fu *FileUpdate) SetNillableSize(i *int) *FileUpdate {
-	if i != nil {
-		fu.SetSize(*i)
+func (_u *FileUpdate) SetNillableSize(v *int) *FileUpdate {
+	if v != nil {
+		_u.SetSize(*v)
 	}
-	return fu
+	return _u
 }
 
-// AddSize adds i to the "Size" field.
-func (fu *FileUpdate) AddSize(i int) *FileUpdate {
-	fu.mutation.AddSize(i)
-	return fu
+// AddSize adds value to the "Size" field.
+func (_u *FileUpdate) AddSize(v int) *FileUpdate {
+	_u.mutation.AddSize(v)
+	return _u
 }
 
 // SetPayload sets the "payload" field.
-func (fu *FileUpdate) SetPayload(b []byte) *FileUpdate {
-	fu.mutation.SetPayload(b)
-	return fu
+func (_u *FileUpdate) SetPayload(v []byte) *FileUpdate {
+	_u.mutation.SetPayload(v)
+	return _u
 }
 
 // Mutation returns the FileMutation object of the builder.
-func (fu *FileUpdate) Mutation() *FileMutation {
-	return fu.mutation
+func (_u *FileUpdate) Mutation() *FileMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (fu *FileUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, fu.sqlSave, fu.mutation, fu.hooks)
+func (_u *FileUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fu *FileUpdate) SaveX(ctx context.Context) int {
-	affected, err := fu.Save(ctx)
+func (_u *FileUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -131,49 +131,49 @@ func (fu *FileUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (fu *FileUpdate) Exec(ctx context.Context) error {
-	_, err := fu.Save(ctx)
+func (_u *FileUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fu *FileUpdate) ExecX(ctx context.Context) {
-	if err := fu.Exec(ctx); err != nil {
+func (_u *FileUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (fu *FileUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *FileUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(file.Table, file.Columns, sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt))
-	if ps := fu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fu.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(file.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := fu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(file.FieldName, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(file.FieldType, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.Ext(); ok {
+	if value, ok := _u.mutation.Ext(); ok {
 		_spec.SetField(file.FieldExt, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.Size(); ok {
+	if value, ok := _u.mutation.Size(); ok {
 		_spec.SetField(file.FieldSize, field.TypeInt, value)
 	}
-	if value, ok := fu.mutation.AddedSize(); ok {
+	if value, ok := _u.mutation.AddedSize(); ok {
 		_spec.AddField(file.FieldSize, field.TypeInt, value)
 	}
-	if value, ok := fu.mutation.Payload(); ok {
+	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(file.FieldPayload, field.TypeBytes, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{file.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -181,8 +181,8 @@ func (fu *FileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	fu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // FileUpdateOne is the builder for updating a single File entity.
@@ -194,114 +194,114 @@ type FileUpdateOne struct {
 }
 
 // SetUUID sets the "UUID" field.
-func (fuo *FileUpdateOne) SetUUID(u uuid.UUID) *FileUpdateOne {
-	fuo.mutation.SetUUID(u)
-	return fuo
+func (_u *FileUpdateOne) SetUUID(v uuid.UUID) *FileUpdateOne {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "UUID" field if the given value is not nil.
-func (fuo *FileUpdateOne) SetNillableUUID(u *uuid.UUID) *FileUpdateOne {
-	if u != nil {
-		fuo.SetUUID(*u)
+func (_u *FileUpdateOne) SetNillableUUID(v *uuid.UUID) *FileUpdateOne {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetName sets the "Name" field.
-func (fuo *FileUpdateOne) SetName(s string) *FileUpdateOne {
-	fuo.mutation.SetName(s)
-	return fuo
+func (_u *FileUpdateOne) SetName(v string) *FileUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "Name" field if the given value is not nil.
-func (fuo *FileUpdateOne) SetNillableName(s *string) *FileUpdateOne {
-	if s != nil {
-		fuo.SetName(*s)
+func (_u *FileUpdateOne) SetNillableName(v *string) *FileUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetType sets the "Type" field.
-func (fuo *FileUpdateOne) SetType(s string) *FileUpdateOne {
-	fuo.mutation.SetType(s)
-	return fuo
+func (_u *FileUpdateOne) SetType(v string) *FileUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "Type" field if the given value is not nil.
-func (fuo *FileUpdateOne) SetNillableType(s *string) *FileUpdateOne {
-	if s != nil {
-		fuo.SetType(*s)
+func (_u *FileUpdateOne) SetNillableType(v *string) *FileUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetExt sets the "Ext" field.
-func (fuo *FileUpdateOne) SetExt(s string) *FileUpdateOne {
-	fuo.mutation.SetExt(s)
-	return fuo
+func (_u *FileUpdateOne) SetExt(v string) *FileUpdateOne {
+	_u.mutation.SetExt(v)
+	return _u
 }
 
 // SetNillableExt sets the "Ext" field if the given value is not nil.
-func (fuo *FileUpdateOne) SetNillableExt(s *string) *FileUpdateOne {
-	if s != nil {
-		fuo.SetExt(*s)
+func (_u *FileUpdateOne) SetNillableExt(v *string) *FileUpdateOne {
+	if v != nil {
+		_u.SetExt(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetSize sets the "Size" field.
-func (fuo *FileUpdateOne) SetSize(i int) *FileUpdateOne {
-	fuo.mutation.ResetSize()
-	fuo.mutation.SetSize(i)
-	return fuo
+func (_u *FileUpdateOne) SetSize(v int) *FileUpdateOne {
+	_u.mutation.ResetSize()
+	_u.mutation.SetSize(v)
+	return _u
 }
 
 // SetNillableSize sets the "Size" field if the given value is not nil.
-func (fuo *FileUpdateOne) SetNillableSize(i *int) *FileUpdateOne {
-	if i != nil {
-		fuo.SetSize(*i)
+func (_u *FileUpdateOne) SetNillableSize(v *int) *FileUpdateOne {
+	if v != nil {
+		_u.SetSize(*v)
 	}
-	return fuo
+	return _u
 }
 
-// AddSize adds i to the "Size" field.
-func (fuo *FileUpdateOne) AddSize(i int) *FileUpdateOne {
-	fuo.mutation.AddSize(i)
-	return fuo
+// AddSize adds value to the "Size" field.
+func (_u *FileUpdateOne) AddSize(v int) *FileUpdateOne {
+	_u.mutation.AddSize(v)
+	return _u
 }
 
 // SetPayload sets the "payload" field.
-func (fuo *FileUpdateOne) SetPayload(b []byte) *FileUpdateOne {
-	fuo.mutation.SetPayload(b)
-	return fuo
+func (_u *FileUpdateOne) SetPayload(v []byte) *FileUpdateOne {
+	_u.mutation.SetPayload(v)
+	return _u
 }
 
 // Mutation returns the FileMutation object of the builder.
-func (fuo *FileUpdateOne) Mutation() *FileMutation {
-	return fuo.mutation
+func (_u *FileUpdateOne) Mutation() *FileMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the FileUpdate builder.
-func (fuo *FileUpdateOne) Where(ps ...predicate.File) *FileUpdateOne {
-	fuo.mutation.Where(ps...)
-	return fuo
+func (_u *FileUpdateOne) Where(ps ...predicate.File) *FileUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (fuo *FileUpdateOne) Select(field string, fields ...string) *FileUpdateOne {
-	fuo.fields = append([]string{field}, fields...)
-	return fuo
+func (_u *FileUpdateOne) Select(field string, fields ...string) *FileUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated File entity.
-func (fuo *FileUpdateOne) Save(ctx context.Context) (*File, error) {
-	return withHooks(ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
+func (_u *FileUpdateOne) Save(ctx context.Context) (*File, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fuo *FileUpdateOne) SaveX(ctx context.Context) *File {
-	node, err := fuo.Save(ctx)
+func (_u *FileUpdateOne) SaveX(ctx context.Context) *File {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -309,26 +309,26 @@ func (fuo *FileUpdateOne) SaveX(ctx context.Context) *File {
 }
 
 // Exec executes the query on the entity.
-func (fuo *FileUpdateOne) Exec(ctx context.Context) error {
-	_, err := fuo.Save(ctx)
+func (_u *FileUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fuo *FileUpdateOne) ExecX(ctx context.Context) {
-	if err := fuo.Exec(ctx); err != nil {
+func (_u *FileUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (fuo *FileUpdateOne) sqlSave(ctx context.Context) (_node *File, err error) {
+func (_u *FileUpdateOne) sqlSave(ctx context.Context) (_node *File, err error) {
 	_spec := sqlgraph.NewUpdateSpec(file.Table, file.Columns, sqlgraph.NewFieldSpec(file.FieldID, field.TypeInt))
-	id, ok := fuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "File.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := fuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, file.FieldID)
 		for _, f := range fields {
@@ -340,38 +340,38 @@ func (fuo *FileUpdateOne) sqlSave(ctx context.Context) (_node *File, err error) 
 			}
 		}
 	}
-	if ps := fuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fuo.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(file.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := fuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(file.FieldName, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(file.FieldType, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.Ext(); ok {
+	if value, ok := _u.mutation.Ext(); ok {
 		_spec.SetField(file.FieldExt, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.Size(); ok {
+	if value, ok := _u.mutation.Size(); ok {
 		_spec.SetField(file.FieldSize, field.TypeInt, value)
 	}
-	if value, ok := fuo.mutation.AddedSize(); ok {
+	if value, ok := _u.mutation.AddedSize(); ok {
 		_spec.AddField(file.FieldSize, field.TypeInt, value)
 	}
-	if value, ok := fuo.mutation.Payload(); ok {
+	if value, ok := _u.mutation.Payload(); ok {
 		_spec.SetField(file.FieldPayload, field.TypeBytes, value)
 	}
-	_node = &File{config: fuo.config}
+	_node = &File{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, fuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{file.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -379,6 +379,6 @@ func (fuo *FileUpdateOne) sqlSave(ctx context.Context) (_node *File, err error) 
 		}
 		return nil, err
 	}
-	fuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

@@ -47,7 +47,7 @@ func (*Failure) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Failure fields.
-func (f *Failure) assignValues(columns []string, values []any) error {
+func (_m *Failure) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -58,35 +58,35 @@ func (f *Failure) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			f.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case failure.FieldError:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Error", values[i])
 			} else if value.Valid {
-				f.Error = value.String
+				_m.Error = value.String
 			}
 		case failure.FieldIdx:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field Idx", values[i])
 			} else if value.Valid {
-				f.Idx = int(value.Int64)
+				_m.Idx = int(value.Int64)
 			}
 		case failure.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field alert_failures", value)
 			} else if value.Valid {
-				f.alert_failures = new(int)
-				*f.alert_failures = int(value.Int64)
+				_m.alert_failures = new(int)
+				*_m.alert_failures = int(value.Int64)
 			}
 		case failure.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field incident_failures", value)
 			} else if value.Valid {
-				f.incident_failures = new(int)
-				*f.incident_failures = int(value.Int64)
+				_m.incident_failures = new(int)
+				*_m.incident_failures = int(value.Int64)
 			}
 		default:
-			f.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -94,38 +94,38 @@ func (f *Failure) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Failure.
 // This includes values selected through modifiers, order, etc.
-func (f *Failure) Value(name string) (ent.Value, error) {
-	return f.selectValues.Get(name)
+func (_m *Failure) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Failure.
 // Note that you need to call Failure.Unwrap() before calling this method if this Failure
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (f *Failure) Update() *FailureUpdateOne {
-	return NewFailureClient(f.config).UpdateOne(f)
+func (_m *Failure) Update() *FailureUpdateOne {
+	return NewFailureClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Failure entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (f *Failure) Unwrap() *Failure {
-	_tx, ok := f.config.driver.(*txDriver)
+func (_m *Failure) Unwrap() *Failure {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Failure is not a transactional entity")
 	}
-	f.config.driver = _tx.drv
-	return f
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (f *Failure) String() string {
+func (_m *Failure) String() string {
 	var builder strings.Builder
 	builder.WriteString("Failure(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", f.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("Error=")
-	builder.WriteString(f.Error)
+	builder.WriteString(_m.Error)
 	builder.WriteString(", ")
 	builder.WriteString("Idx=")
-	builder.WriteString(fmt.Sprintf("%v", f.Idx))
+	builder.WriteString(fmt.Sprintf("%v", _m.Idx))
 	builder.WriteByte(')')
 	return builder.String()
 }

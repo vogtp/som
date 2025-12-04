@@ -302,8 +302,8 @@ func (c *AlertClient) Update() *AlertUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *AlertClient) UpdateOne(a *Alert) *AlertUpdateOne {
-	mutation := newAlertMutation(c.config, OpUpdateOne, withAlert(a))
+func (c *AlertClient) UpdateOne(_m *Alert) *AlertUpdateOne {
+	mutation := newAlertMutation(c.config, OpUpdateOne, withAlert(_m))
 	return &AlertUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -320,8 +320,8 @@ func (c *AlertClient) Delete() *AlertDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *AlertClient) DeleteOne(a *Alert) *AlertDeleteOne {
-	return c.DeleteOneID(a.ID)
+func (c *AlertClient) DeleteOne(_m *Alert) *AlertDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -356,64 +356,64 @@ func (c *AlertClient) GetX(ctx context.Context, id int) *Alert {
 }
 
 // QueryCounters queries the Counters edge of a Alert.
-func (c *AlertClient) QueryCounters(a *Alert) *CounterQuery {
+func (c *AlertClient) QueryCounters(_m *Alert) *CounterQuery {
 	query := (&CounterClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
 			sqlgraph.To(counter.Table, counter.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.CountersTable, alert.CountersColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryStati queries the Stati edge of a Alert.
-func (c *AlertClient) QueryStati(a *Alert) *StatusQuery {
+func (c *AlertClient) QueryStati(_m *Alert) *StatusQuery {
 	query := (&StatusClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
 			sqlgraph.To(status.Table, status.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.StatiTable, alert.StatiColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryFailures queries the Failures edge of a Alert.
-func (c *AlertClient) QueryFailures(a *Alert) *FailureQuery {
+func (c *AlertClient) QueryFailures(_m *Alert) *FailureQuery {
 	query := (&FailureClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
 			sqlgraph.To(failure.Table, failure.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.FailuresTable, alert.FailuresColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryFiles queries the Files edge of a Alert.
-func (c *AlertClient) QueryFiles(a *Alert) *FileQuery {
+func (c *AlertClient) QueryFiles(_m *Alert) *FileQuery {
 	query := (&FileClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(alert.Table, alert.FieldID, id),
 			sqlgraph.To(file.Table, file.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.FilesTable, alert.FilesColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -499,8 +499,8 @@ func (c *CounterClient) Update() *CounterUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *CounterClient) UpdateOne(co *Counter) *CounterUpdateOne {
-	mutation := newCounterMutation(c.config, OpUpdateOne, withCounter(co))
+func (c *CounterClient) UpdateOne(_m *Counter) *CounterUpdateOne {
+	mutation := newCounterMutation(c.config, OpUpdateOne, withCounter(_m))
 	return &CounterUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -517,8 +517,8 @@ func (c *CounterClient) Delete() *CounterDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *CounterClient) DeleteOne(co *Counter) *CounterDeleteOne {
-	return c.DeleteOneID(co.ID)
+func (c *CounterClient) DeleteOne(_m *Counter) *CounterDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -632,8 +632,8 @@ func (c *FailureClient) Update() *FailureUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *FailureClient) UpdateOne(f *Failure) *FailureUpdateOne {
-	mutation := newFailureMutation(c.config, OpUpdateOne, withFailure(f))
+func (c *FailureClient) UpdateOne(_m *Failure) *FailureUpdateOne {
+	mutation := newFailureMutation(c.config, OpUpdateOne, withFailure(_m))
 	return &FailureUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -650,8 +650,8 @@ func (c *FailureClient) Delete() *FailureDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *FailureClient) DeleteOne(f *Failure) *FailureDeleteOne {
-	return c.DeleteOneID(f.ID)
+func (c *FailureClient) DeleteOne(_m *Failure) *FailureDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -765,8 +765,8 @@ func (c *FileClient) Update() *FileUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *FileClient) UpdateOne(f *File) *FileUpdateOne {
-	mutation := newFileMutation(c.config, OpUpdateOne, withFile(f))
+func (c *FileClient) UpdateOne(_m *File) *FileUpdateOne {
+	mutation := newFileMutation(c.config, OpUpdateOne, withFile(_m))
 	return &FileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -783,8 +783,8 @@ func (c *FileClient) Delete() *FileDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *FileClient) DeleteOne(f *File) *FileDeleteOne {
-	return c.DeleteOneID(f.ID)
+func (c *FileClient) DeleteOne(_m *File) *FileDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -898,8 +898,8 @@ func (c *IncidentClient) Update() *IncidentUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *IncidentClient) UpdateOne(i *Incident) *IncidentUpdateOne {
-	mutation := newIncidentMutation(c.config, OpUpdateOne, withIncident(i))
+func (c *IncidentClient) UpdateOne(_m *Incident) *IncidentUpdateOne {
+	mutation := newIncidentMutation(c.config, OpUpdateOne, withIncident(_m))
 	return &IncidentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -916,8 +916,8 @@ func (c *IncidentClient) Delete() *IncidentDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *IncidentClient) DeleteOne(i *Incident) *IncidentDeleteOne {
-	return c.DeleteOneID(i.ID)
+func (c *IncidentClient) DeleteOne(_m *Incident) *IncidentDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -952,64 +952,64 @@ func (c *IncidentClient) GetX(ctx context.Context, id int) *Incident {
 }
 
 // QueryCounters queries the Counters edge of a Incident.
-func (c *IncidentClient) QueryCounters(i *Incident) *CounterQuery {
+func (c *IncidentClient) QueryCounters(_m *Incident) *CounterQuery {
 	query := (&CounterClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := i.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
 			sqlgraph.To(counter.Table, counter.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.CountersTable, incident.CountersColumn),
 		)
-		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryStati queries the Stati edge of a Incident.
-func (c *IncidentClient) QueryStati(i *Incident) *StatusQuery {
+func (c *IncidentClient) QueryStati(_m *Incident) *StatusQuery {
 	query := (&StatusClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := i.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
 			sqlgraph.To(status.Table, status.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.StatiTable, incident.StatiColumn),
 		)
-		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryFailures queries the Failures edge of a Incident.
-func (c *IncidentClient) QueryFailures(i *Incident) *FailureQuery {
+func (c *IncidentClient) QueryFailures(_m *Incident) *FailureQuery {
 	query := (&FailureClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := i.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
 			sqlgraph.To(failure.Table, failure.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.FailuresTable, incident.FailuresColumn),
 		)
-		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryFiles queries the Files edge of a Incident.
-func (c *IncidentClient) QueryFiles(i *Incident) *FileQuery {
+func (c *IncidentClient) QueryFiles(_m *Incident) *FileQuery {
 	query := (&FileClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := i.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(incident.Table, incident.FieldID, id),
 			sqlgraph.To(file.Table, file.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, incident.FilesTable, incident.FilesColumn),
 		)
-		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1095,8 +1095,8 @@ func (c *StatusClient) Update() *StatusUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *StatusClient) UpdateOne(s *Status) *StatusUpdateOne {
-	mutation := newStatusMutation(c.config, OpUpdateOne, withStatus(s))
+func (c *StatusClient) UpdateOne(_m *Status) *StatusUpdateOne {
+	mutation := newStatusMutation(c.config, OpUpdateOne, withStatus(_m))
 	return &StatusUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1113,8 +1113,8 @@ func (c *StatusClient) Delete() *StatusDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *StatusClient) DeleteOne(s *Status) *StatusDeleteOne {
-	return c.DeleteOneID(s.ID)
+func (c *StatusClient) DeleteOne(_m *Status) *StatusDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.

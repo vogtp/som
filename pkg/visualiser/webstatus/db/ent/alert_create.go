@@ -28,154 +28,154 @@ type AlertCreate struct {
 }
 
 // SetUUID sets the "UUID" field.
-func (ac *AlertCreate) SetUUID(u uuid.UUID) *AlertCreate {
-	ac.mutation.SetUUID(u)
-	return ac
+func (_c *AlertCreate) SetUUID(v uuid.UUID) *AlertCreate {
+	_c.mutation.SetUUID(v)
+	return _c
 }
 
 // SetIncidentID sets the "IncidentID" field.
-func (ac *AlertCreate) SetIncidentID(u uuid.UUID) *AlertCreate {
-	ac.mutation.SetIncidentID(u)
-	return ac
+func (_c *AlertCreate) SetIncidentID(v uuid.UUID) *AlertCreate {
+	_c.mutation.SetIncidentID(v)
+	return _c
 }
 
 // SetNillableIncidentID sets the "IncidentID" field if the given value is not nil.
-func (ac *AlertCreate) SetNillableIncidentID(u *uuid.UUID) *AlertCreate {
-	if u != nil {
-		ac.SetIncidentID(*u)
+func (_c *AlertCreate) SetNillableIncidentID(v *uuid.UUID) *AlertCreate {
+	if v != nil {
+		_c.SetIncidentID(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetName sets the "Name" field.
-func (ac *AlertCreate) SetName(s string) *AlertCreate {
-	ac.mutation.SetName(s)
-	return ac
+func (_c *AlertCreate) SetName(v string) *AlertCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetTime sets the "Time" field.
-func (ac *AlertCreate) SetTime(t time.Time) *AlertCreate {
-	ac.mutation.SetTime(t)
-	return ac
+func (_c *AlertCreate) SetTime(v time.Time) *AlertCreate {
+	_c.mutation.SetTime(v)
+	return _c
 }
 
 // SetIntLevel sets the "IntLevel" field.
-func (ac *AlertCreate) SetIntLevel(i int) *AlertCreate {
-	ac.mutation.SetIntLevel(i)
-	return ac
+func (_c *AlertCreate) SetIntLevel(v int) *AlertCreate {
+	_c.mutation.SetIntLevel(v)
+	return _c
 }
 
 // SetUsername sets the "Username" field.
-func (ac *AlertCreate) SetUsername(s string) *AlertCreate {
-	ac.mutation.SetUsername(s)
-	return ac
+func (_c *AlertCreate) SetUsername(v string) *AlertCreate {
+	_c.mutation.SetUsername(v)
+	return _c
 }
 
 // SetRegion sets the "Region" field.
-func (ac *AlertCreate) SetRegion(s string) *AlertCreate {
-	ac.mutation.SetRegion(s)
-	return ac
+func (_c *AlertCreate) SetRegion(v string) *AlertCreate {
+	_c.mutation.SetRegion(v)
+	return _c
 }
 
 // SetProbeOS sets the "ProbeOS" field.
-func (ac *AlertCreate) SetProbeOS(s string) *AlertCreate {
-	ac.mutation.SetProbeOS(s)
-	return ac
+func (_c *AlertCreate) SetProbeOS(v string) *AlertCreate {
+	_c.mutation.SetProbeOS(v)
+	return _c
 }
 
 // SetProbeHost sets the "ProbeHost" field.
-func (ac *AlertCreate) SetProbeHost(s string) *AlertCreate {
-	ac.mutation.SetProbeHost(s)
-	return ac
+func (_c *AlertCreate) SetProbeHost(v string) *AlertCreate {
+	_c.mutation.SetProbeHost(v)
+	return _c
 }
 
 // SetError sets the "Error" field.
-func (ac *AlertCreate) SetError(s string) *AlertCreate {
-	ac.mutation.SetError(s)
-	return ac
+func (_c *AlertCreate) SetError(v string) *AlertCreate {
+	_c.mutation.SetError(v)
+	return _c
 }
 
 // SetNillableError sets the "Error" field if the given value is not nil.
-func (ac *AlertCreate) SetNillableError(s *string) *AlertCreate {
-	if s != nil {
-		ac.SetError(*s)
+func (_c *AlertCreate) SetNillableError(v *string) *AlertCreate {
+	if v != nil {
+		_c.SetError(*v)
 	}
-	return ac
+	return _c
 }
 
 // AddCounterIDs adds the "Counters" edge to the Counter entity by IDs.
-func (ac *AlertCreate) AddCounterIDs(ids ...int) *AlertCreate {
-	ac.mutation.AddCounterIDs(ids...)
-	return ac
+func (_c *AlertCreate) AddCounterIDs(ids ...int) *AlertCreate {
+	_c.mutation.AddCounterIDs(ids...)
+	return _c
 }
 
 // AddCounters adds the "Counters" edges to the Counter entity.
-func (ac *AlertCreate) AddCounters(c ...*Counter) *AlertCreate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_c *AlertCreate) AddCounters(v ...*Counter) *AlertCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddCounterIDs(ids...)
+	return _c.AddCounterIDs(ids...)
 }
 
 // AddStatiIDs adds the "Stati" edge to the Status entity by IDs.
-func (ac *AlertCreate) AddStatiIDs(ids ...int) *AlertCreate {
-	ac.mutation.AddStatiIDs(ids...)
-	return ac
+func (_c *AlertCreate) AddStatiIDs(ids ...int) *AlertCreate {
+	_c.mutation.AddStatiIDs(ids...)
+	return _c
 }
 
 // AddStati adds the "Stati" edges to the Status entity.
-func (ac *AlertCreate) AddStati(s ...*Status) *AlertCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_c *AlertCreate) AddStati(v ...*Status) *AlertCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddStatiIDs(ids...)
+	return _c.AddStatiIDs(ids...)
 }
 
 // AddFailureIDs adds the "Failures" edge to the Failure entity by IDs.
-func (ac *AlertCreate) AddFailureIDs(ids ...int) *AlertCreate {
-	ac.mutation.AddFailureIDs(ids...)
-	return ac
+func (_c *AlertCreate) AddFailureIDs(ids ...int) *AlertCreate {
+	_c.mutation.AddFailureIDs(ids...)
+	return _c
 }
 
 // AddFailures adds the "Failures" edges to the Failure entity.
-func (ac *AlertCreate) AddFailures(f ...*Failure) *AlertCreate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_c *AlertCreate) AddFailures(v ...*Failure) *AlertCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddFailureIDs(ids...)
+	return _c.AddFailureIDs(ids...)
 }
 
 // AddFileIDs adds the "Files" edge to the File entity by IDs.
-func (ac *AlertCreate) AddFileIDs(ids ...int) *AlertCreate {
-	ac.mutation.AddFileIDs(ids...)
-	return ac
+func (_c *AlertCreate) AddFileIDs(ids ...int) *AlertCreate {
+	_c.mutation.AddFileIDs(ids...)
+	return _c
 }
 
 // AddFiles adds the "Files" edges to the File entity.
-func (ac *AlertCreate) AddFiles(f ...*File) *AlertCreate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_c *AlertCreate) AddFiles(v ...*File) *AlertCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddFileIDs(ids...)
+	return _c.AddFileIDs(ids...)
 }
 
 // Mutation returns the AlertMutation object of the builder.
-func (ac *AlertCreate) Mutation() *AlertMutation {
-	return ac.mutation
+func (_c *AlertCreate) Mutation() *AlertMutation {
+	return _c.mutation
 }
 
 // Save creates the Alert in the database.
-func (ac *AlertCreate) Save(ctx context.Context) (*Alert, error) {
-	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
+func (_c *AlertCreate) Save(ctx context.Context) (*Alert, error) {
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ac *AlertCreate) SaveX(ctx context.Context) *Alert {
-	v, err := ac.Save(ctx)
+func (_c *AlertCreate) SaveX(ctx context.Context) *Alert {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -183,53 +183,53 @@ func (ac *AlertCreate) SaveX(ctx context.Context) *Alert {
 }
 
 // Exec executes the query.
-func (ac *AlertCreate) Exec(ctx context.Context) error {
-	_, err := ac.Save(ctx)
+func (_c *AlertCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ac *AlertCreate) ExecX(ctx context.Context) {
-	if err := ac.Exec(ctx); err != nil {
+func (_c *AlertCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ac *AlertCreate) check() error {
-	if _, ok := ac.mutation.UUID(); !ok {
+func (_c *AlertCreate) check() error {
+	if _, ok := _c.mutation.UUID(); !ok {
 		return &ValidationError{Name: "UUID", err: errors.New(`ent: missing required field "Alert.UUID"`)}
 	}
-	if _, ok := ac.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "Name", err: errors.New(`ent: missing required field "Alert.Name"`)}
 	}
-	if _, ok := ac.mutation.Time(); !ok {
+	if _, ok := _c.mutation.Time(); !ok {
 		return &ValidationError{Name: "Time", err: errors.New(`ent: missing required field "Alert.Time"`)}
 	}
-	if _, ok := ac.mutation.IntLevel(); !ok {
+	if _, ok := _c.mutation.IntLevel(); !ok {
 		return &ValidationError{Name: "IntLevel", err: errors.New(`ent: missing required field "Alert.IntLevel"`)}
 	}
-	if _, ok := ac.mutation.Username(); !ok {
+	if _, ok := _c.mutation.Username(); !ok {
 		return &ValidationError{Name: "Username", err: errors.New(`ent: missing required field "Alert.Username"`)}
 	}
-	if _, ok := ac.mutation.Region(); !ok {
+	if _, ok := _c.mutation.Region(); !ok {
 		return &ValidationError{Name: "Region", err: errors.New(`ent: missing required field "Alert.Region"`)}
 	}
-	if _, ok := ac.mutation.ProbeOS(); !ok {
+	if _, ok := _c.mutation.ProbeOS(); !ok {
 		return &ValidationError{Name: "ProbeOS", err: errors.New(`ent: missing required field "Alert.ProbeOS"`)}
 	}
-	if _, ok := ac.mutation.ProbeHost(); !ok {
+	if _, ok := _c.mutation.ProbeHost(); !ok {
 		return &ValidationError{Name: "ProbeHost", err: errors.New(`ent: missing required field "Alert.ProbeHost"`)}
 	}
 	return nil
 }
 
-func (ac *AlertCreate) sqlSave(ctx context.Context) (*Alert, error) {
-	if err := ac.check(); err != nil {
+func (_c *AlertCreate) sqlSave(ctx context.Context) (*Alert, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -237,58 +237,58 @@ func (ac *AlertCreate) sqlSave(ctx context.Context) (*Alert, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	ac.mutation.id = &_node.ID
-	ac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
+func (_c *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Alert{config: ac.config}
+		_node = &Alert{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(alert.Table, sqlgraph.NewFieldSpec(alert.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = ac.conflict
-	if value, ok := ac.mutation.UUID(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.UUID(); ok {
 		_spec.SetField(alert.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
-	if value, ok := ac.mutation.IncidentID(); ok {
+	if value, ok := _c.mutation.IncidentID(); ok {
 		_spec.SetField(alert.FieldIncidentID, field.TypeUUID, value)
 		_node.IncidentID = value
 	}
-	if value, ok := ac.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(alert.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := ac.mutation.Time(); ok {
+	if value, ok := _c.mutation.Time(); ok {
 		_spec.SetField(alert.FieldTime, field.TypeTime, value)
 		_node.Time = value
 	}
-	if value, ok := ac.mutation.IntLevel(); ok {
+	if value, ok := _c.mutation.IntLevel(); ok {
 		_spec.SetField(alert.FieldIntLevel, field.TypeInt, value)
 		_node.IntLevel = value
 	}
-	if value, ok := ac.mutation.Username(); ok {
+	if value, ok := _c.mutation.Username(); ok {
 		_spec.SetField(alert.FieldUsername, field.TypeString, value)
 		_node.Username = value
 	}
-	if value, ok := ac.mutation.Region(); ok {
+	if value, ok := _c.mutation.Region(); ok {
 		_spec.SetField(alert.FieldRegion, field.TypeString, value)
 		_node.Region = value
 	}
-	if value, ok := ac.mutation.ProbeOS(); ok {
+	if value, ok := _c.mutation.ProbeOS(); ok {
 		_spec.SetField(alert.FieldProbeOS, field.TypeString, value)
 		_node.ProbeOS = value
 	}
-	if value, ok := ac.mutation.ProbeHost(); ok {
+	if value, ok := _c.mutation.ProbeHost(); ok {
 		_spec.SetField(alert.FieldProbeHost, field.TypeString, value)
 		_node.ProbeHost = value
 	}
-	if value, ok := ac.mutation.Error(); ok {
+	if value, ok := _c.mutation.Error(); ok {
 		_spec.SetField(alert.FieldError, field.TypeString, value)
 		_node.Error = value
 	}
-	if nodes := ac.mutation.CountersIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.CountersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -304,7 +304,7 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.StatiIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.StatiIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -320,7 +320,7 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.FailuresIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FailuresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -336,7 +336,7 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.FilesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -371,10 +371,10 @@ func (ac *AlertCreate) createSpec() (*Alert, *sqlgraph.CreateSpec) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (ac *AlertCreate) OnConflict(opts ...sql.ConflictOption) *AlertUpsertOne {
-	ac.conflict = opts
+func (_c *AlertCreate) OnConflict(opts ...sql.ConflictOption) *AlertUpsertOne {
+	_c.conflict = opts
 	return &AlertUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -384,10 +384,10 @@ func (ac *AlertCreate) OnConflict(opts ...sql.ConflictOption) *AlertUpsertOne {
 //	client.Alert.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ac *AlertCreate) OnConflictColumns(columns ...string) *AlertUpsertOne {
-	ac.conflict = append(ac.conflict, sql.ConflictColumns(columns...))
+func (_c *AlertCreate) OnConflictColumns(columns ...string) *AlertUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &AlertUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -785,16 +785,16 @@ type AlertCreateBulk struct {
 }
 
 // Save creates the Alert entities in the database.
-func (acb *AlertCreateBulk) Save(ctx context.Context) ([]*Alert, error) {
-	if acb.err != nil {
-		return nil, acb.err
+func (_c *AlertCreateBulk) Save(ctx context.Context) ([]*Alert, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(acb.builders))
-	nodes := make([]*Alert, len(acb.builders))
-	mutators := make([]Mutator, len(acb.builders))
-	for i := range acb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Alert, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := acb.builders[i]
+			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AlertMutation)
 				if !ok {
@@ -807,12 +807,12 @@ func (acb *AlertCreateBulk) Save(ctx context.Context) ([]*Alert, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, acb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = acb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, acb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -836,7 +836,7 @@ func (acb *AlertCreateBulk) Save(ctx context.Context) ([]*Alert, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, acb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -844,8 +844,8 @@ func (acb *AlertCreateBulk) Save(ctx context.Context) ([]*Alert, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (acb *AlertCreateBulk) SaveX(ctx context.Context) []*Alert {
-	v, err := acb.Save(ctx)
+func (_c *AlertCreateBulk) SaveX(ctx context.Context) []*Alert {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -853,14 +853,14 @@ func (acb *AlertCreateBulk) SaveX(ctx context.Context) []*Alert {
 }
 
 // Exec executes the query.
-func (acb *AlertCreateBulk) Exec(ctx context.Context) error {
-	_, err := acb.Save(ctx)
+func (_c *AlertCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (acb *AlertCreateBulk) ExecX(ctx context.Context) {
-	if err := acb.Exec(ctx); err != nil {
+func (_c *AlertCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -880,10 +880,10 @@ func (acb *AlertCreateBulk) ExecX(ctx context.Context) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (acb *AlertCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlertUpsertBulk {
-	acb.conflict = opts
+func (_c *AlertCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlertUpsertBulk {
+	_c.conflict = opts
 	return &AlertUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 
@@ -893,10 +893,10 @@ func (acb *AlertCreateBulk) OnConflict(opts ...sql.ConflictOption) *AlertUpsertB
 //	client.Alert.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (acb *AlertCreateBulk) OnConflictColumns(columns ...string) *AlertUpsertBulk {
-	acb.conflict = append(acb.conflict, sql.ConflictColumns(columns...))
+func (_c *AlertCreateBulk) OnConflictColumns(columns ...string) *AlertUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &AlertUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 

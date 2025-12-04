@@ -47,7 +47,7 @@ func (*Status) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Status fields.
-func (s *Status) assignValues(columns []string, values []any) error {
+func (_m *Status) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -58,35 +58,35 @@ func (s *Status) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			s.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case status.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Name", values[i])
 			} else if value.Valid {
-				s.Name = value.String
+				_m.Name = value.String
 			}
 		case status.FieldValue:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Value", values[i])
 			} else if value.Valid {
-				s.Value = value.String
+				_m.Value = value.String
 			}
 		case status.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field alert_stati", value)
 			} else if value.Valid {
-				s.alert_stati = new(int)
-				*s.alert_stati = int(value.Int64)
+				_m.alert_stati = new(int)
+				*_m.alert_stati = int(value.Int64)
 			}
 		case status.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field incident_stati", value)
 			} else if value.Valid {
-				s.incident_stati = new(int)
-				*s.incident_stati = int(value.Int64)
+				_m.incident_stati = new(int)
+				*_m.incident_stati = int(value.Int64)
 			}
 		default:
-			s.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -94,38 +94,38 @@ func (s *Status) assignValues(columns []string, values []any) error {
 
 // GetValue returns the ent.Value that was dynamically selected and assigned to the Status.
 // This includes values selected through modifiers, order, etc.
-func (s *Status) GetValue(name string) (ent.Value, error) {
-	return s.selectValues.Get(name)
+func (_m *Status) GetValue(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // Update returns a builder for updating this Status.
 // Note that you need to call Status.Unwrap() before calling this method if this Status
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (s *Status) Update() *StatusUpdateOne {
-	return NewStatusClient(s.config).UpdateOne(s)
+func (_m *Status) Update() *StatusUpdateOne {
+	return NewStatusClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Status entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (s *Status) Unwrap() *Status {
-	_tx, ok := s.config.driver.(*txDriver)
+func (_m *Status) Unwrap() *Status {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Status is not a transactional entity")
 	}
-	s.config.driver = _tx.drv
-	return s
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (s *Status) String() string {
+func (_m *Status) String() string {
 	var builder strings.Builder
 	builder.WriteString("Status(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("Name=")
-	builder.WriteString(s.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("Value=")
-	builder.WriteString(s.Value)
+	builder.WriteString(_m.Value)
 	builder.WriteByte(')')
 	return builder.String()
 }

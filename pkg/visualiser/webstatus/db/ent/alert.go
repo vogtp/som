@@ -124,7 +124,7 @@ func (*Alert) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Alert fields.
-func (a *Alert) assignValues(columns []string, values []any) error {
+func (_m *Alert) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -135,69 +135,69 @@ func (a *Alert) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			a.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case alert.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field UUID", values[i])
 			} else if value != nil {
-				a.UUID = *value
+				_m.UUID = *value
 			}
 		case alert.FieldIncidentID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field IncidentID", values[i])
 			} else if value != nil {
-				a.IncidentID = *value
+				_m.IncidentID = *value
 			}
 		case alert.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Name", values[i])
 			} else if value.Valid {
-				a.Name = value.String
+				_m.Name = value.String
 			}
 		case alert.FieldTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field Time", values[i])
 			} else if value.Valid {
-				a.Time = value.Time
+				_m.Time = value.Time
 			}
 		case alert.FieldIntLevel:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field IntLevel", values[i])
 			} else if value.Valid {
-				a.IntLevel = int(value.Int64)
+				_m.IntLevel = int(value.Int64)
 			}
 		case alert.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Username", values[i])
 			} else if value.Valid {
-				a.Username = value.String
+				_m.Username = value.String
 			}
 		case alert.FieldRegion:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Region", values[i])
 			} else if value.Valid {
-				a.Region = value.String
+				_m.Region = value.String
 			}
 		case alert.FieldProbeOS:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ProbeOS", values[i])
 			} else if value.Valid {
-				a.ProbeOS = value.String
+				_m.ProbeOS = value.String
 			}
 		case alert.FieldProbeHost:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field ProbeHost", values[i])
 			} else if value.Valid {
-				a.ProbeHost = value.String
+				_m.ProbeHost = value.String
 			}
 		case alert.FieldError:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field Error", values[i])
 			} else if value.Valid {
-				a.Error = value.String
+				_m.Error = value.String
 			}
 		default:
-			a.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -205,179 +205,179 @@ func (a *Alert) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Alert.
 // This includes values selected through modifiers, order, etc.
-func (a *Alert) Value(name string) (ent.Value, error) {
-	return a.selectValues.Get(name)
+func (_m *Alert) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryCounters queries the "Counters" edge of the Alert entity.
-func (a *Alert) QueryCounters() *CounterQuery {
-	return NewAlertClient(a.config).QueryCounters(a)
+func (_m *Alert) QueryCounters() *CounterQuery {
+	return NewAlertClient(_m.config).QueryCounters(_m)
 }
 
 // QueryStati queries the "Stati" edge of the Alert entity.
-func (a *Alert) QueryStati() *StatusQuery {
-	return NewAlertClient(a.config).QueryStati(a)
+func (_m *Alert) QueryStati() *StatusQuery {
+	return NewAlertClient(_m.config).QueryStati(_m)
 }
 
 // QueryFailures queries the "Failures" edge of the Alert entity.
-func (a *Alert) QueryFailures() *FailureQuery {
-	return NewAlertClient(a.config).QueryFailures(a)
+func (_m *Alert) QueryFailures() *FailureQuery {
+	return NewAlertClient(_m.config).QueryFailures(_m)
 }
 
 // QueryFiles queries the "Files" edge of the Alert entity.
-func (a *Alert) QueryFiles() *FileQuery {
-	return NewAlertClient(a.config).QueryFiles(a)
+func (_m *Alert) QueryFiles() *FileQuery {
+	return NewAlertClient(_m.config).QueryFiles(_m)
 }
 
 // Update returns a builder for updating this Alert.
 // Note that you need to call Alert.Unwrap() before calling this method if this Alert
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (a *Alert) Update() *AlertUpdateOne {
-	return NewAlertClient(a.config).UpdateOne(a)
+func (_m *Alert) Update() *AlertUpdateOne {
+	return NewAlertClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Alert entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (a *Alert) Unwrap() *Alert {
-	_tx, ok := a.config.driver.(*txDriver)
+func (_m *Alert) Unwrap() *Alert {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Alert is not a transactional entity")
 	}
-	a.config.driver = _tx.drv
-	return a
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (a *Alert) String() string {
+func (_m *Alert) String() string {
 	var builder strings.Builder
 	builder.WriteString("Alert(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("UUID=")
-	builder.WriteString(fmt.Sprintf("%v", a.UUID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UUID))
 	builder.WriteString(", ")
 	builder.WriteString("IncidentID=")
-	builder.WriteString(fmt.Sprintf("%v", a.IncidentID))
+	builder.WriteString(fmt.Sprintf("%v", _m.IncidentID))
 	builder.WriteString(", ")
 	builder.WriteString("Name=")
-	builder.WriteString(a.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("Time=")
-	builder.WriteString(a.Time.Format(time.ANSIC))
+	builder.WriteString(_m.Time.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("IntLevel=")
-	builder.WriteString(fmt.Sprintf("%v", a.IntLevel))
+	builder.WriteString(fmt.Sprintf("%v", _m.IntLevel))
 	builder.WriteString(", ")
 	builder.WriteString("Username=")
-	builder.WriteString(a.Username)
+	builder.WriteString(_m.Username)
 	builder.WriteString(", ")
 	builder.WriteString("Region=")
-	builder.WriteString(a.Region)
+	builder.WriteString(_m.Region)
 	builder.WriteString(", ")
 	builder.WriteString("ProbeOS=")
-	builder.WriteString(a.ProbeOS)
+	builder.WriteString(_m.ProbeOS)
 	builder.WriteString(", ")
 	builder.WriteString("ProbeHost=")
-	builder.WriteString(a.ProbeHost)
+	builder.WriteString(_m.ProbeHost)
 	builder.WriteString(", ")
 	builder.WriteString("Error=")
-	builder.WriteString(a.Error)
+	builder.WriteString(_m.Error)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // NamedCounters returns the Counters named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (a *Alert) NamedCounters(name string) ([]*Counter, error) {
-	if a.Edges.namedCounters == nil {
+func (_m *Alert) NamedCounters(name string) ([]*Counter, error) {
+	if _m.Edges.namedCounters == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := a.Edges.namedCounters[name]
+	nodes, ok := _m.Edges.namedCounters[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (a *Alert) appendNamedCounters(name string, edges ...*Counter) {
-	if a.Edges.namedCounters == nil {
-		a.Edges.namedCounters = make(map[string][]*Counter)
+func (_m *Alert) appendNamedCounters(name string, edges ...*Counter) {
+	if _m.Edges.namedCounters == nil {
+		_m.Edges.namedCounters = make(map[string][]*Counter)
 	}
 	if len(edges) == 0 {
-		a.Edges.namedCounters[name] = []*Counter{}
+		_m.Edges.namedCounters[name] = []*Counter{}
 	} else {
-		a.Edges.namedCounters[name] = append(a.Edges.namedCounters[name], edges...)
+		_m.Edges.namedCounters[name] = append(_m.Edges.namedCounters[name], edges...)
 	}
 }
 
 // NamedStati returns the Stati named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (a *Alert) NamedStati(name string) ([]*Status, error) {
-	if a.Edges.namedStati == nil {
+func (_m *Alert) NamedStati(name string) ([]*Status, error) {
+	if _m.Edges.namedStati == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := a.Edges.namedStati[name]
+	nodes, ok := _m.Edges.namedStati[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (a *Alert) appendNamedStati(name string, edges ...*Status) {
-	if a.Edges.namedStati == nil {
-		a.Edges.namedStati = make(map[string][]*Status)
+func (_m *Alert) appendNamedStati(name string, edges ...*Status) {
+	if _m.Edges.namedStati == nil {
+		_m.Edges.namedStati = make(map[string][]*Status)
 	}
 	if len(edges) == 0 {
-		a.Edges.namedStati[name] = []*Status{}
+		_m.Edges.namedStati[name] = []*Status{}
 	} else {
-		a.Edges.namedStati[name] = append(a.Edges.namedStati[name], edges...)
+		_m.Edges.namedStati[name] = append(_m.Edges.namedStati[name], edges...)
 	}
 }
 
 // NamedFailures returns the Failures named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (a *Alert) NamedFailures(name string) ([]*Failure, error) {
-	if a.Edges.namedFailures == nil {
+func (_m *Alert) NamedFailures(name string) ([]*Failure, error) {
+	if _m.Edges.namedFailures == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := a.Edges.namedFailures[name]
+	nodes, ok := _m.Edges.namedFailures[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (a *Alert) appendNamedFailures(name string, edges ...*Failure) {
-	if a.Edges.namedFailures == nil {
-		a.Edges.namedFailures = make(map[string][]*Failure)
+func (_m *Alert) appendNamedFailures(name string, edges ...*Failure) {
+	if _m.Edges.namedFailures == nil {
+		_m.Edges.namedFailures = make(map[string][]*Failure)
 	}
 	if len(edges) == 0 {
-		a.Edges.namedFailures[name] = []*Failure{}
+		_m.Edges.namedFailures[name] = []*Failure{}
 	} else {
-		a.Edges.namedFailures[name] = append(a.Edges.namedFailures[name], edges...)
+		_m.Edges.namedFailures[name] = append(_m.Edges.namedFailures[name], edges...)
 	}
 }
 
 // NamedFiles returns the Files named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (a *Alert) NamedFiles(name string) ([]*File, error) {
-	if a.Edges.namedFiles == nil {
+func (_m *Alert) NamedFiles(name string) ([]*File, error) {
+	if _m.Edges.namedFiles == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := a.Edges.namedFiles[name]
+	nodes, ok := _m.Edges.namedFiles[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (a *Alert) appendNamedFiles(name string, edges ...*File) {
-	if a.Edges.namedFiles == nil {
-		a.Edges.namedFiles = make(map[string][]*File)
+func (_m *Alert) appendNamedFiles(name string, edges ...*File) {
+	if _m.Edges.namedFiles == nil {
+		_m.Edges.namedFiles = make(map[string][]*File)
 	}
 	if len(edges) == 0 {
-		a.Edges.namedFiles[name] = []*File{}
+		_m.Edges.namedFiles[name] = []*File{}
 	} else {
-		a.Edges.namedFiles[name] = append(a.Edges.namedFiles[name], edges...)
+		_m.Edges.namedFiles[name] = append(_m.Edges.namedFiles[name], edges...)
 	}
 }
 

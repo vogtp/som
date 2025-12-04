@@ -22,59 +22,59 @@ type FailureUpdate struct {
 }
 
 // Where appends a list predicates to the FailureUpdate builder.
-func (fu *FailureUpdate) Where(ps ...predicate.Failure) *FailureUpdate {
-	fu.mutation.Where(ps...)
-	return fu
+func (_u *FailureUpdate) Where(ps ...predicate.Failure) *FailureUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetError sets the "Error" field.
-func (fu *FailureUpdate) SetError(s string) *FailureUpdate {
-	fu.mutation.SetError(s)
-	return fu
+func (_u *FailureUpdate) SetError(v string) *FailureUpdate {
+	_u.mutation.SetError(v)
+	return _u
 }
 
 // SetNillableError sets the "Error" field if the given value is not nil.
-func (fu *FailureUpdate) SetNillableError(s *string) *FailureUpdate {
-	if s != nil {
-		fu.SetError(*s)
+func (_u *FailureUpdate) SetNillableError(v *string) *FailureUpdate {
+	if v != nil {
+		_u.SetError(*v)
 	}
-	return fu
+	return _u
 }
 
 // SetIdx sets the "Idx" field.
-func (fu *FailureUpdate) SetIdx(i int) *FailureUpdate {
-	fu.mutation.ResetIdx()
-	fu.mutation.SetIdx(i)
-	return fu
+func (_u *FailureUpdate) SetIdx(v int) *FailureUpdate {
+	_u.mutation.ResetIdx()
+	_u.mutation.SetIdx(v)
+	return _u
 }
 
 // SetNillableIdx sets the "Idx" field if the given value is not nil.
-func (fu *FailureUpdate) SetNillableIdx(i *int) *FailureUpdate {
-	if i != nil {
-		fu.SetIdx(*i)
+func (_u *FailureUpdate) SetNillableIdx(v *int) *FailureUpdate {
+	if v != nil {
+		_u.SetIdx(*v)
 	}
-	return fu
+	return _u
 }
 
-// AddIdx adds i to the "Idx" field.
-func (fu *FailureUpdate) AddIdx(i int) *FailureUpdate {
-	fu.mutation.AddIdx(i)
-	return fu
+// AddIdx adds value to the "Idx" field.
+func (_u *FailureUpdate) AddIdx(v int) *FailureUpdate {
+	_u.mutation.AddIdx(v)
+	return _u
 }
 
 // Mutation returns the FailureMutation object of the builder.
-func (fu *FailureUpdate) Mutation() *FailureMutation {
-	return fu.mutation
+func (_u *FailureUpdate) Mutation() *FailureMutation {
+	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (fu *FailureUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, fu.sqlSave, fu.mutation, fu.hooks)
+func (_u *FailureUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fu *FailureUpdate) SaveX(ctx context.Context) int {
-	affected, err := fu.Save(ctx)
+func (_u *FailureUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -82,37 +82,37 @@ func (fu *FailureUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (fu *FailureUpdate) Exec(ctx context.Context) error {
-	_, err := fu.Save(ctx)
+func (_u *FailureUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fu *FailureUpdate) ExecX(ctx context.Context) {
-	if err := fu.Exec(ctx); err != nil {
+func (_u *FailureUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (fu *FailureUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *FailureUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(failure.Table, failure.Columns, sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt))
-	if ps := fu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fu.mutation.Error(); ok {
+	if value, ok := _u.mutation.Error(); ok {
 		_spec.SetField(failure.FieldError, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.Idx(); ok {
+	if value, ok := _u.mutation.Idx(); ok {
 		_spec.SetField(failure.FieldIdx, field.TypeInt, value)
 	}
-	if value, ok := fu.mutation.AddedIdx(); ok {
+	if value, ok := _u.mutation.AddedIdx(); ok {
 		_spec.AddField(failure.FieldIdx, field.TypeInt, value)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{failure.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -120,8 +120,8 @@ func (fu *FailureUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	fu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // FailureUpdateOne is the builder for updating a single Failure entity.
@@ -133,66 +133,66 @@ type FailureUpdateOne struct {
 }
 
 // SetError sets the "Error" field.
-func (fuo *FailureUpdateOne) SetError(s string) *FailureUpdateOne {
-	fuo.mutation.SetError(s)
-	return fuo
+func (_u *FailureUpdateOne) SetError(v string) *FailureUpdateOne {
+	_u.mutation.SetError(v)
+	return _u
 }
 
 // SetNillableError sets the "Error" field if the given value is not nil.
-func (fuo *FailureUpdateOne) SetNillableError(s *string) *FailureUpdateOne {
-	if s != nil {
-		fuo.SetError(*s)
+func (_u *FailureUpdateOne) SetNillableError(v *string) *FailureUpdateOne {
+	if v != nil {
+		_u.SetError(*v)
 	}
-	return fuo
+	return _u
 }
 
 // SetIdx sets the "Idx" field.
-func (fuo *FailureUpdateOne) SetIdx(i int) *FailureUpdateOne {
-	fuo.mutation.ResetIdx()
-	fuo.mutation.SetIdx(i)
-	return fuo
+func (_u *FailureUpdateOne) SetIdx(v int) *FailureUpdateOne {
+	_u.mutation.ResetIdx()
+	_u.mutation.SetIdx(v)
+	return _u
 }
 
 // SetNillableIdx sets the "Idx" field if the given value is not nil.
-func (fuo *FailureUpdateOne) SetNillableIdx(i *int) *FailureUpdateOne {
-	if i != nil {
-		fuo.SetIdx(*i)
+func (_u *FailureUpdateOne) SetNillableIdx(v *int) *FailureUpdateOne {
+	if v != nil {
+		_u.SetIdx(*v)
 	}
-	return fuo
+	return _u
 }
 
-// AddIdx adds i to the "Idx" field.
-func (fuo *FailureUpdateOne) AddIdx(i int) *FailureUpdateOne {
-	fuo.mutation.AddIdx(i)
-	return fuo
+// AddIdx adds value to the "Idx" field.
+func (_u *FailureUpdateOne) AddIdx(v int) *FailureUpdateOne {
+	_u.mutation.AddIdx(v)
+	return _u
 }
 
 // Mutation returns the FailureMutation object of the builder.
-func (fuo *FailureUpdateOne) Mutation() *FailureMutation {
-	return fuo.mutation
+func (_u *FailureUpdateOne) Mutation() *FailureMutation {
+	return _u.mutation
 }
 
 // Where appends a list predicates to the FailureUpdate builder.
-func (fuo *FailureUpdateOne) Where(ps ...predicate.Failure) *FailureUpdateOne {
-	fuo.mutation.Where(ps...)
-	return fuo
+func (_u *FailureUpdateOne) Where(ps ...predicate.Failure) *FailureUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (fuo *FailureUpdateOne) Select(field string, fields ...string) *FailureUpdateOne {
-	fuo.fields = append([]string{field}, fields...)
-	return fuo
+func (_u *FailureUpdateOne) Select(field string, fields ...string) *FailureUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Failure entity.
-func (fuo *FailureUpdateOne) Save(ctx context.Context) (*Failure, error) {
-	return withHooks(ctx, fuo.sqlSave, fuo.mutation, fuo.hooks)
+func (_u *FailureUpdateOne) Save(ctx context.Context) (*Failure, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fuo *FailureUpdateOne) SaveX(ctx context.Context) *Failure {
-	node, err := fuo.Save(ctx)
+func (_u *FailureUpdateOne) SaveX(ctx context.Context) *Failure {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -200,26 +200,26 @@ func (fuo *FailureUpdateOne) SaveX(ctx context.Context) *Failure {
 }
 
 // Exec executes the query on the entity.
-func (fuo *FailureUpdateOne) Exec(ctx context.Context) error {
-	_, err := fuo.Save(ctx)
+func (_u *FailureUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fuo *FailureUpdateOne) ExecX(ctx context.Context) {
-	if err := fuo.Exec(ctx); err != nil {
+func (_u *FailureUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (fuo *FailureUpdateOne) sqlSave(ctx context.Context) (_node *Failure, err error) {
+func (_u *FailureUpdateOne) sqlSave(ctx context.Context) (_node *Failure, err error) {
 	_spec := sqlgraph.NewUpdateSpec(failure.Table, failure.Columns, sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt))
-	id, ok := fuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Failure.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := fuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, failure.FieldID)
 		for _, f := range fields {
@@ -231,26 +231,26 @@ func (fuo *FailureUpdateOne) sqlSave(ctx context.Context) (_node *Failure, err e
 			}
 		}
 	}
-	if ps := fuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := fuo.mutation.Error(); ok {
+	if value, ok := _u.mutation.Error(); ok {
 		_spec.SetField(failure.FieldError, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.Idx(); ok {
+	if value, ok := _u.mutation.Idx(); ok {
 		_spec.SetField(failure.FieldIdx, field.TypeInt, value)
 	}
-	if value, ok := fuo.mutation.AddedIdx(); ok {
+	if value, ok := _u.mutation.AddedIdx(); ok {
 		_spec.AddField(failure.FieldIdx, field.TypeInt, value)
 	}
-	_node = &Failure{config: fuo.config}
+	_node = &Failure{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, fuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{failure.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -258,6 +258,6 @@ func (fuo *FailureUpdateOne) sqlSave(ctx context.Context) (_node *Failure, err e
 		}
 		return nil, err
 	}
-	fuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

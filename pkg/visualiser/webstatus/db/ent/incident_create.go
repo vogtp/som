@@ -28,180 +28,180 @@ type IncidentCreate struct {
 }
 
 // SetUUID sets the "UUID" field.
-func (ic *IncidentCreate) SetUUID(u uuid.UUID) *IncidentCreate {
-	ic.mutation.SetUUID(u)
-	return ic
+func (_c *IncidentCreate) SetUUID(v uuid.UUID) *IncidentCreate {
+	_c.mutation.SetUUID(v)
+	return _c
 }
 
 // SetIncidentID sets the "IncidentID" field.
-func (ic *IncidentCreate) SetIncidentID(u uuid.UUID) *IncidentCreate {
-	ic.mutation.SetIncidentID(u)
-	return ic
+func (_c *IncidentCreate) SetIncidentID(v uuid.UUID) *IncidentCreate {
+	_c.mutation.SetIncidentID(v)
+	return _c
 }
 
 // SetNillableIncidentID sets the "IncidentID" field if the given value is not nil.
-func (ic *IncidentCreate) SetNillableIncidentID(u *uuid.UUID) *IncidentCreate {
-	if u != nil {
-		ic.SetIncidentID(*u)
+func (_c *IncidentCreate) SetNillableIncidentID(v *uuid.UUID) *IncidentCreate {
+	if v != nil {
+		_c.SetIncidentID(*v)
 	}
-	return ic
+	return _c
 }
 
 // SetName sets the "Name" field.
-func (ic *IncidentCreate) SetName(s string) *IncidentCreate {
-	ic.mutation.SetName(s)
-	return ic
+func (_c *IncidentCreate) SetName(v string) *IncidentCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetTime sets the "Time" field.
-func (ic *IncidentCreate) SetTime(t time.Time) *IncidentCreate {
-	ic.mutation.SetTime(t)
-	return ic
+func (_c *IncidentCreate) SetTime(v time.Time) *IncidentCreate {
+	_c.mutation.SetTime(v)
+	return _c
 }
 
 // SetIntLevel sets the "IntLevel" field.
-func (ic *IncidentCreate) SetIntLevel(i int) *IncidentCreate {
-	ic.mutation.SetIntLevel(i)
-	return ic
+func (_c *IncidentCreate) SetIntLevel(v int) *IncidentCreate {
+	_c.mutation.SetIntLevel(v)
+	return _c
 }
 
 // SetUsername sets the "Username" field.
-func (ic *IncidentCreate) SetUsername(s string) *IncidentCreate {
-	ic.mutation.SetUsername(s)
-	return ic
+func (_c *IncidentCreate) SetUsername(v string) *IncidentCreate {
+	_c.mutation.SetUsername(v)
+	return _c
 }
 
 // SetRegion sets the "Region" field.
-func (ic *IncidentCreate) SetRegion(s string) *IncidentCreate {
-	ic.mutation.SetRegion(s)
-	return ic
+func (_c *IncidentCreate) SetRegion(v string) *IncidentCreate {
+	_c.mutation.SetRegion(v)
+	return _c
 }
 
 // SetProbeOS sets the "ProbeOS" field.
-func (ic *IncidentCreate) SetProbeOS(s string) *IncidentCreate {
-	ic.mutation.SetProbeOS(s)
-	return ic
+func (_c *IncidentCreate) SetProbeOS(v string) *IncidentCreate {
+	_c.mutation.SetProbeOS(v)
+	return _c
 }
 
 // SetProbeHost sets the "ProbeHost" field.
-func (ic *IncidentCreate) SetProbeHost(s string) *IncidentCreate {
-	ic.mutation.SetProbeHost(s)
-	return ic
+func (_c *IncidentCreate) SetProbeHost(v string) *IncidentCreate {
+	_c.mutation.SetProbeHost(v)
+	return _c
 }
 
 // SetError sets the "Error" field.
-func (ic *IncidentCreate) SetError(s string) *IncidentCreate {
-	ic.mutation.SetError(s)
-	return ic
+func (_c *IncidentCreate) SetError(v string) *IncidentCreate {
+	_c.mutation.SetError(v)
+	return _c
 }
 
 // SetNillableError sets the "Error" field if the given value is not nil.
-func (ic *IncidentCreate) SetNillableError(s *string) *IncidentCreate {
-	if s != nil {
-		ic.SetError(*s)
+func (_c *IncidentCreate) SetNillableError(v *string) *IncidentCreate {
+	if v != nil {
+		_c.SetError(*v)
 	}
-	return ic
+	return _c
 }
 
 // SetStart sets the "Start" field.
-func (ic *IncidentCreate) SetStart(t time.Time) *IncidentCreate {
-	ic.mutation.SetStart(t)
-	return ic
+func (_c *IncidentCreate) SetStart(v time.Time) *IncidentCreate {
+	_c.mutation.SetStart(v)
+	return _c
 }
 
 // SetEnd sets the "End" field.
-func (ic *IncidentCreate) SetEnd(t time.Time) *IncidentCreate {
-	ic.mutation.SetEnd(t)
-	return ic
+func (_c *IncidentCreate) SetEnd(v time.Time) *IncidentCreate {
+	_c.mutation.SetEnd(v)
+	return _c
 }
 
 // SetNillableEnd sets the "End" field if the given value is not nil.
-func (ic *IncidentCreate) SetNillableEnd(t *time.Time) *IncidentCreate {
-	if t != nil {
-		ic.SetEnd(*t)
+func (_c *IncidentCreate) SetNillableEnd(v *time.Time) *IncidentCreate {
+	if v != nil {
+		_c.SetEnd(*v)
 	}
-	return ic
+	return _c
 }
 
 // SetState sets the "State" field.
-func (ic *IncidentCreate) SetState(b []byte) *IncidentCreate {
-	ic.mutation.SetState(b)
-	return ic
+func (_c *IncidentCreate) SetState(v []byte) *IncidentCreate {
+	_c.mutation.SetState(v)
+	return _c
 }
 
 // AddCounterIDs adds the "Counters" edge to the Counter entity by IDs.
-func (ic *IncidentCreate) AddCounterIDs(ids ...int) *IncidentCreate {
-	ic.mutation.AddCounterIDs(ids...)
-	return ic
+func (_c *IncidentCreate) AddCounterIDs(ids ...int) *IncidentCreate {
+	_c.mutation.AddCounterIDs(ids...)
+	return _c
 }
 
 // AddCounters adds the "Counters" edges to the Counter entity.
-func (ic *IncidentCreate) AddCounters(c ...*Counter) *IncidentCreate {
-	ids := make([]int, len(c))
-	for i := range c {
-		ids[i] = c[i].ID
+func (_c *IncidentCreate) AddCounters(v ...*Counter) *IncidentCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ic.AddCounterIDs(ids...)
+	return _c.AddCounterIDs(ids...)
 }
 
 // AddStatiIDs adds the "Stati" edge to the Status entity by IDs.
-func (ic *IncidentCreate) AddStatiIDs(ids ...int) *IncidentCreate {
-	ic.mutation.AddStatiIDs(ids...)
-	return ic
+func (_c *IncidentCreate) AddStatiIDs(ids ...int) *IncidentCreate {
+	_c.mutation.AddStatiIDs(ids...)
+	return _c
 }
 
 // AddStati adds the "Stati" edges to the Status entity.
-func (ic *IncidentCreate) AddStati(s ...*Status) *IncidentCreate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_c *IncidentCreate) AddStati(v ...*Status) *IncidentCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ic.AddStatiIDs(ids...)
+	return _c.AddStatiIDs(ids...)
 }
 
 // AddFailureIDs adds the "Failures" edge to the Failure entity by IDs.
-func (ic *IncidentCreate) AddFailureIDs(ids ...int) *IncidentCreate {
-	ic.mutation.AddFailureIDs(ids...)
-	return ic
+func (_c *IncidentCreate) AddFailureIDs(ids ...int) *IncidentCreate {
+	_c.mutation.AddFailureIDs(ids...)
+	return _c
 }
 
 // AddFailures adds the "Failures" edges to the Failure entity.
-func (ic *IncidentCreate) AddFailures(f ...*Failure) *IncidentCreate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_c *IncidentCreate) AddFailures(v ...*Failure) *IncidentCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ic.AddFailureIDs(ids...)
+	return _c.AddFailureIDs(ids...)
 }
 
 // AddFileIDs adds the "Files" edge to the File entity by IDs.
-func (ic *IncidentCreate) AddFileIDs(ids ...int) *IncidentCreate {
-	ic.mutation.AddFileIDs(ids...)
-	return ic
+func (_c *IncidentCreate) AddFileIDs(ids ...int) *IncidentCreate {
+	_c.mutation.AddFileIDs(ids...)
+	return _c
 }
 
 // AddFiles adds the "Files" edges to the File entity.
-func (ic *IncidentCreate) AddFiles(f ...*File) *IncidentCreate {
-	ids := make([]int, len(f))
-	for i := range f {
-		ids[i] = f[i].ID
+func (_c *IncidentCreate) AddFiles(v ...*File) *IncidentCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ic.AddFileIDs(ids...)
+	return _c.AddFileIDs(ids...)
 }
 
 // Mutation returns the IncidentMutation object of the builder.
-func (ic *IncidentCreate) Mutation() *IncidentMutation {
-	return ic.mutation
+func (_c *IncidentCreate) Mutation() *IncidentMutation {
+	return _c.mutation
 }
 
 // Save creates the Incident in the database.
-func (ic *IncidentCreate) Save(ctx context.Context) (*Incident, error) {
-	return withHooks(ctx, ic.sqlSave, ic.mutation, ic.hooks)
+func (_c *IncidentCreate) Save(ctx context.Context) (*Incident, error) {
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ic *IncidentCreate) SaveX(ctx context.Context) *Incident {
-	v, err := ic.Save(ctx)
+func (_c *IncidentCreate) SaveX(ctx context.Context) *Incident {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -209,59 +209,59 @@ func (ic *IncidentCreate) SaveX(ctx context.Context) *Incident {
 }
 
 // Exec executes the query.
-func (ic *IncidentCreate) Exec(ctx context.Context) error {
-	_, err := ic.Save(ctx)
+func (_c *IncidentCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ic *IncidentCreate) ExecX(ctx context.Context) {
-	if err := ic.Exec(ctx); err != nil {
+func (_c *IncidentCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ic *IncidentCreate) check() error {
-	if _, ok := ic.mutation.UUID(); !ok {
+func (_c *IncidentCreate) check() error {
+	if _, ok := _c.mutation.UUID(); !ok {
 		return &ValidationError{Name: "UUID", err: errors.New(`ent: missing required field "Incident.UUID"`)}
 	}
-	if _, ok := ic.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "Name", err: errors.New(`ent: missing required field "Incident.Name"`)}
 	}
-	if _, ok := ic.mutation.Time(); !ok {
+	if _, ok := _c.mutation.Time(); !ok {
 		return &ValidationError{Name: "Time", err: errors.New(`ent: missing required field "Incident.Time"`)}
 	}
-	if _, ok := ic.mutation.IntLevel(); !ok {
+	if _, ok := _c.mutation.IntLevel(); !ok {
 		return &ValidationError{Name: "IntLevel", err: errors.New(`ent: missing required field "Incident.IntLevel"`)}
 	}
-	if _, ok := ic.mutation.Username(); !ok {
+	if _, ok := _c.mutation.Username(); !ok {
 		return &ValidationError{Name: "Username", err: errors.New(`ent: missing required field "Incident.Username"`)}
 	}
-	if _, ok := ic.mutation.Region(); !ok {
+	if _, ok := _c.mutation.Region(); !ok {
 		return &ValidationError{Name: "Region", err: errors.New(`ent: missing required field "Incident.Region"`)}
 	}
-	if _, ok := ic.mutation.ProbeOS(); !ok {
+	if _, ok := _c.mutation.ProbeOS(); !ok {
 		return &ValidationError{Name: "ProbeOS", err: errors.New(`ent: missing required field "Incident.ProbeOS"`)}
 	}
-	if _, ok := ic.mutation.ProbeHost(); !ok {
+	if _, ok := _c.mutation.ProbeHost(); !ok {
 		return &ValidationError{Name: "ProbeHost", err: errors.New(`ent: missing required field "Incident.ProbeHost"`)}
 	}
-	if _, ok := ic.mutation.Start(); !ok {
+	if _, ok := _c.mutation.Start(); !ok {
 		return &ValidationError{Name: "Start", err: errors.New(`ent: missing required field "Incident.Start"`)}
 	}
-	if _, ok := ic.mutation.State(); !ok {
+	if _, ok := _c.mutation.State(); !ok {
 		return &ValidationError{Name: "State", err: errors.New(`ent: missing required field "Incident.State"`)}
 	}
 	return nil
 }
 
-func (ic *IncidentCreate) sqlSave(ctx context.Context) (*Incident, error) {
-	if err := ic.check(); err != nil {
+func (_c *IncidentCreate) sqlSave(ctx context.Context) (*Incident, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ic.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ic.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -269,70 +269,70 @@ func (ic *IncidentCreate) sqlSave(ctx context.Context) (*Incident, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	ic.mutation.id = &_node.ID
-	ic.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
+func (_c *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Incident{config: ic.config}
+		_node = &Incident{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(incident.Table, sqlgraph.NewFieldSpec(incident.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = ic.conflict
-	if value, ok := ic.mutation.UUID(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.UUID(); ok {
 		_spec.SetField(incident.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
-	if value, ok := ic.mutation.IncidentID(); ok {
+	if value, ok := _c.mutation.IncidentID(); ok {
 		_spec.SetField(incident.FieldIncidentID, field.TypeUUID, value)
 		_node.IncidentID = value
 	}
-	if value, ok := ic.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(incident.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := ic.mutation.Time(); ok {
+	if value, ok := _c.mutation.Time(); ok {
 		_spec.SetField(incident.FieldTime, field.TypeTime, value)
 		_node.Time = value
 	}
-	if value, ok := ic.mutation.IntLevel(); ok {
+	if value, ok := _c.mutation.IntLevel(); ok {
 		_spec.SetField(incident.FieldIntLevel, field.TypeInt, value)
 		_node.IntLevel = value
 	}
-	if value, ok := ic.mutation.Username(); ok {
+	if value, ok := _c.mutation.Username(); ok {
 		_spec.SetField(incident.FieldUsername, field.TypeString, value)
 		_node.Username = value
 	}
-	if value, ok := ic.mutation.Region(); ok {
+	if value, ok := _c.mutation.Region(); ok {
 		_spec.SetField(incident.FieldRegion, field.TypeString, value)
 		_node.Region = value
 	}
-	if value, ok := ic.mutation.ProbeOS(); ok {
+	if value, ok := _c.mutation.ProbeOS(); ok {
 		_spec.SetField(incident.FieldProbeOS, field.TypeString, value)
 		_node.ProbeOS = value
 	}
-	if value, ok := ic.mutation.ProbeHost(); ok {
+	if value, ok := _c.mutation.ProbeHost(); ok {
 		_spec.SetField(incident.FieldProbeHost, field.TypeString, value)
 		_node.ProbeHost = value
 	}
-	if value, ok := ic.mutation.Error(); ok {
+	if value, ok := _c.mutation.Error(); ok {
 		_spec.SetField(incident.FieldError, field.TypeString, value)
 		_node.Error = value
 	}
-	if value, ok := ic.mutation.Start(); ok {
+	if value, ok := _c.mutation.Start(); ok {
 		_spec.SetField(incident.FieldStart, field.TypeTime, value)
 		_node.Start = value
 	}
-	if value, ok := ic.mutation.End(); ok {
+	if value, ok := _c.mutation.End(); ok {
 		_spec.SetField(incident.FieldEnd, field.TypeTime, value)
 		_node.End = value
 	}
-	if value, ok := ic.mutation.State(); ok {
+	if value, ok := _c.mutation.State(); ok {
 		_spec.SetField(incident.FieldState, field.TypeBytes, value)
 		_node.State = value
 	}
-	if nodes := ic.mutation.CountersIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.CountersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -348,7 +348,7 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ic.mutation.StatiIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.StatiIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -364,7 +364,7 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ic.mutation.FailuresIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FailuresIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -380,7 +380,7 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ic.mutation.FilesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.FilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -415,10 +415,10 @@ func (ic *IncidentCreate) createSpec() (*Incident, *sqlgraph.CreateSpec) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (ic *IncidentCreate) OnConflict(opts ...sql.ConflictOption) *IncidentUpsertOne {
-	ic.conflict = opts
+func (_c *IncidentCreate) OnConflict(opts ...sql.ConflictOption) *IncidentUpsertOne {
+	_c.conflict = opts
 	return &IncidentUpsertOne{
-		create: ic,
+		create: _c,
 	}
 }
 
@@ -428,10 +428,10 @@ func (ic *IncidentCreate) OnConflict(opts ...sql.ConflictOption) *IncidentUpsert
 //	client.Incident.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ic *IncidentCreate) OnConflictColumns(columns ...string) *IncidentUpsertOne {
-	ic.conflict = append(ic.conflict, sql.ConflictColumns(columns...))
+func (_c *IncidentCreate) OnConflictColumns(columns ...string) *IncidentUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &IncidentUpsertOne{
-		create: ic,
+		create: _c,
 	}
 }
 
@@ -920,16 +920,16 @@ type IncidentCreateBulk struct {
 }
 
 // Save creates the Incident entities in the database.
-func (icb *IncidentCreateBulk) Save(ctx context.Context) ([]*Incident, error) {
-	if icb.err != nil {
-		return nil, icb.err
+func (_c *IncidentCreateBulk) Save(ctx context.Context) ([]*Incident, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(icb.builders))
-	nodes := make([]*Incident, len(icb.builders))
-	mutators := make([]Mutator, len(icb.builders))
-	for i := range icb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Incident, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := icb.builders[i]
+			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*IncidentMutation)
 				if !ok {
@@ -942,12 +942,12 @@ func (icb *IncidentCreateBulk) Save(ctx context.Context) ([]*Incident, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, icb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = icb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, icb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -971,7 +971,7 @@ func (icb *IncidentCreateBulk) Save(ctx context.Context) ([]*Incident, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, icb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -979,8 +979,8 @@ func (icb *IncidentCreateBulk) Save(ctx context.Context) ([]*Incident, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (icb *IncidentCreateBulk) SaveX(ctx context.Context) []*Incident {
-	v, err := icb.Save(ctx)
+func (_c *IncidentCreateBulk) SaveX(ctx context.Context) []*Incident {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -988,14 +988,14 @@ func (icb *IncidentCreateBulk) SaveX(ctx context.Context) []*Incident {
 }
 
 // Exec executes the query.
-func (icb *IncidentCreateBulk) Exec(ctx context.Context) error {
-	_, err := icb.Save(ctx)
+func (_c *IncidentCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (icb *IncidentCreateBulk) ExecX(ctx context.Context) {
-	if err := icb.Exec(ctx); err != nil {
+func (_c *IncidentCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -1015,10 +1015,10 @@ func (icb *IncidentCreateBulk) ExecX(ctx context.Context) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (icb *IncidentCreateBulk) OnConflict(opts ...sql.ConflictOption) *IncidentUpsertBulk {
-	icb.conflict = opts
+func (_c *IncidentCreateBulk) OnConflict(opts ...sql.ConflictOption) *IncidentUpsertBulk {
+	_c.conflict = opts
 	return &IncidentUpsertBulk{
-		create: icb,
+		create: _c,
 	}
 }
 
@@ -1028,10 +1028,10 @@ func (icb *IncidentCreateBulk) OnConflict(opts ...sql.ConflictOption) *IncidentU
 //	client.Incident.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (icb *IncidentCreateBulk) OnConflictColumns(columns ...string) *IncidentUpsertBulk {
-	icb.conflict = append(icb.conflict, sql.ConflictColumns(columns...))
+func (_c *IncidentCreateBulk) OnConflictColumns(columns ...string) *IncidentUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &IncidentUpsertBulk{
-		create: icb,
+		create: _c,
 	}
 }
 

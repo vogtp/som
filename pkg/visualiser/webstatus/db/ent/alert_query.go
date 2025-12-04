@@ -43,44 +43,44 @@ type AlertQuery struct {
 }
 
 // Where adds a new predicate for the AlertQuery builder.
-func (aq *AlertQuery) Where(ps ...predicate.Alert) *AlertQuery {
-	aq.predicates = append(aq.predicates, ps...)
-	return aq
+func (_q *AlertQuery) Where(ps ...predicate.Alert) *AlertQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (aq *AlertQuery) Limit(limit int) *AlertQuery {
-	aq.ctx.Limit = &limit
-	return aq
+func (_q *AlertQuery) Limit(limit int) *AlertQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (aq *AlertQuery) Offset(offset int) *AlertQuery {
-	aq.ctx.Offset = &offset
-	return aq
+func (_q *AlertQuery) Offset(offset int) *AlertQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (aq *AlertQuery) Unique(unique bool) *AlertQuery {
-	aq.ctx.Unique = &unique
-	return aq
+func (_q *AlertQuery) Unique(unique bool) *AlertQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (aq *AlertQuery) Order(o ...alert.OrderOption) *AlertQuery {
-	aq.order = append(aq.order, o...)
-	return aq
+func (_q *AlertQuery) Order(o ...alert.OrderOption) *AlertQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryCounters chains the current query on the "Counters" edge.
-func (aq *AlertQuery) QueryCounters() *CounterQuery {
-	query := (&CounterClient{config: aq.config}).Query()
+func (_q *AlertQuery) QueryCounters() *CounterQuery {
+	query := (&CounterClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := aq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := aq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -89,20 +89,20 @@ func (aq *AlertQuery) QueryCounters() *CounterQuery {
 			sqlgraph.To(counter.Table, counter.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.CountersTable, alert.CountersColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryStati chains the current query on the "Stati" edge.
-func (aq *AlertQuery) QueryStati() *StatusQuery {
-	query := (&StatusClient{config: aq.config}).Query()
+func (_q *AlertQuery) QueryStati() *StatusQuery {
+	query := (&StatusClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := aq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := aq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -111,20 +111,20 @@ func (aq *AlertQuery) QueryStati() *StatusQuery {
 			sqlgraph.To(status.Table, status.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.StatiTable, alert.StatiColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryFailures chains the current query on the "Failures" edge.
-func (aq *AlertQuery) QueryFailures() *FailureQuery {
-	query := (&FailureClient{config: aq.config}).Query()
+func (_q *AlertQuery) QueryFailures() *FailureQuery {
+	query := (&FailureClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := aq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := aq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -133,20 +133,20 @@ func (aq *AlertQuery) QueryFailures() *FailureQuery {
 			sqlgraph.To(failure.Table, failure.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.FailuresTable, alert.FailuresColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryFiles chains the current query on the "Files" edge.
-func (aq *AlertQuery) QueryFiles() *FileQuery {
-	query := (&FileClient{config: aq.config}).Query()
+func (_q *AlertQuery) QueryFiles() *FileQuery {
+	query := (&FileClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := aq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := aq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -155,7 +155,7 @@ func (aq *AlertQuery) QueryFiles() *FileQuery {
 			sqlgraph.To(file.Table, file.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, alert.FilesTable, alert.FilesColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(aq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -163,8 +163,8 @@ func (aq *AlertQuery) QueryFiles() *FileQuery {
 
 // First returns the first Alert entity from the query.
 // Returns a *NotFoundError when no Alert was found.
-func (aq *AlertQuery) First(ctx context.Context) (*Alert, error) {
-	nodes, err := aq.Limit(1).All(setContextOp(ctx, aq.ctx, ent.OpQueryFirst))
+func (_q *AlertQuery) First(ctx context.Context) (*Alert, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +175,8 @@ func (aq *AlertQuery) First(ctx context.Context) (*Alert, error) {
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (aq *AlertQuery) FirstX(ctx context.Context) *Alert {
-	node, err := aq.First(ctx)
+func (_q *AlertQuery) FirstX(ctx context.Context) *Alert {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -185,9 +185,9 @@ func (aq *AlertQuery) FirstX(ctx context.Context) *Alert {
 
 // FirstID returns the first Alert ID from the query.
 // Returns a *NotFoundError when no Alert ID was found.
-func (aq *AlertQuery) FirstID(ctx context.Context) (id int, err error) {
+func (_q *AlertQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = aq.Limit(1).IDs(setContextOp(ctx, aq.ctx, ent.OpQueryFirstID)); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -198,8 +198,8 @@ func (aq *AlertQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (aq *AlertQuery) FirstIDX(ctx context.Context) int {
-	id, err := aq.FirstID(ctx)
+func (_q *AlertQuery) FirstIDX(ctx context.Context) int {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -209,8 +209,8 @@ func (aq *AlertQuery) FirstIDX(ctx context.Context) int {
 // Only returns a single Alert entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one Alert entity is found.
 // Returns a *NotFoundError when no Alert entities are found.
-func (aq *AlertQuery) Only(ctx context.Context) (*Alert, error) {
-	nodes, err := aq.Limit(2).All(setContextOp(ctx, aq.ctx, ent.OpQueryOnly))
+func (_q *AlertQuery) Only(ctx context.Context) (*Alert, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -225,8 +225,8 @@ func (aq *AlertQuery) Only(ctx context.Context) (*Alert, error) {
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (aq *AlertQuery) OnlyX(ctx context.Context) *Alert {
-	node, err := aq.Only(ctx)
+func (_q *AlertQuery) OnlyX(ctx context.Context) *Alert {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -236,9 +236,9 @@ func (aq *AlertQuery) OnlyX(ctx context.Context) *Alert {
 // OnlyID is like Only, but returns the only Alert ID in the query.
 // Returns a *NotSingularError when more than one Alert ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (aq *AlertQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *AlertQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = aq.Limit(2).IDs(setContextOp(ctx, aq.ctx, ent.OpQueryOnlyID)); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -253,8 +253,8 @@ func (aq *AlertQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (aq *AlertQuery) OnlyIDX(ctx context.Context) int {
-	id, err := aq.OnlyID(ctx)
+func (_q *AlertQuery) OnlyIDX(ctx context.Context) int {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -262,18 +262,18 @@ func (aq *AlertQuery) OnlyIDX(ctx context.Context) int {
 }
 
 // All executes the query and returns a list of Alerts.
-func (aq *AlertQuery) All(ctx context.Context) ([]*Alert, error) {
-	ctx = setContextOp(ctx, aq.ctx, ent.OpQueryAll)
-	if err := aq.prepareQuery(ctx); err != nil {
+func (_q *AlertQuery) All(ctx context.Context) ([]*Alert, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*Alert, *AlertQuery]()
-	return withInterceptors[[]*Alert](ctx, aq, qr, aq.inters)
+	return withInterceptors[[]*Alert](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (aq *AlertQuery) AllX(ctx context.Context) []*Alert {
-	nodes, err := aq.All(ctx)
+func (_q *AlertQuery) AllX(ctx context.Context) []*Alert {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -281,20 +281,20 @@ func (aq *AlertQuery) AllX(ctx context.Context) []*Alert {
 }
 
 // IDs executes the query and returns a list of Alert IDs.
-func (aq *AlertQuery) IDs(ctx context.Context) (ids []int, err error) {
-	if aq.ctx.Unique == nil && aq.path != nil {
-		aq.Unique(true)
+func (_q *AlertQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, aq.ctx, ent.OpQueryIDs)
-	if err = aq.Select(alert.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(alert.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (aq *AlertQuery) IDsX(ctx context.Context) []int {
-	ids, err := aq.IDs(ctx)
+func (_q *AlertQuery) IDsX(ctx context.Context) []int {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -302,17 +302,17 @@ func (aq *AlertQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (aq *AlertQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, aq.ctx, ent.OpQueryCount)
-	if err := aq.prepareQuery(ctx); err != nil {
+func (_q *AlertQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, aq, querierCount[*AlertQuery](), aq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*AlertQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (aq *AlertQuery) CountX(ctx context.Context) int {
-	count, err := aq.Count(ctx)
+func (_q *AlertQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -320,9 +320,9 @@ func (aq *AlertQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (aq *AlertQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, aq.ctx, ent.OpQueryExist)
-	switch _, err := aq.FirstID(ctx); {
+func (_q *AlertQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -333,8 +333,8 @@ func (aq *AlertQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (aq *AlertQuery) ExistX(ctx context.Context) bool {
-	exist, err := aq.Exist(ctx)
+func (_q *AlertQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -343,68 +343,68 @@ func (aq *AlertQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the AlertQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (aq *AlertQuery) Clone() *AlertQuery {
-	if aq == nil {
+func (_q *AlertQuery) Clone() *AlertQuery {
+	if _q == nil {
 		return nil
 	}
 	return &AlertQuery{
-		config:       aq.config,
-		ctx:          aq.ctx.Clone(),
-		order:        append([]alert.OrderOption{}, aq.order...),
-		inters:       append([]Interceptor{}, aq.inters...),
-		predicates:   append([]predicate.Alert{}, aq.predicates...),
-		withCounters: aq.withCounters.Clone(),
-		withStati:    aq.withStati.Clone(),
-		withFailures: aq.withFailures.Clone(),
-		withFiles:    aq.withFiles.Clone(),
+		config:       _q.config,
+		ctx:          _q.ctx.Clone(),
+		order:        append([]alert.OrderOption{}, _q.order...),
+		inters:       append([]Interceptor{}, _q.inters...),
+		predicates:   append([]predicate.Alert{}, _q.predicates...),
+		withCounters: _q.withCounters.Clone(),
+		withStati:    _q.withStati.Clone(),
+		withFailures: _q.withFailures.Clone(),
+		withFiles:    _q.withFiles.Clone(),
 		// clone intermediate query.
-		sql:  aq.sql.Clone(),
-		path: aq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithCounters tells the query-builder to eager-load the nodes that are connected to
 // the "Counters" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithCounters(opts ...func(*CounterQuery)) *AlertQuery {
-	query := (&CounterClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithCounters(opts ...func(*CounterQuery)) *AlertQuery {
+	query := (&CounterClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withCounters = query
-	return aq
+	_q.withCounters = query
+	return _q
 }
 
 // WithStati tells the query-builder to eager-load the nodes that are connected to
 // the "Stati" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithStati(opts ...func(*StatusQuery)) *AlertQuery {
-	query := (&StatusClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithStati(opts ...func(*StatusQuery)) *AlertQuery {
+	query := (&StatusClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withStati = query
-	return aq
+	_q.withStati = query
+	return _q
 }
 
 // WithFailures tells the query-builder to eager-load the nodes that are connected to
 // the "Failures" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithFailures(opts ...func(*FailureQuery)) *AlertQuery {
-	query := (&FailureClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithFailures(opts ...func(*FailureQuery)) *AlertQuery {
+	query := (&FailureClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withFailures = query
-	return aq
+	_q.withFailures = query
+	return _q
 }
 
 // WithFiles tells the query-builder to eager-load the nodes that are connected to
 // the "Files" edge. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithFiles(opts ...func(*FileQuery)) *AlertQuery {
-	query := (&FileClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithFiles(opts ...func(*FileQuery)) *AlertQuery {
+	query := (&FileClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	aq.withFiles = query
-	return aq
+	_q.withFiles = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -421,10 +421,10 @@ func (aq *AlertQuery) WithFiles(opts ...func(*FileQuery)) *AlertQuery {
 //		GroupBy(alert.FieldUUID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (aq *AlertQuery) GroupBy(field string, fields ...string) *AlertGroupBy {
-	aq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &AlertGroupBy{build: aq}
-	grbuild.flds = &aq.ctx.Fields
+func (_q *AlertQuery) GroupBy(field string, fields ...string) *AlertGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &AlertGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = alert.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -442,142 +442,142 @@ func (aq *AlertQuery) GroupBy(field string, fields ...string) *AlertGroupBy {
 //	client.Alert.Query().
 //		Select(alert.FieldUUID).
 //		Scan(ctx, &v)
-func (aq *AlertQuery) Select(fields ...string) *AlertSelect {
-	aq.ctx.Fields = append(aq.ctx.Fields, fields...)
-	sbuild := &AlertSelect{AlertQuery: aq}
+func (_q *AlertQuery) Select(fields ...string) *AlertSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &AlertSelect{AlertQuery: _q}
 	sbuild.label = alert.Label
-	sbuild.flds, sbuild.scan = &aq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a AlertSelect configured with the given aggregations.
-func (aq *AlertQuery) Aggregate(fns ...AggregateFunc) *AlertSelect {
-	return aq.Select().Aggregate(fns...)
+func (_q *AlertQuery) Aggregate(fns ...AggregateFunc) *AlertSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (aq *AlertQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range aq.inters {
+func (_q *AlertQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, aq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range aq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !alert.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if aq.path != nil {
-		prev, err := aq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		aq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (aq *AlertQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Alert, error) {
+func (_q *AlertQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Alert, error) {
 	var (
 		nodes       = []*Alert{}
-		_spec       = aq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [4]bool{
-			aq.withCounters != nil,
-			aq.withStati != nil,
-			aq.withFailures != nil,
-			aq.withFiles != nil,
+			_q.withCounters != nil,
+			_q.withStati != nil,
+			_q.withFailures != nil,
+			_q.withFiles != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Alert).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Alert{config: aq.config}
+		node := &Alert{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(aq.modifiers) > 0 {
-		_spec.Modifiers = aq.modifiers
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, aq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := aq.withCounters; query != nil {
-		if err := aq.loadCounters(ctx, query, nodes,
+	if query := _q.withCounters; query != nil {
+		if err := _q.loadCounters(ctx, query, nodes,
 			func(n *Alert) { n.Edges.Counters = []*Counter{} },
 			func(n *Alert, e *Counter) { n.Edges.Counters = append(n.Edges.Counters, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := aq.withStati; query != nil {
-		if err := aq.loadStati(ctx, query, nodes,
+	if query := _q.withStati; query != nil {
+		if err := _q.loadStati(ctx, query, nodes,
 			func(n *Alert) { n.Edges.Stati = []*Status{} },
 			func(n *Alert, e *Status) { n.Edges.Stati = append(n.Edges.Stati, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := aq.withFailures; query != nil {
-		if err := aq.loadFailures(ctx, query, nodes,
+	if query := _q.withFailures; query != nil {
+		if err := _q.loadFailures(ctx, query, nodes,
 			func(n *Alert) { n.Edges.Failures = []*Failure{} },
 			func(n *Alert, e *Failure) { n.Edges.Failures = append(n.Edges.Failures, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := aq.withFiles; query != nil {
-		if err := aq.loadFiles(ctx, query, nodes,
+	if query := _q.withFiles; query != nil {
+		if err := _q.loadFiles(ctx, query, nodes,
 			func(n *Alert) { n.Edges.Files = []*File{} },
 			func(n *Alert, e *File) { n.Edges.Files = append(n.Edges.Files, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range aq.withNamedCounters {
-		if err := aq.loadCounters(ctx, query, nodes,
+	for name, query := range _q.withNamedCounters {
+		if err := _q.loadCounters(ctx, query, nodes,
 			func(n *Alert) { n.appendNamedCounters(name) },
 			func(n *Alert, e *Counter) { n.appendNamedCounters(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range aq.withNamedStati {
-		if err := aq.loadStati(ctx, query, nodes,
+	for name, query := range _q.withNamedStati {
+		if err := _q.loadStati(ctx, query, nodes,
 			func(n *Alert) { n.appendNamedStati(name) },
 			func(n *Alert, e *Status) { n.appendNamedStati(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range aq.withNamedFailures {
-		if err := aq.loadFailures(ctx, query, nodes,
+	for name, query := range _q.withNamedFailures {
+		if err := _q.loadFailures(ctx, query, nodes,
 			func(n *Alert) { n.appendNamedFailures(name) },
 			func(n *Alert, e *Failure) { n.appendNamedFailures(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range aq.withNamedFiles {
-		if err := aq.loadFiles(ctx, query, nodes,
+	for name, query := range _q.withNamedFiles {
+		if err := _q.loadFiles(ctx, query, nodes,
 			func(n *Alert) { n.appendNamedFiles(name) },
 			func(n *Alert, e *File) { n.appendNamedFiles(name, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for i := range aq.loadTotal {
-		if err := aq.loadTotal[i](ctx, nodes); err != nil {
+	for i := range _q.loadTotal {
+		if err := _q.loadTotal[i](ctx, nodes); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (aq *AlertQuery) loadCounters(ctx context.Context, query *CounterQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Counter)) error {
+func (_q *AlertQuery) loadCounters(ctx context.Context, query *CounterQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Counter)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Alert)
 	for i := range nodes {
@@ -608,7 +608,7 @@ func (aq *AlertQuery) loadCounters(ctx context.Context, query *CounterQuery, nod
 	}
 	return nil
 }
-func (aq *AlertQuery) loadStati(ctx context.Context, query *StatusQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Status)) error {
+func (_q *AlertQuery) loadStati(ctx context.Context, query *StatusQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Status)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Alert)
 	for i := range nodes {
@@ -639,7 +639,7 @@ func (aq *AlertQuery) loadStati(ctx context.Context, query *StatusQuery, nodes [
 	}
 	return nil
 }
-func (aq *AlertQuery) loadFailures(ctx context.Context, query *FailureQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Failure)) error {
+func (_q *AlertQuery) loadFailures(ctx context.Context, query *FailureQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *Failure)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Alert)
 	for i := range nodes {
@@ -670,7 +670,7 @@ func (aq *AlertQuery) loadFailures(ctx context.Context, query *FailureQuery, nod
 	}
 	return nil
 }
-func (aq *AlertQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *File)) error {
+func (_q *AlertQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*Alert, init func(*Alert), assign func(*Alert, *File)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[int]*Alert)
 	for i := range nodes {
@@ -702,27 +702,27 @@ func (aq *AlertQuery) loadFiles(ctx context.Context, query *FileQuery, nodes []*
 	return nil
 }
 
-func (aq *AlertQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := aq.querySpec()
-	if len(aq.modifiers) > 0 {
-		_spec.Modifiers = aq.modifiers
+func (_q *AlertQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
 	}
-	_spec.Node.Columns = aq.ctx.Fields
-	if len(aq.ctx.Fields) > 0 {
-		_spec.Unique = aq.ctx.Unique != nil && *aq.ctx.Unique
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, aq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (aq *AlertQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *AlertQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(alert.Table, alert.Columns, sqlgraph.NewFieldSpec(alert.FieldID, field.TypeInt))
-	_spec.From = aq.sql
-	if unique := aq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if aq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := aq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, alert.FieldID)
 		for i := range fields {
@@ -731,20 +731,20 @@ func (aq *AlertQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := aq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := aq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := aq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := aq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -754,33 +754,33 @@ func (aq *AlertQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (aq *AlertQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(aq.driver.Dialect())
+func (_q *AlertQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(alert.Table)
-	columns := aq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = alert.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if aq.sql != nil {
-		selector = aq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if aq.ctx.Unique != nil && *aq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range aq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range aq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := aq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := aq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -788,58 +788,58 @@ func (aq *AlertQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // WithNamedCounters tells the query-builder to eager-load the nodes that are connected to the "Counters"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithNamedCounters(name string, opts ...func(*CounterQuery)) *AlertQuery {
-	query := (&CounterClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithNamedCounters(name string, opts ...func(*CounterQuery)) *AlertQuery {
+	query := (&CounterClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if aq.withNamedCounters == nil {
-		aq.withNamedCounters = make(map[string]*CounterQuery)
+	if _q.withNamedCounters == nil {
+		_q.withNamedCounters = make(map[string]*CounterQuery)
 	}
-	aq.withNamedCounters[name] = query
-	return aq
+	_q.withNamedCounters[name] = query
+	return _q
 }
 
 // WithNamedStati tells the query-builder to eager-load the nodes that are connected to the "Stati"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithNamedStati(name string, opts ...func(*StatusQuery)) *AlertQuery {
-	query := (&StatusClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithNamedStati(name string, opts ...func(*StatusQuery)) *AlertQuery {
+	query := (&StatusClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if aq.withNamedStati == nil {
-		aq.withNamedStati = make(map[string]*StatusQuery)
+	if _q.withNamedStati == nil {
+		_q.withNamedStati = make(map[string]*StatusQuery)
 	}
-	aq.withNamedStati[name] = query
-	return aq
+	_q.withNamedStati[name] = query
+	return _q
 }
 
 // WithNamedFailures tells the query-builder to eager-load the nodes that are connected to the "Failures"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithNamedFailures(name string, opts ...func(*FailureQuery)) *AlertQuery {
-	query := (&FailureClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithNamedFailures(name string, opts ...func(*FailureQuery)) *AlertQuery {
+	query := (&FailureClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if aq.withNamedFailures == nil {
-		aq.withNamedFailures = make(map[string]*FailureQuery)
+	if _q.withNamedFailures == nil {
+		_q.withNamedFailures = make(map[string]*FailureQuery)
 	}
-	aq.withNamedFailures[name] = query
-	return aq
+	_q.withNamedFailures[name] = query
+	return _q
 }
 
 // WithNamedFiles tells the query-builder to eager-load the nodes that are connected to the "Files"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (aq *AlertQuery) WithNamedFiles(name string, opts ...func(*FileQuery)) *AlertQuery {
-	query := (&FileClient{config: aq.config}).Query()
+func (_q *AlertQuery) WithNamedFiles(name string, opts ...func(*FileQuery)) *AlertQuery {
+	query := (&FileClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if aq.withNamedFiles == nil {
-		aq.withNamedFiles = make(map[string]*FileQuery)
+	if _q.withNamedFiles == nil {
+		_q.withNamedFiles = make(map[string]*FileQuery)
 	}
-	aq.withNamedFiles[name] = query
-	return aq
+	_q.withNamedFiles[name] = query
+	return _q
 }
 
 // AlertGroupBy is the group-by builder for Alert entities.
@@ -849,41 +849,41 @@ type AlertGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (agb *AlertGroupBy) Aggregate(fns ...AggregateFunc) *AlertGroupBy {
-	agb.fns = append(agb.fns, fns...)
-	return agb
+func (_g *AlertGroupBy) Aggregate(fns ...AggregateFunc) *AlertGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (agb *AlertGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, agb.build.ctx, ent.OpQueryGroupBy)
-	if err := agb.build.prepareQuery(ctx); err != nil {
+func (_g *AlertGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*AlertQuery, *AlertGroupBy](ctx, agb.build, agb, agb.build.inters, v)
+	return scanWithInterceptors[*AlertQuery, *AlertGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (agb *AlertGroupBy) sqlScan(ctx context.Context, root *AlertQuery, v any) error {
+func (_g *AlertGroupBy) sqlScan(ctx context.Context, root *AlertQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(agb.fns))
-	for _, fn := range agb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*agb.flds)+len(agb.fns))
-		for _, f := range *agb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*agb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := agb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -897,27 +897,27 @@ type AlertSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (as *AlertSelect) Aggregate(fns ...AggregateFunc) *AlertSelect {
-	as.fns = append(as.fns, fns...)
-	return as
+func (_s *AlertSelect) Aggregate(fns ...AggregateFunc) *AlertSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (as *AlertSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, as.ctx, ent.OpQuerySelect)
-	if err := as.prepareQuery(ctx); err != nil {
+func (_s *AlertSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*AlertQuery, *AlertSelect](ctx, as.AlertQuery, as, as.inters, v)
+	return scanWithInterceptors[*AlertQuery, *AlertSelect](ctx, _s.AlertQuery, _s, _s.inters, v)
 }
 
-func (as *AlertSelect) sqlScan(ctx context.Context, root *AlertQuery, v any) error {
+func (_s *AlertSelect) sqlScan(ctx context.Context, root *AlertQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(as.fns))
-	for _, fn := range as.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*as.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -925,7 +925,7 @@ func (as *AlertSelect) sqlScan(ctx context.Context, root *AlertQuery, v any) err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := as.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

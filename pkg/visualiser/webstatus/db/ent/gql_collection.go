@@ -15,18 +15,18 @@ import (
 )
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (a *AlertQuery) CollectFields(ctx context.Context, satisfies ...string) (*AlertQuery, error) {
+func (_q *AlertQuery) CollectFields(ctx context.Context, satisfies ...string) (*AlertQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
-		return a, nil
+		return _q, nil
 	}
-	if err := a.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
-	return a, nil
+	return _q, nil
 }
 
-func (a *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (_q *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -40,12 +40,12 @@ func (a *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&CounterClient{config: a.config}).Query()
+				query = (&CounterClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, counterImplementors)...); err != nil {
 				return err
 			}
-			a.WithNamedCounters(alias, func(wq *CounterQuery) {
+			_q.WithNamedCounters(alias, func(wq *CounterQuery) {
 				*wq = *query
 			})
 
@@ -53,12 +53,12 @@ func (a *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&StatusClient{config: a.config}).Query()
+				query = (&StatusClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, statusImplementors)...); err != nil {
 				return err
 			}
-			a.WithNamedStati(alias, func(wq *StatusQuery) {
+			_q.WithNamedStati(alias, func(wq *StatusQuery) {
 				*wq = *query
 			})
 
@@ -66,12 +66,12 @@ func (a *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&FailureClient{config: a.config}).Query()
+				query = (&FailureClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, failureImplementors)...); err != nil {
 				return err
 			}
-			a.WithNamedFailures(alias, func(wq *FailureQuery) {
+			_q.WithNamedFailures(alias, func(wq *FailureQuery) {
 				*wq = *query
 			})
 
@@ -79,12 +79,12 @@ func (a *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&FileClient{config: a.config}).Query()
+				query = (&FileClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, fileImplementors)...); err != nil {
 				return err
 			}
-			a.WithNamedFiles(alias, func(wq *FileQuery) {
+			_q.WithNamedFiles(alias, func(wq *FileQuery) {
 				*wq = *query
 			})
 		case "uuid":
@@ -144,7 +144,7 @@ func (a *AlertQuery) collectField(ctx context.Context, oneNode bool, opCtx *grap
 		}
 	}
 	if !unknownSeen {
-		a.Select(selectedFields...)
+		_q.Select(selectedFields...)
 	}
 	return nil
 }
@@ -176,18 +176,18 @@ func newAlertPaginateArgs(rv map[string]any) *alertPaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (c *CounterQuery) CollectFields(ctx context.Context, satisfies ...string) (*CounterQuery, error) {
+func (_q *CounterQuery) CollectFields(ctx context.Context, satisfies ...string) (*CounterQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
-		return c, nil
+		return _q, nil
 	}
-	if err := c.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
-	return c, nil
+	return _q, nil
 }
 
-func (c *CounterQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (_q *CounterQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -213,7 +213,7 @@ func (c *CounterQuery) collectField(ctx context.Context, oneNode bool, opCtx *gr
 		}
 	}
 	if !unknownSeen {
-		c.Select(selectedFields...)
+		_q.Select(selectedFields...)
 	}
 	return nil
 }
@@ -245,18 +245,18 @@ func newCounterPaginateArgs(rv map[string]any) *counterPaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (f *FailureQuery) CollectFields(ctx context.Context, satisfies ...string) (*FailureQuery, error) {
+func (_q *FailureQuery) CollectFields(ctx context.Context, satisfies ...string) (*FailureQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
-		return f, nil
+		return _q, nil
 	}
-	if err := f.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
-	return f, nil
+	return _q, nil
 }
 
-func (f *FailureQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (_q *FailureQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -282,7 +282,7 @@ func (f *FailureQuery) collectField(ctx context.Context, oneNode bool, opCtx *gr
 		}
 	}
 	if !unknownSeen {
-		f.Select(selectedFields...)
+		_q.Select(selectedFields...)
 	}
 	return nil
 }
@@ -314,18 +314,18 @@ func newFailurePaginateArgs(rv map[string]any) *failurePaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (f *FileQuery) CollectFields(ctx context.Context, satisfies ...string) (*FileQuery, error) {
+func (_q *FileQuery) CollectFields(ctx context.Context, satisfies ...string) (*FileQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
-		return f, nil
+		return _q, nil
 	}
-	if err := f.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
-	return f, nil
+	return _q, nil
 }
 
-func (f *FileQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (_q *FileQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -371,7 +371,7 @@ func (f *FileQuery) collectField(ctx context.Context, oneNode bool, opCtx *graph
 		}
 	}
 	if !unknownSeen {
-		f.Select(selectedFields...)
+		_q.Select(selectedFields...)
 	}
 	return nil
 }
@@ -403,18 +403,18 @@ func newFilePaginateArgs(rv map[string]any) *filePaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (i *IncidentQuery) CollectFields(ctx context.Context, satisfies ...string) (*IncidentQuery, error) {
+func (_q *IncidentQuery) CollectFields(ctx context.Context, satisfies ...string) (*IncidentQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
-		return i, nil
+		return _q, nil
 	}
-	if err := i.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
-	return i, nil
+	return _q, nil
 }
 
-func (i *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (_q *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -428,12 +428,12 @@ func (i *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *g
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&CounterClient{config: i.config}).Query()
+				query = (&CounterClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, counterImplementors)...); err != nil {
 				return err
 			}
-			i.WithNamedCounters(alias, func(wq *CounterQuery) {
+			_q.WithNamedCounters(alias, func(wq *CounterQuery) {
 				*wq = *query
 			})
 
@@ -441,12 +441,12 @@ func (i *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *g
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&StatusClient{config: i.config}).Query()
+				query = (&StatusClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, statusImplementors)...); err != nil {
 				return err
 			}
-			i.WithNamedStati(alias, func(wq *StatusQuery) {
+			_q.WithNamedStati(alias, func(wq *StatusQuery) {
 				*wq = *query
 			})
 
@@ -454,12 +454,12 @@ func (i *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *g
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&FailureClient{config: i.config}).Query()
+				query = (&FailureClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, failureImplementors)...); err != nil {
 				return err
 			}
-			i.WithNamedFailures(alias, func(wq *FailureQuery) {
+			_q.WithNamedFailures(alias, func(wq *FailureQuery) {
 				*wq = *query
 			})
 
@@ -467,12 +467,12 @@ func (i *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *g
 			var (
 				alias = field.Alias
 				path  = append(path, alias)
-				query = (&FileClient{config: i.config}).Query()
+				query = (&FileClient{config: _q.config}).Query()
 			)
 			if err := query.collectField(ctx, false, opCtx, field, path, mayAddCondition(satisfies, fileImplementors)...); err != nil {
 				return err
 			}
-			i.WithNamedFiles(alias, func(wq *FileQuery) {
+			_q.WithNamedFiles(alias, func(wq *FileQuery) {
 				*wq = *query
 			})
 		case "uuid":
@@ -547,7 +547,7 @@ func (i *IncidentQuery) collectField(ctx context.Context, oneNode bool, opCtx *g
 		}
 	}
 	if !unknownSeen {
-		i.Select(selectedFields...)
+		_q.Select(selectedFields...)
 	}
 	return nil
 }
@@ -579,18 +579,18 @@ func newIncidentPaginateArgs(rv map[string]any) *incidentPaginateArgs {
 }
 
 // CollectFields tells the query-builder to eagerly load connected nodes by resolver context.
-func (s *StatusQuery) CollectFields(ctx context.Context, satisfies ...string) (*StatusQuery, error) {
+func (_q *StatusQuery) CollectFields(ctx context.Context, satisfies ...string) (*StatusQuery, error) {
 	fc := graphql.GetFieldContext(ctx)
 	if fc == nil {
-		return s, nil
+		return _q, nil
 	}
-	if err := s.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
+	if err := _q.collectField(ctx, false, graphql.GetOperationContext(ctx), fc.Field, nil, satisfies...); err != nil {
 		return nil, err
 	}
-	return s, nil
+	return _q, nil
 }
 
-func (s *StatusQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
+func (_q *StatusQuery) collectField(ctx context.Context, oneNode bool, opCtx *graphql.OperationContext, collected graphql.CollectedField, path []string, satisfies ...string) error {
 	path = append([]string(nil), path...)
 	var (
 		unknownSeen    bool
@@ -616,7 +616,7 @@ func (s *StatusQuery) collectField(ctx context.Context, oneNode bool, opCtx *gra
 		}
 	}
 	if !unknownSeen {
-		s.Select(selectedFields...)
+		_q.Select(selectedFields...)
 	}
 	return nil
 }
@@ -672,7 +672,7 @@ func fieldArgs(ctx context.Context, whereInput any, path ...string) map[string]a
 func unmarshalArgs(ctx context.Context, whereInput any, args map[string]any) map[string]any {
 	for _, k := range []string{firstField, lastField} {
 		v, ok := args[k]
-		if !ok {
+		if !ok || v == nil {
 			continue
 		}
 		i, err := graphql.UnmarshalInt(v)

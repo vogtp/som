@@ -132,98 +132,98 @@ func (*Incident) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Incident fields.
-func (i *Incident) assignValues(columns []string, values []any) error {
+func (_m *Incident) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
-	for j := range columns {
-		switch columns[j] {
+	for i := range columns {
+		switch columns[i] {
 		case incident.FieldID:
-			value, ok := values[j].(*sql.NullInt64)
+			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			i.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case incident.FieldUUID:
-			if value, ok := values[j].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field UUID", values[j])
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field UUID", values[i])
 			} else if value != nil {
-				i.UUID = *value
+				_m.UUID = *value
 			}
 		case incident.FieldIncidentID:
-			if value, ok := values[j].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field IncidentID", values[j])
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field IncidentID", values[i])
 			} else if value != nil {
-				i.IncidentID = *value
+				_m.IncidentID = *value
 			}
 		case incident.FieldName:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field Name", values[j])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field Name", values[i])
 			} else if value.Valid {
-				i.Name = value.String
+				_m.Name = value.String
 			}
 		case incident.FieldTime:
-			if value, ok := values[j].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field Time", values[j])
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field Time", values[i])
 			} else if value.Valid {
-				i.Time = value.Time
+				_m.Time = value.Time
 			}
 		case incident.FieldIntLevel:
-			if value, ok := values[j].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field IntLevel", values[j])
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field IntLevel", values[i])
 			} else if value.Valid {
-				i.IntLevel = int(value.Int64)
+				_m.IntLevel = int(value.Int64)
 			}
 		case incident.FieldUsername:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field Username", values[j])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field Username", values[i])
 			} else if value.Valid {
-				i.Username = value.String
+				_m.Username = value.String
 			}
 		case incident.FieldRegion:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field Region", values[j])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field Region", values[i])
 			} else if value.Valid {
-				i.Region = value.String
+				_m.Region = value.String
 			}
 		case incident.FieldProbeOS:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field ProbeOS", values[j])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ProbeOS", values[i])
 			} else if value.Valid {
-				i.ProbeOS = value.String
+				_m.ProbeOS = value.String
 			}
 		case incident.FieldProbeHost:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field ProbeHost", values[j])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field ProbeHost", values[i])
 			} else if value.Valid {
-				i.ProbeHost = value.String
+				_m.ProbeHost = value.String
 			}
 		case incident.FieldError:
-			if value, ok := values[j].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field Error", values[j])
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field Error", values[i])
 			} else if value.Valid {
-				i.Error = value.String
+				_m.Error = value.String
 			}
 		case incident.FieldStart:
-			if value, ok := values[j].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field Start", values[j])
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field Start", values[i])
 			} else if value.Valid {
-				i.Start = value.Time
+				_m.Start = value.Time
 			}
 		case incident.FieldEnd:
-			if value, ok := values[j].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field End", values[j])
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field End", values[i])
 			} else if value.Valid {
-				i.End = value.Time
+				_m.End = value.Time
 			}
 		case incident.FieldState:
-			if value, ok := values[j].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field State", values[j])
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field State", values[i])
 			} else if value != nil {
-				i.State = *value
+				_m.State = *value
 			}
 		default:
-			i.selectValues.Set(columns[j], values[j])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -231,188 +231,188 @@ func (i *Incident) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Incident.
 // This includes values selected through modifiers, order, etc.
-func (i *Incident) Value(name string) (ent.Value, error) {
-	return i.selectValues.Get(name)
+func (_m *Incident) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryCounters queries the "Counters" edge of the Incident entity.
-func (i *Incident) QueryCounters() *CounterQuery {
-	return NewIncidentClient(i.config).QueryCounters(i)
+func (_m *Incident) QueryCounters() *CounterQuery {
+	return NewIncidentClient(_m.config).QueryCounters(_m)
 }
 
 // QueryStati queries the "Stati" edge of the Incident entity.
-func (i *Incident) QueryStati() *StatusQuery {
-	return NewIncidentClient(i.config).QueryStati(i)
+func (_m *Incident) QueryStati() *StatusQuery {
+	return NewIncidentClient(_m.config).QueryStati(_m)
 }
 
 // QueryFailures queries the "Failures" edge of the Incident entity.
-func (i *Incident) QueryFailures() *FailureQuery {
-	return NewIncidentClient(i.config).QueryFailures(i)
+func (_m *Incident) QueryFailures() *FailureQuery {
+	return NewIncidentClient(_m.config).QueryFailures(_m)
 }
 
 // QueryFiles queries the "Files" edge of the Incident entity.
-func (i *Incident) QueryFiles() *FileQuery {
-	return NewIncidentClient(i.config).QueryFiles(i)
+func (_m *Incident) QueryFiles() *FileQuery {
+	return NewIncidentClient(_m.config).QueryFiles(_m)
 }
 
 // Update returns a builder for updating this Incident.
 // Note that you need to call Incident.Unwrap() before calling this method if this Incident
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (i *Incident) Update() *IncidentUpdateOne {
-	return NewIncidentClient(i.config).UpdateOne(i)
+func (_m *Incident) Update() *IncidentUpdateOne {
+	return NewIncidentClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Incident entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (i *Incident) Unwrap() *Incident {
-	_tx, ok := i.config.driver.(*txDriver)
+func (_m *Incident) Unwrap() *Incident {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Incident is not a transactional entity")
 	}
-	i.config.driver = _tx.drv
-	return i
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (i *Incident) String() string {
+func (_m *Incident) String() string {
 	var builder strings.Builder
 	builder.WriteString("Incident(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", i.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("UUID=")
-	builder.WriteString(fmt.Sprintf("%v", i.UUID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UUID))
 	builder.WriteString(", ")
 	builder.WriteString("IncidentID=")
-	builder.WriteString(fmt.Sprintf("%v", i.IncidentID))
+	builder.WriteString(fmt.Sprintf("%v", _m.IncidentID))
 	builder.WriteString(", ")
 	builder.WriteString("Name=")
-	builder.WriteString(i.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("Time=")
-	builder.WriteString(i.Time.Format(time.ANSIC))
+	builder.WriteString(_m.Time.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("IntLevel=")
-	builder.WriteString(fmt.Sprintf("%v", i.IntLevel))
+	builder.WriteString(fmt.Sprintf("%v", _m.IntLevel))
 	builder.WriteString(", ")
 	builder.WriteString("Username=")
-	builder.WriteString(i.Username)
+	builder.WriteString(_m.Username)
 	builder.WriteString(", ")
 	builder.WriteString("Region=")
-	builder.WriteString(i.Region)
+	builder.WriteString(_m.Region)
 	builder.WriteString(", ")
 	builder.WriteString("ProbeOS=")
-	builder.WriteString(i.ProbeOS)
+	builder.WriteString(_m.ProbeOS)
 	builder.WriteString(", ")
 	builder.WriteString("ProbeHost=")
-	builder.WriteString(i.ProbeHost)
+	builder.WriteString(_m.ProbeHost)
 	builder.WriteString(", ")
 	builder.WriteString("Error=")
-	builder.WriteString(i.Error)
+	builder.WriteString(_m.Error)
 	builder.WriteString(", ")
 	builder.WriteString("Start=")
-	builder.WriteString(i.Start.Format(time.ANSIC))
+	builder.WriteString(_m.Start.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("End=")
-	builder.WriteString(i.End.Format(time.ANSIC))
+	builder.WriteString(_m.End.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("State=")
-	builder.WriteString(fmt.Sprintf("%v", i.State))
+	builder.WriteString(fmt.Sprintf("%v", _m.State))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // NamedCounters returns the Counters named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (i *Incident) NamedCounters(name string) ([]*Counter, error) {
-	if i.Edges.namedCounters == nil {
+func (_m *Incident) NamedCounters(name string) ([]*Counter, error) {
+	if _m.Edges.namedCounters == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := i.Edges.namedCounters[name]
+	nodes, ok := _m.Edges.namedCounters[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (i *Incident) appendNamedCounters(name string, edges ...*Counter) {
-	if i.Edges.namedCounters == nil {
-		i.Edges.namedCounters = make(map[string][]*Counter)
+func (_m *Incident) appendNamedCounters(name string, edges ...*Counter) {
+	if _m.Edges.namedCounters == nil {
+		_m.Edges.namedCounters = make(map[string][]*Counter)
 	}
 	if len(edges) == 0 {
-		i.Edges.namedCounters[name] = []*Counter{}
+		_m.Edges.namedCounters[name] = []*Counter{}
 	} else {
-		i.Edges.namedCounters[name] = append(i.Edges.namedCounters[name], edges...)
+		_m.Edges.namedCounters[name] = append(_m.Edges.namedCounters[name], edges...)
 	}
 }
 
 // NamedStati returns the Stati named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (i *Incident) NamedStati(name string) ([]*Status, error) {
-	if i.Edges.namedStati == nil {
+func (_m *Incident) NamedStati(name string) ([]*Status, error) {
+	if _m.Edges.namedStati == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := i.Edges.namedStati[name]
+	nodes, ok := _m.Edges.namedStati[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (i *Incident) appendNamedStati(name string, edges ...*Status) {
-	if i.Edges.namedStati == nil {
-		i.Edges.namedStati = make(map[string][]*Status)
+func (_m *Incident) appendNamedStati(name string, edges ...*Status) {
+	if _m.Edges.namedStati == nil {
+		_m.Edges.namedStati = make(map[string][]*Status)
 	}
 	if len(edges) == 0 {
-		i.Edges.namedStati[name] = []*Status{}
+		_m.Edges.namedStati[name] = []*Status{}
 	} else {
-		i.Edges.namedStati[name] = append(i.Edges.namedStati[name], edges...)
+		_m.Edges.namedStati[name] = append(_m.Edges.namedStati[name], edges...)
 	}
 }
 
 // NamedFailures returns the Failures named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (i *Incident) NamedFailures(name string) ([]*Failure, error) {
-	if i.Edges.namedFailures == nil {
+func (_m *Incident) NamedFailures(name string) ([]*Failure, error) {
+	if _m.Edges.namedFailures == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := i.Edges.namedFailures[name]
+	nodes, ok := _m.Edges.namedFailures[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (i *Incident) appendNamedFailures(name string, edges ...*Failure) {
-	if i.Edges.namedFailures == nil {
-		i.Edges.namedFailures = make(map[string][]*Failure)
+func (_m *Incident) appendNamedFailures(name string, edges ...*Failure) {
+	if _m.Edges.namedFailures == nil {
+		_m.Edges.namedFailures = make(map[string][]*Failure)
 	}
 	if len(edges) == 0 {
-		i.Edges.namedFailures[name] = []*Failure{}
+		_m.Edges.namedFailures[name] = []*Failure{}
 	} else {
-		i.Edges.namedFailures[name] = append(i.Edges.namedFailures[name], edges...)
+		_m.Edges.namedFailures[name] = append(_m.Edges.namedFailures[name], edges...)
 	}
 }
 
 // NamedFiles returns the Files named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (i *Incident) NamedFiles(name string) ([]*File, error) {
-	if i.Edges.namedFiles == nil {
+func (_m *Incident) NamedFiles(name string) ([]*File, error) {
+	if _m.Edges.namedFiles == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := i.Edges.namedFiles[name]
+	nodes, ok := _m.Edges.namedFiles[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (i *Incident) appendNamedFiles(name string, edges ...*File) {
-	if i.Edges.namedFiles == nil {
-		i.Edges.namedFiles = make(map[string][]*File)
+func (_m *Incident) appendNamedFiles(name string, edges ...*File) {
+	if _m.Edges.namedFiles == nil {
+		_m.Edges.namedFiles = make(map[string][]*File)
 	}
 	if len(edges) == 0 {
-		i.Edges.namedFiles[name] = []*File{}
+		_m.Edges.namedFiles[name] = []*File{}
 	} else {
-		i.Edges.namedFiles[name] = append(i.Edges.namedFiles[name], edges...)
+		_m.Edges.namedFiles[name] = append(_m.Edges.namedFiles[name], edges...)
 	}
 }
 

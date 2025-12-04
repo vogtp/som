@@ -22,30 +22,30 @@ type StatusCreate struct {
 }
 
 // SetName sets the "Name" field.
-func (sc *StatusCreate) SetName(s string) *StatusCreate {
-	sc.mutation.SetName(s)
-	return sc
+func (_c *StatusCreate) SetName(v string) *StatusCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetValue sets the "Value" field.
-func (sc *StatusCreate) SetValue(s string) *StatusCreate {
-	sc.mutation.SetValue(s)
-	return sc
+func (_c *StatusCreate) SetValue(v string) *StatusCreate {
+	_c.mutation.SetValue(v)
+	return _c
 }
 
 // Mutation returns the StatusMutation object of the builder.
-func (sc *StatusCreate) Mutation() *StatusMutation {
-	return sc.mutation
+func (_c *StatusCreate) Mutation() *StatusMutation {
+	return _c.mutation
 }
 
 // Save creates the Status in the database.
-func (sc *StatusCreate) Save(ctx context.Context) (*Status, error) {
-	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
+func (_c *StatusCreate) Save(ctx context.Context) (*Status, error) {
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (sc *StatusCreate) SaveX(ctx context.Context) *Status {
-	v, err := sc.Save(ctx)
+func (_c *StatusCreate) SaveX(ctx context.Context) *Status {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -53,35 +53,35 @@ func (sc *StatusCreate) SaveX(ctx context.Context) *Status {
 }
 
 // Exec executes the query.
-func (sc *StatusCreate) Exec(ctx context.Context) error {
-	_, err := sc.Save(ctx)
+func (_c *StatusCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sc *StatusCreate) ExecX(ctx context.Context) {
-	if err := sc.Exec(ctx); err != nil {
+func (_c *StatusCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (sc *StatusCreate) check() error {
-	if _, ok := sc.mutation.Name(); !ok {
+func (_c *StatusCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "Name", err: errors.New(`ent: missing required field "Status.Name"`)}
 	}
-	if _, ok := sc.mutation.Value(); !ok {
+	if _, ok := _c.mutation.Value(); !ok {
 		return &ValidationError{Name: "Value", err: errors.New(`ent: missing required field "Status.Value"`)}
 	}
 	return nil
 }
 
-func (sc *StatusCreate) sqlSave(ctx context.Context) (*Status, error) {
-	if err := sc.check(); err != nil {
+func (_c *StatusCreate) sqlSave(ctx context.Context) (*Status, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := sc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, sc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -89,22 +89,22 @@ func (sc *StatusCreate) sqlSave(ctx context.Context) (*Status, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	sc.mutation.id = &_node.ID
-	sc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (sc *StatusCreate) createSpec() (*Status, *sqlgraph.CreateSpec) {
+func (_c *StatusCreate) createSpec() (*Status, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Status{config: sc.config}
+		_node = &Status{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(status.Table, sqlgraph.NewFieldSpec(status.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = sc.conflict
-	if value, ok := sc.mutation.Name(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(status.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := sc.mutation.Value(); ok {
+	if value, ok := _c.mutation.Value(); ok {
 		_spec.SetField(status.FieldValue, field.TypeString, value)
 		_node.Value = value
 	}
@@ -127,10 +127,10 @@ func (sc *StatusCreate) createSpec() (*Status, *sqlgraph.CreateSpec) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (sc *StatusCreate) OnConflict(opts ...sql.ConflictOption) *StatusUpsertOne {
-	sc.conflict = opts
+func (_c *StatusCreate) OnConflict(opts ...sql.ConflictOption) *StatusUpsertOne {
+	_c.conflict = opts
 	return &StatusUpsertOne{
-		create: sc,
+		create: _c,
 	}
 }
 
@@ -140,10 +140,10 @@ func (sc *StatusCreate) OnConflict(opts ...sql.ConflictOption) *StatusUpsertOne 
 //	client.Status.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (sc *StatusCreate) OnConflictColumns(columns ...string) *StatusUpsertOne {
-	sc.conflict = append(sc.conflict, sql.ConflictColumns(columns...))
+func (_c *StatusCreate) OnConflictColumns(columns ...string) *StatusUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &StatusUpsertOne{
-		create: sc,
+		create: _c,
 	}
 }
 
@@ -294,16 +294,16 @@ type StatusCreateBulk struct {
 }
 
 // Save creates the Status entities in the database.
-func (scb *StatusCreateBulk) Save(ctx context.Context) ([]*Status, error) {
-	if scb.err != nil {
-		return nil, scb.err
+func (_c *StatusCreateBulk) Save(ctx context.Context) ([]*Status, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(scb.builders))
-	nodes := make([]*Status, len(scb.builders))
-	mutators := make([]Mutator, len(scb.builders))
-	for i := range scb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Status, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := scb.builders[i]
+			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*StatusMutation)
 				if !ok {
@@ -316,12 +316,12 @@ func (scb *StatusCreateBulk) Save(ctx context.Context) ([]*Status, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = scb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, scb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -345,7 +345,7 @@ func (scb *StatusCreateBulk) Save(ctx context.Context) ([]*Status, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, scb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -353,8 +353,8 @@ func (scb *StatusCreateBulk) Save(ctx context.Context) ([]*Status, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (scb *StatusCreateBulk) SaveX(ctx context.Context) []*Status {
-	v, err := scb.Save(ctx)
+func (_c *StatusCreateBulk) SaveX(ctx context.Context) []*Status {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -362,14 +362,14 @@ func (scb *StatusCreateBulk) SaveX(ctx context.Context) []*Status {
 }
 
 // Exec executes the query.
-func (scb *StatusCreateBulk) Exec(ctx context.Context) error {
-	_, err := scb.Save(ctx)
+func (_c *StatusCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scb *StatusCreateBulk) ExecX(ctx context.Context) {
-	if err := scb.Exec(ctx); err != nil {
+func (_c *StatusCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -389,10 +389,10 @@ func (scb *StatusCreateBulk) ExecX(ctx context.Context) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (scb *StatusCreateBulk) OnConflict(opts ...sql.ConflictOption) *StatusUpsertBulk {
-	scb.conflict = opts
+func (_c *StatusCreateBulk) OnConflict(opts ...sql.ConflictOption) *StatusUpsertBulk {
+	_c.conflict = opts
 	return &StatusUpsertBulk{
-		create: scb,
+		create: _c,
 	}
 }
 
@@ -402,10 +402,10 @@ func (scb *StatusCreateBulk) OnConflict(opts ...sql.ConflictOption) *StatusUpser
 //	client.Status.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (scb *StatusCreateBulk) OnConflictColumns(columns ...string) *StatusUpsertBulk {
-	scb.conflict = append(scb.conflict, sql.ConflictColumns(columns...))
+func (_c *StatusCreateBulk) OnConflictColumns(columns ...string) *StatusUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &StatusUpsertBulk{
-		create: scb,
+		create: _c,
 	}
 }
 

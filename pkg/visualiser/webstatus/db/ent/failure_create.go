@@ -22,30 +22,30 @@ type FailureCreate struct {
 }
 
 // SetError sets the "Error" field.
-func (fc *FailureCreate) SetError(s string) *FailureCreate {
-	fc.mutation.SetError(s)
-	return fc
+func (_c *FailureCreate) SetError(v string) *FailureCreate {
+	_c.mutation.SetError(v)
+	return _c
 }
 
 // SetIdx sets the "Idx" field.
-func (fc *FailureCreate) SetIdx(i int) *FailureCreate {
-	fc.mutation.SetIdx(i)
-	return fc
+func (_c *FailureCreate) SetIdx(v int) *FailureCreate {
+	_c.mutation.SetIdx(v)
+	return _c
 }
 
 // Mutation returns the FailureMutation object of the builder.
-func (fc *FailureCreate) Mutation() *FailureMutation {
-	return fc.mutation
+func (_c *FailureCreate) Mutation() *FailureMutation {
+	return _c.mutation
 }
 
 // Save creates the Failure in the database.
-func (fc *FailureCreate) Save(ctx context.Context) (*Failure, error) {
-	return withHooks(ctx, fc.sqlSave, fc.mutation, fc.hooks)
+func (_c *FailureCreate) Save(ctx context.Context) (*Failure, error) {
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (fc *FailureCreate) SaveX(ctx context.Context) *Failure {
-	v, err := fc.Save(ctx)
+func (_c *FailureCreate) SaveX(ctx context.Context) *Failure {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -53,35 +53,35 @@ func (fc *FailureCreate) SaveX(ctx context.Context) *Failure {
 }
 
 // Exec executes the query.
-func (fc *FailureCreate) Exec(ctx context.Context) error {
-	_, err := fc.Save(ctx)
+func (_c *FailureCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fc *FailureCreate) ExecX(ctx context.Context) {
-	if err := fc.Exec(ctx); err != nil {
+func (_c *FailureCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (fc *FailureCreate) check() error {
-	if _, ok := fc.mutation.Error(); !ok {
+func (_c *FailureCreate) check() error {
+	if _, ok := _c.mutation.Error(); !ok {
 		return &ValidationError{Name: "Error", err: errors.New(`ent: missing required field "Failure.Error"`)}
 	}
-	if _, ok := fc.mutation.Idx(); !ok {
+	if _, ok := _c.mutation.Idx(); !ok {
 		return &ValidationError{Name: "Idx", err: errors.New(`ent: missing required field "Failure.Idx"`)}
 	}
 	return nil
 }
 
-func (fc *FailureCreate) sqlSave(ctx context.Context) (*Failure, error) {
-	if err := fc.check(); err != nil {
+func (_c *FailureCreate) sqlSave(ctx context.Context) (*Failure, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := fc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, fc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -89,22 +89,22 @@ func (fc *FailureCreate) sqlSave(ctx context.Context) (*Failure, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	fc.mutation.id = &_node.ID
-	fc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (fc *FailureCreate) createSpec() (*Failure, *sqlgraph.CreateSpec) {
+func (_c *FailureCreate) createSpec() (*Failure, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Failure{config: fc.config}
+		_node = &Failure{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(failure.Table, sqlgraph.NewFieldSpec(failure.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = fc.conflict
-	if value, ok := fc.mutation.Error(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.Error(); ok {
 		_spec.SetField(failure.FieldError, field.TypeString, value)
 		_node.Error = value
 	}
-	if value, ok := fc.mutation.Idx(); ok {
+	if value, ok := _c.mutation.Idx(); ok {
 		_spec.SetField(failure.FieldIdx, field.TypeInt, value)
 		_node.Idx = value
 	}
@@ -127,10 +127,10 @@ func (fc *FailureCreate) createSpec() (*Failure, *sqlgraph.CreateSpec) {
 //			SetError(v+v).
 //		}).
 //		Exec(ctx)
-func (fc *FailureCreate) OnConflict(opts ...sql.ConflictOption) *FailureUpsertOne {
-	fc.conflict = opts
+func (_c *FailureCreate) OnConflict(opts ...sql.ConflictOption) *FailureUpsertOne {
+	_c.conflict = opts
 	return &FailureUpsertOne{
-		create: fc,
+		create: _c,
 	}
 }
 
@@ -140,10 +140,10 @@ func (fc *FailureCreate) OnConflict(opts ...sql.ConflictOption) *FailureUpsertOn
 //	client.Failure.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (fc *FailureCreate) OnConflictColumns(columns ...string) *FailureUpsertOne {
-	fc.conflict = append(fc.conflict, sql.ConflictColumns(columns...))
+func (_c *FailureCreate) OnConflictColumns(columns ...string) *FailureUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &FailureUpsertOne{
-		create: fc,
+		create: _c,
 	}
 }
 
@@ -307,16 +307,16 @@ type FailureCreateBulk struct {
 }
 
 // Save creates the Failure entities in the database.
-func (fcb *FailureCreateBulk) Save(ctx context.Context) ([]*Failure, error) {
-	if fcb.err != nil {
-		return nil, fcb.err
+func (_c *FailureCreateBulk) Save(ctx context.Context) ([]*Failure, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(fcb.builders))
-	nodes := make([]*Failure, len(fcb.builders))
-	mutators := make([]Mutator, len(fcb.builders))
-	for i := range fcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Failure, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := fcb.builders[i]
+			builder := _c.builders[i]
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*FailureMutation)
 				if !ok {
@@ -329,12 +329,12 @@ func (fcb *FailureCreateBulk) Save(ctx context.Context) ([]*Failure, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, fcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = fcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, fcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -358,7 +358,7 @@ func (fcb *FailureCreateBulk) Save(ctx context.Context) ([]*Failure, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, fcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -366,8 +366,8 @@ func (fcb *FailureCreateBulk) Save(ctx context.Context) ([]*Failure, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (fcb *FailureCreateBulk) SaveX(ctx context.Context) []*Failure {
-	v, err := fcb.Save(ctx)
+func (_c *FailureCreateBulk) SaveX(ctx context.Context) []*Failure {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -375,14 +375,14 @@ func (fcb *FailureCreateBulk) SaveX(ctx context.Context) []*Failure {
 }
 
 // Exec executes the query.
-func (fcb *FailureCreateBulk) Exec(ctx context.Context) error {
-	_, err := fcb.Save(ctx)
+func (_c *FailureCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (fcb *FailureCreateBulk) ExecX(ctx context.Context) {
-	if err := fcb.Exec(ctx); err != nil {
+func (_c *FailureCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -402,10 +402,10 @@ func (fcb *FailureCreateBulk) ExecX(ctx context.Context) {
 //			SetError(v+v).
 //		}).
 //		Exec(ctx)
-func (fcb *FailureCreateBulk) OnConflict(opts ...sql.ConflictOption) *FailureUpsertBulk {
-	fcb.conflict = opts
+func (_c *FailureCreateBulk) OnConflict(opts ...sql.ConflictOption) *FailureUpsertBulk {
+	_c.conflict = opts
 	return &FailureUpsertBulk{
-		create: fcb,
+		create: _c,
 	}
 }
 
@@ -415,10 +415,10 @@ func (fcb *FailureCreateBulk) OnConflict(opts ...sql.ConflictOption) *FailureUps
 //	client.Failure.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (fcb *FailureCreateBulk) OnConflictColumns(columns ...string) *FailureUpsertBulk {
-	fcb.conflict = append(fcb.conflict, sql.ConflictColumns(columns...))
+func (_c *FailureCreateBulk) OnConflictColumns(columns ...string) *FailureUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &FailureUpsertBulk{
-		create: fcb,
+		create: _c,
 	}
 }
 
