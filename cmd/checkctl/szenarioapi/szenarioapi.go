@@ -25,7 +25,7 @@ var (
 func Command() *cobra.Command {
 	flags := somApiCtl.PersistentFlags()
 	flags.String(somURL, defaultSomURL, "URL of the SOM Overview")
-	flags.String(szNameFlag, defaultSzenarioName, "Szenarion nam,e")
+	flags.String(szNameFlag, defaultSzenarioName, "Szenario name")
 	flags.VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
 			panic(err)
@@ -49,7 +49,7 @@ var somApiCtl = &cobra.Command{
 	},
 }
 
-func somApiResult(cmd *cobra.Command, args []string) error {
+func somApiResult(cmd *cobra.Command, _ []string) error {
 	result := check.NewResult(cmd.Name(), check.CounterFormater(timeFormater))
 	defer result.PrintExit()
 	err := querySomAPI(cmd.Context(), result)

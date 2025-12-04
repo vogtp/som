@@ -51,28 +51,30 @@ func querySomAPI(ctx context.Context, result *check.Result) error {
 		avg := timeFormater("total", check.Data{Value: parseTime(string(sz.AvgTime))})
 		iList := fmt.Sprintf(`%s%s`, url, sz.IncidentList)
 		result.WriteHeader("Duration %s", last)
-		result.WriteHeader("Incident List: <a href='%s'>%s</a>", iList, "Link")
-		result.SetHeader(`%s\n\n<br>Incident List: <a href="%s">%s</a>`, fmt.Sprintf("Duration %s", last), iList, iList)
+	//	result.WriteFooter("Incident List: <a href='%s'>%s</a>", iList, iList)
+		//result.SetHeader("%s\n\nIncident List: %s", fmt.Sprintf("Duration %s", last), iList)
+		// result.SetHeader(`%s\n\n<br>Incident List: <a href="%s">%s</a>`, fmt.Sprintf("Duration %s", last), iList, iList)
 		result.SetCounter("Current", last)
 		result.SetCounter("Average", avg)
 		result.SetStatus("Availability (current)", sz.AvailabilityCur)
 		result.SetStatus("Availability (average)", sz.AvailabilityAvg)
 		result.SetStatus("Status", strings.TrimSpace(sz.Status))
 		result.SetStatus("Incidents", sz.IncidentCount)
+		result.SetStatus("Incidents List", iList)
 	}
 	return nil
 }
 
 func somStatus2Resultcode(l status.Level) icinga.ResultCode {
 	switch l {
-	// case status.Unknown:
-	// 	return icinga.UNKNOWN
-	// case status.OK:
-	// 	return icinga.OK
-	// case status.Issues:
-	// 	return icinga.WARNING
-	// case status.Warning:
-	// 	return icinga.WARNING
+	case status.Unknown:
+		return icinga.UNKNOWN
+	case status.OK:
+		return icinga.OK
+	case status.Issues:
+		return icinga.WARNING
+	case status.Warning:
+		return icinga.WARNING
 	case status.Down:
 		return icinga.CRITICAL
 	default:
