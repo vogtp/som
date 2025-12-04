@@ -21,13 +21,13 @@ func TestHandleMonEvt(t *testing.T) {
 	bus := core.Bus()
 	defer close()
 
-	rec := make(map[string]msg.SzenarioEvtMsg)
-	snd := make(map[string]msg.SzenarioEvtMsg)
+	rec := make(map[string]*msg.SzenarioEvtMsg)
+	snd := make(map[string]*msg.SzenarioEvtMsg)
 
 	var wg sync.WaitGroup
 	wg.Add(len(tests))
 	bus.Szenario.Handle(func(e *msg.SzenarioEvtMsg) {
-		rec[e.Name] = *e
+		rec[e.Name] = e
 		wg.Done()
 	})
 
@@ -39,7 +39,7 @@ func TestHandleMonEvt(t *testing.T) {
 		if err := bus.Szenario.Send(tt.msg); err != nil {
 			t.Fatalf("cannot send msg: %v", err)
 		}
-		snd[tt.msg.Name] = *tt.msg
+		snd[tt.msg.Name] = tt.msg
 	}
 	wg.Wait()
 	if !reflect.DeepEqual(snd, rec) {

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-	"time"
 
 	"log/slog"
 
@@ -50,12 +49,20 @@ func (w *WebServer) init(c *Core) {
 	w.mux = http.NewServeMux()
 	adr := fmt.Sprintf(":%d", w.port)
 	w.srv = &http.Server{
+<<<<<<< Updated upstream
+		Addr: adr,
+=======
 		Addr:              adr,
-		ReadTimeout:       1 * time.Second,
-		WriteTimeout:      15 * time.Second,
-		IdleTimeout:       30 * time.Second,
-		ReadHeaderTimeout: 2 * time.Second,
+>>>>>>> Stashed changes
+		// ReadTimeout:       1 * time.Second,
+		// WriteTimeout:      15 * time.Second,
+		// IdleTimeout:       30 * time.Second,
+		// ReadHeaderTimeout: 2 * time.Second,
+<<<<<<< Updated upstream
+		Handler: w.mux,
+=======
 		Handler:           w.mux,
+>>>>>>> Stashed changes
 	}
 	w.basepath = strings.TrimSuffix(w.basepath, "/")
 	if len(w.basepath) < 2 {

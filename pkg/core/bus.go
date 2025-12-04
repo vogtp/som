@@ -76,18 +76,13 @@ func (e *Bus) cleanup() {
 	}
 }
 
-// WaitMsgProcessed waits until the managed cannels have their messages sent
-func (e *Bus) WaitMsgProcessed() {
-	e.Szenario.WaitMsgProcessed()
-	e.Alert.WaitMsgProcessed()
-}
-
 // Connect to grav and return a pod
 func (e *Bus) Connect() *grav.Pod {
 	return e.bus.Connect()
 }
 
-// EndpointURL returns the URL the bus endpoint listens on
-func (e Bus) EndpointURL() string {
-	return e.endpointURL
+func (e *Bus) Listen(f BusMsgFuc) {
+	e.Connect().On(func(m grav.Message) error {
+		return f(m)
+	})
 }

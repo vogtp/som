@@ -15,3 +15,4 @@ func main() {
 	// szenarios.Load() has to be replace by ones own szenario config
 	root.Command(ctx, szenarios.Load())
 }
+

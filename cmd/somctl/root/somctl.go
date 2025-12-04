@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/cmd/somctl/dbctl"
 	"github.com/vogtp/som/cmd/somctl/incidentctl"
 	"github.com/vogtp/som/cmd/somctl/szenarioctl"
@@ -74,7 +73,7 @@ var (
 			}
 			if viper.GetBool(LogRawBus) {
 				c.Log().Info("Logging raw bus")
-				c.Bus().Connect().On(func(m grav.Message) error {
+				c.Bus().Listen(func(m core.BusMessage) error {
 					fmt.Fprintf(cmd.OutOrStdout(), "Raw Bus: %s\n", string(m.Data()))
 					return nil
 				})
@@ -85,7 +84,6 @@ var (
 			if !cmd.IsAvailableCommand() {
 				return
 			}
-			core.Get().Bus().WaitMsgProcessed()
 			coreClose()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

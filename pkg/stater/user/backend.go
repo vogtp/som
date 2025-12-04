@@ -22,10 +22,10 @@ var (
 
 // store stores users and their passwords
 type store struct {
-	log        *slog.Logger
-	handlerPod *grav.Pod
-	mu         sync.RWMutex
-	data       map[string]User
+	log *slog.Logger
+
+	mu   sync.RWMutex
+	data map[string]User
 }
 
 // IntialiseStore does the setup for the user store
@@ -53,9 +53,8 @@ func (us *store) setup() {
 }
 
 func (us *store) start() {
-	us.handlerPod = core.Get().Bus().Connect()
-	us.handlerPod.On(func(m grav.Message) error {
-		us.log.Debug("user backend got message", "type", m.Type(), "data", string(m.Data()), "uuid", m.UUID())
+	core.Get().Bus().Listen(func(m core.BusMessage) error {
+		us.log.Debug("user backend got message", "type", m.Type(), "data", string(m.Data()), "reply_to", m.ReplyTo())
 		switch m.Type() {
 		case msgtype.UserRequest:
 			return us.getUser(m)
@@ -76,10 +75,9 @@ func (us *store) start() {
 			return nil
 		}
 	})
-	us.log.Debug("Userstore pod for msg handling", "pod", us.handlerPod)
 }
 
-func (us *store) addUser(m grav.Message) error {
+func (us *store) addUser(m core.BusMessage) error {
 	us.log.Debug("Requested to add a user")
 	_, err := us.storeUserFromMsg(m)
 	var s string
@@ -88,7 +86,7 @@ func (us *store) addUser(m grav.Message) error {
 		s = err.Error()
 	}
 	msg := grav.NewMsg(msgtype.UserResponse, []byte(s))
-	msg.SetReplyTo(m.UUID())
+	msg.SetReplyTo(m.ReplyTo())
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	p.Send(msg)
@@ -96,7 +94,7 @@ func (us *store) addUser(m grav.Message) error {
 	return err
 }
 
-func (us *store) deleteUser(m grav.Message) error {
+func (us *store) deleteUser(m core.BusMessage) error {
 	name := string(m.Data())
 	us.log.Warn("Deleting user from store", log.User, name)
 
@@ -118,14 +116,14 @@ func (us *store) deleteUser(m grav.Message) error {
 	}
 
 	msg := grav.NewMsg(msgType, []byte(msgTxt))
-	msg.SetReplyTo(m.UUID())
+	msg.SetReplyTo(m.ReplyTo())
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	p.Send(msg)
 	return nil
 }
 
-func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
+func (us *store) storeUserFromMsg(m core.BusMessage) (*User, error) {
 	u := &User{}
 	if err := json.Unmarshal(m.Data(), u); err != nil {
 		return nil, fmt.Errorf("adding user: %v", err)
@@ -156,13 +154,13 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 	return u, us.save()
 }
 
-func (us *store) getUser(m grav.Message) error {
+func (us *store) getUser(m core.BusMessage) error {
 	name := string(m.Data())
 	us.log.Debug("Looking up user in store", log.User, name)
 
 	msg, err := us.buildUserMsg(name)
 
-	msg.SetReplyTo(m.UUID())
+	msg.SetReplyTo(m.ReplyTo())
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	p.Send(msg)
@@ -184,10 +182,10 @@ func (us *store) buildUserMsg(name string) (grav.Message, error) {
 	return grav.NewMsg(msgtype.UserError, []byte("No such user")), errors.New("no such user")
 }
 
-func (us *store) getUserList(m grav.Message) error {
+func (us *store) getUserList(m core.BusMessage) error {
 	msg, err := us.buildUserlistMsg()
 
-	msg.SetReplyTo(m.UUID())
+	msg.SetReplyTo(m.ReplyTo())
 	p := core.Get().Bus().Connect()
 	defer p.Disconnect()
 	p.Send(msg)
