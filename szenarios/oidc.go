@@ -26,14 +26,8 @@ type OIDCSzenario struct {
 
 // Execute the szenario
 func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
-
-	ctx, stop := context.WithTimeout(context.Background(), 1*time.Minute)
+	_, stop, err := s.InitOIDCRelyingParty(engine)
 	defer stop()
-	if err := s.initRelyingPartyHttpsrv(ctx); err != nil {
-		return fmt.Errorf("init relying party http servce: %w", err)
-	}
-	go s.startRelyingPartyHttpsrv(engine)
-
 	engine.Step("Loading",
 		chromedp.Navigate(fmt.Sprintf("http://localhost:%v", s.Port)),
 	)
@@ -54,10 +48,21 @@ func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
 		chromedp.WaitReady("displayName", chromedp.ByID),
 		engine.Body(engine.Strings(&body)),
 	)
+	engine.WaitForEver()
 	// if !strings.EqualFold(strings.TrimSpace(body), s.User().Email()) {
 	// 	return fmt.Errorf("mail not in ID Token: body %q", body)
 	// }
 	return nil
+}
+
+func (s *OIDCSzenario) InitOIDCRelyingParty(engine szenario.Engine) (context.Context, context.CancelFunc, error) {
+	ctx, stop := context.WithTimeout(context.Background(), 1*time.Minute)
+
+	if err := s.initRelyingPartyHttpsrv(ctx); err != nil {
+		return ctx, stop, fmt.Errorf("init relying party http servce: %w", err)
+	}
+	go s.startRelyingPartyHttpsrv(engine)
+	return ctx, stop, nil
 }
 
 func (s *OIDCSzenario) initRelyingPartyHttpsrv(ctx context.Context) error {
