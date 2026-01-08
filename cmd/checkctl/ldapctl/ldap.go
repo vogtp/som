@@ -17,6 +17,7 @@ import (
 
 const (
 	ldapHost         = "ldap.host"
+	ldapPort         = "ldap.port"
 	ldapBindDN       = "ldap.bind.DN"
 	ldapSearchFilter = "ldap.search.filter"
 	ldapMonitoringOU = "ldap.monitoring.ou"
@@ -26,8 +27,9 @@ const (
 func Command() *cobra.Command {
 	flags := ldapCtl.PersistentFlags()
 	flags.String(ldapHost, "$host.name$", "FQDN of the ldap host")
-	flags.String(ldapBindDN, "uid=admin", "Account DN to bind to ldap with")
-	flags.String(ldapSearchFilter, "(uid=vogtp)", "Searchfilter for the LDAP search")
+	flags.Int(ldapPort,636, "Port of the LDAP Server")
+	flags.String(ldapBindDN, "", "Account DN to bind to ldap with")
+	flags.String(ldapSearchFilter, "", "Searchfilter for the LDAP search")
 	flags.String(ldapMonitoringOU, "", "OU to use for monitoring stuff")
 	flags.VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
@@ -92,7 +94,7 @@ func runLdap(result *check.Result) error {
 	defer func() { result.SetCounter("total", time.Since(start)) }()
 	lc := &LDAPClient{
 		Host:               viper.GetString(ldapHost),
-		Port:               10636,
+		Port:               viper.GetInt(ldapPort),
 		UseSSL:             true,
 		InsecureSkipVerify: true,
 		BindDN:             viper.GetString(ldapBindDN),
