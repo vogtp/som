@@ -21,7 +21,7 @@ func (us *store) load() error {
 	defer f.Close()
 	r, err := EncryptedReader(string(core.Keystore.Key()), f)
 	if err != nil {
-		us.log.Error("EncryptedReader", log.Error, err)
+		us.log.Error("Could not open cipher reader to load file", log.Error, err, "db_name", dbFile)
 		panic(err)
 	}
 
@@ -47,7 +47,7 @@ func (us *store) save() error {
 	defer f.Close()
 	w, err := EncryptedWriter(string(core.Keystore.Key()), f)
 	if err != nil {
-		us.log.Error("EncryptedWriter", "file", dbFile, log.Error, err)
+		us.log.Error("Could not open cipher reader to load file", log.Error, err, "db_name", dbFile)
 		panic(err)
 	}
 	if err = gob.NewEncoder(w).Encode(&us.data); err != nil {
