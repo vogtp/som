@@ -96,7 +96,7 @@ func EncryptedReader(key string, r io.Reader) (*cipher.StreamReader, error) {
 func newBlock(key string) (cipher.Block, error) {
 	hash := md5.Sum([]byte(key))
 	block, err := aes.NewCipher(hash[:])
-	if err != nil 
+	if err != nil {
 		return nil, fmt.Errorf("creat aes cipher: %w", err)
 	}
 	return block, nil
