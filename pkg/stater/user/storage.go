@@ -3,13 +3,17 @@ package user
 import (
 	"encoding/gob"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
 )
 
-const dbFile = "userstore.db"
+const (
+	dbFile = "userstore.db"
+	dbPerm = 0600
+)
 
 func (us *store) load() error {
 	us.mu.Lock()
@@ -38,8 +42,11 @@ func (us *store) load() error {
 func (us *store) save() error {
 	us.mu.Lock()
 	defer us.mu.Unlock()
+	if err := us.backup(); err != nil {
+		return fmt.Errorf("create userstore backup: %w", err)
+	}
 	us.cleanupPasswords()
-	f, err := os.OpenFile(dbFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0600)
+	f, err := os.OpenFile(dbFile, os.O_CREATE|os.O_RDWR|os.O_TRUNC, dbPerm)
 	if err != nil {
 		us.log.Error("cannot open gob file", "file", dbFile, log.Error, err)
 		return fmt.Errorf("cannot open gob file %s: %v", dbFile, err)
@@ -64,4 +71,30 @@ func (us *store) cleanupPasswords() {
 		u.deleteOldPasswords()
 		us.data[n] = u
 	}
+}
+
+func (us *store) backup() error {
+	f, err := os.Open(dbFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	fi, err := f.Stat()
+	if err != nil {
+		return err
+	}
+	b, err := os.OpenFile(fmt.Sprintf("%s.bck", dbFile), os.O_CREATE|os.O_RDWR|os.O_TRUNC, dbPerm)
+	if err != nil {
+		return err
+	}
+	defer b.Close()
+	bi, err := b.Stat()
+	if err != nil {
+		return err
+	}
+	if fi.Size() < 1 && bi.Size() > 0 {
+		return fmt.Errorf("no db %s (size: %v) but a backup %s (size: %v)", dbFile, fi.Size(), bi.Name(), bi.Size())
+	}
+	_, err = io.Copy(b, f)
+	return err
 }
