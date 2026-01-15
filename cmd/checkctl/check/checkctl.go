@@ -2,7 +2,6 @@ package check
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 	goicinga "github.com/vogtp/go-icinga"
@@ -12,9 +11,7 @@ import (
 	"github.com/vogtp/som/cmd/checkctl/debugctl"
 	"github.com/vogtp/som/cmd/checkctl/ldapctl"
 	"github.com/vogtp/som/cmd/checkctl/szenarioapi"
-	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/monitor/szenario"
-	"github.com/vogtp/som/pkg/stater"
 )
 
 // Command adds the root command
@@ -36,9 +33,6 @@ func Command(szCfg *szenario.Config) {
 }
 
 var (
-	c         *core.Core
-	coreClose func()
-
 	checkCtl = &check.Command{
 		Use:            "checkctl",
 		Short:          "Run a check with a monitoring plugin interface",
@@ -61,15 +55,4 @@ var (
 // AddCommand adds a *cobra.Command to somctl
 func AddCommand(c *cobra.Command) {
 	checkCtl.AddCommand(c)
-}
-
-func startCore(szCfg *szenario.Config) {
-	//standalong mode: start a stater
-	var err error
-	coreClose, err = stater.Run("checkctl", core.Szenario(szCfg))
-	if err != nil {
-		fmt.Printf("Cannot start core: %v", err)
-		os.Exit(-1)
-	}
-	c = core.Get()
 }
