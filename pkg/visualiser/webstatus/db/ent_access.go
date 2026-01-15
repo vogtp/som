@@ -37,7 +37,7 @@ func New() (*Client, error) {
 	ctx := context.Background()
 	// Run the automatic migration tool to create all schema resources.
 	if err := entClient.Schema.Create(ctx, migrate.WithGlobalUniqueID(true)); err != nil {
-		return nil, fmt.Errorf("failed creating schema resources: %v", err)
+		return nil, fmt.Errorf("failed creating DB schema: %v", err)
 	}
 	client := &Client{
 		Client: entClient,
