@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -76,6 +77,9 @@ func (us *store) cleanupPasswords() {
 func (us *store) backup() error {
 	f, err := os.Open(dbFile)
 	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
 		return err
 	}
 	defer f.Close()
