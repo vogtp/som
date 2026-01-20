@@ -1,8 +1,6 @@
 package core
 
 import (
-	"os"
-
 	"github.com/vogtp/som/pkg/core/log"
 )
 
@@ -27,7 +25,7 @@ func (ks *keyStore) Key() []byte {
 		log := log.New("som.keystore")
 		log.Error("Keystore is not initialised!", "key_len", len(ks.data))
 		log.Error("Use core.Keystore.Add(...)")
-		os.Exit(1)
+		panic("keystore not initalised")
 	}
 	return ks.data
 }
