@@ -12,11 +12,11 @@ func (m *manager) Receive(routingKey string, recFunc ReceiveFunc) error {
 	sl := m.slog.With("routingKey", routingKey)
 	q, err := m.channel.QueueDeclare(
 		fmt.Sprintf("%s.queue", routingKey), // name
-		true,                                    // durable
-		false,                                   // delete when unused
-		true,                                    // exclusive
-		false,                                   // no-wait
-		nil,                                     // arguments
+		true,                                // durable
+		false,                               // delete when unused
+		true,                                // exclusive
+		false,                               // no-wait
+		nil,                                 // arguments
 	)
 	if err != nil {
 		return fmt.Errorf("failed to declare a queue: %w", err)
@@ -34,13 +34,13 @@ func (m *manager) Receive(routingKey string, recFunc ReceiveFunc) error {
 	sl.Info("Binding queue to bus")
 
 	msgs, err := m.channel.Consume(
-		q.Name, // queue
+		q.Name,                                // queue
 		fmt.Sprintf("%s.consume", routingKey), // consumer
-		true,  // auto ack
-		false, // exclusive
-		false, // no local
-		false, // no wait
-		nil,   // args
+		true,                                  // auto ack
+		false,                                 // exclusive
+		false,                                 // no local
+		false,                                 // no wait
+		nil,                                   // args
 	)
 	if err != nil {
 		return fmt.Errorf("failed to register a consumer for %s: %w", routingKey, err)
