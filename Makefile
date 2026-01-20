@@ -1,4 +1,4 @@
-.PHONY: build
+.PHONY: test build
 build: generate build-stater build-monitor-cdp build-visualiser build-alerter build-somctl build-checkctl
 
 # add build date and time to version
