@@ -26,3 +26,8 @@ build-checkctl:
 build-%: 
 	$(GO_CMD) build $(build_flags) -tags prod -o ./build/ ./cmd/components/$*/
 	mv build/$* build/som.$* 
+
+.PHONY: test
+test:
+	echo "Running test (excluding packages without tests)"
+	go test ./... | grep -v "no test files"
