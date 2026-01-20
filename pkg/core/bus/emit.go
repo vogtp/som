@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -21,6 +22,7 @@ func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) erro
 			ContentType:  "text/plain",
 			// DeliveryMode: 2, // persisten
 			Body:         data,
+			MessageId: uuid.NewString(),
 		})
 	if err != nil {
 		return fmt.Errorf("publish messsage to %s: %w", routingKey, err)
