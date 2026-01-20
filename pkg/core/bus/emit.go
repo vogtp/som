@@ -19,7 +19,7 @@ func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) erro
 		false,      // immediate
 		amqp.Publishing{
 			ContentType:  "text/plain",
-			DeliveryMode: 2, // persisten
+			// DeliveryMode: 2, // persisten
 			Body:         data,
 		})
 	if err != nil {
