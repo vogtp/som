@@ -15,8 +15,8 @@ var (
 func TestUserStorage_Get(t *testing.T) {
 	store := createBackend()
 	core.Keystore.Add(testKey)
-	store.Add(User{Username: "user1", Mail: "mail1", UserType: "stud"}, pass)
-	store.AddRaw(User{Username: "user2", Mail: "mail2", UserType: "stud"}, encPass)
+	store.Add(User{Username: "user1", Mail: "mail1@test.net", UserType: "stud"}, pass)
+	store.AddRaw(User{Username: "user2", Mail: "mail2@test.net", UserType: "stud"}, encPass)
 	u1 := store.Get("user1")
 	u2 := store.Get("user2")
 	if u1.Username != "user1" {
