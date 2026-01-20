@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"sync"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som"
+	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
@@ -23,6 +25,8 @@ type Core struct {
 	log   *slog.Logger
 	szCfg *szenario.Config
 	name  string
+
+	amqpBus bus.Manager
 
 	bus *Bus
 	web *WebServer
@@ -53,11 +57,17 @@ func New(name string, opts ...Option) (*Core, func()) {
 		o(c)
 	}
 	if newCore {
+		cfg.Parse()
 		slog.SetDefault(c.log)
 		c.log.Warn("SOM starting...", "version", som.Version)
 		c.web.init(c)
 		c.bus.init(c)
 		c.web.Start()
+		b, err := bus.New(c.log)
+		if err != nil {
+			panic(fmt.Errorf("initialising amqp bus: %w", err))
+		}
+		c.amqpBus = b
 	}
 
 	waitDuration := viper.GetDuration(cfg.CoreStartdelay)
@@ -77,6 +87,11 @@ func Get() *Core {
 // Bus returns the bus or panics if Core not Initialised with New
 func (c *Core) Bus() *Bus {
 	return c.bus
+}
+
+// Bus returns the bus or panics if Core not Initialised with New
+func (c *Core) AmqpBus() bus.Manager {
+	return c.amqpBus
 }
 
 // Log returns the logger or panics if Core not Initialised with New
@@ -100,4 +115,5 @@ func (c *Core) SzenaioConfig() *szenario.Config {
 func (c *Core) cleanup() {
 	c.bus.cleanup()
 	c.web.Stop()
+	c.amqpBus.Close()
 }
