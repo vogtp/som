@@ -18,6 +18,7 @@ require (
 	github.com/iancoleman/strcase v0.3.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/prometheus/client_golang v1.23.2
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/sethvargo/go-password v0.3.1
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cast v1.10.0
