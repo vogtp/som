@@ -9,15 +9,15 @@ const (
 	Incident = "incident"
 
 	// UserError e.g. no such user
-	UserError = "user.error"
+	UserError = "som.user.error"
 	// UserRequest get a use from the backend
-	UserRequest = "user.request"
+	UserRequest = "som.user.request"
 	// UserList get all users form the backend
-	UserList = "user.list"
+	UserList = "som.user.list"
 	// UserAdd adds or changes a user
-	UserAdd = "user.add"
+	UserAdd = "som.user.add"
 	// UserResponse response for user requests
-	UserResponse = "user.response"
+	UserResponse = "som.user.response"
 	// UserDelete deletes a use from the backend
-	UserDelete = "user.delete"
+	UserDelete = "som.user.delete"
 )
