@@ -22,6 +22,7 @@ data/
 alertmgr.json
 webstatus.json
 *.db
+*.db.bck
 som.yml
 ignore_*
 
