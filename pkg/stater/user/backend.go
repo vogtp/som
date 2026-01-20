@@ -10,6 +10,7 @@ import (
 
 	"log/slog"
 
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
@@ -53,6 +54,10 @@ func (us *store) setup() {
 }
 
 func (us *store) start() {
+
+	core.Get().AmqpBus().Receive("som.user.#", func(d amqp091.Delivery) {
+		us.log.Info("Got amqp msg")
+	})
 	us.handlerPod = core.Get().Bus().Connect()
 	us.handlerPod.On(func(m grav.Message) error {
 		us.log.Debug("user backend got message", "type", m.Type(), "data", string(m.Data()), "uuid", m.UUID())
