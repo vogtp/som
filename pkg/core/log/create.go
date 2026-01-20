@@ -10,6 +10,8 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
+var Level = &slog.LevelVar{}
+
 // New creates a slog logger with the loglevel from the config
 func New(name string) *slog.Logger {
 	lvl := LevelFromString(viper.GetString(cfg.LogLevel))
@@ -18,8 +20,9 @@ func New(name string) *slog.Logger {
 
 // Create a slog logger with the given level
 func Create(name string, lvl slog.Level) *slog.Logger {
+	Level.Set(lvl)
 	logOpts := slog.HandlerOptions{
-		Level: lvl,
+		Level: Level,
 	}
 	logOpts.AddSource = viper.GetBool(cfg.LogSource)
 	logJSON := viper.GetBool(cfg.LogJSON)
