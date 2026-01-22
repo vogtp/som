@@ -34,7 +34,6 @@ func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) erro
 }
 
 func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amqp.Delivery, error) {
-	routingKey = fmt.Sprintf("%s.askanswer", routingKey)
 	q, err := m.channel.QueueDeclare(
 		"",    // name
 		false, // durable
@@ -66,7 +65,7 @@ func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amq
 	defer cancel()
 
 	err = m.channel.PublishWithContext(ctx,
-		"",   // exchange
+		"",         // exchange
 		routingKey, // routing key
 		false,      // mandatory
 		false,      // immediate
@@ -83,7 +82,7 @@ func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amq
 	for {
 		select {
 		case <-ctx.Done():
-			return nil, fmt.Errorf("timeout %s reached", m.timeout)
+			return nil, fmt.Errorf("timeout %s reached: %w", m.timeout, ctx.Err())
 		case d := <-msgs:
 			if corrId == d.CorrelationId {
 				return &d, nil

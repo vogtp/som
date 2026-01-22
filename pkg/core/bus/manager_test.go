@@ -42,7 +42,10 @@ func TestSendReceive(t *testing.T) {
 	var recTime time.Time
 	rk := "som.testing"
 	wait := make(chan any)
-	err = m.Receive(rk, func(d amqp.Delivery) {
+	err = m.Receive(rk, func(r string, d amqp.Delivery) {
+		if !strings.EqualFold(r, rk) {
+			t.Errorf("Routing keys do not match: have: %s want: %s", r, rk)
+		}
 		recMsg = string(d.Body)
 		recTime = time.Now()
 		close(wait)
@@ -76,7 +79,10 @@ func TestAskAnswer(t *testing.T) {
 	var recTime time.Time
 	rk := "som.testing"
 	wait := make(chan any)
-	err = m.Answer(t.Context(), rk, func(d amqp.Delivery) ([]byte, error) {
+	err = m.Answer(t.Context(), rk, func(r string, d amqp.Delivery) ([]byte, error) {
+		if !strings.EqualFold(r, rk) {
+			t.Errorf("Routing keys do not match: have: %s want: %s", r, rk)
+		}
 		ansRecMsg = string(d.Body)
 		ansSendMsg = fmt.Sprintf("answer-%s", ansRecMsg)
 		recTime = time.Now()

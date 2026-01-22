@@ -8,7 +8,7 @@ import (
 	"github.com/vogtp/som/pkg/core/log"
 )
 
-type ReceiveFunc func(amqp.Delivery)
+type ReceiveFunc func(routingKey string, doc amqp.Delivery)
 
 func (m *manager) Receive(routingKey string, recFunc ReceiveFunc) error {
 	sl := m.slog.With("routingKey", routingKey)
@@ -51,16 +51,15 @@ func (m *manager) Receive(routingKey string, recFunc ReceiveFunc) error {
 	go func() {
 		for m := range msgs {
 			sl.Debug("Received message", "msg", m)
-			recFunc(m)
+			recFunc(routingKey, m)
 		}
 	}()
 	return nil
 }
 
-type AnswerFunc func(amqp.Delivery) ([]byte, error)
+type AnswerFunc func(routingKey string, doc amqp.Delivery) ([]byte, error)
 
 func (m *manager) Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) error {
-	routingKey = fmt.Sprintf("%s.askanswer", routingKey)
 	sl := m.slog.With("routingKey", routingKey)
 	q, err := m.channel.QueueDeclare(
 		routingKey, // name
@@ -99,9 +98,15 @@ func (m *manager) Answer(ctx context.Context, routingKey string, answerFunc Answ
 	go func() {
 		ctx, cancel := context.WithTimeout(ctx, m.timeout)
 		defer cancel()
-		for d := range msgs {
-			//FIXME handle context
-			resp, err := answerFunc(d)
+		for {
+			var d amqp.Delivery
+			select {
+			case d = <-msgs:
+			case <-ctx.Done():
+				err = fmt.Errorf("timeout %s reached: %w", m.timeout, ctx.Err())
+				return
+			}
+			resp, err := answerFunc(routingKey, d)
 			if err != nil {
 				sl.Warn("Bus answer func returned an error", log.Error, err)
 				continue
@@ -127,5 +132,5 @@ func (m *manager) Answer(ctx context.Context, routingKey string, answerFunc Answ
 			}
 		}
 	}()
-	return nil
+	return err
 }
