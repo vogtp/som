@@ -32,7 +32,7 @@ func AddCommand(c *cobra.Command) {
 func Command(ctx context.Context, szCfg *szenario.Config) {
 	processFlags()
 
-	startCore(szCfg)
+	startCore(ctx, szCfg)
 
 	rootCtl.AddCommand(userctl.Command())
 	rootCtl.AddCommand(szenarioctl.Command())
@@ -44,7 +44,7 @@ func Command(ctx context.Context, szCfg *szenario.Config) {
 	}
 }
 
-func startCore(szCfg *szenario.Config) {
+func startCore(ctx context.Context, szCfg *szenario.Config) {
 	if !viper.GetBool(StandAlone) {
 		// normal mode: just start a core to connect to the mesh
 		c, coreClose = core.New("somctl", core.Szenario(szCfg))
@@ -52,7 +52,7 @@ func startCore(szCfg *szenario.Config) {
 	}
 	//standalong mode: start a stater
 	var err error
-	coreClose, err = stater.Run("somctl", core.Szenario(szCfg))
+	coreClose, err = stater.Run(ctx, "somctl", core.Szenario(szCfg))
 	if err != nil {
 		fmt.Printf("Cannot start core: %v", err)
 		os.Exit(-1)

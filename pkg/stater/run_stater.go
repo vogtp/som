@@ -1,6 +1,7 @@
 package stater
 
 import (
+	"context"
 	"time"
 
 	"github.com/spf13/viper"
@@ -12,11 +13,11 @@ import (
 )
 
 // Run the stater
-func Run(name string, coreOpts ...core.Option) (func(), error) {
+func Run(ctx context.Context, name string, coreOpts ...core.Option) (func(), error) {
 	viper.Set(cfg.CoreStartdelay, 100*time.Millisecond)
 	cfg.Parse()
 	c, close := core.New(name, coreOpts...)
-	user.IntialiseStore()
+	user.IntialiseStore(ctx)
 
 	if err := alertmgr.Run(); err != nil {
 		c.Log().Warn("alertmgr refused to run", log.Error, err)

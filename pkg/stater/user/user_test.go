@@ -21,7 +21,7 @@ var (
 
 func testInit(t *testing.T) func() {
 	core.Keystore.Add(testKey)
-	close, err := stater.Run("user.test")
+	close, err := stater.Run(t.Context(), "user.test")
 	if err != nil {
 		t.Fatalf("Cannot start stater: %v", err)
 	}
