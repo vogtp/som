@@ -66,6 +66,13 @@ func New(slog *slog.Logger) (Manager, error) {
 	return m, nil
 }
 
+func (m *manager) SetTimeout(d time.Duration) {
+	if d < time.Millisecond {
+		m.slog.Warn("Not setting bus timeout since it is too low", "timeout", d, log.Stacktrace())
+	}
+	m.timeout = d
+}
+
 func (m *manager) Close() {
 	if m.conn != nil {
 		m.conn.Close()
