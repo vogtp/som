@@ -31,8 +31,7 @@ type Teams struct {
 
 // NewTeams registers a Teams alerter on the event bus
 func NewTeams() (Engine, error) {
-	bus := core.Get().Bus()
-	log := bus.GetLogger().With(log.Component, "teams")
+	log := core.Get().Log().With(log.Component, "teams")
 	return &Teams{
 		log: log,
 	}, nil

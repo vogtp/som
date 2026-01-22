@@ -28,8 +28,7 @@ type Mail struct {
 
 // NewMailer registers a mail alerter on the event bus
 func NewMailer() (Engine, error) {
-	bus := core.Get().Bus()
-	log := bus.GetLogger().With("alerter", "mail")
+	log := core.Get().Log().With("alerter", "mail")
 	mailHost := viper.GetString(cfg.AlertMailSMTPHost)
 	if len(mailHost) < 1 {
 		return nil, fmt.Errorf("not creating mail alerter: no mail host given")

@@ -25,7 +25,7 @@ const (
 func RegisterPrometheus() {
 	bus := core.Get().Bus()
 	p := prometheusBackend{
-		log:      bus.GetLogger().With(log.Component, "prometheus"),
+		log:      core.Get().Log().With(log.Component, "prometheus"),
 		promSz:   make(map[string]*promSz),
 		gaugeVec: make(map[string]*prometheus.GaugeVec),
 		histoVec: make(map[string]*prometheus.HistogramVec),
