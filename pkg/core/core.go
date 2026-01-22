@@ -63,11 +63,6 @@ func New(name string, opts ...Option) (*Core, func()) {
 		c.web.init(c)
 		c.bus.init(c)
 		c.web.Start()
-		b, err := bus.New(c.log)
-		if err != nil {
-			panic(fmt.Errorf("initialising amqp bus: %w", err))
-		}
-		c.amqpBus = b
 	}
 
 	waitDuration := viper.GetDuration(cfg.CoreStartdelay)
@@ -85,12 +80,19 @@ func Get() *Core {
 }
 
 // Bus returns the bus or panics if Core not Initialised with New
-func (c *Core) Bus() *Bus {
+func (c *Core) BusFIXME() *Bus {
 	return c.bus
 }
 
 // Bus returns the bus or panics if Core not Initialised with New
 func (c *Core) AmqpBus() bus.Manager {
+	if c.amqpBus == nil {
+		b, err := bus.New(c.log)
+		if err != nil {
+			panic(fmt.Errorf("initialising amqp bus: %w", err))
+		}
+		c.amqpBus = b
+	}
 	return c.amqpBus
 }
 
