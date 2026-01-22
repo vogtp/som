@@ -18,7 +18,7 @@ func TestHandleMonEvt(t *testing.T) {
 		{msg: &msg.SzenarioEvtMsg{Name: "dslkjfökladjioru dölkfaj öadlksfu8rwö3o9a öalf3kupoi9"}},
 	}
 	core, close := New("som-test")
-	bus := core.Bus()
+	bus := core.BusFIXME()
 	defer close()
 
 	rec := make(map[string]msg.SzenarioEvtMsg)

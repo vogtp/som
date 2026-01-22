@@ -73,7 +73,7 @@ func New(opts ...Option) (*Engine, context.CancelFunc) {
 		ctx:                 ctx,
 		baseLogger:          slog,
 		log:                 slog,
-		bus:                 core.Bus(),
+		bus:                 core.BusFIXME(),
 		runChan:             make(chan szenarionRunWrapper, 100),
 		triggerSzenarioChan: make(chan string, 100),
 		sendReport:          true,

@@ -46,7 +46,7 @@ var incidentReplay = &cobra.Command{
 		if err != nil {
 			return fmt.Errorf("%s is not a UUID: %w", args[0], err)
 		}
-		szBus := core.Get().Bus().Szenario
+		szBus := core.Get().BusFIXME().Szenario
 		client, err := db.New()
 		if err != nil {
 			return fmt.Errorf("Cannot open DB: %w", err)

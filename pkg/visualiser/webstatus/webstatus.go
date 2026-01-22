@@ -38,9 +38,9 @@ func New() *WebStatus {
 	if err := s.data.load(); err != nil {
 		s.log.Error("Cannot load config", log.Error, err)
 	}
-	c.Bus().Szenario.Handle(s.handleSzenarioEvt)
-	c.Bus().Alert.Handle(s.handleAlert)
-	c.Bus().Incident.Handle(s.handleIncident)
+	c.BusFIXME().Szenario.Handle(s.handleSzenarioEvt)
+	c.BusFIXME().Alert.Handle(s.handleAlert)
+	c.BusFIXME().Incident.Handle(s.handleIncident)
 	s.routes()
 	s.cleanup()
 	return s

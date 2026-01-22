@@ -74,7 +74,7 @@ var (
 			}
 			if viper.GetBool(LogRawBus) {
 				c.Log().Info("Logging raw bus")
-				c.Bus().Connect().On(func(m grav.Message) error {
+				c.BusFIXME().Connect().On(func(m grav.Message) error {
 					fmt.Fprintf(cmd.OutOrStdout(), "Raw Bus: %s\n", string(m.Data()))
 					return nil
 				})
@@ -85,7 +85,7 @@ var (
 			if !cmd.IsAvailableCommand() {
 				return
 			}
-			core.Get().Bus().WaitMsgProcessed()
+			core.Get().BusFIXME().WaitMsgProcessed()
 			coreClose()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

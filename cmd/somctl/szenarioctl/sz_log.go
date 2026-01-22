@@ -13,7 +13,7 @@ var szenarioLog = &cobra.Command{
 	Short: "log all szenario bus messages",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		core.Get().Bus().Szenario.Handle(func(e *msg.SzenarioEvtMsg) {
+		core.Get().BusFIXME().Szenario.Handle(func(e *msg.SzenarioEvtMsg) {
 			err := ""
 			if e.Err() != nil {
 				err = e.Err().Error()
