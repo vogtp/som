@@ -117,5 +117,7 @@ func (c *Core) SzenaioConfig() *szenario.Config {
 func (c *Core) cleanup() {
 	c.bus.cleanup()
 	c.web.Stop()
-	c.amqpBus.Close()
+	if c.amqpBus != nil {
+		c.amqpBus.Close()
+	}
 }
