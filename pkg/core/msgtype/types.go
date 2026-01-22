@@ -16,8 +16,6 @@ const (
 	UserList = "som.user.list"
 	// UserAdd adds or changes a user
 	UserAdd = "som.user.add"
-	// UserResponse response for user requests
-	UserResponse = "som.user.response"
 	// UserDelete deletes a use from the backend
 	UserDelete = "som.user.delete"
 )
