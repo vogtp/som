@@ -1,6 +1,7 @@
 package bus_test
 
 import (
+	"fmt"
 	"log/slog"
 	"strings"
 	"testing"
@@ -12,17 +13,15 @@ import (
 	"github.com/vogtp/som/pkg/core/cfg"
 )
 
-const (
-	somAmqpPass = "somMsgBusPassword"
-)
-
 func TestNewBusManager(t *testing.T) {
 	cfg.Parse()
+	pw := viper.Get(cfg.AmqpPasswort)
+	viper.Set(cfg.AmqpPasswort, "")
 	_, err := bus.New(slog.Default())
 	if err == nil {
 		t.Errorf("AMQP bus works without password")
 	}
-	viper.Set(cfg.AmqpPasswort, somAmqpPass)
+	viper.Set(cfg.AmqpPasswort, pw)
 	m, err := bus.New(slog.Default())
 	if err != nil {
 		t.Errorf("Initalise AMQP bus: %v", err)
@@ -35,7 +34,6 @@ func TestNewBusManager(t *testing.T) {
 
 func TestSendReceive(t *testing.T) {
 	cfg.Parse()
-	viper.Set(cfg.AmqpPasswort, somAmqpPass)
 	m, err := bus.New(slog.Default())
 	if err != nil {
 		t.Fatalf("Initalise AMQP bus: %v", err)
@@ -61,6 +59,45 @@ func TestSendReceive(t *testing.T) {
 	<-wait
 	if !strings.EqualFold(msg, recMsg) {
 		t.Fatalf("Got message %s expected %s", recMsg, msg)
+	}
+	if recTime.Sub(sendTime) > time.Millisecond {
+		t.Errorf("sending took too long: %s", recTime.Sub(sendTime))
+	}
+}
+
+func TestAskAnswer(t *testing.T) {
+	cfg.Parse()
+	m, err := bus.New(slog.Default())
+	if err != nil {
+		t.Fatalf("Initalise AMQP bus: %v", err)
+	}
+	ansRecMsg := ""
+	ansSendMsg := ""
+	var recTime time.Time
+	rk := "som.testing"
+	wait := make(chan any)
+	err = m.Answer(t.Context(), rk, func(d amqp.Delivery) ([]byte, error) {
+		ansRecMsg = string(d.Body)
+		ansSendMsg = fmt.Sprintf("answer-%s", ansRecMsg)
+		recTime = time.Now()
+		close(wait)
+		return []byte(ansSendMsg), nil
+	})
+	if err != nil {
+		t.Errorf("cannot answer: %v", err)
+	}
+	msg := "Test message"
+	resp, err := m.Ask(t.Context(), rk, []byte(msg))
+	sendTime := time.Now()
+	if err != nil {
+		t.Fatalf("cannot ask: %v", err)
+	}
+	<-wait
+	if !strings.EqualFold(msg, ansRecMsg) {
+		t.Fatalf("Got message %s expected %s", ansRecMsg, msg)
+	}
+	if !strings.EqualFold(ansSendMsg, string(resp.Body)) {
+		t.Fatalf("Got answer %s expected %s", ansSendMsg, resp.Body)
 	}
 	if recTime.Sub(sendTime) > time.Millisecond {
 		t.Errorf("sending took too long: %s", recTime.Sub(sendTime))
