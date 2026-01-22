@@ -13,12 +13,16 @@ import (
 )
 
 const (
-	somTopic = "som_topic"
+	somTopic = "som.topic"
 )
 
 type Manager interface {
 	Emit(ctx context.Context, routingKey string, data []byte) error
 	Receive(routingKey string, recFunc ReceiveFunc) error
+
+	Ask(ctx context.Context, routingKey string, data []byte) (*amqp.Delivery, error)
+	Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) error
+
 	Close() //Close all AMQP resouces
 }
 
@@ -55,7 +59,7 @@ func New(slog *slog.Logger) (Manager, error) {
 	}
 	m := &manager{
 		slog:    slog.With(log.Component, "bus"),
-		timeout: 5*time.Second,
+		timeout: 5 * time.Second,
 		conn:    conn,
 		channel: ch,
 	}
