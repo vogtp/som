@@ -34,6 +34,7 @@ func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) erro
 }
 
 func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amqp.Delivery, error) {
+	sl := m.slog.With("routingKey", routingKey, "bus", "ask")
 	q, err := m.channel.QueueDeclare(
 		"",    // name
 		false, // durable
@@ -65,10 +66,10 @@ func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amq
 	defer cancel()
 
 	err = m.channel.PublishWithContext(ctx,
-		"",         // exchange
-		routingKey, // routing key
-		false,      // mandatory
-		false,      // immediate
+		"",          // exchange
+		"rpc_queue", // routing key
+		false,       // mandatory
+		false,       // immediate
 		amqp.Publishing{
 			ContentType:   "text/plain",
 			CorrelationId: corrId,
@@ -81,13 +82,13 @@ func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amq
 
 	for {
 		select {
-		case <-ctx.Done():
-			return nil, fmt.Errorf("timeout %s reached: %w", m.timeout, ctx.Err())
 		case d := <-msgs:
 			if corrId == d.CorrelationId {
 				return &d, nil
 			}
+		case <-ctx.Done():
+			return nil, ctx.Err()
 		}
 	}
-
+	return nil, fmt.Errorf("no messages found")
 }

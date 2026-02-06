@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -38,23 +39,12 @@ func (us *client) Timeout(s int) {
 
 // Get returns the requested user or nil
 func (us *client) Get(name string) (*User, error) {
+	ctx := context.TODO()
 	slog := core.Get().Log().With(log.Component, "user.client")
 	slog.Debug("Requesting user", log.User, name)
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
 	user := new(User)
-	err := p.Send(grav.NewMsg(msgtype.UserRequest, []byte(name))).WaitUntil(us.timeout, func(m grav.Message) error {
 
-		switch m.Type() {
-		case msgtype.UserResponse:
-			return json.Unmarshal(m.Data(), user)
-		case msgtype.UserError:
-			return fmt.Errorf("user backend error: %v", string(m.Data()))
-		default:
-			return fmt.Errorf("unknown message type %s : %+v", m.Type(), m)
-		}
-
-	})
+	d, err := core.Get().AmqpBus().Ask(ctx, msgtype.UserRequest, []byte(name))
 	if err != nil {
 		slog.Warn("Failed to get user", log.User, name, log.Error, err)
 		if u, ok := backend.data[name]; ok {
@@ -63,59 +53,51 @@ func (us *client) Get(name string) (*User, error) {
 		}
 		return nil, err
 	}
+	err = json.Unmarshal(d.Body, user)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal user %s response: %w", name, err)
+	}
+
 	slog.Debug("Received user", log.User, name)
 	return user, nil
 }
 
 // Save a user to the store
 func (us *client) Save(u *User) error {
+	ctx := context.TODO()
 	slog := core.Get().Log().With(log.Component, "user.client", log.User, u.Name())
 	if err := u.IsValid(); err != nil {
 		return fmt.Errorf("user is not valid: %w", err)
 	}
 	slog.Debug("Saving user")
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
 	b, err := json.Marshal(u)
 	if err != nil {
 		return fmt.Errorf("cannot marshal user: %w", err)
 	}
-	msg := grav.NewMsg(msgtype.UserAdd, b)
-	var retErr error
-	err = p.Send(msg).WaitUntil(us.timeout, func(m grav.Message) error {
-		if len(m.Data()) > 0 {
-			retErr = fmt.Errorf("server side error: %v", string(m.Data()))
-		}
-		return nil
-	})
+	q, err := core.Get().AmqpBus().Ask(ctx, msgtype.UserAdd, b)
 	if err != nil {
-		return fmt.Errorf("cannot send user msg: %w", err)
+		return fmt.Errorf("save user via bus: %w",err)
 	}
-	return retErr
+	if len(q.Body) > 0 {
+		return fmt.Errorf("server side error: %v", string(q.Body))
+	}
+	return nil
 }
 
 // List returns a list of all users
 func (us *client) List() ([]User, error) {
+	ctx := context.TODO()
 	slog := core.Get().Log().With(log.Component, "user.client")
 	slog.Debug("Requesting user list")
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
 	users := make([]User, 0)
-	err := p.Send(grav.NewMsg(msgtype.UserList, nil)).WaitUntil(us.timeout, func(m grav.Message) error {
-		//slog.Debug("Reply for userlist: %T %+v", m, string(m.Data()))
-		switch m.Type() {
-		case msgtype.UserResponse:
-			return json.Unmarshal(m.Data(), &users)
-		case msgtype.UserError:
-			return fmt.Errorf("user backend error: %v", string(m.Data()))
-		default:
-			return fmt.Errorf("unknown message type %s : %+v", m.Type(), m)
-		}
 
-	})
+	d, err := core.Get().AmqpBus().Ask(ctx, msgtype.UserList, nil)
 	if err != nil {
 		slog.Error("Failed to get userlist", log.Error, err)
 		return nil, err
+	}
+	if err := json.Unmarshal(d.Body, &users); err != nil {
+		return nil, fmt.Errorf("unmarshal user list: %w", err)
 	}
 	slog.Debug("Received users", "users", users)
 	return users, nil
@@ -123,24 +105,10 @@ func (us *client) List() ([]User, error) {
 
 // Delete the user
 func (us *client) Delete(name string) (string, error) {
+	ctx := context.TODO()
 	slog := core.Get().Log().With(log.Component, "user.client", log.User, name)
 	slog.Debug("Deleting user")
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
-	msg := ""
-	err := p.Send(grav.NewMsg(msgtype.UserDelete, []byte(name))).WaitUntil(us.timeout, func(m grav.Message) error {
-		//slog.Debug("Reply for user %s: %T %+v", name, m, string(m.Data()))
-		switch m.Type() {
-		case msgtype.UserResponse:
-			msg = string(m.Data())
-			return nil
-		case msgtype.UserError:
-			return fmt.Errorf("user backend error: %v", string(m.Data()))
-		default:
-			return fmt.Errorf("unknown message type %s : %+v", m.Type(), m)
-		}
-
-	})
-
+	d, err := core.Get().AmqpBus().Ask(ctx, msgtype.UserDelete, []byte(name))
+	msg := string(d.Body)
 	return msg, err
 }

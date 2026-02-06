@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,7 +11,7 @@ import (
 
 	"log/slog"
 
-	"github.com/rabbitmq/amqp091-go"
+	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
@@ -31,9 +32,9 @@ type store struct {
 
 // IntialiseStore does the setup for the user store
 // starts a goroutine and handles user request in the background
-func IntialiseStore() {
+func IntialiseStore(ctx context.Context) {
 	backend.setup()
-	backend.start()
+	backend.start(ctx)
 	slog.Warn("Userstore backend started", "key_len", len(core.Keystore.Key()))
 }
 
@@ -53,60 +54,50 @@ func (us *store) setup() {
 	}
 }
 
-func (us *store) start() {
-
-	core.Get().AmqpBus().Receive("som.user.#", func(d amqp091.Delivery) {
-		us.log.Info("Got amqp msg")
-	})
-	us.handlerPod = core.Get().Bus().Connect()
-	us.handlerPod.On(func(m grav.Message) error {
-		us.log.Debug("user backend got message", "type", m.Type(), "data", string(m.Data()), "uuid", m.UUID())
-		switch m.Type() {
+func (us *store) start(ctx context.Context) {
+	routingKey := "som.user.#"
+	err := core.Get().AmqpBus().Answer(ctx, routingKey, func(routingKey string, d amqp.Delivery) ([]byte, error) {
+		us.log.Debug("user backend got message", "type", routingKey, "data", string(d.Body))
+		switch routingKey {
 		case msgtype.UserRequest:
-			return us.getUser(m)
+			return us.getUser(d)
 		case msgtype.UserList:
-			return us.getUserList(m)
+			return us.getUserList(d)
 		case msgtype.UserAdd:
-			return us.addUser(m)
+			return us.addUser(d)
 		case msgtype.UserDelete:
-			return us.deleteUser(m)
+			return us.deleteUser(d)
 		case msgtype.UserError:
-			return nil
-		case msgtype.UserResponse:
-			return nil
+			return nil, nil
 		default:
-			if strings.HasPrefix(m.Type(), "user") {
-				us.log.Warn("unhandled user message type", "type", m.Type(), "data", string(m.Data()))
+			if strings.HasPrefix(routingKey, "user") {
+				us.log.Warn("unhandled user message type", "type", routingKey, "data", string(d.Body))
 			}
-			return nil
+			return nil, nil
 		}
 	})
+	if err != nil {
+		us.log.Error("Cannot listen on bus", "routingKey", routingKey, log.Error, err)
+	}
 	us.log.Debug("Userstore pod for msg handling", "pod", us.handlerPod)
 }
 
-func (us *store) addUser(m grav.Message) error {
+func (us *store) addUser(d amqp.Delivery) ([]byte, error) {
 	us.log.Debug("Requested to add a user")
-	_, err := us.storeUserFromMsg(m)
+	_, err := us.storeUserFromMsg(d)
 	var s string
 	if err != nil {
 		us.log.Warn("adding user", log.Error, err)
 		s = err.Error()
 	}
-	msg := grav.NewMsg(msgtype.UserResponse, []byte(s))
-	msg.SetReplyTo(m.UUID())
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
-	p.Send(msg)
-
-	return err
+	return []byte(s), err
 }
 
-func (us *store) deleteUser(m grav.Message) error {
-	name := string(m.Data())
+func (us *store) deleteUser(d amqp.Delivery) ([]byte, error) {
+	name := string(d.Body)
 	us.log.Warn("Deleting user from store", log.User, name)
 
 	var msgTxt string
-	msgType := msgtype.UserError
 	if _, ok := us.data[name]; ok {
 		us.mu.Lock()
 		delete(us.data, name)
@@ -116,23 +107,16 @@ func (us *store) deleteUser(m grav.Message) error {
 			msgTxt = fmt.Sprintf("Cannot save store to delete user %v: %v", name, err)
 		} else {
 			msgTxt = fmt.Sprintf("Deleted %s", name)
-			msgType = msgtype.UserResponse
 		}
 	} else {
 		msgTxt = fmt.Sprintf("No such user %s", name)
 	}
-
-	msg := grav.NewMsg(msgType, []byte(msgTxt))
-	msg.SetReplyTo(m.UUID())
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
-	p.Send(msg)
-	return nil
+	return []byte(msgTxt), nil
 }
 
-func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
+func (us *store) storeUserFromMsg(d amqp.Delivery) (*User, error) {
 	u := &User{}
-	if err := json.Unmarshal(m.Data(), u); err != nil {
+	if err := json.Unmarshal(d.Body, u); err != nil {
 		return nil, fmt.Errorf("adding user: %v", err)
 	}
 	if err := u.IsValid(); err != nil {
@@ -161,20 +145,14 @@ func (us *store) storeUserFromMsg(m grav.Message) (*User, error) {
 	return u, us.save()
 }
 
-func (us *store) getUser(m grav.Message) error {
-	name := string(m.Data())
+func (us *store) getUser(d amqp.Delivery) ([]byte, error) {
+	name := string(d.Body)
 	us.log.Debug("Looking up user in store", log.User, name)
 
-	msg, err := us.buildUserMsg(name)
-
-	msg.SetReplyTo(m.UUID())
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
-	p.Send(msg)
-	return err
+	return us.buildUserMsg(name)
 }
 
-func (us *store) buildUserMsg(name string) (grav.Message, error) {
+func (us *store) buildUserMsg(name string) ([]byte, error) {
 	us.mu.RLock()
 	defer us.mu.RUnlock()
 	if u, ok := us.data[name]; ok {
@@ -182,24 +160,18 @@ func (us *store) buildUserMsg(name string) (grav.Message, error) {
 		if err != nil {
 			err = fmt.Errorf("cannot marshall user %s: %v", name, err)
 			us.log.Error("cannot marshall user", log.Error, err.Error(), log.User, name)
-			return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
+			return []byte(err.Error()), err
 		}
-		return grav.NewMsg(msgtype.UserResponse, b), nil
+		return b, nil
 	}
-	return grav.NewMsg(msgtype.UserError, []byte("No such user")), errors.New("no such user")
+	return []byte("No such user"), errors.New("no such user")
 }
 
-func (us *store) getUserList(m grav.Message) error {
-	msg, err := us.buildUserlistMsg()
-
-	msg.SetReplyTo(m.UUID())
-	p := core.Get().Bus().Connect()
-	defer p.Disconnect()
-	p.Send(msg)
-	return err
+func (us *store) getUserList(d amqp.Delivery) ([]byte, error) {
+	return us.buildUserlistMsg()
 }
 
-func (us *store) buildUserlistMsg() (grav.Message, error) {
+func (us *store) buildUserlistMsg() ([]byte, error) {
 	us.mu.RLock()
 	defer us.mu.RUnlock()
 
@@ -211,9 +183,9 @@ func (us *store) buildUserlistMsg() (grav.Message, error) {
 	if err != nil {
 		err = fmt.Errorf("cannot marshall userlist: %v", err)
 		us.log.Error("Cannot marshall user list", log.Error, err.Error())
-		return grav.NewMsg(msgtype.UserError, []byte(err.Error())), err
+		return []byte(err.Error()), err
 	}
-	return grav.NewMsg(msgtype.UserResponse, b), nil
+	return b, nil
 }
 
 // Get returns the requested user or nil
