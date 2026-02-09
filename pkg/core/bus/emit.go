@@ -1,13 +1,12 @@
 package bus
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/nats-io/nats.go"
 )
 
-func (m *manager) Emit(ctx context.Context, subject string, data []byte) error {
+func (m *manager) Emit(subject string, data []byte) error {
 	sl := m.slog.With("subject", subject)
 
 	err := m.conn.Publish(subject, data)
@@ -20,7 +19,7 @@ func (m *manager) Emit(ctx context.Context, subject string, data []byte) error {
 	return nil
 }
 
-func (m *manager) Ask(ctx context.Context, subject string, data []byte) (*Message, error) {
+func (m *manager) Ask(subject string, data []byte) (*Message, error) {
 	sl := m.slog.With("subject", subject, "bus", "ask")
 	replySubject := fmt.Sprintf("%s.reply", subject)
 	msg := nats.Msg{
