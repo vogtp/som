@@ -3,6 +3,8 @@ package bus
 import (
 	"context"
 	"fmt"
+
+	"github.com/nats-io/nats.go"
 )
 
 func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) error {
@@ -19,61 +21,36 @@ func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) erro
 }
 
 func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*Message, error) {
-	// sl := m.slog.With("routingKey", routingKey, "bus", "ask")
-	// q, err := m.channel.QueueDeclare(
-	// 	"",    // name
-	// 	false, // durable
-	// 	false, // delete when unused
-	// 	true,  // exclusive
-	// 	false, // noWait
-	// 	nil,   // arguments
-	// )
-	// if err != nil {
-	// 	return nil, fmt.Errorf("generating reply queue %s: %w", fmt.Sprintf("%s.reply", routingKey), err)
-	// }
+	sl := m.slog.With("routingKey", routingKey, "bus", "ask")
+	replySubject := fmt.Sprintf("%s.reply", routingKey)
+	msg := nats.Msg{
+		Subject: routingKey,
+		Data:    data,
+		Reply:   replySubject,
+	}
+	sl.Info("Sending message", "replySubject", replySubject, "data", string(data))
+	if err := m.conn.PublishMsg(&msg); err != nil {
+		return nil, fmt.Errorf("sending ask message: %w", err)
+	}
 
-	// msgs, err := m.channel.Consume(
-	// 	q.Name, // queue
-	// 	"",     // consumer
-	// 	true,   // auto-ack
-	// 	false,  // exclusive
-	// 	false,  // no-local
-	// 	false,  // no-wait
-	// 	nil,    // args
-	// )
-	// if err != nil {
-	// 	return nil, fmt.Errorf("register a consumer for reply queue %s: %w", fmt.Sprintf("%s.reply", routingKey), err)
-	// }
+	m.conn.Subscribe(replySubject, func(msg *nats.Msg) {
+		sl.Info("reply subscibe ****", "data", msg.Data)
+	})
 
-	// corrId := uuid.NewString()
+	sl.Info("Sub to replies", "replySubject", replySubject)
 
-	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
-	// defer cancel()
-
-	// err = m.channel.PublishWithContext(ctx,
-	// 	"",          // exchange
-	// 	"rpc_queue", // routing key
-	// 	false,       // mandatory
-	// 	false,       // immediate
-	// 	amqp.Publishing{
-	// 		ContentType:   "text/plain",
-	// 		CorrelationId: corrId,
-	// 		ReplyTo:       q.Name,
-	// 		Body:          data,
-	// 	})
-	// if err != nil {
-	// 	return nil, fmt.Errorf("publish messsage to %s: %w", routingKey, err)
-	// }
-
-	// for {
-	// 	select {
-	// 	case d := <-msgs:
-	// 		if corrId == d.CorrelationId {
-	// 			return &d, nil
-	// 		}
-	// 	case <-ctx.Done():
-	// 		return nil, ctx.Err()
-	// 	}
-	// }
-	return nil, fmt.Errorf("no messages found")
+	sub, err := m.conn.SubscribeSync(replySubject)
+	if err != nil {
+		return nil, fmt.Errorf("subscribing to ask replies: %w", err)
+	}
+	defer sub.Unsubscribe()
+	ansMsg, err := sub.NextMsg(m.timeout)
+	if err != nil {
+		return nil, fmt.Errorf("getting reply message: %w", err)
+	}
+	busMsg := &Message{
+		RoutingKey: routingKey,
+		Body:       ansMsg.Data,
+	}
+	return busMsg, nil
 }
