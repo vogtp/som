@@ -53,10 +53,10 @@ func (us *store) setup() {
 }
 
 func (us *store) start(ctx context.Context) {
-	// routingKey := "som.user.#"
-	// err := core.Get().AmqpBus().Answer(ctx, routingKey, func(routingKey string, d amqp.Delivery) ([]byte, error) {
-	// 	us.log.Debug("user backend got message", "type", routingKey, "data", string(d.Body))
-	// 	switch routingKey {
+	// subject := "som.user.#"
+	// err := core.Get().AmqpBus().Answer(ctx, subject, func(subject string, d amqp.Delivery) ([]byte, error) {
+	// 	us.log.Debug("user backend got message", "type", subject, "data", string(d.Body))
+	// 	switch subject {
 	// 	case msgtype.UserRequest:
 	// 		return us.getUser(d)
 	// 	case msgtype.UserList:
@@ -68,14 +68,14 @@ func (us *store) start(ctx context.Context) {
 	// 	case msgtype.UserError:
 	// 		return nil, nil
 	// 	default:
-	// 		if strings.HasPrefix(routingKey, "user") {
-	// 			us.log.Warn("unhandled user message type", "type", routingKey, "data", string(d.Body))
+	// 		if strings.HasPrefix(subject, "user") {
+	// 			us.log.Warn("unhandled user message type", "type", subject, "data", string(d.Body))
 	// 		}
 	// 		return nil, nil
 	// 	}
 	// })
 	// if err != nil {
-	// 	us.log.Error("Cannot listen on bus", "routingKey", routingKey, log.Error, err)
+	// 	us.log.Error("Cannot listen on bus", "subject", subject, log.Error, err)
 	// }
 	us.log.Debug("Userstore pod for msg handling", "pod", us.handlerPod)
 }

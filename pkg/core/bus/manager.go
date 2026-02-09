@@ -16,11 +16,11 @@ const (
 )
 
 type Manager interface {
-	Emit(ctx context.Context, routingKey string, data []byte) error
-	Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) (unsubscribecloseFunc, error)
+	Emit(ctx context.Context, subject string, data []byte) error
+	Receive(ctx context.Context, subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error)
 
-	Ask(ctx context.Context, routingKey string, data []byte) (*Message, error)
-	Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) (unsubscribecloseFunc, error)
+	Ask(ctx context.Context, subject string, data []byte) (*Message, error)
+	Answer(ctx context.Context, subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error)
 
 	Close() //Close all resouces
 }

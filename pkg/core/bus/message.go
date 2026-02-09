@@ -1,7 +1,7 @@
 package bus
 
 type Message struct {
-	RoutingKey string
+	Subject string
 
 	Body []byte
 }

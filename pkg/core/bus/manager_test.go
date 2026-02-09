@@ -121,8 +121,8 @@ func TestAskAnswer(t *testing.T) {
 
 func TestAskAnswerWildcard(t *testing.T) {
 	tests := []struct {
-		routingKeySend string
-		routingKeyRec  string
+		subjectSend string
+		subjectRec  string
 	}{
 		{"som.testing.test", "som.testing.test"},
 		{"som.testing.test", "som.testing.*"},
@@ -138,14 +138,14 @@ func TestAskAnswerWildcard(t *testing.T) {
 		to.SetTimeout(time.Second * 5)
 	}
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%s -> %s", tt.routingKeySend, tt.routingKeyRec), func(t *testing.T) {
+		t.Run(fmt.Sprintf("%s -> %s", tt.subjectSend, tt.subjectRec), func(t *testing.T) {
 
 			ansRecMsg := ""
 			ansSendMsg := ""
 			var recTime time.Time
-			close, err := m.Answer(t.Context(), tt.routingKeyRec, func(r string, d *bus.Message) ([]byte, error) {
-				if !strings.EqualFold(r, tt.routingKeySend) {
-					t.Errorf("Routing keys do not match: have: %s want: %s", r, tt.routingKeySend)
+			close, err := m.Answer(t.Context(), tt.subjectRec, func(r string, d *bus.Message) ([]byte, error) {
+				if !strings.EqualFold(r, tt.subjectSend) {
+					t.Errorf("Routing keys do not match: have: %s want: %s", r, tt.subjectSend)
 				}
 				ansRecMsg = string(d.Body)
 				ansSendMsg = fmt.Sprintf("answer-%s", ansRecMsg)
@@ -158,7 +158,7 @@ func TestAskAnswerWildcard(t *testing.T) {
 			defer close()
 			msg := "Test message Ask/Answer WildCard"
 			sendTime := time.Now()
-			resp, err := m.Ask(t.Context(), tt.routingKeySend, []byte(msg))
+			resp, err := m.Ask(t.Context(), tt.subjectSend, []byte(msg))
 			if err != nil {
 				t.Fatalf("cannot ask: %v", err)
 			}

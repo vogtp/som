@@ -7,38 +7,38 @@ import (
 	"github.com/vogtp/som/pkg/core/log"
 )
 
-type ReceiveFunc func(routingKey string, msg *Message)
+type ReceiveFunc func(subject string, msg *Message)
 
-func (m *manager) Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
-	sl := m.slog.With("routingKey", routingKey, "bus", "receive")
+func (m *manager) Receive(ctx context.Context, subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
+	sl := m.slog.With("subject", subject, "bus", "receive")
 	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
 	// defer cancel()
 
-	sub, err := m.conn.Subscribe(routingKey, func(msg *nats.Msg) {
+	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {
 		m := Message{
-			RoutingKey: msg.Subject,
-			Body:       msg.Data,
+			Subject: msg.Subject,
+			Body:    msg.Data,
 		}
-		sl.Debug("Got messgae", "routingKey", routingKey)
+		sl.Debug("Got messgae", "subject", subject)
 		recFunc(msg.Subject, &m)
 	})
 
 	return func() { sub.Unsubscribe() }, err
 }
 
-type AnswerFunc func(routingKey string, msg *Message) ([]byte, error)
+type AnswerFunc func(subject string, msg *Message) ([]byte, error)
 
-func (m *manager) Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
-	sl := m.slog.With("routingKey", routingKey, "bus", "receive")
+func (m *manager) Answer(ctx context.Context, subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
+	sl := m.slog.With("subject", subject, "bus", "receive")
 	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
 	// defer cancel()
 
-	sub, err := m.conn.Subscribe(routingKey, func(msg *nats.Msg) {
+	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {
 		busMsg := Message{
-			RoutingKey: msg.Subject,
-			Body:       msg.Data,
+			Subject: msg.Subject,
+			Body:    msg.Data,
 		}
-		sl.Debug("Got messgae", "routingKey", routingKey)
+		sl.Debug("Got messgae", "subject", subject)
 		d, err := answerFunc(msg.Subject, &busMsg)
 		if err != nil {
 			sl.Warn("Bus answer got error", log.Error, err, "data", string(d))

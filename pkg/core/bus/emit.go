@@ -7,24 +7,24 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) error {
-	sl := m.slog.With("routingKey", routingKey)
+func (m *manager) Emit(ctx context.Context, subject string, data []byte) error {
+	sl := m.slog.With("subject", subject)
 
-	err := m.conn.Publish(routingKey, data)
+	err := m.conn.Publish(subject, data)
 
 	if err != nil {
-		return fmt.Errorf("publish messsage to %s: %w", routingKey, err)
+		return fmt.Errorf("publish messsage to %s: %w", subject, err)
 	}
 
 	sl.Debug("Sent message", "msg", string(data))
 	return nil
 }
 
-func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*Message, error) {
-	sl := m.slog.With("routingKey", routingKey, "bus", "ask")
-	replySubject := fmt.Sprintf("%s.reply", routingKey)
+func (m *manager) Ask(ctx context.Context, subject string, data []byte) (*Message, error) {
+	sl := m.slog.With("subject", subject, "bus", "ask")
+	replySubject := fmt.Sprintf("%s.reply", subject)
 	msg := nats.Msg{
-		Subject: routingKey,
+		Subject: subject,
 		Data:    data,
 		Reply:   replySubject,
 	}
@@ -45,8 +45,8 @@ func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*Mes
 		return nil, fmt.Errorf("getting reply message: %w", err)
 	}
 	busMsg := &Message{
-		RoutingKey: routingKey,
-		Body:       ansMsg.Data,
+		Subject: subject,
+		Body:    ansMsg.Data,
 	}
 	return busMsg, nil
 }
