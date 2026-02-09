@@ -4,91 +4,87 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/redis/go-redis/v9"
 )
 
 func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) error {
 	sl := m.slog.With("routingKey", routingKey)
-	ctx, cancel := context.WithTimeout(ctx, m.timeout)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
+	// defer cancel()
 
-	err := m.channel.PublishWithContext(ctx,
-		somTopic,   // exchange
-		routingKey, // routing key
-		false,      // mandatory
-		false,      // immediate
-		amqp.Publishing{
-			ContentType: "text/plain",
-			// DeliveryMode: 2, // persisten
-			Body:      data,
-			MessageId: uuid.NewString(),
-			// ReplyTo: ,
-		})
+	eventData := map[string]interface{}{
+		"message": "Critical alert! Server down.",
+	}
+
+	res, err := m.client.XAdd(ctx, &redis.XAddArgs{
+		Stream: routingKey,
+		Values: eventData,
+	}).Result()
 	if err != nil {
 		return fmt.Errorf("publish messsage to %s: %w", routingKey, err)
 	}
 
-	sl.Debug("Sent message", "msg", string(data))
+	sl.Debug("Sent message", "msg", string(data), "res", res)
 	return nil
 }
 
 func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amqp.Delivery, error) {
-	sl := m.slog.With("routingKey", routingKey, "bus", "ask")
-	q, err := m.channel.QueueDeclare(
-		"",    // name
-		false, // durable
-		false, // delete when unused
-		true,  // exclusive
-		false, // noWait
-		nil,   // arguments
-	)
-	if err != nil {
-		return nil, fmt.Errorf("generating reply queue %s: %w", fmt.Sprintf("%s.reply", routingKey), err)
-	}
+	// sl := m.slog.With("routingKey", routingKey, "bus", "ask")
+	// q, err := m.channel.QueueDeclare(
+	// 	"",    // name
+	// 	false, // durable
+	// 	false, // delete when unused
+	// 	true,  // exclusive
+	// 	false, // noWait
+	// 	nil,   // arguments
+	// )
+	// if err != nil {
+	// 	return nil, fmt.Errorf("generating reply queue %s: %w", fmt.Sprintf("%s.reply", routingKey), err)
+	// }
 
-	msgs, err := m.channel.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	if err != nil {
-		return nil, fmt.Errorf("register a consumer for reply queue %s: %w", fmt.Sprintf("%s.reply", routingKey), err)
-	}
+	// msgs, err := m.channel.Consume(
+	// 	q.Name, // queue
+	// 	"",     // consumer
+	// 	true,   // auto-ack
+	// 	false,  // exclusive
+	// 	false,  // no-local
+	// 	false,  // no-wait
+	// 	nil,    // args
+	// )
+	// if err != nil {
+	// 	return nil, fmt.Errorf("register a consumer for reply queue %s: %w", fmt.Sprintf("%s.reply", routingKey), err)
+	// }
 
-	corrId := uuid.NewString()
+	// corrId := uuid.NewString()
 
-	ctx, cancel := context.WithTimeout(ctx, m.timeout)
-	defer cancel()
+	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
+	// defer cancel()
 
-	err = m.channel.PublishWithContext(ctx,
-		"",          // exchange
-		"rpc_queue", // routing key
-		false,       // mandatory
-		false,       // immediate
-		amqp.Publishing{
-			ContentType:   "text/plain",
-			CorrelationId: corrId,
-			ReplyTo:       q.Name,
-			Body:          data,
-		})
-	if err != nil {
-		return nil, fmt.Errorf("publish messsage to %s: %w", routingKey, err)
-	}
+	// err = m.channel.PublishWithContext(ctx,
+	// 	"",          // exchange
+	// 	"rpc_queue", // routing key
+	// 	false,       // mandatory
+	// 	false,       // immediate
+	// 	amqp.Publishing{
+	// 		ContentType:   "text/plain",
+	// 		CorrelationId: corrId,
+	// 		ReplyTo:       q.Name,
+	// 		Body:          data,
+	// 	})
+	// if err != nil {
+	// 	return nil, fmt.Errorf("publish messsage to %s: %w", routingKey, err)
+	// }
 
-	for {
-		select {
-		case d := <-msgs:
-			if corrId == d.CorrelationId {
-				return &d, nil
-			}
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		}
-	}
+	// for {
+	// 	select {
+	// 	case d := <-msgs:
+	// 		if corrId == d.CorrelationId {
+	// 			return &d, nil
+	// 		}
+	// 	case <-ctx.Done():
+	// 		return nil, ctx.Err()
+	// 	}
+	// }
 	return nil, fmt.Errorf("no messages found")
 }

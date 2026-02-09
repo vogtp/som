@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -15,7 +14,6 @@ import (
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/log"
-	"github.com/vogtp/som/pkg/core/msgtype"
 )
 
 var (
@@ -55,30 +53,30 @@ func (us *store) setup() {
 }
 
 func (us *store) start(ctx context.Context) {
-	routingKey := "som.user.#"
-	err := core.Get().AmqpBus().Answer(ctx, routingKey, func(routingKey string, d amqp.Delivery) ([]byte, error) {
-		us.log.Debug("user backend got message", "type", routingKey, "data", string(d.Body))
-		switch routingKey {
-		case msgtype.UserRequest:
-			return us.getUser(d)
-		case msgtype.UserList:
-			return us.getUserList(d)
-		case msgtype.UserAdd:
-			return us.addUser(d)
-		case msgtype.UserDelete:
-			return us.deleteUser(d)
-		case msgtype.UserError:
-			return nil, nil
-		default:
-			if strings.HasPrefix(routingKey, "user") {
-				us.log.Warn("unhandled user message type", "type", routingKey, "data", string(d.Body))
-			}
-			return nil, nil
-		}
-	})
-	if err != nil {
-		us.log.Error("Cannot listen on bus", "routingKey", routingKey, log.Error, err)
-	}
+	// routingKey := "som.user.#"
+	// err := core.Get().AmqpBus().Answer(ctx, routingKey, func(routingKey string, d amqp.Delivery) ([]byte, error) {
+	// 	us.log.Debug("user backend got message", "type", routingKey, "data", string(d.Body))
+	// 	switch routingKey {
+	// 	case msgtype.UserRequest:
+	// 		return us.getUser(d)
+	// 	case msgtype.UserList:
+	// 		return us.getUserList(d)
+	// 	case msgtype.UserAdd:
+	// 		return us.addUser(d)
+	// 	case msgtype.UserDelete:
+	// 		return us.deleteUser(d)
+	// 	case msgtype.UserError:
+	// 		return nil, nil
+	// 	default:
+	// 		if strings.HasPrefix(routingKey, "user") {
+	// 			us.log.Warn("unhandled user message type", "type", routingKey, "data", string(d.Body))
+	// 		}
+	// 		return nil, nil
+	// 	}
+	// })
+	// if err != nil {
+	// 	us.log.Error("Cannot listen on bus", "routingKey", routingKey, log.Error, err)
+	// }
 	us.log.Debug("Userstore pod for msg handling", "pod", us.handlerPod)
 }
 

@@ -6,10 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/vogtp/som/pkg/core/cfg"
-	"github.com/vogtp/som/pkg/core/log"
-
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/redis/go-redis/v9"
+	"github.com/vogtp/som/pkg/core/log"
 )
 
 const (
@@ -18,7 +17,7 @@ const (
 
 type Manager interface {
 	Emit(ctx context.Context, routingKey string, data []byte) error
-	Receive(routingKey string, recFunc ReceiveFunc) error
+	Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) error
 
 	Ask(ctx context.Context, routingKey string, data []byte) (*amqp.Delivery, error)
 	Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) error
@@ -30,40 +29,24 @@ type manager struct {
 	slog *slog.Logger
 
 	timeout time.Duration
-
-	conn    *amqp.Connection
-	channel *amqp.Channel
+	client  *redis.Client
 }
 
-func New(slog *slog.Logger) (Manager, error) {
-	conn, err := amqp.Dial(cfg.AmqpURL())
-	if err != nil {
-		return nil, fmt.Errorf("cannot connect to the AMQP server %q: %w", cfg.AmqpURL(), err)
-	}
-	ch, err := conn.Channel()
-	if err != nil {
-		return nil, fmt.Errorf("creating the AMQP channel: %w", err)
+func New(ctx context.Context, slog *slog.Logger) (Manager, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	if err := client.ClientInfo(ctx).Err(); err != nil {
+		return nil, fmt.Errorf("create redis client: %w", err)
 	}
 
-	err = ch.ExchangeDeclare(
-		somTopic, // name
-		"topic",  // type
-		true,     // durable
-		false,    // auto-deleted
-		false,    // internal
-		false,    // no-wait
-		nil,      // arguments
-	)
-	if err != nil {
-		return nil, fmt.Errorf("creating the %q topic: %w", somTopic, err)
-	}
-	m := &manager{
-		slog:    slog.With(log.Component, "bus"),
+	m := manager{
+		slog:    slog.With("bus", "redis"),
+		client:  client,
 		timeout: 5 * time.Second,
-		conn:    conn,
-		channel: ch,
 	}
-	return m, nil
+	return &m, nil
 }
 
 func (m *manager) SetTimeout(d time.Duration) {
@@ -74,10 +57,7 @@ func (m *manager) SetTimeout(d time.Duration) {
 }
 
 func (m *manager) Close() {
-	if m.conn != nil {
-		m.conn.Close()
-	}
-	if m.channel != nil {
-		m.channel.Close()
+	if m.client != nil {
+		m.client.Close()
 	}
 }
