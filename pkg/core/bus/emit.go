@@ -33,10 +33,6 @@ func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*Mes
 		return nil, fmt.Errorf("sending ask message: %w", err)
 	}
 
-	m.conn.Subscribe(replySubject, func(msg *nats.Msg) {
-		sl.Info("reply subscibe ****", "data", msg.Data)
-	})
-
 	sl.Info("Sub to replies", "replySubject", replySubject)
 
 	sub, err := m.conn.SubscribeSync(replySubject)
