@@ -28,18 +28,17 @@ func (m *manager) Ask(ctx context.Context, subject string, data []byte) (*Messag
 		Data:    data,
 		Reply:   replySubject,
 	}
-	sl.Info("Sending message", "replySubject", replySubject, "data", string(data))
+	sl.Debug("Sending message", "replySubject", replySubject, "data", string(data))
 	if err := m.conn.PublishMsg(&msg); err != nil {
 		return nil, fmt.Errorf("sending ask message: %w", err)
 	}
 
-	sl.Info("Sub to replies", "replySubject", replySubject)
-
+	sl.Debug("Subscribe to replies", "replySubject", replySubject)
 	sub, err := m.conn.SubscribeSync(replySubject)
 	if err != nil {
 		return nil, fmt.Errorf("subscribing to ask replies: %w", err)
 	}
-	defer sub.Unsubscribe()
+	defer func() { _ = sub.Unsubscribe() }()
 	ansMsg, err := sub.NextMsg(m.timeout)
 	if err != nil {
 		return nil, fmt.Errorf("getting reply message: %w", err)

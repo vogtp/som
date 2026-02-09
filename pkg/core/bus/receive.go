@@ -11,8 +11,6 @@ type ReceiveFunc func(subject string, msg *Message)
 
 func (m *manager) Receive(ctx context.Context, subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
 	sl := m.slog.With("subject", subject, "bus", "receive")
-	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
-	// defer cancel()
 
 	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {
 		m := Message{
@@ -23,15 +21,14 @@ func (m *manager) Receive(ctx context.Context, subject string, recFunc ReceiveFu
 		recFunc(msg.Subject, &m)
 	})
 
-	return func() { sub.Unsubscribe() }, err
+	return func() { _ = sub.Unsubscribe() }, err
 }
 
 type AnswerFunc func(subject string, msg *Message) ([]byte, error)
 
 func (m *manager) Answer(ctx context.Context, subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
 	sl := m.slog.With("subject", subject, "bus", "receive")
-	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
-	// defer cancel()
+
 
 	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {
 		busMsg := Message{
@@ -52,5 +49,5 @@ func (m *manager) Answer(ctx context.Context, subject string, answerFunc AnswerF
 		}
 	})
 
-	return func() { sub.Unsubscribe() }, err
+	return func() { _ = sub.Unsubscribe() }, err
 }
