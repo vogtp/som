@@ -17,13 +17,15 @@ const (
 
 type Manager interface {
 	Emit(ctx context.Context, routingKey string, data []byte) error
-	Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) error
+	Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) (unsubscribecloseFunc, error)
 
 	Ask(ctx context.Context, routingKey string, data []byte) (*Message, error)
-	Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) error
+	Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) (unsubscribecloseFunc, error)
 
-	Close() //Close all AMQP resouces
+	Close() //Close all resouces
 }
+
+type unsubscribecloseFunc func()
 
 type manager struct {
 	slog *slog.Logger

@@ -9,12 +9,12 @@ import (
 
 type ReceiveFunc func(routingKey string, msg *Message)
 
-func (m *manager) Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) error {
+func (m *manager) Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
 	sl := m.slog.With("routingKey", routingKey, "bus", "receive")
 	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
 	// defer cancel()
 
-	_, err := m.conn.Subscribe(routingKey, func(msg *nats.Msg) {
+	sub, err := m.conn.Subscribe(routingKey, func(msg *nats.Msg) {
 		m := Message{
 			RoutingKey: msg.Subject,
 			Body:       msg.Data,
@@ -23,17 +23,17 @@ func (m *manager) Receive(ctx context.Context, routingKey string, recFunc Receiv
 		recFunc(msg.Subject, &m)
 	})
 
-	return err
+	return func() { sub.Unsubscribe() }, err
 }
 
 type AnswerFunc func(routingKey string, msg *Message) ([]byte, error)
 
-func (m *manager) Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) error {
+func (m *manager) Answer(ctx context.Context, routingKey string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
 	sl := m.slog.With("routingKey", routingKey, "bus", "receive")
 	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
 	// defer cancel()
 
-	_, err := m.conn.Subscribe(routingKey, func(msg *nats.Msg) {
+	sub, err := m.conn.Subscribe(routingKey, func(msg *nats.Msg) {
 		busMsg := Message{
 			RoutingKey: msg.Subject,
 			Body:       msg.Data,
@@ -52,5 +52,5 @@ func (m *manager) Answer(ctx context.Context, routingKey string, answerFunc Answ
 		}
 	})
 
-	return err
+	return func() { sub.Unsubscribe() }, err
 }
