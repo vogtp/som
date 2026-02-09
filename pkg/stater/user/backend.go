@@ -5,15 +5,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
 	"log/slog"
 
-	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/log"
+	"github.com/vogtp/som/pkg/core/msgtype"
 )
 
 var (
@@ -53,34 +55,38 @@ func (us *store) setup() {
 }
 
 func (us *store) start(ctx context.Context) {
-	// subject := "som.user.#"
-	// err := core.Get().AmqpBus().Answer(ctx, subject, func(subject string, d amqp.Delivery) ([]byte, error) {
-	// 	us.log.Debug("user backend got message", "type", subject, "data", string(d.Body))
-	// 	switch subject {
-	// 	case msgtype.UserRequest:
-	// 		return us.getUser(d)
-	// 	case msgtype.UserList:
-	// 		return us.getUserList(d)
-	// 	case msgtype.UserAdd:
-	// 		return us.addUser(d)
-	// 	case msgtype.UserDelete:
-	// 		return us.deleteUser(d)
-	// 	case msgtype.UserError:
-	// 		return nil, nil
-	// 	default:
-	// 		if strings.HasPrefix(subject, "user") {
-	// 			us.log.Warn("unhandled user message type", "type", subject, "data", string(d.Body))
-	// 		}
-	// 		return nil, nil
-	// 	}
-	// })
-	// if err != nil {
-	// 	us.log.Error("Cannot listen on bus", "subject", subject, log.Error, err)
-	// }
+	subject := "som.user.*"
+	unsub, err := core.Get().AmqpBus().Answer(subject, func(subject string, d *bus.Message) ([]byte, error) {
+		us.log.Debug("user backend got message", "type", subject, "data", string(d.Body))
+		switch subject {
+		case msgtype.UserRequest:
+			return us.getUser(d)
+		case msgtype.UserList:
+			return us.getUserList(d)
+		case msgtype.UserAdd:
+			return us.addUser(d)
+		case msgtype.UserDelete:
+			return us.deleteUser(d)
+		case msgtype.UserError:
+			return nil, nil
+		default:
+			if strings.HasPrefix(subject, "user") {
+				us.log.Warn("unhandled user message type", "type", subject, "data", string(d.Body))
+			}
+			return nil, nil
+		}
+	})
+	if err != nil {
+		us.log.Error("Cannot listen on bus", "subject", subject, log.Error, err)
+	}
+	go func() {
+		<-ctx.Done()
+		unsub()
+	}()
 	us.log.Debug("Userstore pod for msg handling", "pod", us.handlerPod)
 }
 
-func (us *store) addUser(d amqp.Delivery) ([]byte, error) {
+func (us *store) addUser(d *bus.Message) ([]byte, error) {
 	us.log.Debug("Requested to add a user")
 	_, err := us.storeUserFromMsg(d)
 	var s string
@@ -91,7 +97,7 @@ func (us *store) addUser(d amqp.Delivery) ([]byte, error) {
 	return []byte(s), err
 }
 
-func (us *store) deleteUser(d amqp.Delivery) ([]byte, error) {
+func (us *store) deleteUser(d *bus.Message) ([]byte, error) {
 	name := string(d.Body)
 	us.log.Warn("Deleting user from store", log.User, name)
 
@@ -112,7 +118,7 @@ func (us *store) deleteUser(d amqp.Delivery) ([]byte, error) {
 	return []byte(msgTxt), nil
 }
 
-func (us *store) storeUserFromMsg(d amqp.Delivery) (*User, error) {
+func (us *store) storeUserFromMsg(d *bus.Message) (*User, error) {
 	u := &User{}
 	if err := json.Unmarshal(d.Body, u); err != nil {
 		return nil, fmt.Errorf("adding user: %v", err)
@@ -143,7 +149,7 @@ func (us *store) storeUserFromMsg(d amqp.Delivery) (*User, error) {
 	return u, us.save()
 }
 
-func (us *store) getUser(d amqp.Delivery) ([]byte, error) {
+func (us *store) getUser(d *bus.Message) ([]byte, error) {
 	name := string(d.Body)
 	us.log.Debug("Looking up user in store", log.User, name)
 
@@ -165,7 +171,7 @@ func (us *store) buildUserMsg(name string) ([]byte, error) {
 	return []byte("No such user"), errors.New("no such user")
 }
 
-func (us *store) getUserList(d amqp.Delivery) ([]byte, error) {
+func (us *store) getUserList(d *bus.Message) ([]byte, error) {
 	return us.buildUserlistMsg()
 }
 
