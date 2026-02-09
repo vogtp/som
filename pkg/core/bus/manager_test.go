@@ -27,7 +27,7 @@ func TestNewBusManager(t *testing.T) {
 	viper.Set(cfg.AmqpPasswort, pw)
 	m, err := bus.New(t.Context(), slog.Default())
 	if err != nil {
-		t.Errorf("Initalise AMQP bus: %v", err)
+		t.Errorf("Initalise bus: %v", err)
 	}
 	if m == nil {
 		t.Errorf("AMQP bus is nil")
@@ -49,11 +49,11 @@ func TestSendReceive(t *testing.T) {
 	var recTime time.Time
 	rk := "som.testing"
 	wait := make(chan any)
-	err = m.Receive(t.Context(), rk, func(r string, m bus.Message) {
+	err = m.Receive(t.Context(), rk, func(r string, m *bus.Message) {
 		if !strings.EqualFold(r, rk) {
 			t.Errorf("Routing keys do not match: have: %s want: %s", r, rk)
 		}
-		recMsg = string(m.Payload)
+		recMsg = string(m.Body)
 		recTime = time.Now()
 		close(wait)
 	})

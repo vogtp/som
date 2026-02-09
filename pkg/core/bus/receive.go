@@ -2,46 +2,26 @@ package bus
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/nats-io/nats.go"
 )
 
-type ReceiveFunc func(routingKey string, msg Message)
+type ReceiveFunc func(routingKey string, msg *Message)
 
 func (m *manager) Receive(ctx context.Context, routingKey string, recFunc ReceiveFunc) error {
 	sl := m.slog.With("routingKey", routingKey, "bus", "receive")
 	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
 	// defer cancel()
-	errChan := make(chan error)
-	go func() {
-		for {
-			res, err := m.client.XRead(ctx, &redis.XReadArgs{
-				Streams: []string{routingKey, "$"},
-				Count:   1,
-				Block:   0,
-			}).Result()
 
-			if err != nil {
-				sl.Warn("Cannot read event", "err", err)
-			}
-			errChan <- err
-
-			for _, stream := range res {
-				for _, message := range stream.Messages {
-					fmt.Printf("Processing event: %v\n", message.Values)
-					//message.
-				}
-			}
+	_, err := m.conn.Subscribe(routingKey, func(msg *nats.Msg) {
+		m := Message{
+			RoutingKey: msg.Subject,
+			Body:       msg.Data,
 		}
-	}()
-	// go func() {
-	// 	for m := range msgs {
-	// 		sl.Debug("Received message", "msg", m)
-	// 		recFunc(routingKey, m)
-	// 	}
-	// }()
-	err := <-errChan
+		sl.Debug("Got messgae", "routingKey", routingKey)
+		recFunc(msg.Subject, &m)
+	})
+
 	return err
 }
 

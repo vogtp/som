@@ -3,33 +3,22 @@ package bus
 import (
 	"context"
 	"fmt"
-
-	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/redis/go-redis/v9"
 )
 
 func (m *manager) Emit(ctx context.Context, routingKey string, data []byte) error {
 	sl := m.slog.With("routingKey", routingKey)
-	// ctx, cancel := context.WithTimeout(ctx, m.timeout)
-	// defer cancel()
 
-	eventData := map[string]interface{}{
-		"message": "Critical alert! Server down.",
-	}
+	err := m.conn.Publish(routingKey, data)
 
-	res, err := m.client.XAdd(ctx, &redis.XAddArgs{
-		Stream: routingKey,
-		Values: eventData,
-	}).Result()
 	if err != nil {
 		return fmt.Errorf("publish messsage to %s: %w", routingKey, err)
 	}
 
-	sl.Debug("Sent message", "msg", string(data), "res", res)
+	sl.Debug("Sent message", "msg", string(data))
 	return nil
 }
 
-func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*amqp.Delivery, error) {
+func (m *manager) Ask(ctx context.Context, routingKey string, data []byte) (*Message, error) {
 	// sl := m.slog.With("routingKey", routingKey, "bus", "ask")
 	// q, err := m.channel.QueueDeclare(
 	// 	"",    // name
