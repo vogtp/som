@@ -49,18 +49,20 @@ func TestSendReceive(t *testing.T) {
 	recMsg := ""
 	var recTime time.Time
 	rk := "som.testing"
-	wait := make(chan any)
-	err = m.Receive(t.Context(), rk, func(r string, m *bus.Message) {
+	wait := make(chan any, 1)
+	defer close(wait)
+	close, err := m.Receive(t.Context(), rk, func(r string, m *bus.Message) {
 		if !strings.EqualFold(r, rk) {
 			t.Errorf("Routing keys do not match: have: %s want: %s", r, rk)
 		}
 		recMsg = string(m.Body)
 		recTime = time.Now()
-		close(wait)
+		wait <- 1
 	})
 	if err != nil {
 		t.Errorf("cannot receive: %v", err)
 	}
+	defer close()
 	msg := "Test message Send/Receive"
 	err = m.Emit(t.Context(), rk, []byte(msg))
 	sendTime := time.Now()
@@ -87,27 +89,25 @@ func TestAskAnswer(t *testing.T) {
 	ansSendMsg := ""
 	var recTime time.Time
 	rk := "som.testing"
-	wait := make(chan int, 1)
-	err = m.Answer(t.Context(), rk, func(r string, d *bus.Message) ([]byte, error) {
+	close, err := m.Answer(t.Context(), rk, func(r string, d *bus.Message) ([]byte, error) {
 		if !strings.EqualFold(r, rk) {
 			t.Errorf("Routing keys do not match: have: %s want: %s", r, rk)
 		}
 		ansRecMsg = string(d.Body)
 		ansSendMsg = fmt.Sprintf("answer-%s", ansRecMsg)
 		recTime = time.Now()
-		wait <- 1
 		return []byte(ansSendMsg), nil
 	})
 	if err != nil {
 		t.Errorf("cannot answer: %v", err)
 	}
+	defer close()
 	msg := "Test message Ask/Answer"
 	resp, err := m.Ask(t.Context(), rk, []byte(msg))
 	sendTime := time.Now()
 	if err != nil {
 		t.Fatalf("cannot ask: %v", err)
 	}
-	<-wait
 	if !strings.EqualFold(msg, ansRecMsg) {
 		t.Fatalf("Got message %s expected %s", ansRecMsg, msg)
 	}
@@ -137,33 +137,31 @@ func TestAskAnswerWildcard(t *testing.T) {
 	if to, ok := m.(timeouter); ok {
 		to.SetTimeout(time.Second * 5)
 	}
-	wait := make(chan int, 1)
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%s -> %s", tt.routingKeySend, tt.routingKeyRec), func(t *testing.T) {
 
 			ansRecMsg := ""
 			ansSendMsg := ""
 			var recTime time.Time
-			err = m.Answer(t.Context(), tt.routingKeyRec, func(r string, d *bus.Message) ([]byte, error) {
+			close, err := m.Answer(t.Context(), tt.routingKeyRec, func(r string, d *bus.Message) ([]byte, error) {
 				if !strings.EqualFold(r, tt.routingKeySend) {
 					t.Errorf("Routing keys do not match: have: %s want: %s", r, tt.routingKeySend)
 				}
 				ansRecMsg = string(d.Body)
 				ansSendMsg = fmt.Sprintf("answer-%s", ansRecMsg)
 				recTime = time.Now()
-				wait <- 1
 				return []byte(ansSendMsg), nil
 			})
 			if err != nil {
 				t.Errorf("cannot answer: %v", err)
 			}
+			defer close()
 			msg := "Test message Ask/Answer WildCard"
 			sendTime := time.Now()
 			resp, err := m.Ask(t.Context(), tt.routingKeySend, []byte(msg))
 			if err != nil {
 				t.Fatalf("cannot ask: %v", err)
 			}
-			<-wait
 			if !strings.EqualFold(msg, ansRecMsg) {
 				t.Fatalf("Got message %s expected %s", ansRecMsg, msg)
 			}
@@ -173,7 +171,6 @@ func TestAskAnswerWildcard(t *testing.T) {
 			if recTime.Sub(sendTime) > time.Millisecond {
 				t.Errorf("sending took too long: %s", recTime.Sub(sendTime))
 			}
-		}) // synctest
+		})
 	}
-	close(wait)
 }
