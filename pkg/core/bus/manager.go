@@ -34,7 +34,7 @@ type manager struct {
 	conn    *nats.Conn
 }
 
-func New(ctx context.Context, slog *slog.Logger) (Manager, error) {
+func New(slog *slog.Logger) (Manager, error) {
 	conn, err := nats.Connect(natsURL)
 	if err != nil {
 		return nil, fmt.Errorf("connect to nats server: %w", err)
@@ -43,7 +43,7 @@ func New(ctx context.Context, slog *slog.Logger) (Manager, error) {
 	m := manager{
 		slog:    slog.With("bus", "redis"),
 		conn:    conn,
-		timeout: 5 * time.Second,
+		timeout: 5 * time.Second, //TODO move to config
 	}
 	return &m, nil
 }
