@@ -22,7 +22,7 @@ func Run(ctx context.Context, name string, coreOpts ...core.Option) (func(), err
 	}
 	user.IntialiseStore(ctx)
 
-	if err := alertmgr.Run(); err != nil {
+	if err := alertmgr.Run(c.Log()); err != nil {
 		c.Log().Warn("alertmgr refused to run", log.Error, err)
 		return close, err
 	}

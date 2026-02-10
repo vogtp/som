@@ -1,4 +1,4 @@
-package core
+package bus_test
 
 import (
 	"reflect"
@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/msg"
 )
 
@@ -17,7 +18,7 @@ func TestHandleMonEvt(t *testing.T) {
 		{msg: &msg.SzenarioEvtMsg{Name: "test"}},
 		{msg: &msg.SzenarioEvtMsg{Name: "dslkjfökladjioru dölkfaj öadlksfu8rwö3o9a öalf3kupoi9"}},
 	}
-	core, close, err := New("som-test")
+	core, close, err := core.New("som-test")
 	if err != nil {
 		t.Fatalf("cannot start core: %v", err)
 	}
@@ -60,7 +61,7 @@ func TestMsgs(t *testing.T) {
 }
 
 func TestTrans(t *testing.T) {
-	bus, close, err := New("som-test")
+	bus, close, err := core.New("som-test")
 	if err != nil {
 		t.Fatal(err)
 	}

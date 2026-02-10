@@ -7,7 +7,7 @@ import (
 
 type ReceiveFunc func(subject string, msg *Message)
 
-func (m *manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
+func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
 	sl := m.slog.With("subject", subject, "bus", "receive")
 
 	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {
@@ -24,7 +24,7 @@ func (m *manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribeclose
 
 type AnswerFunc func(subject string, msg *Message) ([]byte, error)
 
-func (m *manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
+func (m *Manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
 	sl := m.slog.With("subject", subject, "bus", "receive")
 
 	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {

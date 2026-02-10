@@ -35,8 +35,6 @@ const (
 	// WebPort the port the webserver runs on
 	WebPort = "web.port"
 
-	// BusLogLevel sets the level the bus logs (default: off)
-	BusLogLevel = "bus.log.level"
 	// BusEndpoints are the endpoints the bus connects to
 	BusEndpoints = "bus.endpoint"
 
@@ -74,7 +72,7 @@ func defaultFlags() {
 	pflag.Duration(CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
 	pflag.String(CheckRegion, "default", "The region the check runs in")
 	pflag.String(DataDir, "data", "Folder to save output like screenshots in")
-	pflag.String(BusLogLevel, "off", "Log level of the bus")
+	
 	pflag.Bool(AlertEnabled, true, "Disable alerting")
 	pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
 }

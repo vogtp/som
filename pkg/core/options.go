@@ -1,8 +1,6 @@
 package core
 
 import (
-	"log/slog"
-
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
@@ -20,13 +18,6 @@ func WebPort(p int) Option {
 func BasePath(s string) Option {
 	return func(c *Core) {
 		c.web.basepath = s
-	}
-}
-
-// BusLogger enables and sets the loggin of the bus bus
-func BusLogger(level slog.Level) Option {
-	return func(c *Core) {
-		c.bus.busLogLevel = level
 	}
 }
 

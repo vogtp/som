@@ -27,7 +27,6 @@ func init() {
 	rootCtl.PersistentFlags().Int(cfg.WebPort, 0, "Port the webserver runs on")
 	rootCtl.PersistentFlags().Bool(cfg.LogSource, true, "Log the source line")
 	rootCtl.PersistentFlags().Bool(cfg.LogJSON, false, "Log in json")
-	rootCtl.PersistentFlags().String(cfg.BusLogLevel, "off", "Log level of the bus")
 	rootCtl.PersistentFlags().VisitAll(func(f *pflag.Flag) {
 		if err := viper.BindPFlag(f.Name, f); err != nil {
 			panic(err)

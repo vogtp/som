@@ -26,9 +26,8 @@ type Core struct {
 	szCfg *szenario.Config
 	name  string
 
-	amqpBus bus.Manager
+	bus *bus.Manager
 
-	bus *Bus
 	web *WebServer
 }
 
@@ -46,9 +45,6 @@ func New(name string, opts ...Option) (*Core, func(), error) {
 				port:     viper.GetInt(cfg.WebPort),
 				basepath: viper.GetString(cfg.WebURLBasePath),
 			},
-			bus: &Bus{
-				busLogLevel: log.LevelFromString(viper.GetString(cfg.BusLogLevel)),
-			},
 		}
 	} else if c.name != name {
 		c.log.Error("Cannot have two cores of different names", "name", c.name, "new_name", name)
@@ -61,10 +57,7 @@ func New(name string, opts ...Option) (*Core, func(), error) {
 		slog.SetDefault(c.log)
 		c.log.Warn("SOM starting...", "version", som.Version)
 		c.web.init(c)
-		if err := c.bus.init(c); err != nil {
-			c.cleanup()
-			return nil, nil, fmt.Errorf("create bus: %w", err)
-		}
+		
 		c.web.Start() //FIXME still needed?
 	}
 
@@ -83,20 +76,20 @@ func Get() *Core {
 }
 
 // Bus returns the bus or panics if Core not Initialised with New
-func (c *Core) BusFIXME() *Bus {
-	return c.bus
+func (c *Core) BusFIXME() *bus.Manager {
+	return c.Bus()
 }
 
 // Bus returns the bus or panics if Core not Initialised with New
-func (c *Core) Bus() bus.Manager {
-	if c.amqpBus == nil {
+func (c *Core) Bus() *bus.Manager {
+	if c.bus == nil {
 		b, err := bus.New(c.log)
 		if err != nil {
 			panic(fmt.Errorf("initialising amqp bus: %w", err))
 		}
-		c.amqpBus = b
+		c.bus = b
 	}
-	return c.amqpBus
+	return c.bus
 }
 
 // Log returns the logger or panics if Core not Initialised with New
@@ -118,9 +111,8 @@ func (c *Core) SzenaioConfig() *szenario.Config {
 }
 
 func (c *Core) cleanup() {
-	c.bus.cleanup()
 	c.web.Stop()
-	if c.amqpBus != nil {
-		c.amqpBus.Close()
+	if c.bus != nil {
+		c.bus.Close()
 	}
 }

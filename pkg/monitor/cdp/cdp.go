@@ -18,6 +18,7 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/mime"
@@ -34,7 +35,7 @@ type Engine struct {
 	ctx        context.Context
 	baseLogger *slog.Logger
 	log        *slog.Logger
-	bus        *core.Bus
+	bus        *bus.Manager
 
 	// runChan contains the next szenarios to be run
 	runChan chan szenarionRunWrapper

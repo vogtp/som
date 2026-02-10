@@ -7,54 +7,83 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/vogtp/som/pkg/core/log"
+	"github.com/vogtp/som/pkg/core/msg"
+	"github.com/vogtp/som/pkg/core/msgtype"
 )
 
 const (
-	natsURL  = "nats://0.0.0.0:4222" //TODO move to config
+	natsURL = "nats://0.0.0.0:4222" //TODO move to config
 )
-
-type Manager interface {
-	Emit(subject string, data []byte) error
-	Receive(subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error)
-
-	Ask(subject string, data []byte) (*Message, error)
-	Answer(subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error)
-
-	Close() //Close all resouces
-}
 
 type unsubscribecloseFunc func()
 
-type manager struct {
+type Manager struct {
 	slog *slog.Logger
 
 	timeout time.Duration
 	conn    *nats.Conn
+
+	Szenario *eventHandler[msg.SzenarioEvtMsg]
+	Alert    *eventHandler[msg.AlertMsg]
+	Incident *eventHandler[msg.IncidentMsg]
 }
 
-func New(slog *slog.Logger) (Manager, error) {
+func New(slog *slog.Logger) (*Manager, error) {
 	conn, err := nats.Connect(natsURL)
 	if err != nil {
 		return nil, fmt.Errorf("connect to nats server: %w", err)
 	}
 
-	m := manager{
-		slog:    slog.With("bus", natsURL),
+	m := Manager{
+		slog:    slog.With(log.Component, "bus", "nats.url", natsURL),
 		conn:    conn,
 		timeout: 15 * time.Second, //TODO move to config
 	}
+	m.initEventHandlers()
 	return &m, nil
 }
 
-func (m *manager) SetTimeout(d time.Duration) {
+// newBus creates a new eventbus
+func (m *Manager) initEventHandlers() {
+	m.Szenario = newHandler[msg.SzenarioEvtMsg](
+		m.slog,
+		m,
+		msgtype.Event,
+	)
+	m.Alert = newHandler[msg.AlertMsg](
+		m.slog,
+		m,
+		msgtype.Alert,
+	)
+	m.Incident = newHandler[msg.IncidentMsg](
+		m.slog,
+		m,
+		msgtype.Incident,
+	)
+}
+
+func (m *Manager) SetTimeout(d time.Duration) {
 	if d < time.Millisecond {
 		m.slog.Warn("Not setting bus timeout since it is too low", "timeout", d, log.Stacktrace())
 	}
 	m.timeout = d
 }
 
-func (m *manager) Close() {
+func (m *Manager) Close() {
 	if m.conn != nil {
 		m.conn.Close()
 	}
+	if m.Incident != nil {
+		// if Incident exists all exist
+		m.Szenario.cleanup()
+		m.Alert.cleanup()
+		m.Incident.cleanup()
+	}
+}
+
+// WaitMsgProcessed waits until the managed cannels have their messages sent
+func (m *Manager) WaitMsgProcessed() {
+	m.Szenario.WaitMsgProcessed()
+	m.Alert.WaitMsgProcessed()
+	m.Incident.WaitMsgProcessed()
 }

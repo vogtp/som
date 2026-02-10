@@ -1,4 +1,4 @@
-package core
+package bus
 
 import (
 	"encoding/json"
@@ -8,7 +8,6 @@ import (
 
 	"log/slog"
 
-	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/log"
 )
 
@@ -19,11 +18,11 @@ type eventHandler[M eventer] struct {
 	wgMsg   sync.WaitGroup
 	mu      sync.Mutex
 	log     *slog.Logger
-	bus     bus.Manager
+	bus     *Manager
 	msgType string
 }
 
-func newHandler[M eventer](log *slog.Logger, b bus.Manager, msgType string) *eventHandler[M] {
+func newHandler[M eventer](log *slog.Logger, b *Manager, msgType string) *eventHandler[M] {
 	h := &eventHandler[M]{
 		log:     log.With("bus", msgType),
 		bus:     b,
@@ -53,7 +52,7 @@ type EventHandler[M eventer] func(*M)
 
 // HandleSzenarioEvt handles SzenarioEvtMsgs
 func (h *eventHandler[M]) Handle(f EventHandler[M]) {
-	h.bus.Receive(h.msgType, func(subject string, m *bus.Message) {
+	h.bus.Receive(h.msgType, func(subject string, m *Message) {
 		evt := new(M)
 		err := json.Unmarshal(m.Body, evt)
 		if err != nil {

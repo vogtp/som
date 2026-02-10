@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core"
+	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
@@ -31,7 +32,7 @@ type Stater interface {
 // AlertMgr handles alerts
 type AlertMgr struct {
 	log            *slog.Logger
-	bus            *core.Bus
+	bus            *bus.Manager
 	alertIntervall time.Duration
 	alertLevel     status.Level
 	mu             sync.Mutex
@@ -51,10 +52,10 @@ func AlertIntervall(i time.Duration) Option {
 }
 
 // New registers a alert manager on the event bus
-func New(options ...Option) {
+func New(slog *slog.Logger, options ...Option) {
 	bus := core.Get().BusFIXME()
 	am := AlertMgr{
-		log:            bus.GetLogger().With(log.Component, "alertMgr"),
+		log:            slog.With(log.Component, "alertMgr"),
 		bus:            bus,
 		basicStates:    make(map[string]*basicState),
 		status:         status.New(),

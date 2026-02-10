@@ -42,9 +42,7 @@ func TestSendReceive(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Initalise AMQP bus: %v", err)
 	}
-	if to, ok := m.(timeouter); ok {
-		to.SetTimeout(time.Minute * 5)
-	}
+	m.SetTimeout(time.Minute * 5)
 	recMsg := ""
 	var recTime time.Time
 	rk := "som.testing"
@@ -133,9 +131,7 @@ func TestAskAnswerWildcard(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Initalise AMQP bus: %v", err)
 	}
-	if to, ok := m.(timeouter); ok {
-		to.SetTimeout(time.Second * 5)
-	}
+	m.SetTimeout(time.Second * 5)
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("%s -> %s", tt.subjectSend, tt.subjectRec), func(t *testing.T) {
 
