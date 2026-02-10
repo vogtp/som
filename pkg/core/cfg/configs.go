@@ -15,9 +15,6 @@ const (
 	// CoreStartdelay lets the core wait for the given duration
 	CoreStartdelay = "core.startdelay"
 
-	// BusWsPath is the url path the bus listens ons
-	BusWsPath = "bus.ws.path"
-
 	// AlertDelay is the timespan (time.Duration) that must have passed in order to gernerate an alert
 	AlertDelay = "alert.delay"
 	// AlertIntervall is the intervall (time.Duration) after which an alert is resend
@@ -89,7 +86,6 @@ func init() {
 	viper.SetDefault(PromURL, "http://localhost:9090/")
 	viper.SetDefault(PromBasePath, "/")
 	viper.SetDefault(CoreStartdelay, 100*time.Millisecond)
-	viper.SetDefault(BusWsPath, "/meta/message")
 
 	viper.SetDefault(AlertLevel, "warning")
 	viper.SetDefault(AlertDelay, 15*time.Minute)

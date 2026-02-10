@@ -35,9 +35,6 @@ const (
 	// WebPort the port the webserver runs on
 	WebPort = "web.port"
 
-	// BusEndpoints are the endpoints the bus connects to
-	BusEndpoints = "bus.endpoint"
-
 	// AlertEnabled is used to disable alerting globally
 	AlertEnabled = "alert.enabled"
 
@@ -59,7 +56,7 @@ func defaultFlags() {
 	pflag.Bool(LogJSON, false, "Log in json")
 	pflag.Bool(CfgSave, false, "Should the configs be written to file periodically")
 	_ = pflag.CommandLine.MarkHidden(CfgSave)
-	pflag.StringSlice(BusEndpoints, nil, "List of external endpoints (e.g. localhost:8080/meta/message) use multiple times to add multiple endpoints")
+
 	pflag.String(CfgFile, "som.yml", "File with the config to load")
 
 	// The following flags have been moved to better locations 20250525
@@ -72,7 +69,9 @@ func defaultFlags() {
 	pflag.Duration(CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
 	pflag.String(CheckRegion, "default", "The region the check runs in")
 	pflag.String(DataDir, "data", "Folder to save output like screenshots in")
-	
+
 	pflag.Bool(AlertEnabled, true, "Disable alerting")
 	pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
+
+	busFlags()
 }

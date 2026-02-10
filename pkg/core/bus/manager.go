@@ -6,13 +6,11 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
+	"github.com/spf13/viper"
+	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
 	"github.com/vogtp/som/pkg/core/msgtype"
-)
-
-const (
-	natsURL = "nats://0.0.0.0:4222" //TODO move to config
 )
 
 type unsubscribecloseFunc func()
@@ -31,8 +29,8 @@ type Manager struct {
 func New(slog *slog.Logger) (*Manager, error) {
 
 	m := Manager{
-		slog:    slog.With(log.Component, "bus", "nats.url", natsURL),
-		timeout: 15 * time.Second, //TODO move to config
+		slog:    slog.With(log.Component, "bus"),
+		timeout: viper.GetDuration(cfg.BusTimeout),
 	}
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("connect to nats server: %w", err)
@@ -42,8 +40,10 @@ func New(slog *slog.Logger) (*Manager, error) {
 }
 
 func (m *Manager) EnsureConnected() error {
+	url := viper.GetString(cfg.BusURL)
+	m.slog = m.slog.With("nats.url", url)
 	if m.conn == nil {
-		conn, err := nats.Connect(natsURL)
+		conn, err := nats.Connect(url)
 		if err != nil {
 			return err
 		}
@@ -52,7 +52,7 @@ func (m *Manager) EnsureConnected() error {
 	if err := m.conn.Flush(); err == nil {
 		return nil
 	}
-	conn, err := nats.Connect(natsURL)
+	conn, err := nats.Connect(url)
 	if err != nil {
 		return err
 	}
