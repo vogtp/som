@@ -14,8 +14,8 @@ import (
 )
 
 func main() {
-	ctx, close := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
-	defer close()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer stop()
 	// szenarios.Load() has to be replace by ones own szenario config
 	szCfg := szenarios.Load()
 	opts := []core.Option{
@@ -37,6 +37,5 @@ func main() {
 	if _, err := monitor.Run(name, opts...); err != nil {
 		panic(err)
 	}
-	// wait for ever
-	<-make(chan any)
+	<-ctx.Done()
 }

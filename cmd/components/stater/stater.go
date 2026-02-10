@@ -20,6 +20,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// wait for ever
-	<-make(chan any)
+	<-ctx.Done()
 }

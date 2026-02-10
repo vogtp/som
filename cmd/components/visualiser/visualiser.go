@@ -1,6 +1,10 @@
 package main
 
 import (
+	"context"
+	"os"
+	"os/signal"
+
 	"github.com/spf13/pflag"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
@@ -9,6 +13,8 @@ import (
 )
 
 func main() {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer stop()
 	// szenarios.Load() has to be replace by ones own szenario config
 	szCfg := szenarios.Load()
 	pflag.String(cfg.DataDir, "data", "Folder to save output like screenshots in")
@@ -17,6 +23,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	// wait for ever
-	<-make(chan any)
+	<-ctx.Done()
 }
