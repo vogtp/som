@@ -13,7 +13,7 @@ import (
 	"github.com/vogtp/som/pkg/core/msgtype"
 )
 
-type unsubscribecloseFunc func()
+type unsubscribeFunc func()
 
 type Manager struct {
 	slog *slog.Logger

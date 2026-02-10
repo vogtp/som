@@ -15,11 +15,12 @@ type eventer interface {
 }
 
 type eventHandler[M eventer] struct {
-	wgMsg   sync.WaitGroup
-	mu      sync.Mutex
-	log     *slog.Logger
-	bus     *Manager
-	msgType string
+	wgMsg     sync.WaitGroup
+	mu        sync.Mutex
+	log       *slog.Logger
+	bus       *Manager
+	msgType   string
+	unsubFucs []unsubscribeFunc
 }
 
 func newHandler[M eventer](log *slog.Logger, b *Manager, msgType string) *eventHandler[M] {
@@ -52,7 +53,7 @@ type EventHandler[M eventer] func(*M)
 
 // HandleSzenarioEvt handles SzenarioEvtMsgs
 func (h *eventHandler[M]) Handle(f EventHandler[M]) {
-	h.bus.Receive(h.msgType, func(subject string, m *Message) {
+	unsub, err := h.bus.Receive(h.msgType, func(subject string, m *Message) {
 		evt := new(M)
 		err := json.Unmarshal(m.Body, evt)
 		if err != nil {
@@ -60,6 +61,10 @@ func (h *eventHandler[M]) Handle(f EventHandler[M]) {
 		}
 		f(evt)
 	})
+	if err != nil {
+		h.log.Error("Cannot handle events", "eventType", h.msgType, log.Error, err)
+	}
+	h.unsubFucs = append(h.unsubFucs, unsub)
 }
 
 func (h *eventHandler[M]) WaitMsgProcessed() {
@@ -68,4 +73,7 @@ func (h *eventHandler[M]) WaitMsgProcessed() {
 
 func (h *eventHandler[M]) cleanup() {
 	h.WaitMsgProcessed()
+	for _, us := range h.unsubFucs {
+		us()
+	}
 }

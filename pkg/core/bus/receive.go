@@ -9,7 +9,7 @@ import (
 
 type ReceiveFunc func(subject string, msg *Message)
 
-func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
+func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribeFunc, error) {
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("ensuring connected: %w", err)
 	}
@@ -29,7 +29,7 @@ func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribeclose
 
 type AnswerFunc func(subject string, msg *Message) ([]byte, error)
 
-func (m *Manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
+func (m *Manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribeFunc, error) {
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("ensuring connected: %w", err)
 	}
