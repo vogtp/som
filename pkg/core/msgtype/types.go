@@ -2,11 +2,11 @@ package msgtype
 
 const (
 	// Event message
-	Event = "event"
+	Event = "som.szenario.event"
 	// Alert message
-	Alert = "alert"
+	Alert = "som.szenario.alert"
 	// Incident message
-	Incident = "incident"
+	Incident = "som.szenario.incident"
 
 	// UserError e.g. no such user
 	UserError = "som.user.error"
