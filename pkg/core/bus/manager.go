@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	somTopic = "som.topic"
 	natsURL  = "nats://0.0.0.0:4222" //TODO move to config
 )
 

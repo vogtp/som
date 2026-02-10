@@ -62,8 +62,6 @@ func defaultFlags() {
 	pflag.StringSlice(BusEndpoints, nil, "List of external endpoints (e.g. localhost:8080/meta/message) use multiple times to add multiple endpoints")
 	pflag.String(CfgFile, "som.yml", "File with the config to load")
 
-	amqpFlags()
-
 	// The following flags have been moved to better locations 20250525
 	// TODO they can be deleted after testing
 

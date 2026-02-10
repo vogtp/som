@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
@@ -19,13 +18,13 @@ type timeouter interface {
 
 func TestNewBusManager(t *testing.T) {
 	cfg.Parse()
-	pw := viper.Get(cfg.AmqpPasswort)
+	// pw := viper.Get(cfg.AmqpPasswort)
 	// viper.Set(cfg.AmqpPasswort, "")
 	// _, err := bus.New(slog.Default())
 	// if err == nil {
 	// 	t.Errorf("AMQP bus works without password")
 	// }
-	viper.Set(cfg.AmqpPasswort, pw)
+	// viper.Set(cfg.AmqpPasswort, pw)
 	m, err := bus.New(slog.Default())
 	if err != nil {
 		t.Errorf("Initalise bus: %v", err)
