@@ -14,7 +14,6 @@ import (
 	"github.com/vogtp/som/cmd/somctl/szenarioctl"
 	"github.com/vogtp/som/cmd/somctl/userctl"
 	"github.com/vogtp/som/pkg/core"
-	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater"
 )
@@ -74,12 +73,6 @@ var (
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if !cmd.IsAvailableCommand() {
 				return
-			}
-			if viper.GetBool(LogRawBus) {
-				c.Log().Info("Logging raw bus")
-				c.Bus().Receive("*", func(subject string, msg *bus.Message) {
-					fmt.Fprintf(cmd.OutOrStdout(), "Raw Bus: %s\n", string(msg.Body))
-				})
 			}
 			time.Sleep(300 * time.Millisecond)
 		},

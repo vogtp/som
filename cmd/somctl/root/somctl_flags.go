@@ -12,8 +12,6 @@ import (
 )
 
 const (
-	// LogRawBus flag name to log the raw bus
-	LogRawBus = "bus.log.raw"
 	// StandAlone flag to start a local stater in oder to work standalone
 	StandAlone = "standalone"
 )
@@ -21,7 +19,6 @@ const (
 func init() {
 	viper.SetDefault(cfg.LogLevel, defaultLogLevel.String())
 	viper.SetDefault(cfg.CoreStartdelay, time.Millisecond)
-	rootCtl.PersistentFlags().Bool(LogRawBus, false, "Log bus messages")
 	rootCtl.PersistentFlags().Bool(StandAlone, false, "Run in standalone mode, i.e. start a stater in the background.")
 	rootCtl.PersistentFlags().String(cfg.LogLevel, "warn", "Set the loglevel: error warn info debug trace off")
 	rootCtl.PersistentFlags().Int(cfg.WebPort, 0, "Port the webserver runs on")
