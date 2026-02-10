@@ -12,10 +12,6 @@ import (
 	"github.com/vogtp/som/pkg/core/log"
 )
 
-type timeouter interface {
-	SetTimeout(time.Duration)
-}
-
 func TestNewBusManager(t *testing.T) {
 	cfg.Parse()
 	// pw := viper.Get(cfg.AmqpPasswort)
