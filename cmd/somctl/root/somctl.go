@@ -51,6 +51,7 @@ func startCore(ctx context.Context, szCfg *szenario.Config) {
 		if err != nil {
 			panic(err)
 		}
+		return
 	}
 	//standalong mode: start a stater
 	var err error
