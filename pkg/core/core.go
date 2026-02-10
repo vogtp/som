@@ -41,10 +41,6 @@ func New(name string, opts ...Option) (*Core, func(), error) {
 		c = &Core{
 			log:  log.New("som"),
 			name: name,
-			web: &WebServer{
-				port:     viper.GetInt(cfg.WebPort),
-				basepath: viper.GetString(cfg.WebURLBasePath),
-			},
 		}
 	} else if c.name != name {
 		c.log.Error("Cannot have two cores of different names", "name", c.name, "new_name", name)
@@ -56,9 +52,6 @@ func New(name string, opts ...Option) (*Core, func(), error) {
 		cfg.Parse()
 		slog.SetDefault(c.log)
 		c.log.Warn("SOM starting...", "version", som.Version)
-		c.web.init(c)
-
-		c.web.Start() //FIXME still needed?
 	}
 
 	waitDuration := viper.GetDuration(cfg.CoreStartdelay)
@@ -94,6 +87,19 @@ func (c *Core) Log() *slog.Logger {
 
 // WebServer returns the webserver
 func (c *Core) WebServer() *WebServer {
+	if c.web != nil {
+		return c.web
+	}
+	port := viper.GetInt(cfg.WebPort)
+	basePath := viper.GetString(cfg.WebURLBasePath)
+	c.web = &WebServer{
+		log:      c.log.With(log.Component, "web", "port", port, "basePath", basePath),
+		port:     port,
+		basepath: basePath,
+	}
+
+	c.web.init(c)
+	c.web.Start()
 	return c.web
 }
 
@@ -106,7 +112,9 @@ func (c *Core) SzenaioConfig() *szenario.Config {
 }
 
 func (c *Core) cleanup() {
-	c.web.Stop()
+	if c.web != nil {
+		c.web.Stop()
+	}
 	if c.bus != nil {
 		c.bus.Close()
 	}
