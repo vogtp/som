@@ -66,7 +66,7 @@ func defaultFlags() {
 
 	// The following flags have been moved to better locations 20250525
 	// TODO they can be deleted after testing
-
+	pflag.String(CheckUser, "", "User name of the user to run the check with")
 	pflag.Bool(BrowserShow, false, "Show the browser window")
 	pflag.Bool(BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
 	pflag.Duration(CheckTimeout, 60*time.Second, "Check timeout")

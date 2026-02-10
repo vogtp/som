@@ -13,9 +13,6 @@ import (
 	"github.com/vogtp/som/pkg/monitor/szenario"
 )
 
-func init() {
-
-}
 
 // Run the monitor
 func Run(name string, coreOpts ...core.Option) (func(), error) {
