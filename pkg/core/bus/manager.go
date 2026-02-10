@@ -29,18 +29,35 @@ type Manager struct {
 }
 
 func New(slog *slog.Logger) (*Manager, error) {
-	conn, err := nats.Connect(natsURL)
-	if err != nil {
-		return nil, fmt.Errorf("connect to nats server: %w", err)
-	}
 
 	m := Manager{
 		slog:    slog.With(log.Component, "bus", "nats.url", natsURL),
-		conn:    conn,
 		timeout: 15 * time.Second, //TODO move to config
+	}
+	if err := m.EnsureConnected(); err != nil {
+		return nil, fmt.Errorf("connect to nats server: %w", err)
 	}
 	m.initEventHandlers()
 	return &m, nil
+}
+
+func (m *Manager) EnsureConnected() error {
+	if m.conn == nil {
+		conn, err := nats.Connect(natsURL)
+		if err != nil {
+			return err
+		}
+		m.conn = conn
+	}
+	if err := m.conn.Flush(); err == nil {
+		return nil
+	}
+	conn, err := nats.Connect(natsURL)
+	if err != nil {
+		return err
+	}
+	m.conn = conn
+	return nil
 }
 
 // newBus creates a new eventbus

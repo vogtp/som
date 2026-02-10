@@ -1,6 +1,8 @@
 package bus
 
 import (
+	"fmt"
+
 	"github.com/nats-io/nats.go"
 	"github.com/vogtp/som/pkg/core/log"
 )
@@ -8,6 +10,9 @@ import (
 type ReceiveFunc func(subject string, msg *Message)
 
 func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribecloseFunc, error) {
+	if err := m.EnsureConnected(); err != nil {
+		return nil, fmt.Errorf("ensuring connected: %w", err)
+	}
 	sl := m.slog.With("subject", subject, "bus", "receive")
 
 	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {
@@ -25,6 +30,9 @@ func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribeclose
 type AnswerFunc func(subject string, msg *Message) ([]byte, error)
 
 func (m *Manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribecloseFunc, error) {
+	if err := m.EnsureConnected(); err != nil {
+		return nil, fmt.Errorf("ensuring connected: %w", err)
+	}
 	sl := m.slog.With("subject", subject, "bus", "receive")
 
 	sub, err := m.conn.Subscribe(subject, func(msg *nats.Msg) {
