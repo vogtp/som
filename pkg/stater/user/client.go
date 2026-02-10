@@ -33,7 +33,7 @@ func (us *client) Get(name string) (*User, error) {
 	slog.Debug("Requesting user", log.User, name)
 	user := new(User)
 
-	d, err := core.Get().Bus().Ask(msgtype.UserRequest, []byte(name))
+	d, err := core.Get().Bus().Request(msgtype.UserRequest, []byte(name))
 	if err != nil {
 		slog.Warn("Failed to get user", log.User, name, log.Error, err)
 		if u, ok := backend.data[name]; ok {
@@ -62,7 +62,7 @@ func (us *client) Save(u *User) error {
 	if err != nil {
 		return fmt.Errorf("cannot marshal user: %w", err)
 	}
-	q, err := core.Get().Bus().Ask(msgtype.UserAdd, b)
+	q, err := core.Get().Bus().Request(msgtype.UserAdd, b)
 	if err != nil {
 		return fmt.Errorf("save user via bus: %w", err)
 	}
@@ -78,7 +78,7 @@ func (us *client) List() ([]User, error) {
 	slog.Debug("Requesting user list")
 	users := make([]User, 0)
 
-	d, err := core.Get().Bus().Ask(msgtype.UserList, nil)
+	d, err := core.Get().Bus().Request(msgtype.UserList, nil)
 	if err != nil {
 		slog.Error("Failed to get userlist", log.Error, err)
 		return nil, err
@@ -94,7 +94,7 @@ func (us *client) List() ([]User, error) {
 func (us *client) Delete(name string) (string, error) {
 	slog := core.Get().Log().With(log.Component, "user.client", log.User, name)
 	slog.Debug("Deleting user")
-	d, err := core.Get().Bus().Ask(msgtype.UserDelete, []byte(name))
+	d, err := core.Get().Bus().Request(msgtype.UserDelete, []byte(name))
 	msg := string(d.Body)
 	return msg, err
 }

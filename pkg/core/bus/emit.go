@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (m *Manager) Emit(subject string, data []byte) error {
+func (m *Manager) Publish(subject string, data []byte) error {
 	if err := m.EnsureConnected(); err != nil {
 		return fmt.Errorf("ensuring connected: %w", err)
 	}
@@ -16,11 +16,11 @@ func (m *Manager) Emit(subject string, data []byte) error {
 		return fmt.Errorf("publish messsage to %s: %w", subject, err)
 	}
 
-	sl.Debug("Sent message", "msg", string(data))
+	sl.Debug("Published message", "msg", string(data))
 	return nil
 }
 
-func (m *Manager) Ask(subject string, data []byte) (*Message, error) {
+func (m *Manager) Request(subject string, data []byte) (*Message, error) {
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("ensuring connected: %w", err)
 	}

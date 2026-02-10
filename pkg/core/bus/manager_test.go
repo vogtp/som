@@ -44,7 +44,7 @@ func TestSendReceive(t *testing.T) {
 	rk := "som.testing"
 	wait := make(chan any, 1)
 	defer close(wait)
-	close, err := m.Receive(rk, func(r string, m *bus.Message) {
+	close, err := m.Subscribe(rk, func(r string, m *bus.Message) {
 		if !strings.EqualFold(r, rk) {
 			t.Errorf("Routing keys do not match: have: %s want: %s", r, rk)
 		}
@@ -57,7 +57,7 @@ func TestSendReceive(t *testing.T) {
 	}
 	defer close()
 	msg := "Test message Send/Receive"
-	err = m.Emit(rk, []byte(msg))
+	err = m.Publish(rk, []byte(msg))
 	sendTime := time.Now()
 	if err != nil {
 		t.Errorf("cannot emit: %v", err)
@@ -82,7 +82,7 @@ func TestAskAnswer(t *testing.T) {
 	ansSendMsg := ""
 	var recTime time.Time
 	rk := "som.testing"
-	close, err := m.Answer(rk, func(r string, d *bus.Message) ([]byte, error) {
+	close, err := m.Respond(rk, func(r string, d *bus.Message) ([]byte, error) {
 		if !strings.EqualFold(r, rk) {
 			t.Errorf("Routing keys do not match: have: %s want: %s", r, rk)
 		}
@@ -96,7 +96,7 @@ func TestAskAnswer(t *testing.T) {
 	}
 	defer close()
 	msg := "Test message Ask/Answer"
-	resp, err := m.Ask(rk, []byte(msg))
+	resp, err := m.Request(rk, []byte(msg))
 	sendTime := time.Now()
 	if err != nil {
 		t.Fatalf("cannot ask: %v", err)
@@ -134,7 +134,7 @@ func TestAskAnswerWildcard(t *testing.T) {
 			ansRecMsg := ""
 			ansSendMsg := ""
 			var recTime time.Time
-			close, err := m.Answer(tt.subjectRec, func(r string, d *bus.Message) ([]byte, error) {
+			close, err := m.Respond(tt.subjectRec, func(r string, d *bus.Message) ([]byte, error) {
 				if !strings.EqualFold(r, tt.subjectSend) {
 					t.Errorf("Routing keys do not match: have: %s want: %s", r, tt.subjectSend)
 				}
@@ -149,7 +149,7 @@ func TestAskAnswerWildcard(t *testing.T) {
 			defer close()
 			msg := "Test message Ask/Answer WildCard"
 			sendTime := time.Now()
-			resp, err := m.Ask(tt.subjectSend, []byte(msg))
+			resp, err := m.Request(tt.subjectSend, []byte(msg))
 			if err != nil {
 				t.Fatalf("cannot ask: %v", err)
 			}

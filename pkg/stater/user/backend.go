@@ -55,7 +55,7 @@ func (us *store) setup() {
 func (us *store) start(ctx context.Context) {
 	subject := "som.user.*"
 	sl := us.log.With("listen_subject", subject)
-	unsub, err := core.Get().Bus().Answer(subject, func(subject string, d *bus.Message) ([]byte, error) {
+	unsub, err := core.Get().Bus().Respond(subject, func(subject string, d *bus.Message) ([]byte, error) {
 		ll := sl
 		if sl.Enabled(ctx, slog.LevelDebug) {
 			ll = ll.With("data", string(d.Body))

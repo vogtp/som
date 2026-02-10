@@ -9,7 +9,7 @@ import (
 
 type ReceiveFunc func(subject string, msg *Message)
 
-func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribeFunc, error) {
+func (m *Manager) Subscribe(subject string, recFunc ReceiveFunc) (unsubscribeFunc, error) {
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("ensuring connected: %w", err)
 	}
@@ -29,7 +29,7 @@ func (m *Manager) Receive(subject string, recFunc ReceiveFunc) (unsubscribeFunc,
 
 type AnswerFunc func(subject string, msg *Message) ([]byte, error)
 
-func (m *Manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribeFunc, error) {
+func (m *Manager) Respond(subject string, answerFunc AnswerFunc) (unsubscribeFunc, error) {
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("ensuring connected: %w", err)
 	}
@@ -43,11 +43,11 @@ func (m *Manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribeFunc
 		sl.Debug("Got messgae", "subject", subject)
 		d, err := answerFunc(msg.Subject, &busMsg)
 		if err != nil {
-			sl.Warn("Bus answer got error", log.Error, err, "data", string(d))
+			sl.Warn("Bus respond got error", log.Error, err, "data", string(d))
 		}
 
 		if err := msg.Respond(d); err != nil {
-			sl.Warn("Failure publishing reply message", log.Error, err)
+			sl.Warn("Failure responding to message", log.Error, err)
 		}
 	})
 

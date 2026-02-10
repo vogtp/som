@@ -44,7 +44,7 @@ func (h *eventHandler[M]) Send(evt *M) error {
 		return fmt.Errorf("cannot marshal %+v: %v", evt, err)
 	}
 	h.log.Debug("Sending msg", "type", h.msgType, "event", evt)
-	h.bus.Emit(h.msgType, b)
+	h.bus.Publish(h.msgType, b)
 	return nil
 }
 
@@ -53,7 +53,7 @@ type EventHandler[M eventer] func(*M)
 
 // HandleSzenarioEvt handles SzenarioEvtMsgs
 func (h *eventHandler[M]) Handle(f EventHandler[M]) {
-	unsub, err := h.bus.Receive(h.msgType, func(subject string, m *Message) {
+	unsub, err := h.bus.Subscribe(h.msgType, func(subject string, m *Message) {
 		evt := new(M)
 		err := json.Unmarshal(m.Body, evt)
 		if err != nil {
