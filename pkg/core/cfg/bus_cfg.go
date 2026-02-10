@@ -3,6 +3,7 @@ package cfg
 import (
 	"time"
 
+	"github.com/nats-io/nats.go"
 	"github.com/spf13/pflag"
 )
 
@@ -15,6 +16,6 @@ const (
 )
 
 func busFlags() {
-	pflag.String(BusURL, "nats://0.0.0.0:4222", "The URL the NATS bus backend should connect to")
+	pflag.String(BusURL, nats.DefaultURL, "The URL the NATS bus backend should connect to")
 	pflag.Duration(BusTimeout, 15*time.Second, "Timeout for connections to the bus")
 }
