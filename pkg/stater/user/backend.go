@@ -23,9 +23,9 @@ var (
 
 // store stores users and their passwords
 type store struct {
-	log        *slog.Logger
-	mu         sync.RWMutex
-	data       map[string]User
+	log  *slog.Logger
+	mu   sync.RWMutex
+	data map[string]User
 }
 
 // IntialiseStore does the setup for the user store
@@ -54,8 +54,13 @@ func (us *store) setup() {
 
 func (us *store) start(ctx context.Context) {
 	subject := "som.user.*"
+	sl := us.log.With("listen_subject", subject)
 	unsub, err := core.Get().Bus().Answer(subject, func(subject string, d *bus.Message) ([]byte, error) {
-		us.log.Debug("user backend got message", "type", subject, "data", string(d.Body))
+		ll := sl
+		if sl.Enabled(ctx, slog.LevelDebug) {
+			ll = ll.With("data", string(d.Body))
+		}
+		ll.Info("user backend got message", "subject", subject)
 		switch subject {
 		case msgtype.UserRequest:
 			return us.getUser(d)
@@ -69,13 +74,13 @@ func (us *store) start(ctx context.Context) {
 			return nil, nil
 		default:
 			if strings.HasPrefix(subject, "user") {
-				us.log.Warn("unhandled user message type", "type", subject, "data", string(d.Body))
+				ll.Warn("unhandled user message type", "type", subject, "data", string(d.Body))
 			}
 			return nil, nil
 		}
 	})
 	if err != nil {
-		us.log.Error("Cannot listen on bus", "subject", subject, log.Error, err)
+		sl.Error("Cannot listen on bus", "subject", subject, log.Error, err)
 	}
 	go func() {
 		<-ctx.Done()
