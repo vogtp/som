@@ -2,6 +2,7 @@ package stater
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/spf13/viper"
@@ -19,6 +20,11 @@ func Run(ctx context.Context, name string, coreOpts ...core.Option) (func(), err
 	c, close, err := core.New(name, coreOpts...)
 	if err != nil {
 		return nil, err
+	}
+	if err := startEmbeddedNats(c); err != nil {
+		c.Log().Error("Cannot find a NATS bus nor start a embedded one", log.Error, err)
+		close()
+		return nil, fmt.Errorf("start embedded core: %w", err)
 	}
 	user.IntialiseStore(ctx)
 
