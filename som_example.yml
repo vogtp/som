@@ -1,102 +1,96 @@
 data:
-    dir: "data/"
+  dir: "data/"
 alert:
-    enabled: true
-    delay: 15m
-    intervall: 12h
-    level: warning
-    incident:
-        correlation:
-            events: 6
-            reopentime: 1h
-    visualiserURL: http://localhost:8083/som/
-    mail:
-        from: # TODO add from address
-        smtp:
-            host: # TODO add mail server
-            port: 25
-    subject: "SOM Alert:"
-    destinations:
-        - teams:
-              name: Teams QM
-              subject: "SOM QM Teams:"
-              webhook: # WebHook for QM Teams room
-        - teams:
-              name: Teams Prod
-              webhook: # WebHook for Production Teams room
-        - mail:
-              name: Mail to colleges
-              to:
-                  -  # add colleges email
-        - mail:
-              enabled: false
-              name: Mail to boss
-              to:
-                  -  # add boss email
-    rules:
-        - name: QM
-          conditions:
-              status:
-                  level: warning
-              szenario:
-                  # include: google
-                  exclude:
-                      - crasher
-          destinations:
-              - Teams QM
-              - Mail to colleges
-        - name: Prod
-          conditions:
-              - level: down
-          enabled: true
-          subject: "SOM Alert:"
-          destinations:
-              - Teams Prod
-              - Mail to colleges
-              - Mail to boss # no problem destination is disabled anyway, he will not get mails
+  enabled: true
+  delay: 15m
+  intervall: 12h
+  level: warning
+  incident:
+    correlation:
+      events: 6
+      reopentime: 1h
+  visualiserURL: http://localhost:8083/som/
+  mail:
+    from: # TODO add from address
+    smtp:
+      host: # TODO add mail server
+      port: 25
+  subject: "SOM Alert:"
+  destinations:
+    - teams:
+        name: Teams QM
+        subject: "SOM QM Teams:"
+        webhook: # WebHook for QM Teams room
+    - teams:
+        name: Teams Prod
+        webhook: # WebHook for Production Teams room
+    - mail:
+        name: Mail to colleges
+        to:
+          -  # add colleges email
+    - mail:
+        enabled: false
+        name: Mail to boss
+        to:
+          -  # add boss email
+  rules:
+    - name: QM
+      conditions:
+        status:
+          level: warning
+        szenario:
+          # include: google
+          exclude:
+            - crasher
+      destinations:
+        - Teams QM
+        - Mail to colleges
+    - name: Prod
+      conditions:
+        - level: down
+      enabled: true
+      subject: "SOM Alert:"
+      destinations:
+        - Teams Prod
+        - Mail to colleges
+        - Mail to boss # no problem destination is disabled anyway, he will not get mails
 
 status:
   timeout: 6h # the duration after which a status will be unknow if no event is received
   cleanup: 168h # 7days -- the duration after which a status will be removed if no event is received
 browser:
-    noclose: false
-    show: false
+  noclose: false
+  show: false
 bus:
-    endpoint:
-        - localhost:8083/som/meta/message
-        - localhost:8183/som/meta/message
-    log:
-        level: "off"
-    ws:
-        path: /meta/message
+  url: nats://0.0.0.0:4222
 check:
-    repeat: 5m0s
-    timeout: 1m0s
-    region: default
-    #user: # default user (manly usefull for testing)
+  repeat: 5m0s
+  timeout: 1m0s
+  region: default
+  #user: # default user (manly usefull for testing)
 config:
-    save: false
+  save: false
 core:
-    startdelay: 100ms
+  startdelay: 100ms
 log:
-    level: info
+  level: info
 prometheus:
-    basepath: /
-    url: http://localhost:9090/
+  basepath: /
+  url: http://localhost:9090/
 web:
-    port: 0
-    urlpath: /
+  port: 0
+  urlpath: /
 password:
-    change: false
-    intervall: 12h # change the password after this delay and repeat with it
-    maxperday: 10 # maximal number of password changes per day
-    szenarios: # szeanrios to change the password
-        - ""
-    rules:
-        length: 20 # length of the password
-        numDigits: 3 # number of digits in the password
-        numSymbols: 3 # number of symbols in the password
-        upper: "" # upper case letters to be used in password ("" use default)
-        lower: "" # lower case letters to be used in password ("" use default)
-        digits: "" # digits to be used in password ("" use default)
-        symbols: "" # symbols to be used in password ("" use default)
+  change: false
+  intervall: 12h # change the password after this delay and repeat with it
+  maxperday: 10 # maximal number of password changes per day
+  szenarios: # szeanrios to change the password
+    - ""
+  rules:
+    length: 20 # length of the password
+    numDigits: 3 # number of digits in the password
+    numSymbols: 3 # number of symbols in the password
+    upper: "" # upper case letters to be used in password ("" use default)
+    lower: "" # lower case letters to be used in password ("" use default)
+    digits: "" # digits to be used in password ("" use default)
+    symbols: "" # symbols to be used in password ("" use default)
