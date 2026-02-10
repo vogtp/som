@@ -106,7 +106,7 @@ func (a *Alerter) Run() (ret error) {
 		ret = err
 		a.log.Warn("problems initialising alerter engines", log.Error, err)
 	}
-	a.c.BusFIXME().Alert.Handle(a.handle)
+	a.c.Bus().Alert.Handle(a.handle)
 	return ret
 }
 

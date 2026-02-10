@@ -87,7 +87,7 @@ var (
 			if !cmd.IsAvailableCommand() {
 				return
 			}
-			core.Get().BusFIXME().WaitMsgProcessed()
+			core.Get().Bus().WaitMsgProcessed()
 			coreClose()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

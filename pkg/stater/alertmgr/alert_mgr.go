@@ -53,7 +53,7 @@ func AlertIntervall(i time.Duration) Option {
 
 // New registers a alert manager on the event bus
 func New(slog *slog.Logger, options ...Option) {
-	bus := core.Get().BusFIXME()
+	bus := core.Get().Bus()
 	am := AlertMgr{
 		log:            slog.With(log.Component, "alertMgr"),
 		bus:            bus,
@@ -126,7 +126,7 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 			i.Start = szState.Start
 			i.IntLevel = int(szStatusGroup.Level())
 			i.ByteState = am.status.JSONBySzenario(e.Name)
-			if err := core.Get().BusFIXME().Incident.Send(i); err != nil {
+			if err := core.Get().Bus().Incident.Send(i); err != nil {
 				am.log.Warn("Cannot send incident", log.Error, err)
 			}
 		}
@@ -137,7 +137,7 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		i := msg.NewIncidentMsg(msg.OpenIncident, e)
 		i.IntLevel = int(szStatusGroup.Level())
 		i.ByteState = am.status.JSONBySzenario(e.Name)
-		if err := core.Get().BusFIXME().Incident.Send(i); err != nil {
+		if err := core.Get().Bus().Incident.Send(i); err != nil {
 			am.log.Warn("Cannot send incident", log.Error, err, log.Szenario, e.Name, "message", e.Err())
 		}
 		am.log.Debug("Not alerting: first alert", log.Szenario, e.Name, "message", e.Err())
@@ -149,7 +149,7 @@ func (am *AlertMgr) checkEvent(e *msg.SzenarioEvtMsg) *msg.AlertMsg {
 		i.Start = szState.Start
 		i.IntLevel = int(lvl)
 		i.ByteState = am.status.JSONBySzenario(e.Name)
-		if err := core.Get().BusFIXME().Incident.Send(i); err != nil {
+		if err := core.Get().Bus().Incident.Send(i); err != nil {
 			am.log.Warn("Cannot send incident", log.Error, err, log.Szenario, e.Name, "message", e.Err())
 		}
 	}

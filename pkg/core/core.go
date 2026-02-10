@@ -57,7 +57,7 @@ func New(name string, opts ...Option) (*Core, func(), error) {
 		slog.SetDefault(c.log)
 		c.log.Warn("SOM starting...", "version", som.Version)
 		c.web.init(c)
-		
+
 		c.web.Start() //FIXME still needed?
 	}
 
@@ -76,16 +76,11 @@ func Get() *Core {
 }
 
 // Bus returns the bus or panics if Core not Initialised with New
-func (c *Core) BusFIXME() *bus.Manager {
-	return c.Bus()
-}
-
-// Bus returns the bus or panics if Core not Initialised with New
 func (c *Core) Bus() *bus.Manager {
 	if c.bus == nil {
 		b, err := bus.New(c.log)
 		if err != nil {
-			panic(fmt.Errorf("initialising amqp bus: %w", err))
+			panic(fmt.Errorf("initialising bus: %w", err))
 		}
 		c.bus = b
 	}

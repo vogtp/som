@@ -22,7 +22,7 @@ func TestHandleMonEvt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("cannot start core: %v", err)
 	}
-	bus := core.BusFIXME()
+	bus := core.Bus()
 	defer close()
 
 	rec := make(map[string]msg.SzenarioEvtMsg)

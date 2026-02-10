@@ -23,7 +23,7 @@ const (
 
 // RegisterPrometheus registers NetCrunch Messages on the eventbus
 func RegisterPrometheus() {
-	bus := core.Get().BusFIXME()
+	bus := core.Get().Bus()
 	p := prometheusBackend{
 		log:      core.Get().Log().With(log.Component, "prometheus"),
 		promSz:   make(map[string]*promSz),

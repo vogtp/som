@@ -21,7 +21,7 @@ type Dumper struct {
 
 // NewDumper registers a Dumper on the event bus
 func NewDumper(slog *slog.Logger) {
-	bus := core.Get().BusFIXME()
+	bus := core.Get().Bus()
 	d := Dumper{
 		log:       slog.With(log.Component, "dumper"),
 		outFolder: fmt.Sprintf("%s/dump/", viper.GetString(cfg.DataDir)),

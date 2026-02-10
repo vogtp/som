@@ -30,7 +30,7 @@ func TestNewBusManager(t *testing.T) {
 		t.Errorf("Initalise bus: %v", err)
 	}
 	if m == nil {
-		t.Errorf("AMQP bus is nil")
+		t.Errorf("bus is nil")
 	}
 	m.Close()
 }
@@ -40,7 +40,7 @@ func TestSendReceive(t *testing.T) {
 	log.Level.Set(slog.LevelDebug)
 	m, err := bus.New(slog.Default())
 	if err != nil {
-		t.Fatalf("Initalise AMQP bus: %v", err)
+		t.Fatalf("Initalise bus: %v", err)
 	}
 	m.SetTimeout(time.Minute * 5)
 	recMsg := ""
@@ -80,7 +80,7 @@ func TestAskAnswer(t *testing.T) {
 	log.Level.Set(slog.LevelDebug)
 	m, err := bus.New(slog.Default())
 	if err != nil {
-		t.Fatalf("Initalise AMQP bus: %v", err)
+		t.Fatalf("Initalise bus: %v", err)
 	}
 	ansRecMsg := ""
 	ansSendMsg := ""
@@ -129,7 +129,7 @@ func TestAskAnswerWildcard(t *testing.T) {
 	log.Level.Set(slog.LevelDebug)
 	m, err := bus.New(slog.Default())
 	if err != nil {
-		t.Fatalf("Initalise AMQP bus: %v", err)
+		t.Fatalf("Initalise bus: %v", err)
 	}
 	m.SetTimeout(time.Second * 5)
 	for _, tt := range tests {
