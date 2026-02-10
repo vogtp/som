@@ -45,12 +45,9 @@ func (m *Manager) Answer(subject string, answerFunc AnswerFunc) (unsubscribeFunc
 		if err != nil {
 			sl.Warn("Bus answer got error", log.Error, err, "data", string(d))
 		}
-		reply := nats.Msg{
-			Subject: msg.Reply,
-			Data:    d,
-		}
-		if err := m.conn.PublishMsg(&reply); err != nil {
-			sl.Warn("Failure publishing reply message", log.Error, err, "msg", reply)
+
+		if err := msg.Respond(d); err != nil {
+			sl.Warn("Failure publishing reply message", log.Error, err)
 		}
 	})
 

@@ -2,8 +2,6 @@ package bus
 
 import (
 	"fmt"
-
-	"github.com/nats-io/nats.go"
 )
 
 func (m *Manager) Emit(subject string, data []byte) error {
@@ -26,31 +24,16 @@ func (m *Manager) Ask(subject string, data []byte) (*Message, error) {
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("ensuring connected: %w", err)
 	}
-	sl := m.slog.With("subject", subject, "bus", "ask")
-	replySubject := fmt.Sprintf("%s.reply", subject)
-	msg := nats.Msg{
-		Subject: subject,
-		Data:    data,
-		Reply:   replySubject,
-	}
-	sl.Debug("Sending message", "replySubject", replySubject, "data", string(data))
-	if err := m.conn.PublishMsg(&msg); err != nil {
-		return nil, fmt.Errorf("sending ask message: %w", err)
+	//sl := m.slog.With("subject", subject, "bus", "ask")
+
+	resp, err := m.conn.Request(subject, data, m.timeout)
+	if err != nil {
+		return nil, fmt.Errorf("requesting answer: %w", err)
 	}
 
-	sl.Debug("Subscribe to replies", "replySubject", replySubject)
-	sub, err := m.conn.SubscribeSync(replySubject)
-	if err != nil {
-		return nil, fmt.Errorf("subscribing to ask replies: %w", err)
-	}
-	defer func() { _ = sub.Unsubscribe() }()
-	ansMsg, err := sub.NextMsg(m.timeout)
-	if err != nil {
-		return nil, fmt.Errorf("getting reply message: %w", err)
-	}
 	busMsg := &Message{
-		Subject: subject,
-		Body:    ansMsg.Data,
+		Subject: resp.Subject,
+		Body:    resp.Data,
 	}
 	return busMsg, nil
 }
