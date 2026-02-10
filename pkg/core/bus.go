@@ -2,13 +2,11 @@ package core
 
 import (
 	"fmt"
-	"time"
 
 	"log/slog"
 
 	"github.com/spf13/viper"
-	"github.com/suborbital/grav/grav"
-	mesh "github.com/vogtp/go-mesh"
+	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/core/msg"
@@ -17,9 +15,9 @@ import (
 
 // Bus is the event bus
 type Bus struct {
-	log  *slog.Logger
-	bus  *grav.Grav
-	mesh *mesh.Mgr
+	log *slog.Logger
+	bus bus.Manager
+	// mesh *mesh.Mgr
 
 	endpointURL string
 
@@ -31,9 +29,13 @@ type Bus struct {
 }
 
 // newBus creates a new eventbus
-func (e *Bus) init(c *Core) {
+func (e *Bus) init(c *Core) error {
 	e.log = c.log.With(log.Component, "bus")
-	e.initGrav(c.web)
+	b, err := bus.New(e.log)
+	if err != nil {
+		return err
+	}
+	e.bus = b
 	e.Szenario = newHandler[msg.SzenarioEvtMsg](
 		e.log,
 		e.bus,
@@ -52,11 +54,13 @@ func (e *Bus) init(c *Core) {
 	e.endpointURL = fmt.Sprintf("%s%s", c.web.url, viper.GetString(cfg.BusWsPath))
 	e.log.Info("Bus started", "endpoint", e.endpointURL)
 
-	e.mesh = mesh.New(e.bus, &mesh.NodeConfig{
-		Name:     c.name,
-		Endpoint: e.endpointURL,
-	}, mesh.SLog(e.log), mesh.ConnectPeers(true), mesh.BroadcastIntervall(5*time.Minute), mesh.Purge(5*time.Minute))
-	c.web.HandleFunc("/bus", e.mesh.HandlerInfo)
+	// e.mesh = mesh.New(e.bus, &mesh.NodeConfig{
+	// 	Name:     c.name,
+	// 	Endpoint: e.endpointURL,
+	// }, mesh.SLog(e.log), mesh.ConnectPeers(true), mesh.BroadcastIntervall(5*time.Minute), mesh.Purge(5*time.Minute))
+	// c.web.HandleFunc("/bus", e.mesh.HandlerInfo)
+
+	return nil
 }
 
 // GetLogger returns the eventbus logger
@@ -67,24 +71,14 @@ func (e Bus) GetLogger() *slog.Logger {
 func (e *Bus) cleanup() {
 	e.Szenario.cleanup()
 	e.Alert.cleanup()
-	e.mesh.Stop()
-	if err := e.bus.Withdraw(); err != nil {
-		e.log.Warn("cannot withdraw from bus", log.Error, err)
-	}
-	if err := e.bus.Stop(); err != nil {
-		e.log.Warn("cannot stop bus", log.Error, err)
-	}
+	// e.mesh.Stop()
+	e.bus.Close()
 }
 
 // WaitMsgProcessed waits until the managed cannels have their messages sent
 func (e *Bus) WaitMsgProcessed() {
 	e.Szenario.WaitMsgProcessed()
 	e.Alert.WaitMsgProcessed()
-}
-
-// Connect to grav and return a pod
-func (e *Bus) Connect() *grav.Pod {
-	return e.bus.Connect()
 }
 
 // EndpointURL returns the URL the bus endpoint listens on

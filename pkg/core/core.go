@@ -33,7 +33,7 @@ type Core struct {
 }
 
 // New creates a new Cores and its cleanup function
-func New(name string, opts ...Option) (*Core, func()) {
+func New(name string, opts ...Option) (*Core, func(), error) {
 	muCreateCore.Lock()
 	defer muCreateCore.Unlock()
 	newCore := false
@@ -61,14 +61,17 @@ func New(name string, opts ...Option) (*Core, func()) {
 		slog.SetDefault(c.log)
 		c.log.Warn("SOM starting...", "version", som.Version)
 		c.web.init(c)
-		c.bus.init(c)
-		c.web.Start()
+		if err := c.bus.init(c); err != nil {
+			c.cleanup()
+			return nil, nil, fmt.Errorf("create bus: %w", err)
+		}
+		c.web.Start() //FIXME still needed?
 	}
 
 	waitDuration := viper.GetDuration(cfg.CoreStartdelay)
 	c.log.Info("Waiting for the core to get started up", "duration", waitDuration)
 	<-time.After(waitDuration)
-	return c, c.cleanup
+	return c, c.cleanup, nil
 }
 
 // Get returns the core instance or panics if not Initialised with New
@@ -85,7 +88,7 @@ func (c *Core) BusFIXME() *Bus {
 }
 
 // Bus returns the bus or panics if Core not Initialised with New
-func (c *Core) AmqpBus() bus.Manager {
+func (c *Core) Bus() bus.Manager {
 	if c.amqpBus == nil {
 		b, err := bus.New(c.log)
 		if err != nil {

@@ -42,7 +42,7 @@ func New(slog *slog.Logger) (Manager, error) {
 	m := manager{
 		slog:    slog.With("bus", natsURL),
 		conn:    conn,
-		timeout: 5 * time.Second, //TODO move to config
+		timeout: 15 * time.Second, //TODO move to config
 	}
 	return &m, nil
 }

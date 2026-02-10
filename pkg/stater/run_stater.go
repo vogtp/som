@@ -16,7 +16,10 @@ import (
 func Run(ctx context.Context, name string, coreOpts ...core.Option) (func(), error) {
 	viper.Set(cfg.CoreStartdelay, 100*time.Millisecond)
 	cfg.Parse()
-	c, close := core.New(name, coreOpts...)
+	c, close, err := core.New(name, coreOpts...)
+	if err != nil {
+		return nil, err
+	}
 	user.IntialiseStore(ctx)
 
 	if err := alertmgr.Run(); err != nil {

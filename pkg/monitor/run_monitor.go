@@ -33,7 +33,10 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 	if len(username) < 1 {
 		return func() {}, fmt.Errorf("No user given. Use --%s or set it in the config", cfg.CheckUser)
 	}
-	c, close := core.New(fmt.Sprintf("%s.%s", name, username), coreOpts...)
+	c, close, err := core.New(fmt.Sprintf("%s.%s", name, username), coreOpts...)
+	if err != nil {
+		return nil, err
+	}
 	if c.SzenaioConfig() == szenario.NoConfig || c.SzenaioConfig().SzenarioCount() < 1 {
 		panic("Monitor needs szenarios, no szenario config given")
 	}

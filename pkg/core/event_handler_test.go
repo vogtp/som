@@ -17,7 +17,10 @@ func TestHandleMonEvt(t *testing.T) {
 		{msg: &msg.SzenarioEvtMsg{Name: "test"}},
 		{msg: &msg.SzenarioEvtMsg{Name: "dslkjfökladjioru dölkfaj öadlksfu8rwö3o9a öalf3kupoi9"}},
 	}
-	core, close := New("som-test")
+	core, close, err := New("som-test")
+	if err != nil {
+		t.Fatalf("cannot start core: %v", err)
+	}
 	bus := core.BusFIXME()
 	defer close()
 
@@ -32,7 +35,7 @@ func TestHandleMonEvt(t *testing.T) {
 	})
 
 	bus.Alert.Handle(func(am *msg.AlertMsg) {
-		t.Errorf("Got an alert message: %v",am.Name)
+		t.Errorf("Got an alert message: %v", am.Name)
 	})
 
 	for _, tt := range tests {
@@ -57,7 +60,10 @@ func TestMsgs(t *testing.T) {
 }
 
 func TestTrans(t *testing.T) {
-	bus, close := New("som-test")
+	bus, close, err := New("som-test")
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer close()
 	_ = bus
 }

@@ -12,7 +12,10 @@ import (
 func Run(name string, coreOpts ...core.Option) (func(), error) {
 	pflag.Bool(cfg.AlertEnabled, true, "Disable alerting")
 	cfg.Parse()
-	c, close := core.New(name, coreOpts...)
+	c, close, err := core.New(name, coreOpts...)
+	if err != nil {
+		return nil, err
+	}
 	if !viper.GetBool(cfg.AlertEnabled) {
 		c.Log().Warn("Alerting is disabled!")
 		return close, nil

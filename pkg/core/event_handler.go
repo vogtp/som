@@ -8,7 +8,7 @@ import (
 
 	"log/slog"
 
-	"github.com/suborbital/grav/grav"
+	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/log"
 )
 
@@ -16,20 +16,18 @@ type eventer interface {
 }
 
 type eventHandler[M eventer] struct {
-	wgMsg sync.WaitGroup
-	mu    sync.Mutex
-	log   *slog.Logger
-	grav     *grav.Grav
-	handlers []*grav.Pod
-	msgType  string
+	wgMsg   sync.WaitGroup
+	mu      sync.Mutex
+	log     *slog.Logger
+	bus     bus.Manager
+	msgType string
 }
 
-func newHandler[M eventer](log *slog.Logger, b *grav.Grav, msgType string) *eventHandler[M] {
+func newHandler[M eventer](log *slog.Logger, b bus.Manager, msgType string) *eventHandler[M] {
 	h := &eventHandler[M]{
-		log:      log.With("bus", msgType),
-		grav:     b,
-		msgType:  msgType,
-		handlers: make([]*grav.Pod, 0),
+		log:     log.With("bus", msgType),
+		bus:     b,
+		msgType: msgType,
 	}
 	return h
 }
@@ -46,9 +44,7 @@ func (h *eventHandler[M]) Send(evt *M) error {
 		return fmt.Errorf("cannot marshal %+v: %v", evt, err)
 	}
 	h.log.Debug("Sending msg", "type", h.msgType, "event", evt)
-	p := h.grav.Connect()
-	defer p.Disconnect()
-	p.Send(grav.NewMsg(h.msgType, b))
+	h.bus.Emit(h.msgType, b)
 	return nil
 }
 
@@ -57,20 +53,13 @@ type EventHandler[M eventer] func(*M)
 
 // HandleSzenarioEvt handles SzenarioEvtMsgs
 func (h *eventHandler[M]) Handle(f EventHandler[M]) {
-	p := h.grav.Connect()
-	h.handlers = append(h.handlers, p)
-	p.OnType(h.msgType, func(m grav.Message) error {
-		h.wgMsg.Add(1)
-		defer h.wgMsg.Done()
+	h.bus.Receive(h.msgType, func(subject string, m *bus.Message) {
 		evt := new(M)
-		err := json.Unmarshal(m.Data(), evt)
+		err := json.Unmarshal(m.Body, evt)
 		if err != nil {
-			h.log.Error("Could not unmarshal message", "payload", string(m.Data()), log.Error, err)
-			// does not return an error the the program, just signals the grav
-			return fmt.Errorf("could not unmarshal message %s: %w", string(m.Data()), err)
+			h.log.Error("Could not unmarshal message", "payload", string(m.Body), log.Error, err)
 		}
 		f(evt)
-		return nil
 	})
 }
 
@@ -80,7 +69,4 @@ func (h *eventHandler[M]) WaitMsgProcessed() {
 
 func (h *eventHandler[M]) cleanup() {
 	h.WaitMsgProcessed()
-	for _, h := range h.handlers {
-		h.Disconnect()
-	}
 }

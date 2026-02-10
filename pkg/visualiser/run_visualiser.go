@@ -10,7 +10,10 @@ import (
 // Run the visualiser
 func Run(name string, coreOpts ...core.Option) (func(), error) {
 	cfg.Parse()
-	_, close := core.New(name, coreOpts...)
+	_, close,err := core.New(name, coreOpts...)
+	if err != nil {
+		return nil, err
+	}
 	bridger.RegisterPrometheus()
 	webstatus.New()
 	return close, nil

@@ -11,7 +11,6 @@ import (
 
 	"log/slog"
 
-	"github.com/suborbital/grav/grav"
 	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/bus"
 	"github.com/vogtp/som/pkg/core/log"
@@ -25,7 +24,6 @@ var (
 // store stores users and their passwords
 type store struct {
 	log        *slog.Logger
-	handlerPod *grav.Pod
 	mu         sync.RWMutex
 	data       map[string]User
 }
@@ -56,7 +54,7 @@ func (us *store) setup() {
 
 func (us *store) start(ctx context.Context) {
 	subject := "som.user.*"
-	unsub, err := core.Get().AmqpBus().Answer(subject, func(subject string, d *bus.Message) ([]byte, error) {
+	unsub, err := core.Get().Bus().Answer(subject, func(subject string, d *bus.Message) ([]byte, error) {
 		us.log.Debug("user backend got message", "type", subject, "data", string(d.Body))
 		switch subject {
 		case msgtype.UserRequest:
@@ -83,7 +81,6 @@ func (us *store) start(ctx context.Context) {
 		<-ctx.Done()
 		unsub()
 	}()
-	us.log.Debug("Userstore pod for msg handling", "pod", us.handlerPod)
 }
 
 func (us *store) addUser(d *bus.Message) ([]byte, error) {
