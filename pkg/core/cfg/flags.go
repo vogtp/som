@@ -1,6 +1,8 @@
 package cfg
 
 import (
+	"time"
+
 	"github.com/spf13/pflag"
 )
 
@@ -65,14 +67,14 @@ func defaultFlags() {
 	// The following flags have been moved to better locations 20250525
 	// TODO they can be deleted after testing
 
-	// pflag.Bool(BrowserShow, false, "Show the browser window")
-	// pflag.Bool(BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
-	// pflag.Duration(CheckTimeout, 60*time.Second, "Check timeout")
-	// pflag.Duration(CheckRepeat, 0, "Check intervall (e.g. 5m)")
-	// pflag.Duration(CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
-	// pflag.String(CheckRegion, "default", "The region the check runs in")
-	// pflag.String(DataDir, "data", "Folder to save output like screenshots in")
-	//pflag.String(BusLogLevel, "off", "Log level of the bus")
-	//pflag.Bool(AlertEnabled, true, "Disable alerting")
-	//pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
+	pflag.Bool(BrowserShow, false, "Show the browser window")
+	pflag.Bool(BrowserNoClose, false, "Do not close the browser window in the end. Implies show, timeout 10m  and no repeat")
+	pflag.Duration(CheckTimeout, 60*time.Second, "Check timeout")
+	pflag.Duration(CheckRepeat, 0, "Check intervall (e.g. 5m)")
+	pflag.Duration(CheckStepDelay, 0, "Delay between steps (e.g. 100ms)")
+	pflag.String(CheckRegion, "default", "The region the check runs in")
+	pflag.String(DataDir, "data", "Folder to save output like screenshots in")
+	pflag.String(BusLogLevel, "off", "Log level of the bus")
+	pflag.Bool(AlertEnabled, true, "Disable alerting")
+	pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
 }

@@ -26,7 +26,6 @@ func testInit(t *testing.T) func() {
 		t.Fatalf("Cannot start stater: %v", err)
 	}
 	log.Level.Set(slog.LevelDebug)
-	user.Store.Timeout(1)
 	u1.SetPassword(pass)
 	u2.SetPassword(pass)
 	if err := user.Store.Save(u1); err != nil {
