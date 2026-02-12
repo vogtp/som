@@ -1,3 +1,5 @@
+//go:build embedd_nats
+ 
 package stater
 
 import (

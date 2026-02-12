@@ -5,7 +5,11 @@ build: generate build-stater build-monitor-cdp build-visualiser build-alerter bu
 curdate=$(shell date --iso-8601='minutes')
 build_flags = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
 
-GO_CMD=CGO_ENABLED=0 go
+GO_TAGS=
+# embedd_nats embedds a nats bus
+#GO_TAGS=-tags=embedd_nats
+
+GO_CMD=CGO_ENABLED=0 go 
 
 .PHONY: install_stinger
 install_stinger:
@@ -17,14 +21,14 @@ generate: install_stinger
 
 .PHONY: build-somctl
 build-somctl:
-	$(GO_CMD) build $(build_flags) -tags prod -o ./build/ ./cmd/somctl/
+	$(GO_CMD) build $(build_flags) $(GO_TAGS) -o ./build/ ./cmd/somctl/
 
 .PHONY: build-checkctl
 build-checkctl:
-	$(GO_CMD) build $(build_flags) -tags prod -o ./build/ ./cmd/checkctl/
+	$(GO_CMD) build $(build_flags) $(GO_TAGS) -o ./build/ ./cmd/checkctl/
 	
 build-%: 
-	$(GO_CMD) build $(build_flags) -tags prod -o ./build/ ./cmd/components/$*/
+	$(GO_CMD) build $(build_flags) $(GO_TAGS) -o ./build/ ./cmd/components/$*/
 	mv build/$* build/som.$* 
 
 .PHONY: test
