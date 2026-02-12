@@ -8,6 +8,9 @@ const (
 	// Incident message
 	Incident = "som.szenario.incident"
 
+	// UserAllMsgs matches all user messages (> matches one or more token)
+	UserAllMsgs = "som.user.>"
+
 	// UserError e.g. no such user
 	UserError = "som.user.error"
 	// UserRequest get a use from the backend
