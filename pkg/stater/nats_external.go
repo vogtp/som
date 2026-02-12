@@ -6,6 +6,6 @@ import (
 	"github.com/vogtp/som/pkg/core"
 )
 
-func startEmbeddedNats(core *core.Core) error {
+func startEmbeddedNats(_ *core.Core) error {
 	return nil
 }

@@ -50,6 +50,8 @@ func startEmbeddedNats(core *core.Core) error {
 
 func natsOptions(slog *slog.Logger) *server.Options {
 	opts := &server.Options{
+		ServerName: "som-embedded",
+		HTTPPort: 8222,
 	}
 	s := viper.GetString(cfg.BusURL)
 	url, err := url.Parse(s)
