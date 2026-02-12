@@ -1,39 +1,69 @@
 package webstatus
 
 import (
-	"fmt"
-	"io"
+	"encoding/json"
 	"net/http"
+	"time"
 
-	"github.com/vogtp/som/pkg/core"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 )
 
-func (s *WebStatus) handleMeshInfo(w http.ResponseWriter, r *http.Request) {
+func (s *WebStatus) handleBusInfo(w http.ResponseWriter, r *http.Request) {
 
 	var data = struct {
 		*CommonData
 		TimeFormat string
-		MeshInfo   string
+		Connz      Connz
 	}{
-		CommonData: common("SOM Mesh", r),
+		CommonData: common("SOM Bus", r),
 		TimeFormat: cfg.TimeFormatString,
 	}
 
-	resp, err := http.Get(fmt.Sprintf("%s/%s", core.Get().WebServer().URL(), "bus"))
+	resp, err := http.Get("http://localhost:8222/connz")
 	if err != nil {
-		s.log.Error("Mesh info request error", log.Error, err)
-		s.Error(w, r, "Cannot request mesh info", err, http.StatusInternalServerError)
+		s.log.Error("Bus info request error", log.Error, err)
+		s.Error(w, r, "Cannot request bus info", err, http.StatusInternalServerError)
 		return
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		s.log.Error("Cannot read Mesh info body", log.Error, err)
-		s.Error(w, r, "Cannot read mesh info", err, http.StatusInternalServerError)
+	if err := json.NewDecoder(resp.Body).Decode(&data.Connz); err != nil {
+		s.log.Error("Cannot parse bus info body", log.Error, err)
+		s.Error(w, r, "Cannot parse bus info", err, http.StatusInternalServerError)
 		return
 	}
-	data.MeshInfo = string(body)
-	s.render(w, r, "mesh_info.gohtml", data)
+
+	s.render(w, r, "bus_info.gohtml", data)
+}
+
+type Connz struct {
+	ServerID       string    `json:"server_id"`
+	Now            time.Time `json:"now"`
+	NumConnections int       `json:"num_connections"`
+	Total          int       `json:"total"`
+	Offset         int       `json:"offset"`
+	Limit          int       `json:"limit"`
+	Connections    []Conn    `json:"connections"`
+}
+
+type Conn struct {
+	Cid           int       `json:"cid"`
+	Kind          string    `json:"kind"`
+	Type          string    `json:"type"`
+	IP            string    `json:"ip"`
+	Port          int       `json:"port"`
+	Start         time.Time `json:"start"`
+	LastActivity  time.Time `json:"last_activity"`
+	Rtt           string    `json:"rtt"`
+	Uptime        string    `json:"uptime"`
+	Idle          string    `json:"idle"`
+	PendingBytes  int       `json:"pending_bytes"`
+	InMsgs        int       `json:"in_msgs"`
+	OutMsgs       int       `json:"out_msgs"`
+	InBytes       int       `json:"in_bytes"`
+	OutBytes      int       `json:"out_bytes"`
+	Subscriptions int       `json:"subscriptions"`
+	Name          string    `json:"name"`
+	Lang          string    `json:"lang"`
+	Version       string    `json:"version"`
 }

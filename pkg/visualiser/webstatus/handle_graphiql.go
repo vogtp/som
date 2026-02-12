@@ -11,7 +11,6 @@ func (s *WebStatus) handleGraphiQL(w http.ResponseWriter, r *http.Request) {
 	var data = struct {
 		*CommonData
 		TimeFormat string
-		MeshInfo   string
 	}{
 		CommonData: common("", r),
 		TimeFormat: cfg.TimeFormatString,

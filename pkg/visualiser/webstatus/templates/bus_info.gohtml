@@ -1,0 +1,50 @@
+<!-- bus_bus.html -->
+
+<!-- Embed the header.html template at this location-->
+{{ template "header.gohtml" .}}
+
+<div>
+<h3>Connections ({{ .Connz.NumConnections }}):</h3>
+
+<table>
+<thead>
+<tr style="text-align: center">
+    <th>Name</th>
+    <th>Idle</th>
+    <th>Uptime</th>
+    <th>RTT</th>
+    <th>LastActivity</th>
+    <th>Host</th>
+</tr>
+</thead>
+<tbody>
+
+{{ range .Connz.Connections }}
+<tr>
+ <td> 
+    {{ .Name }}
+ </td>
+ <td> 
+    {{ .Idle }}
+ </td>
+ <td> 
+    {{ .Uptime }}
+ </td>
+ <td> 
+    {{ .Rtt }}
+ </td>
+ <td> 
+    {{ .LastActivity }}
+ </td>
+ <td> 
+    {{ .IP }}:{{ .Port }}
+ </td>
+</tr>
+{{ end }}
+</tbody>
+</table>
+</div>
+
+
+<!--Embed the footer.html template at this location-->
+{{ template "footer.gohtml" .}}

@@ -21,7 +21,7 @@ func (s *WebStatus) routes() {
 	w.HandleFunc("/", s.handleIndex)
 	w.HandleFunc("/docu", s.handleDocu)
 	w.HandleFunc("/topology/", s.handleTopology)
-	w.HandleFunc("/mesh_info/", s.handleMeshInfo)
+	w.HandleFunc("/bus_info/", s.handleBusInfo)
 	w.HandleFunc(alertListPath, s.handleAlertList)
 	w.HandleFunc(AlertDetailPath, s.handleAlertDetail)
 	w.HandleFunc(incidentListPath, s.handleIncidentList)

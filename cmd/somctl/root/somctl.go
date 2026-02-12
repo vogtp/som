@@ -45,7 +45,7 @@ func Command(ctx context.Context, szCfg *szenario.Config) {
 
 func startCore(ctx context.Context, szCfg *szenario.Config) {
 	if !viper.GetBool(StandAlone) {
-		// normal mode: just start a core to connect to the mesh
+		// normal mode: just start a core to connect to the bus
 		var err error
 		c, coreClose, err = core.New("somctl", core.Szenario(szCfg))
 		if err != nil {
