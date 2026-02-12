@@ -7,7 +7,7 @@ build_flags = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
 
 GO_TAGS=
 # embedd_nats embedds a nats bus
-#GO_TAGS=-tags=embedd_nats
+GO_TAGS=-tags=embedd_nats
 
 GO_CMD=CGO_ENABLED=0 go 
 
@@ -34,4 +34,4 @@ build-%:
 .PHONY: test
 test:
 	echo "Running test (excluding packages without tests)"
-	go test ./... | grep -v "no test files"
+	go test $(GO_TAGS) ./... | grep -v "no test files"
