@@ -1,9 +1,11 @@
 .PHONY: test build
 build: generate build-stater build-monitor-cdp build-visualiser build-alerter build-somctl build-checkctl
 
+BRANCH=$(shell git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+
 # add build date and time to version
 curdate=$(shell date --iso-8601='minutes')
-build_flags = -ldflags "-X  github.com/vogtp/som.BuildInfo=$(curdate)"
+build_flags = -ldflags "-X github.com/vogtp/som.BuildInfo=$(curdate) -X github.com/vogtp/som.Branch=$(BRANCH)"
 
 GO_TAGS=
 # embedd_nats embedds a nats bus
