@@ -13,8 +13,9 @@
     <th>Idle</th>
     <th>Uptime</th>
     <th>RTT</th>
-    <th>LastActivity</th>
     <th>Host</th>
+    <th>Last Activity</th>
+    <th>Start</th>
 </tr>
 </thead>
 <tbody>
@@ -34,10 +35,13 @@
     {{ .Rtt }}
  </td>
  <td> 
-    {{ .LastActivity }}
+    {{ .IP }}:{{ .Port }}
  </td>
  <td> 
-    {{ .IP }}:{{ .Port }}
+    {{ .LastActivity.Format $.TimeFormat }}
+ </td>
+ <td> 
+    {{ .Start.Format $.TimeFormat }}
  </td>
 </tr>
 {{ end }}
