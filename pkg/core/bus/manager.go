@@ -20,17 +20,19 @@ type Manager struct {
 
 	timeout time.Duration
 	conn    *nats.Conn
+	name    string
 
 	Szenario *eventHandler[msg.SzenarioEvtMsg]
 	Alert    *eventHandler[msg.AlertMsg]
 	Incident *eventHandler[msg.IncidentMsg]
 }
 
-func New(slog *slog.Logger) (*Manager, error) {
+func New(slog *slog.Logger, name string) (*Manager, error) {
 
 	m := Manager{
 		slog:    slog.With(log.Component, "bus"),
 		timeout: viper.GetDuration(cfg.BusTimeout),
+		name:    name,
 	}
 	if err := m.EnsureConnected(); err != nil {
 		return nil, fmt.Errorf("connect to nats server: %w", err)
@@ -39,25 +41,27 @@ func New(slog *slog.Logger) (*Manager, error) {
 	return &m, nil
 }
 
-func (m *Manager) EnsureConnected() error {
-	url := viper.GetString(cfg.BusURL)
-	m.slog = m.slog.With("nats.url", url)
-	if m.conn == nil {
-		conn, err := nats.Connect(url)
-		if err != nil {
-			return err
-		}
-		m.conn = conn
-	}
-	if err := m.conn.Flush(); err == nil {
-		return nil
-	}
-	conn, err := nats.Connect(url)
+func (m *Manager) connect(url string) error {
+	conn, err := nats.Connect(url, nats.Name(m.name))
 	if err != nil {
 		return err
 	}
 	m.conn = conn
 	return nil
+}
+
+func (m *Manager) EnsureConnected() error {
+	url := viper.GetString(cfg.BusURL)
+	m.slog = m.slog.With("nats.url", url)
+	if m.conn == nil {
+		if err := m.connect(url); err != nil {
+			return err
+		}
+	}
+	if err := m.conn.Flush(); err == nil {
+		return nil
+	}
+	return m.connect(url)
 }
 
 // newBus creates a new eventbus

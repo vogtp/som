@@ -21,7 +21,7 @@ func TestNewBusManager(t *testing.T) {
 	// 	t.Errorf("AMQP bus works without password")
 	// }
 	// viper.Set(cfg.AmqpPasswort, pw)
-	m, err := bus.New(slog.Default())
+	m, err := bus.New(slog.Default(), "som.test")
 	if err != nil {
 		t.Errorf("Initalise bus: %v", err)
 	}
@@ -34,7 +34,7 @@ func TestNewBusManager(t *testing.T) {
 func TestSendReceive(t *testing.T) {
 	cfg.Parse()
 	log.Level.Set(slog.LevelDebug)
-	m, err := bus.New(slog.Default())
+	m, err := bus.New(slog.Default(), "som.test")
 	if err != nil {
 		t.Fatalf("Initalise bus: %v", err)
 	}
@@ -74,7 +74,7 @@ func TestSendReceive(t *testing.T) {
 func TestAskAnswer(t *testing.T) {
 	cfg.Parse()
 	log.Level.Set(slog.LevelDebug)
-	m, err := bus.New(slog.Default())
+	m, err := bus.New(slog.Default(), "som.test")
 	if err != nil {
 		t.Fatalf("Initalise bus: %v", err)
 	}
@@ -123,7 +123,7 @@ func TestAskAnswerWildcard(t *testing.T) {
 
 	cfg.Parse()
 	log.Level.Set(slog.LevelDebug)
-	m, err := bus.New(slog.Default())
+	m, err := bus.New(slog.Default(), "som.test")
 	if err != nil {
 		t.Fatalf("Initalise bus: %v", err)
 	}

@@ -71,7 +71,7 @@ func Get() *Core {
 // Bus returns the bus or panics if Core not Initialised with New
 func (c *Core) Bus() *bus.Manager {
 	if c.bus == nil {
-		b, err := bus.New(c.log)
+		b, err := bus.New(c.log, c.name)
 		if err != nil {
 			panic(fmt.Errorf("initialising bus: %w", err))
 		}
