@@ -28,7 +28,6 @@ type Manager struct {
 }
 
 func New(slog *slog.Logger, name string) (*Manager, error) {
-
 	m := Manager{
 		slog:    slog.With(log.Component, "bus"),
 		timeout: viper.GetDuration(cfg.BusTimeout),
@@ -42,7 +41,12 @@ func New(slog *slog.Logger, name string) (*Manager, error) {
 }
 
 func (m *Manager) connect(url string) error {
-	conn, err := nats.Connect(url, nats.Name(m.name))
+	opts := []nats.Option{nats.Name(m.name)}
+	t := viper.GetString(cfg.BusToken)
+	if len(t) > 0 {
+		opts = append(opts, nats.Token(t))
+	}
+	conn, err := nats.Connect(url, opts...)
 	if err != nil {
 		return err
 	}
