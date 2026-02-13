@@ -16,12 +16,13 @@
     <th>Host</th>
     <th>Last Activity</th>
     <th>Start</th>
+    <th>Subscriptions</th>
 </tr>
 </thead>
 <tbody>
 
 {{ range .Connz.Connections }}
-<tr>
+<tr style="vertical-align:top">
  <td> 
     {{ .Name }}
  </td>
@@ -42,6 +43,11 @@
  </td>
  <td> 
     {{ .Start.Format $.TimeFormat }}
+ </td>
+ <td> 
+    {{ range .SubscriptionsListDetail }}
+      <div>{{.Subject}} ({{.Msgs}} msgs)</div>
+    {{ end }}
  </td>
 </tr>
 {{ end }}
