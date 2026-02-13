@@ -12,8 +12,7 @@ func IsGoRun() bool {
 		return false
 	}
 	a := os.Args[0]
-	i := strings.Index(a, "go-build")
-	if i == -1 {
+	if !strings.Contains(a, "go-build") {
 		return false
 	}
 	i1 := strings.Index(a, "/go-build")

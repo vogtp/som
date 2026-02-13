@@ -62,9 +62,7 @@ func (alt *Mail) checkConfig(a *Alerter) (ret error) {
 		alt.log.Warn(ret.Error())
 	}
 	for _, r := range a.rules {
-		r := r
 		for _, d := range r.destinations {
-			d := d
 			if d.kind != alt.Kind() {
 				continue
 			}
@@ -113,7 +111,6 @@ func (alt *Mail) sendAlert(e *msg.AlertMsg, r *Rule, d *Destination) error {
 	m.SetHeader("Subject", subj)
 	img := ""
 	for _, f := range e.Files {
-		f := f
 		name := fmt.Sprintf("%s.%s", f.Name, f.Type.Ext)
 		alt.log.Debug("Adding attachment", "attachment", name)
 		header := make(map[string][]string)

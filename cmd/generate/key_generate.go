@@ -44,7 +44,7 @@ func genKeyFile(pkg string, file string) error {
 	if err != nil {
 		return fmt.Errorf("cannot generate key: %w", err)
 	}
-	return tpl.Execute(f, map[string]interface{}{
+	return tpl.Execute(f, map[string]any{
 		"pkg": pkg,
 		"key": fmt.Sprintf("%#v", []byte(key)),
 	})

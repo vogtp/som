@@ -63,7 +63,7 @@ func (rg regGroup) String() string {
 
 func (rg regGroup) StringInt(i int) string {
 	it := ""
-	for c := 0; c < i; c++ {
+	for range i {
 		it += " "
 	}
 	str := fmt.Sprintf("%sRegion %s: %s", it, rg.Key(), rg.Level())

@@ -72,13 +72,13 @@ func (sg statusGroup) String() string {
 }
 
 func (sg statusGroup) StringInt(i int) string {
-	it := ""
-	for c := 0; c < i; c++ {
-		it += " "
+	var it strings.Builder
+	for range i {
+		it.WriteString(" ")
 	}
 	str := "" //fmt.Sprintf("%s%s: %s", it, "Root", sg.Level())
 	for _, c := range sg.Szenarios() {
-		str = fmt.Sprintf("%s\n%s%s", str, it, c.StringInt(i+1))
+		str = fmt.Sprintf("%s\n%s%s", str, it.String(), c.StringInt(i+1))
 	}
 	return str
 }

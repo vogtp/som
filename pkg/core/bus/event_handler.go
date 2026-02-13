@@ -11,8 +11,7 @@ import (
 	"github.com/vogtp/som/pkg/core/log"
 )
 
-type eventer interface {
-}
+type eventer any
 
 type eventHandler[M eventer] struct {
 	wgMsg     sync.WaitGroup

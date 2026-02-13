@@ -55,7 +55,7 @@ func (Level) FromString(lvl string) Level {
 }
 
 // UnmarshalGQL for graphql
-func (l *Level) UnmarshalGQL(v interface{}) error {
+func (l *Level) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

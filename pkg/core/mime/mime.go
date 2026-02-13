@@ -23,7 +23,7 @@ var (
 var allTypes = []Type{Png, HTML}
 
 // Scan scan value into mime.Type, implements sql.Scanner interface
-func (t *Type) Scan(value interface{}) error {
+func (t *Type) Scan(value any) error {
 	s, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("cannot parse time: %v (%T) is not string", value, value)

@@ -28,9 +28,9 @@ type Engine interface {
 	Step(name string, actions ...chromedp.Action)
 
 	// SetInputField sets a HTML input field and validates that it has been set
-	SetInputField(stepName string, sel interface{}, value string, opts ...func(*chromedp.Selector)) error
+	SetInputField(stepName string, sel any, value string, opts ...func(*chromedp.Selector)) error
 	// IsPresent checks if something is present
-	IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool
+	IsPresent(sel any, opts ...chromedp.QueryOption) bool
 	// Either wait for a list of options and sends the name of the first met option to the channel
 	Either(name string, option ...EitherOption) <-chan any
 	// Body is used to check the content of the page

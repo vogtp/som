@@ -79,7 +79,7 @@ func (cdp *Engine) step(name string, actions ...chromedp.Action) error {
 }
 
 // IsPresent checks if something is present
-func (cdp *Engine) IsPresent(sel interface{}, opts ...chromedp.QueryOption) bool {
+func (cdp *Engine) IsPresent(sel any, opts ...chromedp.QueryOption) bool {
 	cdp.muStep.Lock()
 	defer cdp.muStep.Unlock()
 	p := make(chan bool)
@@ -146,7 +146,7 @@ func (cdp *Engine) GetURL() string {
 }
 
 // SetInputField sets a HTML input field and validates that it has been set
-func (cdp *Engine) SetInputField(stepName string, sel interface{}, value string, opts ...func(*chromedp.Selector)) error {
+func (cdp *Engine) SetInputField(stepName string, sel any, value string, opts ...func(*chromedp.Selector)) error {
 	cdp.Step(stepName,
 		chromedp.WaitReady(sel, opts...),
 		chromedp.WaitEnabled(sel, opts...),
@@ -154,7 +154,7 @@ func (cdp *Engine) SetInputField(stepName string, sel interface{}, value string,
 	)
 	stepLabel := fmt.Sprintf("validating input of %q", stepName)
 	var checkVal string
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		err := cdp.StepTimeout(stepLabel, 10*time.Millisecond*time.Duration(i+1),
 			chromedp.Value(sel, &checkVal, opts...),
 		)

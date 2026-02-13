@@ -17,7 +17,7 @@ type MinMaxTime struct {
 }
 
 // Scan scan value the time, implements sql.Scanner interface
-func (mmt *MinMaxTime) Scan(value interface{}) error {
+func (mmt *MinMaxTime) Scan(value any) error {
 	s, ok := value.(string)
 	if !ok {
 		return fmt.Errorf("cannot parse time: %v (%T) is not string", value, value)

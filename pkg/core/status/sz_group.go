@@ -60,7 +60,7 @@ func (sg szGroup) String() string {
 
 func (sg szGroup) StringInt(i int) string {
 	it := ""
-	for c := 0; c < i; c++ {
+	for range i {
 		it += " "
 	}
 	str := fmt.Sprintf("%sSzenario %s: %s", it, sg.Key(), sg.Level())

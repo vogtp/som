@@ -46,7 +46,7 @@ func (ug usrGroup) String() string {
 
 func (ug usrGroup) StringInt(i int) string {
 	it := ""
-	for c := 0; c < i; c++ {
+	for range i {
 		it += " "
 	}
 	str := fmt.Sprintf("%sUser %s: %s", it, ug.Key(), ug.Level())
@@ -86,7 +86,7 @@ func (ug usrGroup) LogValue() slog.Value {
 				stat = e.evt.Err().Error()
 			}
 			t := getEvtTot(e.evt)
-			hist = append(hist, slog.Group(fmt.Sprintf("%v",e.evt.Time.Unix()), slog.Time(slog.TimeKey, e.evt.Time), slog.Float64("duration", t), slog.String("status", stat)))
+			hist = append(hist, slog.Group(fmt.Sprintf("%v", e.evt.Time.Unix()), slog.Time(slog.TimeKey, e.evt.Time), slog.Float64("duration", t), slog.String("status", stat)))
 		}
 	}
 	rv = append(rv, slog.Any("history", slog.GroupValue(hist...)))

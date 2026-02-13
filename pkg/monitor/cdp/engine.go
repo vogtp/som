@@ -41,9 +41,9 @@ func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 
 	cdp.browser, cancel = chromedp.NewContext(
 		ctx,
-		chromedp.WithErrorf(func(msg string, v ...interface{}) { cdp.baseLogger.Error(fmt.Sprintf(msg, v)) }),
-		chromedp.WithLogf(func(msg string, v ...interface{}) { cdp.baseLogger.Info(fmt.Sprintf(msg, v)) }),
-//		chromedp.WithDebugf(func(msg string, v ...interface{}) { cdp.baseLogger.Debug(fmt.Sprintf(msg, v)) }),
+		chromedp.WithErrorf(func(msg string, v ...any) { cdp.baseLogger.Error(fmt.Sprintf(msg, v)) }),
+		chromedp.WithLogf(func(msg string, v ...any) { cdp.baseLogger.Info(fmt.Sprintf(msg, v)) }),
+		//		chromedp.WithDebugf(func(msg string, v ...interface{}) { cdp.baseLogger.Debug(fmt.Sprintf(msg, v)) }),
 	)
 
 	cdp.registerConsoleListener()
@@ -63,7 +63,7 @@ func (cdp *Engine) clearConsoleCounter() {
 
 func (cdp *Engine) registerConsoleListener() {
 	cdp.clearConsoleCounter()
-	chromedp.ListenTarget(cdp.browser, func(ev interface{}) {
+	chromedp.ListenTarget(cdp.browser, func(ev any) {
 		switch ev := ev.(type) {
 		case *runtime.EventConsoleAPICalled:
 			// log, debug, info, error, warning, dir, dirxml, table, trace, clear, startGroup, startGroupCollapsed, endGroup, assert, profile, profileEnd, count, timeEnd
