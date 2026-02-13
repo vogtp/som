@@ -63,6 +63,9 @@ browser:
   show: false
 bus:
   url: nats://0.0.0.0:4222
+  timeout: 15s
+  token: "natsToken"
+  monitoring_port: 8222
 check:
   repeat: 5m0s
   timeout: 1m0s

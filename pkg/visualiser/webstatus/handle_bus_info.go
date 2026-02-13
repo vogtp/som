@@ -2,9 +2,12 @@ package webstatus
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
+	"github.com/spf13/viper"
 	"github.com/vogtp/som/pkg/core/cfg"
 	"github.com/vogtp/som/pkg/core/log"
 )
@@ -19,8 +22,18 @@ func (s *WebStatus) handleBusInfo(w http.ResponseWriter, r *http.Request) {
 		CommonData: common("SOM Bus", r),
 		TimeFormat: cfg.TimeFormatString,
 	}
-
-	resp, err := http.Get("http://localhost:8222/connz?subs=detail&sort=last")
+	host := "localhost"
+	port := 8222
+	natsURL := viper.GetString(cfg.BusURL)
+	if u, err := url.Parse(natsURL); err == nil {
+		host = u.Hostname()
+	} else {
+		s.log.Warn("Cannot parse nats URL", "url", natsURL, log.Error, err)
+	}
+	if p := viper.GetInt(cfg.BusMonitoringPort); p > 0 {
+		port = p
+	}
+	resp, err := http.Get(fmt.Sprintf("http://%s:%d/connz?subs=detail&sort=last", host, port))
 	if err != nil {
 		s.log.Error("Bus info request error", log.Error, err)
 		s.Error(w, r, "Cannot request bus info", err, http.StatusInternalServerError)
