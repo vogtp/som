@@ -43,7 +43,7 @@ func (cdp *Engine) createEngine() (cancel context.CancelFunc) {
 		ctx,
 		chromedp.WithErrorf(func(msg string, v ...interface{}) { cdp.baseLogger.Error(fmt.Sprintf(msg, v)) }),
 		chromedp.WithLogf(func(msg string, v ...interface{}) { cdp.baseLogger.Info(fmt.Sprintf(msg, v)) }),
-		chromedp.WithDebugf(func(msg string, v ...interface{}) { cdp.baseLogger.Debug(fmt.Sprintf(msg, v)) }),
+//		chromedp.WithDebugf(func(msg string, v ...interface{}) { cdp.baseLogger.Debug(fmt.Sprintf(msg, v)) }),
 	)
 
 	cdp.registerConsoleListener()
