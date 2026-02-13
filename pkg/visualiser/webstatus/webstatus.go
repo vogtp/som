@@ -31,7 +31,7 @@ type WebStatus struct {
 func New() *WebStatus {
 	c := core.Get()
 	s := &WebStatus{
-		log: c.Log().With(log.Component, "webstatus"),
+		log: c.Log().With(log.Component, "webstatus", "listen_adr", c.WebServer().URL()),
 	}
 	s.data = newSzenarioData(s.log)
 
