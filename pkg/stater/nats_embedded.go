@@ -1,13 +1,11 @@
 //go:build embedd_nats
- 
+
 package stater
 
 import (
 	"fmt"
 	"log/slog"
 	"net/url"
-	"strconv"
-	"strings"
 
 	"github.com/nats-io/nats-server/v2/server"
 	"github.com/spf13/viper"
@@ -51,20 +49,14 @@ func startEmbeddedNats(core *core.Core) error {
 func natsOptions(slog *slog.Logger) *server.Options {
 	opts := &server.Options{
 		ServerName: "som-embedded",
-		HTTPPort: 8222,
+		HTTPPort:   8222,
 	}
 	s := viper.GetString(cfg.BusURL)
-	url, err := url.Parse(s)
+	natsURL, err := url.Parse(s)
 	if err == nil {
-		hs := strings.Split(url.Host, ":")
-		if len(hs) > 1 {
-			i, err := strconv.Atoi(hs[1])
-			if err == nil {
-				opts.Host = hs[0]
-				opts.Port = i
-			}
-		}
-		slog.Debug("Configuring NATS server with URL", "url_raw", s, "url", url, "nats_options", opts)
+		opts.Host = natsURL.Hostname()
+		opts.Port = natsURL.Port()
+		slog.Debug("Configuring NATS server with URL", "url_raw", s, "url", natsURL, "nats_options", opts)
 	}
 	return opts
 }
