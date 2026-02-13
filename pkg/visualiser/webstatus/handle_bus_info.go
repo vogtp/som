@@ -20,7 +20,7 @@ func (s *WebStatus) handleBusInfo(w http.ResponseWriter, r *http.Request) {
 		TimeFormat: cfg.TimeFormatString,
 	}
 
-	resp, err := http.Get("http://localhost:8222/connz?subs=detail")
+	resp, err := http.Get("http://localhost:8222/connz?subs=detail&sort=last")
 	if err != nil {
 		s.log.Error("Bus info request error", log.Error, err)
 		s.Error(w, r, "Cannot request bus info", err, http.StatusInternalServerError)
