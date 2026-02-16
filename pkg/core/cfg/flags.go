@@ -70,7 +70,7 @@ func defaultFlags() {
 	pflag.String(CheckRegion, "default", "The region the check runs in")
 	pflag.String(DataDir, "data", "Folder to save output like screenshots in")
 
-	pflag.Bool(AlertEnabled, true, "Disable alerting")
+	// pflag.Bool(AlertEnabled, true, "Disable alerting")
 	pflag.Duration(PasswdChangeInitalDelay, -1, "initial delay of password change (ONLY FOR DEBUGGING)")
 
 	busFlags()
