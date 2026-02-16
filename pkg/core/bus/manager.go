@@ -96,6 +96,9 @@ func (m *Manager) SetTimeout(d time.Duration) {
 
 func (m *Manager) Close() {
 	if m.conn != nil {
+		if err := m.conn.Drain(); err != nil {
+			m.slog.Warn("Draining bus error", log.Error, err)
+		}
 		m.conn.Close()
 	}
 	if m.Incident != nil {
