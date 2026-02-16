@@ -14,7 +14,7 @@ func Run(name string, coreOpts ...core.Option) (func(), error) {
 	if err != nil {
 		return nil, err
 	}
-	bridger.RegisterPrometheus()
 	webstatus.New()
+	bridger.RegisterPrometheus()
 	return close, nil
 }
