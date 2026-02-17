@@ -49,7 +49,7 @@ func startCore(ctx context.Context, szCfg *szenario.Config) {
 		var err error
 		c, coreClose, err = core.New("somctl", core.Szenario(szCfg))
 		if err != nil {
-			panic(err)
+			fmt.Fprintf(os.Stderr,"Bus connnection: %v\n",err)
 		}
 		return
 	}
@@ -78,7 +78,7 @@ var (
 			time.Sleep(300 * time.Millisecond)
 		},
 		PersistentPostRun: func(cmd *cobra.Command, args []string) {
-			if !cmd.IsAvailableCommand() {
+			if !cmd.IsAvailableCommand() || !viper.GetBool(StandAlone) {
 				return
 			}
 			core.Get().Bus().WaitMsgProcessed()
