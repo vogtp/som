@@ -48,7 +48,7 @@ func (s *OIDCSzenario) Execute(engine szenario.Engine) (err error) {
 		chromedp.WaitReady("displayName", chromedp.ByID),
 		engine.Body(engine.Strings(&body)),
 	)
-	engine.WaitForEver()
+	//engine.WaitForEver()
 	// if !strings.EqualFold(strings.TrimSpace(body), s.User().Email()) {
 	// 	return fmt.Errorf("mail not in ID Token: body %q", body)
 	// }

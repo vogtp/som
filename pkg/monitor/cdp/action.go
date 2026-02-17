@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	proto "github.com/chromedp/cdproto/cdp"
 	"github.com/chromedp/chromedp"
 	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
@@ -84,8 +83,9 @@ func (cdp *Engine) IsPresent(sel any, opts ...chromedp.QueryOption) bool {
 	defer cdp.muStep.Unlock()
 	p := make(chan bool)
 	go func() {
-		nodes := new([]*proto.Node)
-		if err := chromedp.Run(cdp.browser, chromedp.Nodes(sel, nodes, opts...)); err != nil {
+		// nodes := new([]*proto.Node)
+		
+		if err := chromedp.Run(cdp.browser, chromedp.WaitVisible(sel, opts...)); err != nil {
 			if errors.Is(err, context.Canceled) {
 				p <- false
 				return
@@ -95,7 +95,7 @@ func (cdp *Engine) IsPresent(sel any, opts ...chromedp.QueryOption) bool {
 			return
 		}
 
-		p <- len(*nodes) > 0
+		p <- true //len(*nodes) > 0
 	}()
 
 	select {
