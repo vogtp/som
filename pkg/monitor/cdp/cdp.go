@@ -380,6 +380,7 @@ func (cdp *Engine) ScreenShot() []byte {
 }
 
 func (cdp *Engine) addScreenShotToEvent(name string) {
+	//FIXME save to nats
 	payload := cdp.ScreenShot()
 	if len(payload) < 1 {
 		return
