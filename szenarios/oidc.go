@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/google/uuid"
+	"github.com/vogtp/som/pkg/core/log"
 	"github.com/vogtp/som/pkg/monitor/szenario"
 	"github.com/vogtp/som/pkg/stater/user"
 	"github.com/zitadel/oidc/v3/pkg/client/rp"
@@ -62,7 +64,19 @@ func (s *OIDCSzenario) InitOIDCRelyingParty(engine szenario.Engine) (context.Con
 		return ctx, stop, fmt.Errorf("init relying party http servce: %w", err)
 	}
 	go s.startRelyingPartyHttpsrv(engine)
+	s.WaitHttpSrvReady(engine)
 	return ctx, stop, nil
+}
+
+func (s *OIDCSzenario) WaitHttpSrvReady(engine szenario.Engine) {
+	timeout := time.Second
+	conn, err := net.DialTimeout("tcp", s.rpHttpSrv.Addr, timeout)
+	if err != nil {
+		engine.Log().Warn("Try to wait for OIDC http server", log.Error, err)
+	}
+	if conn != nil {
+		defer conn.Close()
+	}
 }
 
 func (s *OIDCSzenario) initRelyingPartyHttpsrv(ctx context.Context) error {
